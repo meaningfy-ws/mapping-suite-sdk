@@ -1,0 +1,32 @@
+[project]
+name = "mssdk"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "meaningfy.ws", email = "hi@meaingfy.ws" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic (>=2.10.6,<3.0.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "rarfile (>=4.2,<5.0)",
+    "opentelemetry-api (>=1.30.0,<2.0.0)",
+    "opentelemetry-sdk (>=1.30.0,<2.0.0)",
+    "opentelemetry-instrumentation (>=0.51b0,<0.52)",
+    "lxml (>=5.3.1,<6.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "mssdk"
+package-mode = true
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+tox = "^4.24.1"
+

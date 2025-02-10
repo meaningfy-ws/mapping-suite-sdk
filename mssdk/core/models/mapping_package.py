@@ -1,193 +1,81 @@
-from abc import ABC
-from typing import List, Dict
+from typing import List
+
 from pydantic import BaseModel, Field
-from datetime import datetime
 
-class XMLTestFile(BaseModel):
-
-    name: str = Field(description="Name of the XML file")
-    content: str = Field(description="Content of the XML file")
-    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
-
-class TestData(BaseModel):
-
-    files: List[XMLTestFile] = Field(
-        default_factory=list,
-        description="Collection of XML test files"
-    )
-
-class ConceptualMapping(BaseModel):
-
-    name: str = Field(description="Name of the conceptual mapping file")
-
-    sheets: Dict[str, List[Dict[str, str]]] = Field(
-        description="Excel sheets data where each sheet is represented as a list of rows"
-    )
-
-class TechnicalMapping(BaseModel):
-
-    name: str = Field(description="Name of the TTL file")
-    content: str = Field(description="Content of the TTL file")
-    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
-
-class TransformationData(BaseModel):
-
-    conceptual_mapping: ConceptualMapping = Field(
-        description="Conceptual mapping data from Excel"
-    )
-    technical_mappings: List[TechnicalMapping] = Field(
-        default_factory=list,
-        description="Collection of technical mapping TTL files"
-    )
-
-class SHACLShape(BaseModel):
-
-    name: str = Field(description="Name of the SHACL shape file")
-    content: str = Field(description="Content of the SHACL shape in TTL format")
-    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
-
-class SPARQLQuery(BaseModel):
-
-    name: str = Field(description="Name of the SPARQL query file")
-    content: str = Field(description="Content of the SPARQL query")
-    description: str = Field(default="", description="Optional description of what the query validates")
-    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
-
-class ValidationData(BaseModel):
-
-    shacl_shapes: List[SHACLShape] = Field(
-        default_factory=list,
-        description="Collection of SHACL shape files"
-    )
-    sparql_queries: List[SPARQLQuery] = Field(
-        default_factory=list,
-        description="Collection of SPARQL query files"
-    )
-
-class MappingPackage1(BaseModel):
-
-    package_name: str = Field(description="Name of the mapping package")
-    package_version: str = Field(
-        description="Version of the mapping package",
-        pattern=r"^\d+\.\d+\.\d+$"  # Semantic versioning pattern
-    )
-    created_at: datetime = Field(
-        default_factory=datetime.now,
-        description="Package creation timestamp"
-    )
-    description: str = Field(
-        default="",
-        description="Optional description of the mapping package"
-    )
-    test_data: TestData = Field(
-        default_factory=TestData,
-        description="Test data component of the package"
-    )
-    transformation_data: TransformationData = Field(
-        description="Transformation data component of the package"
-    )
-    validation_data: ValidationData = Field(
-        default_factory=ValidationData,
-        description="Validation data component of the package"
-    )
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
+from mssdk.core.models.core import CoreModel, STR_MIN_LENGTH, STR_MAX_LENGTH
+from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite, ValueMappingSuite, TestDataSuite, \
+    SAPRQLTestSuite, SHACLTestSuite, TestResultSuite
 
 
-class BaseFile(BaseModel):
-    path: str # within a mapping package
-    content: str # the content
-    description: str
+class MappingPackageMetadata(CoreModel):
+    """A class representing the metadata of a mapping package.
 
-class BaseFileCollection(BaseModel):
-    path: str # within a mapping package
-    files: List[BaseFile] = Field(
-        default_factory=list,
-        description="Collection of files"
-    )
-    description: str
-
-class MappingPackageMetadata (BaseModel):
-
-    identifier: str
-    title: str
-    issue_date: str #created_at
-    description: str # new
-    mapping_version: str #
-    type: str
+    This class contains essential identifying information and metadata about
+    a mapping package, including its unique identifier, title, creation date,
+    and type classification.
+    """
+    identifier: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
+    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
+    issue_date: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="created_at")
+    type: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="mapping_type")
 
 
-class MappingSource (BaseModel):
-    title:str # Standard Forms XSD R09.S01
-    version: str
-    description: str
+class MappingSource(CoreModel):
+    """A class representing the source data configuration in a mapping package.
+
+    This class defines the characteristics of the source data that will be
+    transformed. It includes information about the source data format and version.
+    """
+    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH,
+                       description="Example: Standard Forms XSD R09.S01")
+    version: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="mapping_version")
 
 
-class MappingTarget (BaseModel):
-    title:str # ePO v4.0.0
-    version: str
-    description: str
+class MappingTarget(CoreModel):
+    """A class representing the target data configuration in a mapping package.
 
-class MappingPackageEligibilityConstraints (BaseModel):
+    This class defines the characteristics of the target data format that the
+    source data will be transformed into. It includes information about the
+    target ontology or data model and its version.
+    """
+    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, description="Example: ePO v4.0.0")
+    version: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="ontology_version")
+
+
+class MappingPackageEligibilityConstraints(CoreModel):
     """
         This shall be a generic dict-like structure as the constraints
         in the eForms are different from the constraints in the Standard Forms.
     """
-    pass
-
-class TechnicalMappingFile(BaseModel, ABC, BaseFile):
-    pass
-
-class RMLMappingFile(TechnicalMappingFile):
-    pass
-
-class YARRRMLMappingFile(TechnicalMappingFile):
-    pass
-
-class TechnicalMappingSuite(BaseFileCollection):
-    pass
-
-class ConceptualMappingFile(BaseModel, BaseFile):
-    pass
-
-class ValueMappingFile(BaseModel, BaseFile):
-    pass
-
-class ValueMappingSuite(BaseFileCollection):
-    pass
-
-class TestDataFile(BaseFile):
-    pass
-
-class TestDataSuite(BaseFileCollection):
-    pass
-
-class SPARQLQuery(BaseModel, BaseFile): #
-    pass
-
-class SAPRQLTestSuite(BaseFileCollection):
-    pass
-
-class SHACLTestSuite(BaseFileCollection):
-    pass
+    value: dict = Field(default_factory=dict, alias="metadata_constraints")
 
 
 class MappingPackage(BaseModel):
-    metadata: MappingPackageMetadata
-    source: MappingSource
-    target: MappingTarget
-    eligibility_constraints: MappingPackageEligibilityConstraints
-    signature: str # package integrity hash
-    index: dict #
+    """
+    A class representing a complete mapping package configuration.
 
-    mapping_values: list[str] #
-    conceptual_mapping_rules: ConceptualMappingFile # the CMs in Excel Spreadsheet
-    technical_mapping_rules: TechnicalMappingSuite # all teh RML files, which are RMLFragments
-    value_mapping_rules: ValueMappingSuite # the resources JSONs and XML files
-    test_data_suits: list[TestDataSuite] #
-    test_suites_sparql: list [SAPRQLTestSuite] #
-    test_suites_shacl: list[SHACLTestSuite] #
-    test_results: str #
+    This class serves as the root container for all components of a mapping package,
+    including metadata, mapping configurations, and various test suites. It provides
+    a comprehensive structure for organizing and managing all aspects of a data
+    mapping project.
+    """
+
+    # Metadata
+    metadata: MappingPackageMetadata = Field(..., description="Package metadata containing general information")
+    source: MappingSource = Field(..., description="Source data configuration and specifications")
+    target: MappingTarget = Field(..., description="Target data configuration and specifications")
+    eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
+                                                                          description="Constraints defining package applicability")
+    signature: bytes = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+    index: dict = Field(..., description="Index of package contents and their relationships")
+    mapping_values: List[str] = Field(..., description="List of mapping value identifiers")
+
+    # Package elements (folders and files)
+    conceptual_mapping_file: ConceptualMappingFile = Field(..., description="The CMs in Excel Spreadsheet")
+    technical_mapping_suite: TechnicalMappingSuite = Field(..., description="All teh RML files, which are RMLFragments")
+    value_mapping_suite: ValueMappingSuite = Field(..., description="The resources JSONs, CSV and XML files")
+    test_data_suites: List[TestDataSuite] = Field(..., description="Collections of test data for transformation")
+    test_suites_sparql: List[SAPRQLTestSuite] = Field(..., description="Collections of SPARQL-based test suites")
+    test_suites_shacl: List[SHACLTestSuite] = Field(...,
+                                                    description="Collections of SHACL-based validation test suites")
+    test_results: List[TestResultSuite] = Field(..., description="Collections of test transformation results")

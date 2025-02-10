@@ -1,84 +1,28 @@
-from abc import abstractmethod, ABC
-from enum import Enum
-from functools import cached_property
-
-from lxml import etree
-from pydantic import BaseModel, Field, field_validator, computed_field
+from pydantic import BaseModel, Field
 
 STR_MIN_LENGTH = 1
 STR_MAX_LENGTH = 256
 
 
-class FileExtensionEnum(str, Enum):
-    XML = 'xml'
-    CSV = 'csv'
-    XSLX = 'xslx'
-
-
 class CoreModel(BaseModel):
+    """A base model class providing core functionality for all mapping-related models.
+
+    This class extends Pydantic's BaseModel to provide common attributes and configuration
+    settings used across all mapping models. It implements strict validation rules to
+    ensure data integrity and consistency across all mapping components.
+    """
+
+    description: str = Field(
+        description="Optional descriptive text providing additional information about the model instance.")
+
     class Config:
         validate_assignment = True
-
-
-class MappingSuiteFile(CoreModel, ABC):
-    name: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
-    content: str = Field(..., min_length=STR_MIN_LENGTH)
-
-    @abstractmethod
-    @computed_field
-    @cached_property
-    def extension(self) -> str:
-        raise NotImplementedError
-
-    @abstractmethod
-    @field_validator("content")
-    @classmethod
-    def _validate_content(cls, file_content: str) -> str:
-        raise NotImplementedError
-
-
-class XMLTestDataFile(MappingSuiteFile):
-    suite_name: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
-
-    def extension(self) -> str:
-        ext = self.name.split(".")[-1]
-        if ext not in [FileExtensionEnum.XML]:
-            raise ValueError(f"Invalid file extension: {ext}")
-
-        return ext
-
-    def _validate_content(cls, file_content: str) -> str:
-        try:
-            etree.fromstring(file_content)
-        except etree.XMLSyntaxError as e:
-            raise ValueError(f"Invalid XML: {e}")
-        return file_content
-
-
-class ConceptualMappingFile(MappingSuiteFile):
-    pass
-
-
-class TechnicalMappingFile(MappingSuiteFile):
-    pass
-
-
-class TMResourceFile(MappingSuiteFile):
-    pass
-
-
-class SHACLShapeFile(MappingSuiteFile):
-    pass
-
-
-class SPARQLQueryFile(MappingSuiteFile):
-    pass
-
-
-class MetadataFile(MappingSuiteFile):
-    pass
-
-
-class MappingPackage(CoreModel):
-    metadata_file: MetadataFile
-
+        extra = "forbid"  # Forbids extra attributes
+        allow_mutation = False  # Makes instances immutable
+        frozen = True  # Alternative way to make instances immutable
+        validate_all = True  # Validates default values
+        arbitrary_types_allowed = False  # Strict type checking
+        smart_union = True  # Better Union type handling
+        use_enum_values = True  # Use enum values instead of members
+        str_strip_whitespace = True  # Strips whitespace from strings
+        validate_default = True  # Validates default values

@@ -1,12 +1,12 @@
 # conftest.py
-import pytest
-import os
-import zipfile
-import tarfile
-import rarfile
-import pandas as pd
 import io
-from pathlib import Path
+import tarfile
+import zipfile
+
+import pandas as pd
+import pytest
+import rarfile
+
 
 @pytest.fixture
 def test_files():
@@ -19,6 +19,7 @@ def test_files():
         'validation/query.rq': b'SELECT ?s WHERE { ?s a ?type }'
     }
 
+
 @pytest.fixture
 def temp_dir(tmp_path):
     """Create a temporary directory with test files"""
@@ -27,6 +28,7 @@ def temp_dir(tmp_path):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_bytes(content)
     return tmp_path
+
 
 @pytest.fixture
 def zip_archive(temp_dir, tmp_path):
@@ -38,6 +40,7 @@ def zip_archive(temp_dir, tmp_path):
                 zf.write(path, path.relative_to(temp_dir))
     return archive_path
 
+
 @pytest.fixture
 def tar_archive(temp_dir, tmp_path):
     """Create a TAR archive with test files"""
@@ -47,6 +50,7 @@ def tar_archive(temp_dir, tmp_path):
             if path.is_file():
                 tf.add(path, path.relative_to(temp_dir))
     return archive_path
+
 
 @pytest.fixture
 def rar_archive(temp_dir, tmp_path):
@@ -58,6 +62,7 @@ def rar_archive(temp_dir, tmp_path):
                 rf.write(path, path.relative_to(temp_dir))
     return archive_path
 
+
 def _create_excel_content():
     """Create a sample Excel file content"""
     df = pd.DataFrame({
@@ -67,3 +72,15 @@ def _create_excel_content():
     buffer = io.BytesIO()
     df.to_excel(buffer, index=False)
     return buffer.getvalue()
+
+
+@pytest.fixture
+def example_xml_content() -> str:
+    return """
+    <note>
+        <to>Tove</to>
+        <from>Jani</from>
+        <heading>Reminder</heading>
+        <body>Don't forget me this weekend!</body>
+    </note>
+    """

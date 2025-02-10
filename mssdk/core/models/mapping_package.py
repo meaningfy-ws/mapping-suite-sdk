@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List, Dict
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -63,7 +64,7 @@ class ValidationData(BaseModel):
         description="Collection of SPARQL query files"
     )
 
-class MappingPackage(BaseModel):
+class MappingPackage1(BaseModel):
 
     package_name: str = Field(description="Name of the mapping package")
     package_version: str = Field(
@@ -94,3 +95,99 @@ class MappingPackage(BaseModel):
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
+
+
+class BaseFile(BaseModel):
+    path: str # within a mapping package
+    content: str # the content
+    description: str
+
+class BaseFileCollection(BaseModel):
+    path: str # within a mapping package
+    files: List[BaseFile] = Field(
+        default_factory=list,
+        description="Collection of files"
+    )
+    description: str
+
+class MappingPackageMetadata (BaseModel):
+
+    identifier: str
+    title: str
+    issue_date: str #created_at
+    description: str # new
+    mapping_version: str #
+    type: str
+
+
+class MappingSource (BaseModel):
+    title:str # Standard Forms XSD R09.S01
+    version: str
+    description: str
+
+
+class MappingTarget (BaseModel):
+    title:str # ePO v4.0.0
+    version: str
+    description: str
+
+class MappingPackageEligibilityConstraints (BaseModel):
+    """
+        This shall be a generic dict-like structure as the constraints
+        in the eForms are different from the constraints in the Standard Forms.
+    """
+    pass
+
+class TechnicalMappingFile(BaseModel, ABC, BaseFile):
+    pass
+
+class RMLMappingFile(TechnicalMappingFile):
+    pass
+
+class YARRRMLMappingFile(TechnicalMappingFile):
+    pass
+
+class TechnicalMappingSuite(BaseFileCollection):
+    pass
+
+class ConceptualMappingFile(BaseModel, BaseFile):
+    pass
+
+class ValueMappingFile(BaseModel, BaseFile):
+    pass
+
+class ValueMappingSuite(BaseFileCollection):
+    pass
+
+class TestDataFile(BaseFile):
+    pass
+
+class TestDataSuite(BaseFileCollection):
+    pass
+
+class SPARQLQuery(BaseModel, BaseFile): #
+    pass
+
+class SAPRQLTestSuite(BaseFileCollection):
+    pass
+
+class SHACLTestSuite(BaseFileCollection):
+    pass
+
+
+class MappingPackage(BaseModel):
+    metadata: MappingPackageMetadata
+    source: MappingSource
+    target: MappingTarget
+    eligibility_constraints: MappingPackageEligibilityConstraints
+    signature: str # package integrity hash
+    index: dict #
+
+    mapping_values: list[str] #
+    conceptual_mapping_rules: ConceptualMappingFile # the CMs in Excel Spreadsheet
+    technical_mapping_rules: TechnicalMappingSuite # all teh RML files, which are RMLFragments
+    value_mapping_rules: ValueMappingSuite # the resources JSONs and XML files
+    test_data_suits: list[TestDataSuite] #
+    test_suites_sparql: list [SAPRQLTestSuite] #
+    test_suites_shacl: list[SHACLTestSuite] #
+    test_results: str #

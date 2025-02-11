@@ -17,7 +17,7 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         tm_importer = TechnicalMappingSuiteImporter()
-        tm: TechnicalMappingSuite = tm_importer.extract(temp_mp_path, RELATIVE_TECHNICAL_MAPPING_PATH)
+        tm: TechnicalMappingSuite = tm_importer.extract(temp_mp_path)
 
         assert tm is not None
         assert tm.path is not None
@@ -26,6 +26,6 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
         assert len(tm.files) > 0
         for file in tm.files:
             assert file is not None
-            assert (temp_mp_path/ file.path).exists()
+            assert (temp_mp_path / file.path).exists()
 
             assert file.content is not None

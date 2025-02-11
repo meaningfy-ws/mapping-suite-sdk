@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Protocol
 
 from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite, ValueMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile
@@ -10,70 +9,69 @@ from mssdk.core.models.mapping_package import MappingPackage, MappingPackageMeta
 RELATIVE_TECHNICAL_MAPPING_PATH = Path("transformation/mappings")
 
 
-class PackageImportHandlerABC(ABC):
+class PackageImportProtocol(Protocol):
 
-    @abstractmethod
-    def extract(self, package_path: Path, data: Any) -> Any:
+    def extract(self, package_path: Path) -> Any:
         pass
 
 
-class ConceptualMappingFileImporter(PackageImportHandlerABC):
+class ConceptualMappingFileImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, cm_path: Path) -> ConceptualMappingFile:
+    def extract(self, package_path: Path) -> ConceptualMappingFile:
         ...
 
 
-class TechnicalMappingSuiteImporter(PackageImportHandlerABC):
+class TechnicalMappingSuiteImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, tm_suite_path: Path) -> TechnicalMappingSuite:
+    def extract(self, package_path: Path) -> TechnicalMappingSuite:
         files: List[BaseFile] = []
 
-        for file in (package_path / tm_suite_path).iterdir():
+        for file in (package_path / RELATIVE_TECHNICAL_MAPPING_PATH).iterdir():
             if file.is_file():
                 files.append(BaseFile(path=file.relative_to(package_path), content=file.read_text()))
 
-        return TechnicalMappingSuite(path=tm_suite_path, files=files)
+        return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_PATH, files=files)
 
 
-class ValueMappingSuiteImporter(PackageImportHandlerABC):
+class ValueMappingSuiteImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, vm_suite_path: Path) -> ValueMappingSuite:
+    def extract(self, package_path: Path) -> ValueMappingSuite:
         ...
 
 
-class TestDataSuitesImporter(PackageImportHandlerABC):
+class TestDataSuitesImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, td_suites_path: Path) -> List[TestDataSuite]:
+    def extract(self, package_path: Path) -> List[TestDataSuite]:
         ...
 
 
-class SAPRQLTestSuitesImporter(PackageImportHandlerABC):
+class SAPRQLTestSuitesImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, sparql_suites_path: Path) -> List[SAPRQLTestSuite]:
+    def extract(self, package_path: Path) -> List[SAPRQLTestSuite]:
         ...
 
 
-class SHACLTestSuitesImporter(PackageImportHandlerABC):
+class SHACLTestSuitesImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, shacl_suites_path: Path) -> List[SHACLTestSuite]:
+    def extract(self, package_path: Path) -> List[SHACLTestSuite]:
         ...
 
 
-class TestResultSuiteImporter(PackageImportHandlerABC):
+class TestResultSuiteImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, tr_suite_path: Path) -> TestResultSuite:
+    def extract(self, package_path: Path) -> TestResultSuite:
         ...
 
 
-class MappingPackageMetadataImporter(PackageImportHandlerABC):
+class MappingPackageMetadataImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, mp_metadata_path: Path) -> MappingPackageMetadata:
+    def extract(self, package_path: Path) -> MappingPackageMetadata:
         ...
 
 
-class MappingPackageIndexImporter(PackageImportHandlerABC):
+class MappingPackageIndexImporter(PackageImportProtocol):
 
-    def extract(self, package_path: Path, index_path: Path) -> MappingPackageIndex:
+    def extract(self, package_path: Path) -> MappingPackageIndex:
         ...
 
 

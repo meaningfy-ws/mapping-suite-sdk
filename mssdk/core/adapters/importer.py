@@ -6,7 +6,8 @@ from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite
 from mssdk.core.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 
 ### Paths relative to mapping package
-RELATIVE_TECHNICAL_MAPPING_PATH = Path("transformation/mappings")
+RELATIVE_TECHNICAL_MAPPING_SUITE_PATH = Path("transformation/mappings")
+RELATIVE_VALUE_MAPPING_SUITE_PATH = Path("transformation/resources")
 
 
 class PackageImportProtocol(Protocol):
@@ -26,17 +27,23 @@ class TechnicalMappingSuiteImporter(PackageImportProtocol):
     def extract(self, package_path: Path) -> TechnicalMappingSuite:
         files: List[BaseFile] = []
 
-        for file in (package_path / RELATIVE_TECHNICAL_MAPPING_PATH).iterdir():
+        for file in (package_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH).iterdir():
             if file.is_file():
                 files.append(BaseFile(path=file.relative_to(package_path), content=file.read_text()))
 
-        return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_PATH, files=files)
+        return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=files)
 
 
 class ValueMappingSuiteImporter(PackageImportProtocol):
 
     def extract(self, package_path: Path) -> ValueMappingSuite:
-        ...
+        files: List[BaseFile] = []
+
+        for file in (package_path / RELATIVE_VALUE_MAPPING_SUITE_PATH).iterdir():
+            if file.is_file():
+                files.append(BaseFile(path=file.relative_to(package_path), content=file.read_text()))
+
+        return ValueMappingSuite(path=RELATIVE_VALUE_MAPPING_SUITE_PATH, files=files)
 
 
 class TestDataSuitesImporter(PackageImportProtocol):

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 STR_MIN_LENGTH = 1
@@ -12,8 +14,8 @@ class CoreModel(BaseModel):
     ensure data integrity and consistency across all mapping components.
     """
 
-    description: str = Field(
-        description="Optional descriptive text providing additional information about the model instance.")
+    description: Optional[str] = Field(default=None,
+                                       description="Optional descriptive text providing additional information about the model instance.")
 
     class Config:
         validate_assignment = True

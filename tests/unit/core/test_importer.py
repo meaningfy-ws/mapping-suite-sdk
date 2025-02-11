@@ -1,95 +1,31 @@
-# test_importer.py
-import zipfile
+import shutil
+import tempfile
+from pathlib import Path
 
-import pytest
-
-from mssdk.core.adapters.package_importer import MappingPackageImporter, InvalidPackageStructure, \
-    MappingPackageImportError
-
-
-@pytest.fixture
-def importer():
-    """Create a MappingPackageImporter instance"""
-    return MappingPackageImporter()
+from mssdk.core.adapters.importer import TechnicalMappingSuiteImporter, RELATIVE_TECHNICAL_MAPPING_PATH
+from mssdk.core.models.files import TechnicalMappingSuite
 
 
-def test_import_zip_package(importer, zip_archive):
-    """Test importing from ZIP archive"""
-    package = importer.import_package(str(zip_archive))
+def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
+        shutil.copy(dummy_mapping_package_path, temp_mp_archive_path)
 
-    assert package.package_name == "package"
-    assert package.package_version == "1.0.0"
-    assert len(package.test_data.files) == 1
-    assert len(package.transformation_data.technical_mappings) == 1
-    assert len(package.validation_data.shacl_shapes) == 1
-    assert len(package.validation_data.sparql_queries) == 1
+        temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
+        temp_mp_path.mkdir()
+        shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
+        tm_importer = TechnicalMappingSuiteImporter()
+        tm: TechnicalMappingSuite = tm_importer.extract(temp_mp_path, RELATIVE_TECHNICAL_MAPPING_PATH)
 
-def test_import_tar_package(importer, tar_archive):
-    """Test importing from TAR archive"""
-    package = importer.import_package(str(tar_archive))
+        assert tm is not None
+        assert tm.path is not None
+        assert tm.path == RELATIVE_TECHNICAL_MAPPING_PATH
+        assert (temp_mp_path / tm.path).exists()
+        assert len(tm.files) > 0
+        for file in tm.files:
+            assert file is not None
+            assert (temp_mp_path/ file.path).exists()
 
-    assert package.package_name == "package"
-    assert len(package.test_data.files) == 1
-
-
-def test_import_rar_package(importer, rar_archive):
-    """Test importing from RAR archive"""
-    package = importer.import_package(str(rar_archive))
-
-    assert package.package_name == "package"
-    assert len(package.test_data.files) == 1
-
-
-def test_invalid_package_structure(importer, tmp_path):
-    """Test importing package with invalid structure"""
-    # Create archive with missing required folders
-    archive_path = tmp_path / "invalid.zip"
-    with zipfile.ZipFile(archive_path, 'w') as zf:
-        zf.writestr('some_file.txt', 'content')
-
-    with pytest.raises(InvalidPackageStructure):
-        importer.import_package(str(archive_path))
-
-
-def test_missing_conceptual_mapping(importer, tmp_path, test_files):
-    """Test importing package without conceptual mapping"""
-    # Remove conceptual mapping from test files
-    files = test_files.copy()
-    del files['transformation/mapping.xlsx']
-
-    # Create archive
-    archive_path = tmp_path / "invalid.zip"
-    with zipfile.ZipFile(archive_path, 'w') as zf:
-        for name, content in files.items():
-            zf.writestr(name, content)
-
-    with pytest.raises(InvalidPackageStructure):
-        importer.import_package(str(archive_path))
-
-
-@pytest.mark.parametrize("file_path", [
-    "nonexistent.zip",
-    "invalid_format.xyz"
-])
-def test_invalid_archive_path(importer, file_path):
-    """Test importing from invalid archive path"""
-    with pytest.raises(MappingPackageImportError):
-        importer.import_package(file_path)
-
-
-def test_large_package(importer, tmp_path):
-    """Test importing large package with many files"""
-    # Create a large number of test files
-    files = {}
-    for i in range(100):
-        files[f'test/file{i}.xml'] = b'<?xml version="1.0"?><root><data>Test</data></root>'
-
-    # Create archive
-    archive_path = tmp_path / "large_package.zip"
-    with zipfile.ZipFile(archive_path, 'w') as zf:
-        for name, content in files.items():
-            zf.writestr(name, content)
-
-    package = importer.import_package(str(archive_path))
-    assert len(package.test_data.files) == 100
+            assert file.content is not None

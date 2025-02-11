@@ -7,19 +7,6 @@ from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite
 
 
-class MappingPackageMetadata(CoreModel):
-    """A class representing the metadata of a mapping package.
-
-    This class contains essential identifying information and metadata about
-    a mapping package, including its unique identifier, title, creation date,
-    and type classification.
-    """
-    identifier: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
-    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
-    issue_date: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="created_at")
-    type: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="mapping_type")
-
-
 class MappingSource(CoreModel):
     """A class representing the source data configuration in a mapping package.
 
@@ -50,6 +37,30 @@ class MappingPackageEligibilityConstraints(CoreModel):
     value: dict = Field(default_factory=dict, alias="metadata_constraints")
 
 
+class MappingPackageMetadata(CoreModel):
+    """A class representing the metadata of a mapping package.
+
+    This class contains essential identifying information and metadata about
+    a mapping package, including its unique identifier, title, creation date,
+    and type classification.
+    """
+    identifier: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
+    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
+    issue_date: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="created_at")
+    type: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="mapping_type")
+
+    source: MappingSource = Field(..., description="Source data configuration and specifications")
+    target: MappingTarget = Field(..., description="Target data configuration and specifications")
+    eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
+                                                                          description="Constraints defining package applicability")
+    signature: bytes = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+    mapping_values: List[str] = Field(..., description="List of mapping value identifiers")
+
+
+class MappingPackageIndex(CoreModel):
+    value: dict = Field(..., description="Index of package contents and their relationships")
+
+
 class MappingPackage(BaseModel):
     """
     A class representing a complete mapping package configuration.
@@ -62,13 +73,7 @@ class MappingPackage(BaseModel):
 
     # Metadata
     metadata: MappingPackageMetadata = Field(..., description="Package metadata containing general information")
-    source: MappingSource = Field(..., description="Source data configuration and specifications")
-    target: MappingTarget = Field(..., description="Target data configuration and specifications")
-    eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
-                                                                          description="Constraints defining package applicability")
-    signature: bytes = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
-    index: dict = Field(..., description="Index of package contents and their relationships")
-    mapping_values: List[str] = Field(..., description="List of mapping value identifiers")
+    index: MappingPackageIndex = Field(..., description="Index of package contents and their relationships")
 
     # Package elements (folders and files)
     conceptual_mapping_file: ConceptualMappingFile = Field(..., description="The CMs in Excel Spreadsheet")

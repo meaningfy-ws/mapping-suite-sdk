@@ -2,8 +2,9 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-STR_MIN_LENGTH = 1
-STR_MAX_LENGTH = 256
+MSSDK_STR_MIN_LENGTH = 1
+MSSDK_STR_MAX_LENGTH = 256
+MSSDK_DEFAULT_STR_ENCODE = 'utf-8'
 
 
 class CoreModel(BaseModel):

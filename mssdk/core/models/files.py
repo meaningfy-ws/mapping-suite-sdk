@@ -1,10 +1,29 @@
 from abc import ABC
+from enum import Enum
 from pathlib import Path
 from typing import List
 
 from pydantic import Field
 
 from mssdk.core.models.core import CoreModel
+
+
+class MSSDKEnum(Enum):
+    @classmethod
+    def to_list(cls):
+        return [member.value for member in cls]
+
+
+class RMLFileSuffix(str, MSSDKEnum):
+    TTL = ".rml.ttl"
+    RDF = ".rml.rdf"
+    N3 = ".rml.n3"
+
+
+class YARRRMLFileSuffix(str, MSSDKEnum):
+    YARRRML = ".yarrrml"
+    YML = ".yml"
+    YAML = ".yaml"
 
 
 ### Files
@@ -42,7 +61,7 @@ class ConceptualMappingFile(BaseFile):
     typically describe the logical connections between different data elements without
     implementation details.
     """
-    pass
+    content: bytes = Field(..., description="xlsx file content in bytes")
 
 
 class ValueMappingFile(BaseFile):

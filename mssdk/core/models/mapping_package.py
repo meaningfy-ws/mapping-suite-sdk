@@ -2,31 +2,31 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from mssdk.core.models.core import CoreModel, STR_MIN_LENGTH, STR_MAX_LENGTH
+from mssdk.core.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
 from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite, ValueMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite
 
 
-class MappingSource(CoreModel):
-    """A class representing the source data configuration in a mapping package.
-
-    This class defines the characteristics of the source data that will be
-    transformed. It includes information about the source data format and version.
-    """
-    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH,
-                       description="Example: Standard Forms XSD R09.S01")
-    version: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="mapping_version")
-
-
-class MappingTarget(CoreModel):
-    """A class representing the target data configuration in a mapping package.
-
-    This class defines the characteristics of the target data format that the
-    source data will be transformed into. It includes information about the
-    target ontology or data model and its version.
-    """
-    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, description="Example: ePO v4.0.0")
-    version: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="ontology_version")
+# class MappingSource(CoreModel):
+#     """A class representing the source data configuration in a mapping package.
+#
+#     This class defines the characteristics of the source data that will be
+#     transformed. It includes information about the source data format and version.
+#     """
+#     title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH,
+#                        description="Example: Standard Forms XSD R09.S01")
+#     version: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="mapping_version")
+#
+#
+# class MappingTarget(CoreModel):
+#     """A class representing the target data configuration in a mapping package.
+#
+#     This class defines the characteristics of the target data format that the
+#     source data will be transformed into. It includes information about the
+#     target ontology or data model and its version.
+#     """
+#     title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, description="Example: ePO v4.0.0")
+#     version: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="ontology_version")
 
 
 class MappingPackageEligibilityConstraints(CoreModel):
@@ -34,7 +34,7 @@ class MappingPackageEligibilityConstraints(CoreModel):
         This shall be a generic dict-like structure as the constraints
         in the eForms are different from the constraints in the Standard Forms.
     """
-    value: dict = Field(default_factory=dict, alias="metadata_constraints")
+    constraints: dict = Field(default_factory=dict)
 
 
 class MappingPackageMetadata(CoreModel):
@@ -44,17 +44,20 @@ class MappingPackageMetadata(CoreModel):
     a mapping package, including its unique identifier, title, creation date,
     and type classification.
     """
-    identifier: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
-    title: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH)
-    issue_date: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="created_at")
-    type: str = Field(..., min_length=STR_MIN_LENGTH, max_length=STR_MAX_LENGTH, alias="mapping_type")
+    identifier: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
+    title: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
+    issue_date: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="created_at")
+    type: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="mapping_type")
 
-    source: MappingSource = Field(..., description="Source data configuration and specifications")
-    target: MappingTarget = Field(..., description="Target data configuration and specifications")
+    #source: MappingSource = Field(..., description="Source data configuration and specifications")
+    #target: MappingTarget = Field(..., description="Target data configuration and specifications")
+    mapping_version: str = Field(..., description="Version of source data that will be mapped")
+    ontology_version: str = Field(..., description="Version of target ontology")
+
     eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
-                                                                          description="Constraints defining package applicability")
+                                                                          description="Constraints defining package applicability",
+                                                                          alias="metadata_constraints")
     signature: bytes = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
-    mapping_values: List[str] = Field(..., description="List of mapping value identifiers")
 
 
 class MappingPackageIndex(CoreModel):

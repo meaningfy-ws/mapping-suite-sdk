@@ -3,12 +3,15 @@ BUILD_PRINT = \e[1;34mSTEP:
 END_BUILD_PRINT = \e[0m
 
 #-----------------------------------------------------------------------------
-# Dev commands
+# User commands
 #-----------------------------------------------------------------------------
 install: install-poetry
 	@ echo -e "$(BUILD_PRINT)Installing the requirements$(END_BUILD_PRINT)"
 	@ poetry install --no-root
 
+#-----------------------------------------------------------------------------
+# Dev commands
+#-----------------------------------------------------------------------------
 install-dev: install-poetry
 	@ echo -e "$(BUILD_PRINT)Installing the requirements$(END_BUILD_PRINT)"
 	@ poetry install --only dev --no-root
@@ -19,4 +22,18 @@ install-poetry:
 
 test-unit:
 	@ echo -e "$(BUILD_PRINT)Running Unit tests$(END_BUILD_PRINT)"
-	@ tox
+	@ poetry run tox
+
+lint:
+	@ echo -e "$(BUILD_PRINT)Running Pylint check$(END_BUILD_PRINT)"
+	@ poetry run pylint --rcfile=.pylintrc ./mssdk ./tests
+
+lint-report:
+	@ echo -e "$(BUILD_PRINT)Running Pylint check and generating report$(END_BUILD_PRINT)"
+	@ poetry run pylint --rcfile=.pylintrc --recursive=y ./mssdk ./tests | tail -n 3 | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
+	@ echo "Report generated in pylint-report.txt"
+
+lint-full-report:
+	@ echo -e "$(BUILD_PRINT)Running Pylint check and generating report$(END_BUILD_PRINT)"
+	@ poetry run pylint --rcfile=.pylintrc ./mssdk ./tests | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
+	@ echo "Report generated in pylint-report.txt"

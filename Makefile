@@ -15,7 +15,7 @@ install-dev: install-poetry
 
 install-poetry:
 	@ echo -e "$(BUILD_PRINT)Installing Poetry$(END_BUILD_PRINT)"
-	@ curl -sSL https://install.python-poetry.org | python3 -
+	@ pip install "poetry==2.0.1"
 
 test-unit:
 	@ echo -e "$(BUILD_PRINT)Running Unit tests$(END_BUILD_PRINT)"

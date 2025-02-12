@@ -14,7 +14,8 @@ dependencies = [
     "opentelemetry-api (>=1.30.0,<2.0.0)",
     "opentelemetry-sdk (>=1.30.0,<2.0.0)",
     "opentelemetry-instrumentation (>=0.51b0,<0.52)",
-    "lxml (>=5.3.1,<6.0.0)"
+    "lxml (>=5.3.1,<6.0.0)",
+    "openpyxl (>=3.1.5,<4.0.0)"
 ]
 
 

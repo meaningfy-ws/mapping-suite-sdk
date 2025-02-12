@@ -6,6 +6,7 @@ from mssdk.core.models.files import TechnicalMappingSuite, ValueMappingSuite, Te
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile, RMLFileSuffix, RMLMappingFile, YARRRMLFileSuffix, \
     YARRRMLMappingFile
 from mssdk.core.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
+from mssdk.core.services.tracing import trace_method
 
 ### Paths relative to mapping package
 RELATIVE_TECHNICAL_MAPPING_SUITE_PATH = Path("transformation/mappings")
@@ -24,6 +25,7 @@ class PackageImportProtocol(Protocol):
 
 class TechnicalMappingSuiteImporter(PackageImportProtocol):
 
+    @trace_method("extract_technical_mapping")
     def extract(self, package_path: Path) -> TechnicalMappingSuite:
         files: List[BaseFile] = []
 
@@ -44,6 +46,7 @@ class TechnicalMappingSuiteImporter(PackageImportProtocol):
 
 class ValueMappingSuiteImporter(PackageImportProtocol):
 
+    @trace_method("extract_value_mapping_suite")
     def extract(self, package_path: Path) -> ValueMappingSuite:
         files: List[BaseFile] = []
 
@@ -56,6 +59,7 @@ class ValueMappingSuiteImporter(PackageImportProtocol):
 
 class TestDataSuitesImporter(PackageImportProtocol):
 
+    @trace_method("extract_test_data_suites")
     def extract(self, package_path: Path) -> List[TestDataSuite]:
         test_data_suites: List[TestDataSuite] = []
         for ts_suite in (package_path / RELATIVE_TEST_DATA_PATH).iterdir():
@@ -69,6 +73,7 @@ class TestDataSuitesImporter(PackageImportProtocol):
 
 class SAPRQLTestSuitesImporter(PackageImportProtocol):
 
+    @trace_method("extract_sparql_test_suites")
     def extract(self, package_path: Path) -> List[SAPRQLTestSuite]:
         sparql_validation_suites: List[SAPRQLTestSuite] = []
         for sparql_suite in (package_path / RELATIVE_SPARQL_SUITE_PATH).iterdir():
@@ -83,6 +88,7 @@ class SAPRQLTestSuitesImporter(PackageImportProtocol):
 
 class SHACLTestSuitesImporter(PackageImportProtocol):
 
+    @trace_method("extract_shacl_test_suites")
     def extract(self, package_path: Path) -> List[SHACLTestSuite]:
         shacl_validation_suites: List[SHACLTestSuite] = []
         for shacl_suite in (package_path / RELATIVE_SHACL_SUITE_PATH).iterdir():
@@ -97,6 +103,7 @@ class SHACLTestSuitesImporter(PackageImportProtocol):
 
 class MappingPackageMetadataImporter(PackageImportProtocol):
 
+    @trace_method("extract_mapping_package_metadata")
     def extract(self, package_path: Path) -> MappingPackageMetadata:
         metadata_file_path: Path = package_path / RELATIVE_SUITE_METADATA_PATH
         metadata_file_dict: dict = json.loads(metadata_file_path.read_text())
@@ -105,17 +112,20 @@ class MappingPackageMetadataImporter(PackageImportProtocol):
 
 class MappingPackageIndexImporter(PackageImportProtocol):
 
+    @trace_method("extract_mapping_package_index")
     def extract(self, package_path: Path) -> MappingPackageIndex:
         raise NotImplementedError
 
 
 class TestResultSuiteImporter(PackageImportProtocol):
 
+    @trace_method("extract_transform_result_suite")
     def extract(self, package_path: Path) -> TestResultSuite:
         raise NotImplementedError
 
 
 class PackageImporter(PackageImportProtocol):
 
+    @trace_method("extract_mapping_package")
     def extract(self, package_path: Path) -> MappingPackage:
         ...

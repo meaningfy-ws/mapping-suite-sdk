@@ -4,14 +4,16 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-from mssdk.core.adapters.cm_importer import ConceptualMappingFileImporter, RELATIVE_CONCEPTUAL_MAPPING_PATH
+
 from mssdk.core.adapters.importer import TechnicalMappingSuiteImporter, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
     ValueMappingSuiteImporter, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesImporter, \
-    SAPRQLTestSuitesImporter, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesImporter, RELATIVE_SHACL_SUITE_PATH, \
-    MappingPackageMetadataImporter, RELATIVE_SUITE_METADATA_PATH
+    SPARQLTestSuitesImporter, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesImporter, RELATIVE_SHACL_SUITE_PATH, \
+    MappingPackageMetadataImporter, RELATIVE_SUITE_METADATA_PATH, PackageImporter, ConceptualMappingFileImporter, \
+    RELATIVE_CONCEPTUAL_MAPPING_PATH
 from mssdk.core.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH, MSSDK_DEFAULT_STR_ENCODE
 from mssdk.core.models.files import TechnicalMappingSuite, RMLMappingFile, YARRRMLMappingFile
-from mssdk.core.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints
+from mssdk.core.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
+    MappingPackage
 
 
 def _test_mapping_suite_importer(dummy_mapping_package_path: Path,
@@ -110,7 +112,7 @@ def test_test_data_suites_importer(dummy_mapping_package_path: Path) -> None:
 def test_sparql_validation_suites_importer(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suites_importer(
         dummy_mapping_package_path,
-        SAPRQLTestSuitesImporter,
+        SPARQLTestSuitesImporter,
         RELATIVE_SPARQL_SUITE_PATH
     )
 
@@ -205,3 +207,28 @@ def test_conceptual_mapping_importer(dummy_mapping_package_path: Path) -> None:
         assert (temp_mp_path / cm_file.path).exists()
         assert cm_file.content is not None
         assert len(cm_file.content) > 0
+
+
+def test_mapping_package_importer(dummy_mapping_package_path: Path) -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
+        shutil.copy(dummy_mapping_package_path, temp_mp_archive_path)
+
+        temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
+        temp_mp_path.mkdir()
+        shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+
+        mapping_package: MappingPackage = PackageImporter().extract(temp_mp_path)
+
+        assert mapping_package.test_suites_shacl is not None
+        assert len(mapping_package.test_suites_shacl) > 0
+        assert mapping_package.test_suites_sparql is not None
+        assert len(mapping_package.test_suites_sparql) > 0
+        assert mapping_package.test_data_suites is not None
+        assert len(mapping_package.test_data_suites) > 0
+
+        assert mapping_package.metadata is not None
+        assert mapping_package.conceptual_mapping_file is not None
+        assert mapping_package.technical_mapping_suite is not None
+        assert mapping_package.value_mapping_suite is not None

@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 from mssdk.core.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
 from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite, ValueMappingSuite, TestDataSuite, \
-    SAPRQLTestSuite, SHACLTestSuite, TestResultSuite
+    SAPRQLTestSuite, SHACLTestSuite
 
 
 # class MappingSource(CoreModel):
@@ -49,8 +49,8 @@ class MappingPackageMetadata(CoreModel):
     issue_date: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="created_at")
     type: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="mapping_type")
 
-    #source: MappingSource = Field(..., description="Source data configuration and specifications")
-    #target: MappingTarget = Field(..., description="Target data configuration and specifications")
+    # source: MappingSource = Field(..., description="Source data configuration and specifications")
+    # target: MappingTarget = Field(..., description="Target data configuration and specifications")
     mapping_version: str = Field(..., description="Version of source data that will be mapped")
     ontology_version: str = Field(..., description="Version of target ontology")
 
@@ -76,7 +76,9 @@ class MappingPackage(BaseModel):
 
     # Metadata
     metadata: MappingPackageMetadata = Field(..., description="Package metadata containing general information")
-    index: MappingPackageIndex = Field(..., description="Index of package contents and their relationships")
+
+    # Note: To implement when index structure will be defined
+    # index: MappingPackageIndex = Field(..., description="Index of package contents and their relationships")
 
     # Package elements (folders and files)
     conceptual_mapping_file: ConceptualMappingFile = Field(..., description="The CMs in Excel Spreadsheet")
@@ -86,4 +88,5 @@ class MappingPackage(BaseModel):
     test_suites_sparql: List[SAPRQLTestSuite] = Field(..., description="Collections of SPARQL-based test suites")
     test_suites_shacl: List[SHACLTestSuite] = Field(...,
                                                     description="Collections of SHACL-based validation test suites")
-    test_results: List[TestResultSuite] = Field(..., description="Collections of test transformation results")
+    # Note: To implement when import will require transform results
+    # test_results: List[TestResultSuite] = Field(..., description="Collections of test transformation results")

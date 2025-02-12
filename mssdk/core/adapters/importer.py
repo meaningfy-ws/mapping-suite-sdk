@@ -4,7 +4,7 @@ from typing import Any, List, Protocol
 
 from mssdk.core.models.files import TechnicalMappingSuite, ValueMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile, RMLFileSuffix, RMLMappingFile, YARRRMLFileSuffix, \
-    YARRRMLMappingFile
+    YARRRMLMappingFile, ConceptualMappingFile
 from mssdk.core.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 from mssdk.core.services.tracing import trace_method
 
@@ -15,6 +15,7 @@ RELATIVE_TEST_DATA_PATH = Path("test_data")
 RELATIVE_SPARQL_SUITE_PATH = Path("validation/sparql")
 RELATIVE_SHACL_SUITE_PATH = Path("validation/shacl")
 RELATIVE_SUITE_METADATA_PATH = Path("metadata.json")
+RELATIVE_CONCEPTUAL_MAPPING_PATH = Path("transformation/conceptual_mappings.xlsx")
 
 
 class PackageImportProtocol(Protocol):
@@ -71,7 +72,7 @@ class TestDataSuitesImporter(PackageImportProtocol):
         return test_data_suites
 
 
-class SAPRQLTestSuitesImporter(PackageImportProtocol):
+class SPARQLTestSuitesImporter(PackageImportProtocol):
 
     @trace_method("extract_sparql_test_suites")
     def extract(self, package_path: Path) -> List[SAPRQLTestSuite]:
@@ -124,8 +125,35 @@ class TestResultSuiteImporter(PackageImportProtocol):
         raise NotImplementedError
 
 
+class ConceptualMappingFileImporter(PackageImportProtocol):
+
+    def extract(self, package_path: Path) -> ConceptualMappingFile:
+        cm_file_path: Path = package_path / RELATIVE_CONCEPTUAL_MAPPING_PATH
+
+        return ConceptualMappingFile(
+            path=RELATIVE_CONCEPTUAL_MAPPING_PATH,
+            content=cm_file_path.read_bytes()
+        )
+
+
 class PackageImporter(PackageImportProtocol):
 
     @trace_method("extract_mapping_package")
     def extract(self, package_path: Path) -> MappingPackage:
-        ...
+        metadata = MappingPackageMetadataImporter().extract(package_path)
+        conceptual_mapping_file = ConceptualMappingFileImporter().extract(package_path)
+        technical_mapping_suite = TechnicalMappingSuiteImporter().extract(package_path)
+        value_mapping_suite = ValueMappingSuiteImporter().extract(package_path)
+        test_data_suites = TestDataSuitesImporter().extract(package_path)
+        test_suites_sparql = SPARQLTestSuitesImporter().extract(package_path)
+        test_suites_shacl = SHACLTestSuitesImporter().extract(package_path)
+
+        return MappingPackage(
+            metadata=metadata,
+            conceptual_mapping_file=conceptual_mapping_file,
+            technical_mapping_suite=technical_mapping_suite,
+            value_mapping_suite=value_mapping_suite,
+            test_data_suites=test_data_suites,
+            test_suites_sparql=test_suites_sparql,
+            test_suites_shacl=test_suites_shacl
+        )

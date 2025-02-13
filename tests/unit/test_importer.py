@@ -8,7 +8,7 @@ from pathlib import Path
 from mssdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
     VocabularyMappingSuiteLoader, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesLoader, \
     SPARQLTestSuitesLoader, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesLoader, RELATIVE_SHACL_SUITE_PATH, \
-    MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, PackageLoader, ConceptualMappingFileLoader, \
+    MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, MappingPackageLoader, ConceptualMappingFileLoader, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
 from mssdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH, MSSDK_DEFAULT_STR_ENCODE
 from mssdk.models.files import TechnicalMappingSuite, RMLMappingFile, YARRRMLMappingFile
@@ -219,7 +219,7 @@ def test_mapping_package_importer(dummy_mapping_package_path: Path) -> None:
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
-        mapping_package: MappingPackage = PackageLoader().load(temp_mp_path)
+        mapping_package: MappingPackage = MappingPackageLoader().load(temp_mp_path)
 
         assert mapping_package.test_suites_shacl is not None
         assert len(mapping_package.test_suites_shacl) > 0

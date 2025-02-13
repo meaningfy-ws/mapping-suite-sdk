@@ -4,7 +4,7 @@ from typing import Any, List, Protocol
 
 from mssdk.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile, RMLFileSuffix, RMLMappingFile, YARRRMLFileSuffix, \
-    YARRRMLMappingFile, ConceptualMappingFile
+    YARRRMLMappingFile, ConceptualMappingFile, VocabularyMappingFile, TestDataFile, SPARQLQueryFile, SHACLShapeFile
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 
 ### Paths relative to mapping package
@@ -44,11 +44,11 @@ class TechnicalMappingSuiteLoader(PackageLoaderProtocol):
 class VocabularyMappingSuiteLoader(PackageLoaderProtocol):
 
     def load(self, package_path: Path) -> VocabularyMappingSuite:
-        files: List[BaseFile] = []
+        files: List[VocabularyMappingFile] = []
 
         for file in (package_path / RELATIVE_VALUE_MAPPING_SUITE_PATH).iterdir():
             if file.is_file():
-                files.append(BaseFile(path=file.relative_to(package_path), content=file.read_text()))
+                files.append(VocabularyMappingFile(path=file.relative_to(package_path), content=file.read_text()))
 
         return VocabularyMappingSuite(path=RELATIVE_VALUE_MAPPING_SUITE_PATH, files=files)
 
@@ -60,7 +60,7 @@ class TestDataSuitesLoader(PackageLoaderProtocol):
         for ts_suite in (package_path / RELATIVE_TEST_DATA_PATH).iterdir():
             if ts_suite.is_dir():
                 test_data_suites.append(TestDataSuite(path=ts_suite.relative_to(package_path),
-                                                      files=[BaseFile(path=ts_file.relative_to(package_path),
+                                                      files=[TestDataFile(path=ts_file.relative_to(package_path),
                                                                       content=ts_file.read_text()) for ts_file in
                                                              ts_suite.iterdir() if ts_file.is_file()]))
         return test_data_suites
@@ -73,7 +73,7 @@ class SPARQLTestSuitesLoader(PackageLoaderProtocol):
         for sparql_suite in (package_path / RELATIVE_SPARQL_SUITE_PATH).iterdir():
             if sparql_suite.is_dir():
                 sparql_validation_suites.append(SAPRQLTestSuite(path=sparql_suite.relative_to(package_path),
-                                                                files=[BaseFile(path=ts_file.relative_to(package_path),
+                                                                files=[SPARQLQueryFile(path=ts_file.relative_to(package_path),
                                                                                 content=ts_file.read_text()) for ts_file
                                                                        in
                                                                        sparql_suite.iterdir() if ts_file.is_file()]))
@@ -87,7 +87,7 @@ class SHACLTestSuitesLoader(PackageLoaderProtocol):
         for shacl_suite in (package_path / RELATIVE_SHACL_SUITE_PATH).iterdir():
             if shacl_suite.is_dir():
                 shacl_validation_suites.append(SHACLTestSuite(path=shacl_suite.relative_to(package_path),
-                                                              files=[BaseFile(path=ts_file.relative_to(package_path),
+                                                              files=[SHACLShapeFile(path=ts_file.relative_to(package_path),
                                                                               content=ts_file.read_text()) for ts_file
                                                                      in
                                                                      shacl_suite.iterdir() if ts_file.is_file()]))
@@ -125,7 +125,7 @@ class ConceptualMappingFileLoader(PackageLoaderProtocol):
         )
 
 
-class PackageLoader(PackageLoaderProtocol):
+class MappingPackageLoader(PackageLoaderProtocol):
 
     def load(self, package_path: Path) -> MappingPackage:
         metadata = MappingPackageMetadataLoader().load(package_path)

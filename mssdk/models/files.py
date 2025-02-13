@@ -85,6 +85,18 @@ class SPARQLQueryFile(BaseFile):
     pass
 
 
+class SHACLShapeFile(BaseFile):
+    """A class representing a SHACL (Shapes Constraint Language) Shape file.
+
+    This class handles files containing SHACL shapes which define constraints
+    and rules for validating RDF data. Each shape describes the conditions that
+    a set of RDF nodes must satisfy, including property values, cardinality,
+    data types, and structural patterns. SHACL shapes can be used to validate
+    instance data against predefined constraints and ensure data quality.
+    """
+    pass
+
+
 class TestDataFile(BaseFile):
     """A class representing a Test Data file.
 
@@ -161,7 +173,7 @@ class TechnicalMappingSuite(BaseFileCollection):
     files such as RML or YARRRML mappings that work together to achieve a complete
     data transformation solution.
     """
-    pass
+    files: List[TechnicalMappingFile] = Field(default_factory=list, description="Collection of technical mapping files")
 
 
 class VocabularyMappingSuite(BaseFileCollection):
@@ -172,7 +184,8 @@ class VocabularyMappingSuite(BaseFileCollection):
     conversions, normalizations, and transformations that are applied during
     the mapping process.
     """
-    pass
+    files: List[VocabularyMappingFile] = Field(default_factory=list,
+                                               description="Collection of vocabulary mapping files")
 
 
 class TestDataSuite(BaseFileCollection):
@@ -182,7 +195,7 @@ class TestDataSuite(BaseFileCollection):
     of mapping processes. It typically includes input test data and their corresponding
     expected outputs used to verify the correctness of mapping transformations.
     """
-    pass
+    files: List[TestDataFile] = Field(default_factory=list, description="Collection of test data files")
 
 
 class SAPRQLTestSuite(BaseFileCollection):
@@ -193,7 +206,7 @@ class SAPRQLTestSuite(BaseFileCollection):
     the correctness of the transformation results or to perform specific data
     validations.
     """
-    pass
+    files: List[SPARQLQueryFile] = Field(default_factory=list, description="Collection of SPARQL validation files")
 
 
 class SHACLTestSuite(BaseFileCollection):
@@ -204,7 +217,7 @@ class SHACLTestSuite(BaseFileCollection):
     for validating the structure and content of RDF data produced by the mapping
     process.
     """
-    pass
+    files: List[SHACLShapeFile] = Field(default_factory=list, description="Collection of SHACL shape files")
 
 
 class TestResultSuite(BaseFileCollection):
@@ -216,4 +229,4 @@ class TestResultSuite(BaseFileCollection):
     and other test executions. These results can be used for validation,
     debugging, and quality assurance of the mapping processes.
     """
-    pass
+    files: List[TestDataResultFile] = Field(default_factory=list, description="Collection of test data result files")

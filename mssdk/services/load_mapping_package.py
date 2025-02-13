@@ -4,9 +4,11 @@ from pathlib import Path
 from typing import Optional
 
 from mssdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
+from mssdk.adapters.log_tracer import Tracer
 from mssdk.models.mapping_package import MappingPackage
 
 
+@Tracer.trace("load_mapping_package_from_folder")
 def load_mapping_package_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None
@@ -44,6 +46,7 @@ def load_mapping_package_from_folder(
     return mapping_package_loader.load(mapping_package_folder_path)
 
 
+@Tracer.trace("load_mapping_package_from_zip_file")
 def load_mapping_package_from_zip_file(
         mapping_package_zip_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None

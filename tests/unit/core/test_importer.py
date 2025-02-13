@@ -5,10 +5,10 @@ from datetime import datetime
 from pathlib import Path
 
 
-from mssdk.core.adapters.importer import TechnicalMappingSuiteImporter, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
-    VocabularyMappingSuiteImporter, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesImporter, \
-    SPARQLTestSuitesImporter, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesImporter, RELATIVE_SHACL_SUITE_PATH, \
-    MappingPackageMetadataImporter, RELATIVE_SUITE_METADATA_PATH, PackageImporter, ConceptualMappingFileImporter, \
+from mssdk.core.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
+    VocabularyMappingSuiteLoader, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesLoader, \
+    SPARQLTestSuitesLoader, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesLoader, RELATIVE_SHACL_SUITE_PATH, \
+    MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, PackageLoader, ConceptualMappingFileLoader, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
 from mssdk.core.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH, MSSDK_DEFAULT_STR_ENCODE
 from mssdk.core.models.files import TechnicalMappingSuite, RMLMappingFile, YARRRMLMappingFile
@@ -28,7 +28,7 @@ def _test_mapping_suite_importer(dummy_mapping_package_path: Path,
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
-        mapping_suite = importer_class().extract(temp_mp_path)
+        mapping_suite = importer_class().load(temp_mp_path)
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None
@@ -53,7 +53,7 @@ def _test_mapping_suites_importer(dummy_mapping_package_path: Path,
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
-        mapping_suites = importer_class().extract(temp_mp_path)
+        mapping_suites = importer_class().load(temp_mp_path)
 
         for mapping_suite in mapping_suites:
             assert mapping_suite is not None
@@ -77,7 +77,7 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
-        mapping_suite: TechnicalMappingSuite = TechnicalMappingSuiteImporter().extract(temp_mp_path)
+        mapping_suite: TechnicalMappingSuite = TechnicalMappingSuiteLoader().load(temp_mp_path)
 
         assert any(isinstance(file, RMLMappingFile) for file in mapping_suite.files)
         assert any(isinstance(file, YARRRMLMappingFile) for file in mapping_suite.files)
@@ -96,7 +96,7 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
 def test_value_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suite_importer(
         dummy_mapping_package_path,
-        VocabularyMappingSuiteImporter,
+        VocabularyMappingSuiteLoader,
         RELATIVE_VALUE_MAPPING_SUITE_PATH
     )
 
@@ -104,7 +104,7 @@ def test_value_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
 def test_test_data_suites_importer(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suites_importer(
         dummy_mapping_package_path,
-        TestDataSuitesImporter,
+        TestDataSuitesLoader,
         RELATIVE_TEST_DATA_PATH
     )
 
@@ -112,7 +112,7 @@ def test_test_data_suites_importer(dummy_mapping_package_path: Path) -> None:
 def test_sparql_validation_suites_importer(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suites_importer(
         dummy_mapping_package_path,
-        SPARQLTestSuitesImporter,
+        SPARQLTestSuitesLoader,
         RELATIVE_SPARQL_SUITE_PATH
     )
 
@@ -120,7 +120,7 @@ def test_sparql_validation_suites_importer(dummy_mapping_package_path: Path) -> 
 def test_shacl_validation_suites_importer(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suites_importer(
         dummy_mapping_package_path,
-        SHACLTestSuitesImporter,
+        SHACLTestSuitesLoader,
         RELATIVE_SHACL_SUITE_PATH
     )
 
@@ -137,7 +137,7 @@ def test_suite_metadata_importer(dummy_mapping_package_path: Path) -> None:
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         # Execute
-        metadata = MappingPackageMetadataImporter().extract(package_path=temp_mp_path)
+        metadata = MappingPackageMetadataLoader().load(package_path=temp_mp_path)
 
         # Verify
         assert metadata is not None
@@ -199,7 +199,7 @@ def test_conceptual_mapping_importer(dummy_mapping_package_path: Path) -> None:
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
-        cm_file = ConceptualMappingFileImporter().extract(temp_mp_path)
+        cm_file = ConceptualMappingFileLoader().load(temp_mp_path)
 
         assert cm_file is not None
         assert cm_file.path is not None
@@ -219,7 +219,7 @@ def test_mapping_package_importer(dummy_mapping_package_path: Path) -> None:
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
-        mapping_package: MappingPackage = PackageImporter().extract(temp_mp_path)
+        mapping_package: MappingPackage = PackageLoader().load(temp_mp_path)
 
         assert mapping_package.test_suites_shacl is not None
         assert len(mapping_package.test_suites_shacl) > 0

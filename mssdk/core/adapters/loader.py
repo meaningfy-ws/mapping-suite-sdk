@@ -18,16 +18,16 @@ RELATIVE_SUITE_METADATA_PATH = Path("metadata.json")
 RELATIVE_CONCEPTUAL_MAPPING_PATH = Path("transformation/conceptual_mappings.xlsx")
 
 
-class PackageImportProtocol(Protocol):
+class PackageLoaderProtocol(Protocol):
 
-    def extract(self, package_path: Path) -> Any:
+    def load(self, package_path: Path) -> Any:
         raise NotImplementedError
 
 
-class TechnicalMappingSuiteImporter(PackageImportProtocol):
+class TechnicalMappingSuiteLoader(PackageLoaderProtocol):
 
     @trace_method("extract_technical_mapping")
-    def extract(self, package_path: Path) -> TechnicalMappingSuite:
+    def load(self, package_path: Path) -> TechnicalMappingSuite:
         files: List[BaseFile] = []
 
         for file in (package_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH).iterdir():
@@ -43,10 +43,10 @@ class TechnicalMappingSuiteImporter(PackageImportProtocol):
         return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=files)
 
 
-class VocabularyMappingSuiteImporter(PackageImportProtocol):
+class VocabularyMappingSuiteLoader(PackageLoaderProtocol):
 
     @trace_method("extract_value_mapping_suite")
-    def extract(self, package_path: Path) -> VocabularyMappingSuite:
+    def load(self, package_path: Path) -> VocabularyMappingSuite:
         files: List[BaseFile] = []
 
         for file in (package_path / RELATIVE_VALUE_MAPPING_SUITE_PATH).iterdir():
@@ -56,10 +56,10 @@ class VocabularyMappingSuiteImporter(PackageImportProtocol):
         return VocabularyMappingSuite(path=RELATIVE_VALUE_MAPPING_SUITE_PATH, files=files)
 
 
-class TestDataSuitesImporter(PackageImportProtocol):
+class TestDataSuitesLoader(PackageLoaderProtocol):
 
     @trace_method("extract_test_data_suites")
-    def extract(self, package_path: Path) -> List[TestDataSuite]:
+    def load(self, package_path: Path) -> List[TestDataSuite]:
         test_data_suites: List[TestDataSuite] = []
         for ts_suite in (package_path / RELATIVE_TEST_DATA_PATH).iterdir():
             if ts_suite.is_dir():
@@ -70,10 +70,10 @@ class TestDataSuitesImporter(PackageImportProtocol):
         return test_data_suites
 
 
-class SPARQLTestSuitesImporter(PackageImportProtocol):
+class SPARQLTestSuitesLoader(PackageLoaderProtocol):
 
     @trace_method("extract_sparql_test_suites")
-    def extract(self, package_path: Path) -> List[SAPRQLTestSuite]:
+    def load(self, package_path: Path) -> List[SAPRQLTestSuite]:
         sparql_validation_suites: List[SAPRQLTestSuite] = []
         for sparql_suite in (package_path / RELATIVE_SPARQL_SUITE_PATH).iterdir():
             if sparql_suite.is_dir():
@@ -85,10 +85,10 @@ class SPARQLTestSuitesImporter(PackageImportProtocol):
         return sparql_validation_suites
 
 
-class SHACLTestSuitesImporter(PackageImportProtocol):
+class SHACLTestSuitesLoader(PackageLoaderProtocol):
 
     @trace_method("extract_shacl_test_suites")
-    def extract(self, package_path: Path) -> List[SHACLTestSuite]:
+    def load(self, package_path: Path) -> List[SHACLTestSuite]:
         shacl_validation_suites: List[SHACLTestSuite] = []
         for shacl_suite in (package_path / RELATIVE_SHACL_SUITE_PATH).iterdir():
             if shacl_suite.is_dir():
@@ -100,32 +100,32 @@ class SHACLTestSuitesImporter(PackageImportProtocol):
         return shacl_validation_suites
 
 
-class MappingPackageMetadataImporter(PackageImportProtocol):
+class MappingPackageMetadataLoader(PackageLoaderProtocol):
 
     @trace_method("extract_mapping_package_metadata")
-    def extract(self, package_path: Path) -> MappingPackageMetadata:
+    def load(self, package_path: Path) -> MappingPackageMetadata:
         metadata_file_path: Path = package_path / RELATIVE_SUITE_METADATA_PATH
         metadata_file_dict: dict = json.loads(metadata_file_path.read_text())
         return MappingPackageMetadata(**metadata_file_dict)
 
 
-class MappingPackageIndexImporter(PackageImportProtocol):
+class MappingPackageIndexLoader(PackageLoaderProtocol):
 
     @trace_method("extract_mapping_package_index")
-    def extract(self, package_path: Path) -> MappingPackageIndex:
+    def load(self, package_path: Path) -> MappingPackageIndex:
         raise NotImplementedError
 
 
-class TestResultSuiteImporter(PackageImportProtocol):
+class TestResultSuiteLoader(PackageLoaderProtocol):
 
     @trace_method("extract_transform_result_suite")
-    def extract(self, package_path: Path) -> TestResultSuite:
+    def load(self, package_path: Path) -> TestResultSuite:
         raise NotImplementedError
 
 
-class ConceptualMappingFileImporter(PackageImportProtocol):
+class ConceptualMappingFileLoader(PackageLoaderProtocol):
 
-    def extract(self, package_path: Path) -> ConceptualMappingFile:
+    def load(self, package_path: Path) -> ConceptualMappingFile:
         cm_file_path: Path = package_path / RELATIVE_CONCEPTUAL_MAPPING_PATH
 
         return ConceptualMappingFile(
@@ -134,23 +134,23 @@ class ConceptualMappingFileImporter(PackageImportProtocol):
         )
 
 
-class PackageImporter(PackageImportProtocol):
+class PackageLoader(PackageLoaderProtocol):
 
     @trace_method("extract_mapping_package")
-    def extract(self, package_path: Path) -> MappingPackage:
-        metadata = MappingPackageMetadataImporter().extract(package_path)
-        conceptual_mapping_file = ConceptualMappingFileImporter().extract(package_path)
-        technical_mapping_suite = TechnicalMappingSuiteImporter().extract(package_path)
-        value_mapping_suite = VocabularyMappingSuiteImporter().extract(package_path)
-        test_data_suites = TestDataSuitesImporter().extract(package_path)
-        test_suites_sparql = SPARQLTestSuitesImporter().extract(package_path)
-        test_suites_shacl = SHACLTestSuitesImporter().extract(package_path)
+    def load(self, package_path: Path) -> MappingPackage:
+        metadata = MappingPackageMetadataLoader().load(package_path)
+        conceptual_mapping_file = ConceptualMappingFileLoader().load(package_path)
+        technical_mapping_suite = TechnicalMappingSuiteLoader().load(package_path)
+        vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(package_path)
+        test_data_suites = TestDataSuitesLoader().load(package_path)
+        test_suites_sparql = SPARQLTestSuitesLoader().load(package_path)
+        test_suites_shacl = SHACLTestSuitesLoader().load(package_path)
 
         return MappingPackage(
             metadata=metadata,
             conceptual_mapping_file=conceptual_mapping_file,
             technical_mapping_suite=technical_mapping_suite,
-            value_mapping_suite=value_mapping_suite,
+            vocabulary_mapping_suite=vocabulary_mapping_suite,
             test_data_suites=test_data_suites,
             test_suites_sparql=test_suites_sparql,
             test_suites_shacl=test_suites_shacl

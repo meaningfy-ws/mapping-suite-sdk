@@ -61,6 +61,7 @@ class MappingPackageMetadata(CoreModel):
 
 
 class MappingPackageIndex(CoreModel):
+    # TODO: Future implementation
     value: dict = Field(..., description="Index of package contents and their relationships")
 
 

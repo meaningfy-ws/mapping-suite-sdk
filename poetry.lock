@@ -775,18 +775,6 @@ files = [
 ]
 
 [[package]]
-name = "rarfile"
-version = "4.2"
-description = "RAR archive reader for Python"
-optional = false
-python-versions = ">=3.6"
-groups = ["main"]
-files = [
-    {file = "rarfile-4.2-py3-none-any.whl", hash = "sha256:8757e1e3757e32962e229cab2432efc1f15f210823cc96ccba0f6a39d17370c9"},
-    {file = "rarfile-4.2.tar.gz", hash = "sha256:8e1c8e72d0845ad2b32a47ab11a719bc2e41165ec101fd4d3fe9e92aa3f469ef"},
-]
-
-[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -981,4 +969,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "406f9ba79acae1a74249eba4bf2b610ba8691fe7b2ecd18b465ef8a96dbaebf9"
+content-hash = "886e08ef68099b25f9f0efc0575275f4a8fc269382713e3e4d359658624d704a"

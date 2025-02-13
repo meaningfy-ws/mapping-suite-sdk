@@ -4,7 +4,6 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-
 from mssdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
     VocabularyMappingSuiteLoader, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesLoader, \
     SPARQLTestSuitesLoader, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesLoader, RELATIVE_SHACL_SUITE_PATH, \
@@ -14,57 +13,7 @@ from mssdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH, MSSDK_
 from mssdk.models.files import TechnicalMappingSuite, RMLMappingFile, YARRRMLMappingFile
 from mssdk.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
     MappingPackage
-
-
-def _test_mapping_suite_importer(dummy_mapping_package_path: Path,
-                                 importer_class,
-                                 expected_relative_path: str) -> None:
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_dir_path = Path(temp_dir)
-        temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
-        shutil.copy(dummy_mapping_package_path, temp_mp_archive_path)
-
-        temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
-        temp_mp_path.mkdir()
-        shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
-
-        mapping_suite = importer_class().load(temp_mp_path)
-
-        assert mapping_suite is not None
-        assert mapping_suite.path is not None
-        assert mapping_suite.path == expected_relative_path
-        assert (temp_mp_path / mapping_suite.path).exists()
-        assert len(mapping_suite.files) > 0
-        for file in mapping_suite.files:
-            assert file is not None
-            assert (temp_mp_path / file.path).exists()
-            assert file.content is not None
-
-
-def _test_mapping_suites_importer(dummy_mapping_package_path: Path,
-                                  importer_class,
-                                  expected_relative_path: str) -> None:
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_dir_path = Path(temp_dir)
-        temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
-        shutil.copy(dummy_mapping_package_path, temp_mp_archive_path)
-
-        temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
-        temp_mp_path.mkdir()
-        shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
-
-        mapping_suites = importer_class().load(temp_mp_path)
-
-        for mapping_suite in mapping_suites:
-            assert mapping_suite is not None
-            assert mapping_suite.path is not None
-            assert mapping_suite.path.is_relative_to(expected_relative_path)
-            assert (temp_mp_path / mapping_suite.path).exists()
-            assert len(mapping_suite.files) > 0
-            for file in mapping_suite.files:
-                assert file is not None
-                assert (temp_mp_path / file.path).exists()
-                assert file.content is not None
+from tests.conftest import _test_mapping_package_asset_loader, _test_mapping_suites_asset_loader
 
 
 def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
@@ -94,33 +43,33 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
 
 
 def test_value_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
-    _test_mapping_suite_importer(
+    _test_mapping_package_asset_loader(
         dummy_mapping_package_path,
-        VocabularyMappingSuiteLoader,
+        VocabularyMappingSuiteLoader(),
         RELATIVE_VALUE_MAPPING_SUITE_PATH
     )
 
 
 def test_test_data_suites_importer(dummy_mapping_package_path: Path) -> None:
-    _test_mapping_suites_importer(
+    _test_mapping_suites_asset_loader(
         dummy_mapping_package_path,
-        TestDataSuitesLoader,
+        TestDataSuitesLoader(),
         RELATIVE_TEST_DATA_PATH
     )
 
 
 def test_sparql_validation_suites_importer(dummy_mapping_package_path: Path) -> None:
-    _test_mapping_suites_importer(
+    _test_mapping_suites_asset_loader(
         dummy_mapping_package_path,
-        SPARQLTestSuitesLoader,
+        SPARQLTestSuitesLoader(),
         RELATIVE_SPARQL_SUITE_PATH
     )
 
 
 def test_shacl_validation_suites_importer(dummy_mapping_package_path: Path) -> None:
-    _test_mapping_suites_importer(
+    _test_mapping_suites_asset_loader(
         dummy_mapping_package_path,
-        SHACLTestSuitesLoader,
+        SHACLTestSuitesLoader(),
         RELATIVE_SHACL_SUITE_PATH
     )
 
@@ -137,7 +86,7 @@ def test_suite_metadata_importer(dummy_mapping_package_path: Path) -> None:
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         # Execute
-        metadata = MappingPackageMetadataLoader().load(package_path=temp_mp_path)
+        metadata = MappingPackageMetadataLoader().load(package_folder_path=temp_mp_path)
 
         # Verify
         assert metadata is not None

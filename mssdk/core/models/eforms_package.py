@@ -1,16 +1,9 @@
-#!/usr/bin/python3
 from datetime import date
 from typing import List
 
 from pydantic import Field
 
 from mssdk.core.models.mapping_package import MappingPackageEligibilityConstraints
-
-
-# eforms_package.py
-# Date:  10/02/2025
-# Author: Eugeniu Costetchi
-# Email: costezki.eugen@gmail.com
 
 
 class eFormsEligibilityConstraints(MappingPackageEligibilityConstraints):

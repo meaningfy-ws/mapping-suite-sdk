@@ -125,7 +125,7 @@ class RMLMappingFile(TechnicalMappingFile):
     This class handles files containing RML mappings, which are used to express
     customized mappings from heterogeneous data structures and serializations to
     the RDF data model. RML is an extension of R2RML that enables mapping from
-    various data formats (CSV, XML, JSON, etc.) to RDF.
+    various  tree-shaped data formats (CSV, XML, JSON) to RDF.
     """
     pass
 

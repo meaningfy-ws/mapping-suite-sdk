@@ -4,7 +4,7 @@ from typing import Any, List, Protocol
 
 from mssdk.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile, RMLFileSuffix, RMLMappingFile, YARRRMLFileSuffix, \
-    YARRRMLMappingFile, ConceptualMappingFile, VocabularyMappingFile, TestDataFile, SPARQLQueryFile, SHACLShapeFile
+    YARRRMLMappingFile, ConceptualMappingFile, VocabularyMappingFile, TestDataFile, SPARQLQueryFile, SHACLShapesFile
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 
 ### Paths relative to mapping package
@@ -87,8 +87,8 @@ class SHACLTestSuitesLoader(PackageLoaderProtocol):
         for shacl_suite in (package_path / RELATIVE_SHACL_SUITE_PATH).iterdir():
             if shacl_suite.is_dir():
                 shacl_validation_suites.append(SHACLTestSuite(path=shacl_suite.relative_to(package_path),
-                                                              files=[SHACLShapeFile(path=ts_file.relative_to(package_path),
-                                                                              content=ts_file.read_text()) for ts_file
+                                                              files=[SHACLShapesFile(path=ts_file.relative_to(package_path),
+                                                                                     content=ts_file.read_text()) for ts_file
                                                                      in
                                                                      shacl_suite.iterdir() if ts_file.is_file()]))
         return shacl_validation_suites

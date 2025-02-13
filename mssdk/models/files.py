@@ -85,8 +85,8 @@ class SPARQLQueryFile(BaseFile):
     pass
 
 
-class SHACLShapeFile(BaseFile):
-    """A class representing a SHACL (Shapes Constraint Language) Shape file.
+class SHACLShapesFile(BaseFile):
+    """A class representing a SHACL (Shapes Constraint Language) Shapes file.
 
     This class handles files containing SHACL shapes which define constraints
     and rules for validating RDF data. Each shape describes the conditions that
@@ -217,7 +217,7 @@ class SHACLTestSuite(BaseFileCollection):
     for validating the structure and content of RDF data produced by the mapping
     process.
     """
-    files: List[SHACLShapeFile] = Field(default_factory=list, description="Collection of SHACL shape files")
+    files: List[SHACLShapesFile] = Field(default_factory=list, description="Collection of SHACL shape files")
 
 
 class TestResultSuite(BaseFileCollection):

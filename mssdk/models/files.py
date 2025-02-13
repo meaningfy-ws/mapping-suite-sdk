@@ -5,7 +5,7 @@ from typing import List
 
 from pydantic import Field
 
-from mssdk.core.models.core import CoreModel
+from mssdk.models.core import CoreModel
 
 
 class MSSDKEnum(Enum):

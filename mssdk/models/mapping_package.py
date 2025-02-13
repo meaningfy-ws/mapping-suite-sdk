@@ -2,8 +2,8 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from mssdk.core.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
-from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
+from mssdk.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 
 

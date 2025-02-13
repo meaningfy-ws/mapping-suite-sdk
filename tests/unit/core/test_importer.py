@@ -5,14 +5,14 @@ from datetime import datetime
 from pathlib import Path
 
 
-from mssdk.core.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
+from mssdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
     VocabularyMappingSuiteLoader, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesLoader, \
     SPARQLTestSuitesLoader, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesLoader, RELATIVE_SHACL_SUITE_PATH, \
     MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, PackageLoader, ConceptualMappingFileLoader, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
-from mssdk.core.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH, MSSDK_DEFAULT_STR_ENCODE
-from mssdk.core.models.files import TechnicalMappingSuite, RMLMappingFile, YARRRMLMappingFile
-from mssdk.core.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
+from mssdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH, MSSDK_DEFAULT_STR_ENCODE
+from mssdk.models.files import TechnicalMappingSuite, RMLMappingFile, YARRRMLMappingFile
+from mssdk.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
     MappingPackage
 
 

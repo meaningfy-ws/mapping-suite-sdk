@@ -2,11 +2,11 @@ import json
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from mssdk.core.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile, RMLFileSuffix, RMLMappingFile, YARRRMLFileSuffix, \
     YARRRMLMappingFile, ConceptualMappingFile
-from mssdk.core.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
-from mssdk.core.services.tracing import trace_method
+from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
+from mssdk.services.tracing import trace_method
 
 ### Paths relative to mapping package
 RELATIVE_TECHNICAL_MAPPING_SUITE_PATH = Path("transformation/mappings")

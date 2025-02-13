@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import Field
 
-from mssdk.core.models.mapping_package import MappingPackageEligibilityConstraints
+from mssdk.models.mapping_package import MappingPackageEligibilityConstraints
 
 
 class eFormsEligibilityConstraints(MappingPackageEligibilityConstraints):

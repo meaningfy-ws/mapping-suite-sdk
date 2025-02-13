@@ -78,9 +78,9 @@ class VocabularyMappingFile(BaseFile):
 class SPARQLQueryFile(BaseFile):
     """A class representing a SPARQL Query file.
 
-    This class handles files containing SPARQL queries used for querying and
-    transforming RDF data. These files may contain one or multiple SPARQL queries
-    that are used for data validation, transformation, or extraction purposes.
+    This class handles files containing SPARQL ASK queries used for validating
+    RDF data. ASK queries return a boolean result (true/false) indicating whether
+    a given pattern exists in the data used for validation checks.
     """
     pass
 

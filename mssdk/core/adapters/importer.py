@@ -32,14 +32,12 @@ class TechnicalMappingSuiteImporter(PackageImportProtocol):
 
         for file in (package_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH).iterdir():
             if file.is_file():
-                file: Path = file
-                file_full_extension: str = "".join(file.suffixes)
                 rml_suffixes: List[str] = RMLFileSuffix.to_list()
                 yarrrml_suffixes: List[str] = YARRRMLFileSuffix.to_list()
 
-                if file_full_extension in rml_suffixes:
+                if file.suffix in rml_suffixes:
                     files.append(RMLMappingFile(path=file.relative_to(package_path), content=file.read_text()))
-                if file_full_extension in yarrrml_suffixes:
+                if file.suffix in yarrrml_suffixes:
                     files.append(YARRRMLMappingFile(path=file.relative_to(package_path), content=file.read_text()))
 
         return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=files)

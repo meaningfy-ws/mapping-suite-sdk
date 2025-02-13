@@ -15,9 +15,9 @@ class MSSDKEnum(Enum):
 
 
 class RMLFileSuffix(str, MSSDKEnum):
-    TTL = ".rml.ttl"
-    RDF = ".rml.rdf"
-    N3 = ".rml.n3"
+    TTL = ".ttl"
+    RDF = ".rdf"
+    N3 = ".n3"
 
 
 class YARRRMLFileSuffix(str, MSSDKEnum):

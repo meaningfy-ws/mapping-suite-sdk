@@ -231,4 +231,4 @@ def test_mapping_package_importer(dummy_mapping_package_path: Path) -> None:
         assert mapping_package.metadata is not None
         assert mapping_package.conceptual_mapping_file is not None
         assert mapping_package.technical_mapping_suite is not None
-        assert mapping_package.value_mapping_suite is not None
+        assert mapping_package.vocabulary_mapping_suite is not None

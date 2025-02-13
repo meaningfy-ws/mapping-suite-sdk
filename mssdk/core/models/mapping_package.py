@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel, Field
 
 from mssdk.core.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
-from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite, ValueMappingSuite, TestDataSuite, \
+from mssdk.core.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 
 
@@ -83,7 +83,7 @@ class MappingPackage(BaseModel):
     # Package elements (folders and files)
     conceptual_mapping_file: ConceptualMappingFile = Field(..., description="The CMs in Excel Spreadsheet")
     technical_mapping_suite: TechnicalMappingSuite = Field(..., description="All teh RML files, which are RMLFragments")
-    value_mapping_suite: ValueMappingSuite = Field(..., description="The resources JSONs, CSV and XML files")
+    value_mapping_suite: VocabularyMappingSuite = Field(..., description="The resources JSONs, CSV and XML files")
     test_data_suites: List[TestDataSuite] = Field(..., description="Collections of test data for transformation")
     test_suites_sparql: List[SAPRQLTestSuite] = Field(..., description="Collections of SPARQL-based test suites")
     test_suites_shacl: List[SHACLTestSuite] = Field(...,

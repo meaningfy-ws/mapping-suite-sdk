@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from mssdk.core.models.files import TechnicalMappingSuite, ValueMappingSuite, TestDataSuite, \
+from mssdk.core.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile, RMLFileSuffix, RMLMappingFile, YARRRMLFileSuffix, \
     YARRRMLMappingFile, ConceptualMappingFile
 from mssdk.core.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
@@ -46,14 +46,14 @@ class TechnicalMappingSuiteImporter(PackageImportProtocol):
 class VocabularyMappingSuiteImporter(PackageImportProtocol):
 
     @trace_method("extract_value_mapping_suite")
-    def extract(self, package_path: Path) -> ValueMappingSuite:
+    def extract(self, package_path: Path) -> VocabularyMappingSuite:
         files: List[BaseFile] = []
 
         for file in (package_path / RELATIVE_VALUE_MAPPING_SUITE_PATH).iterdir():
             if file.is_file():
                 files.append(BaseFile(path=file.relative_to(package_path), content=file.read_text()))
 
-        return ValueMappingSuite(path=RELATIVE_VALUE_MAPPING_SUITE_PATH, files=files)
+        return VocabularyMappingSuite(path=RELATIVE_VALUE_MAPPING_SUITE_PATH, files=files)
 
 
 class TestDataSuitesImporter(PackageImportProtocol):

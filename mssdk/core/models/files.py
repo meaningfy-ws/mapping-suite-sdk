@@ -164,7 +164,7 @@ class TechnicalMappingSuite(BaseFileCollection):
     pass
 
 
-class ValueMappingSuite(BaseFileCollection):
+class VocabularyMappingSuite(BaseFileCollection):
     """A collection of value mapping files.
 
     This suite manages a set of value mapping files that define transformations

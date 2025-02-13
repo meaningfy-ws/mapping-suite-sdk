@@ -43,7 +43,7 @@ class TechnicalMappingSuiteImporter(PackageImportProtocol):
         return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=files)
 
 
-class ValueMappingSuiteImporter(PackageImportProtocol):
+class VocabularyMappingSuiteImporter(PackageImportProtocol):
 
     @trace_method("extract_value_mapping_suite")
     def extract(self, package_path: Path) -> ValueMappingSuite:
@@ -141,7 +141,7 @@ class PackageImporter(PackageImportProtocol):
         metadata = MappingPackageMetadataImporter().extract(package_path)
         conceptual_mapping_file = ConceptualMappingFileImporter().extract(package_path)
         technical_mapping_suite = TechnicalMappingSuiteImporter().extract(package_path)
-        value_mapping_suite = ValueMappingSuiteImporter().extract(package_path)
+        value_mapping_suite = VocabularyMappingSuiteImporter().extract(package_path)
         test_data_suites = TestDataSuitesImporter().extract(package_path)
         test_suites_sparql = SPARQLTestSuitesImporter().extract(package_path)
         test_suites_shacl = SHACLTestSuitesImporter().extract(package_path)

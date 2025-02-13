@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 from mssdk.core.adapters.importer import TechnicalMappingSuiteImporter, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
-    ValueMappingSuiteImporter, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesImporter, \
+    VocabularyMappingSuiteImporter, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesImporter, \
     SPARQLTestSuitesImporter, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesImporter, RELATIVE_SHACL_SUITE_PATH, \
     MappingPackageMetadataImporter, RELATIVE_SUITE_METADATA_PATH, PackageImporter, ConceptualMappingFileImporter, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
@@ -96,7 +96,7 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
 def test_value_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suite_importer(
         dummy_mapping_package_path,
-        ValueMappingSuiteImporter,
+        VocabularyMappingSuiteImporter,
         RELATIVE_VALUE_MAPPING_SUITE_PATH
     )
 

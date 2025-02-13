@@ -64,8 +64,8 @@ class ConceptualMappingFile(BaseFile):
     content: bytes = Field(..., description="xlsx file content in bytes")
 
 
-class ValueMappingFile(BaseFile):
-    """A class representing a Value Mapping file.
+class VocabularyMappingFile(BaseFile):
+    """A class representing a Vocabulary Mapping file.
 
     This class manages files that define specific value transformations and mappings
     between source and target data values. Value mappings are used to specify how

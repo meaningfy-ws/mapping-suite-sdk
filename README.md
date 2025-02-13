@@ -6,11 +6,11 @@ TODO: add minimal set of badges e.g. https://github.com/OP-TED/ted-rdf-conversio
 
 # Mapping Package
 
-There are different concerns when Mapping suites are being developed than when the mapping suites are being re-used in
+There are different concerns when mapping suites are being developed than when they are being re-used in
 transformation pipelines.
 
-Int his initial phase of SDK development we will focus primarily on re-use concerns. This has an effect on the SDK
-model, and it is tightly connected to the perspective of a ZIP file with a file & folder structure inside.
+In this initial phase of SDK development we will focus primarily on re-use concerns. This has an effect on the SDK
+model, and it is tightly connected to the perspective of an archive (ZIP) file with a specific folder structure inside.
 
 # UC1 - Model in the Pipeline - UserModel
 

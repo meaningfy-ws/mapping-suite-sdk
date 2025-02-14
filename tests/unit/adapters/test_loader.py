@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from mssdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
-    VocabularyMappingSuiteLoader, RELATIVE_VALUE_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesLoader, \
+    VocabularyMappingSuiteLoader, RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesLoader, \
     SPARQLTestSuitesLoader, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesLoader, RELATIVE_SHACL_SUITE_PATH, \
     MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, MappingPackageLoader, ConceptualMappingFileLoader, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
@@ -45,7 +45,7 @@ def test_value_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
     _test_mapping_package_asset_loader(
         dummy_mapping_package_path,
         VocabularyMappingSuiteLoader(),
-        RELATIVE_VALUE_MAPPING_SUITE_PATH
+        RELATIVE_VOCABULARY_MAPPING_SUITE_PATH
     )
 
 

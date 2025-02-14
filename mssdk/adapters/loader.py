@@ -9,7 +9,7 @@ from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata,
 
 ### Paths relative to mapping package
 RELATIVE_TECHNICAL_MAPPING_SUITE_PATH = Path("transformation/mappings")
-RELATIVE_VALUE_MAPPING_SUITE_PATH = Path("transformation/resources")
+RELATIVE_VOCABULARY_MAPPING_SUITE_PATH = Path("transformation/resources")
 RELATIVE_TEST_DATA_PATH = Path("test_data")
 RELATIVE_SPARQL_SUITE_PATH = Path("validation/sparql")
 RELATIVE_SHACL_SUITE_PATH = Path("validation/shacl")
@@ -81,12 +81,12 @@ class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
         """
         files: List[VocabularyMappingFile] = []
 
-        for file in (package_folder_path / RELATIVE_VALUE_MAPPING_SUITE_PATH).iterdir():
+        for file in (package_folder_path / RELATIVE_VOCABULARY_MAPPING_SUITE_PATH).iterdir():
             if file.is_file():
                 files.append(
                     VocabularyMappingFile(path=file.relative_to(package_folder_path), content=file.read_text()))
 
-        return VocabularyMappingSuite(path=RELATIVE_VALUE_MAPPING_SUITE_PATH, files=files)
+        return VocabularyMappingSuite(path=RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, files=files)
 
 
 class TestDataSuitesLoader(MappingPackageAssetLoader):

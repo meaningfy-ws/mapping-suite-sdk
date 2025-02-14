@@ -1,9 +1,8 @@
-import shutil
-import tempfile
 from pathlib import Path
 from typing import Optional
 
 from mssdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
+from mssdk.adapters.unpacker import ArchiveUnpacker
 from mssdk.models.mapping_package import MappingPackage
 
 
@@ -44,43 +43,43 @@ def load_mapping_package_from_folder(
     return mapping_package_loader.load(mapping_package_folder_path)
 
 
-def load_mapping_package_from_zip_file(
-        mapping_package_zip_path: Path,
-        mapping_package_loader: Optional[MappingPackageAssetLoader] = None
+def load_mapping_package_from_archive(
+        mapping_package_archive_path: Path,
+        mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
+        archive_unpacker: Optional[ArchiveUnpacker] = None
 ) -> MappingPackage:
-    """
-    Load a mapping package from a ZIP archive.
+    """Load a mapping package from an archive file.
+
+    This function extracts an archive containing a mapping package to a temporary location
+    and loads its contents. The temporary files are automatically cleaned up after loading
+    is complete.
 
     Args:
-        mapping_package_zip_path: Path to the mapping package ZIP archive
-        mapping_package_loader: Optional custom loader implementation. If not provided,
-                              a default MappingPackageLoader will be used.
+        mapping_package_archive_path: Path to the archive file containing the mapping package
+        mapping_package_loader: Optional custom loader implementation for reading the mapping
+            package contents. If not provided, a default MappingPackageLoader will be used
+        archive_unpacker: Optional custom archive unpacker implementation. If not provided,
+            a default ArchiveUnpacker will be used
 
     Returns:
-        MappingPackage: The loaded mapping package with all its components
+        MappingPackage: The loaded mapping package containing all components including
+            technical mappings, vocabulary mappings, test suites, and metadata
 
     Raises:
         FileNotFoundError: If the archive file doesn't exist
-        ValueError: If the path is not a file or if the archive format is invalid
-        zipfile.BadZipFile: If the archive is corrupted or invalid
+        ValueError: If the specified path is not a file
+        Exception: Any additional exceptions that might be raised during archive extraction
+            or mapping package loading
     """
+    if not mapping_package_archive_path.exists():
+        raise FileNotFoundError(f"Mapping package archive not found: {mapping_package_archive_path}")
 
-    if not mapping_package_zip_path.exists():
-        raise FileNotFoundError(f"Mapping package archive not found: {mapping_package_zip_path}")
+    if not mapping_package_archive_path.is_file():
+        raise ValueError(f"Specified path is not a file: {mapping_package_archive_path}")
 
-    if not mapping_package_zip_path.is_file():
-        raise ValueError(f"Specified path is not a file: {mapping_package_zip_path}")
+    archive_unpacker: ArchiveUnpacker = archive_unpacker or ArchiveUnpacker()
 
-    with tempfile.TemporaryDirectory() as temp_mapping_package_dir:
-        temp_mapping_package_dir_path: Path = Path(temp_mapping_package_dir)
-
-        temp_mapping_package_folder_path: Path = temp_mapping_package_dir_path / mapping_package_zip_path.stem
-        temp_mapping_package_folder_path.mkdir()
-
-        try:
-            shutil.unpack_archive(mapping_package_zip_path, temp_mapping_package_folder_path)
-        except shutil.ReadError as e:
-            raise ValueError(f"Failed to extract archive: {e}")
+    with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
 
         return load_mapping_package_from_folder(mapping_package_folder_path=temp_mapping_package_folder_path,
                                                 mapping_package_loader=mapping_package_loader)

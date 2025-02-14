@@ -5,8 +5,9 @@ from pathlib import Path
 import pytest
 
 from mssdk.adapters.loader import MappingPackageLoader
+from mssdk.adapters.unpacker import ArchiveUnpacker
 from mssdk.models.mapping_package import MappingPackage
-from mssdk.services.load_mapping_package import load_mapping_package_from_folder, load_mapping_package_from_zip_file
+from mssdk.services.load_mapping_package import load_mapping_package_from_folder, load_mapping_package_from_archive
 from tests.conftest import assert_valid_mapping_package
 
 
@@ -39,7 +40,7 @@ def test_load_mapping_package_from_folder(dummy_mapping_package_path: Path):
         assert_valid_mapping_package(mapping_package=mapping_package)
 
 
-def test_load_mapping_package_from_zip_file(dummy_mapping_package_path: Path):
+def test_load_mapping_package_from_archive_gets_invalid_archive(dummy_mapping_package_path: Path):
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path: Path = Path(temp_dir)
 
@@ -47,18 +48,29 @@ def test_load_mapping_package_from_zip_file(dummy_mapping_package_path: Path):
         random_folder.mkdir(exist_ok=True)
 
         with pytest.raises(ValueError):
-            load_mapping_package_from_zip_file(mapping_package_zip_path=random_folder)
+            load_mapping_package_from_archive(mapping_package_archive_path=random_folder)
 
+
+def test_load_mapping_package_from_archive_gets_invalid_path(dummy_mapping_package_path: Path):
     with pytest.raises(FileNotFoundError):
-        load_mapping_package_from_zip_file(mapping_package_zip_path=Path("/non/existing/path"))
+        load_mapping_package_from_archive(mapping_package_archive_path=Path("/non/existing/path"))
 
-    mapping_package: MappingPackage = load_mapping_package_from_zip_file(
-        mapping_package_zip_path=dummy_mapping_package_path)
+
+def test_load_mapping_package_from_archive_with_success(dummy_mapping_package_path: Path):
+    mapping_package: MappingPackage = load_mapping_package_from_archive(
+        mapping_package_archive_path=dummy_mapping_package_path)
 
     assert_valid_mapping_package(mapping_package=mapping_package)
 
-    mapping_package: MappingPackage = load_mapping_package_from_zip_file(
-        mapping_package_zip_path=dummy_mapping_package_path,
+    mapping_package: MappingPackage = load_mapping_package_from_archive(
+        mapping_package_archive_path=dummy_mapping_package_path,
         mapping_package_loader=MappingPackageLoader())
+
+    assert_valid_mapping_package(mapping_package=mapping_package)
+
+    mapping_package: MappingPackage = load_mapping_package_from_archive(
+        mapping_package_archive_path=dummy_mapping_package_path,
+        mapping_package_loader=MappingPackageLoader(),
+        archive_unpacker=ArchiveUnpacker())
 
     assert_valid_mapping_package(mapping_package=mapping_package)

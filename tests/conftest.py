@@ -8,7 +8,7 @@ from mssdk.adapters.loader import MappingPackageAssetLoader
 from mssdk.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
-from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH
+from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
@@ -62,9 +62,7 @@ def _test_mapping_suites_asset_loader(dummy_mapping_package_path: Path,
                 assert file.content is not None
 
 
-
 def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
-
     assert isinstance(mapping_package, MappingPackage), \
         f"Expected MappingPackage instance, got {type(mapping_package)}"
 
@@ -124,6 +122,12 @@ def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
         assert isinstance(suite, SHACLTestSuite), \
             f"All test_suites_shacl elements must be SHACLTestSuite, got {type(suite)}"
 
+
 @pytest.fixture
 def dummy_mapping_package_path() -> Path:
     return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH
+
+
+@pytest.fixture
+def dummy_corrupted_mapping_package_path() -> Path:
+    return TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH

@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Any, List, Protocol
 
 from mssdk.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
-    SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, BaseFile, RMLFileSuffix, RMLMappingFile, YARRRMLFileSuffix, \
-    YARRRMLMappingFile, ConceptualMappingFile, VocabularyMappingFile, TestDataFile, SPARQLQueryFile, SHACLShapesFile
+    SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingFile, \
+    ConceptualMappingFile, VocabularyMappingFile, TestDataFile, SPARQLQueryFile, SHACLShapesFile
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 
 ### Paths relative to mapping package
@@ -54,20 +54,14 @@ class TechnicalMappingSuiteLoader(MappingPackageAssetLoader):
         Returns:
             TechnicalMappingSuite: Collection of loaded RML and YARRRML mapping files.
         """
-        files: List[BaseFile] = []
+        tm_files: List[RMLMappingFile] = []
 
-        for file in (package_folder_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH).iterdir():
-            if file.is_file():
-                rml_suffixes: List[str] = RMLFileSuffix.to_list()
-                yarrrml_suffixes: List[str] = YARRRMLFileSuffix.to_list()
+        for tm_file in (package_folder_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH).iterdir():
+            if tm_file.is_file():
+                tm_files.append(
+                    RMLMappingFile(path=tm_file.relative_to(package_folder_path), content=tm_file.read_text()))
 
-                if file.suffix in rml_suffixes:
-                    files.append(RMLMappingFile(path=file.relative_to(package_folder_path), content=file.read_text()))
-                if file.suffix in yarrrml_suffixes:
-                    files.append(
-                        YARRRMLMappingFile(path=file.relative_to(package_folder_path), content=file.read_text()))
-
-        return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=files)
+        return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=tm_files)
 
 
 class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):

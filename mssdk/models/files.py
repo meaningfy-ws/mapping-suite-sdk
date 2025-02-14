@@ -1,29 +1,10 @@
 from abc import ABC
-from enum import Enum
 from pathlib import Path
 from typing import List
 
 from pydantic import Field
 
 from mssdk.models.core import CoreModel
-
-
-class MSSDKEnum(Enum):
-    @classmethod
-    def to_list(cls):
-        return [member.value for member in cls]
-
-
-class RMLFileSuffix(str, MSSDKEnum):
-    TTL = ".ttl"
-    RDF = ".rdf"
-    N3 = ".n3"
-
-
-class YARRRMLFileSuffix(str, MSSDKEnum):
-    YARRRML = ".yarrrml"
-    YML = ".yml"
-    YAML = ".yaml"
 
 
 ### Files

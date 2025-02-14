@@ -29,7 +29,6 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
         mapping_suite: TechnicalMappingSuite = TechnicalMappingSuiteLoader().load(temp_mp_path)
 
         assert any(isinstance(file, RMLMappingFile) for file in mapping_suite.files)
-        assert any(isinstance(file, YARRRMLMappingFile) for file in mapping_suite.files)
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None

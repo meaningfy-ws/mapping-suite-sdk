@@ -1,6 +1,6 @@
 site:
-  title: Mapping Suite SDK Documentation
-  url: https://mapping-suite-sdk.readthedocs.io
+  title: Mapping Suite SDK test Documentation
+  url: https://mapping-suite-sdk-test.readthedocs.io
   start_page: mapping-suite-sdk::index.adoc
 
 content:

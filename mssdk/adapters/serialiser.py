@@ -10,10 +10,10 @@ from mssdk.models.files import (
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 
 
-class MappingPackageAssetSerializer(Protocol):
-    """Protocol defining the interface for mapping package asset serializers.
+class MappingPackageAssetSerialiser(Protocol):
+    """Protocol defining the interface for mapping package asset serialisers.
 
-    This protocol ensures that all asset serializers implement a consistent interface
+    This protocol ensures that all asset serialisers implement a consistent interface
     for serializing different components of a mapping package.
     """
 
@@ -30,8 +30,8 @@ class MappingPackageAssetSerializer(Protocol):
         raise NotImplementedError
 
 
-class TechnicalMappingSuiteSerializer(MappingPackageAssetSerializer):
-    """Serializer for technical mapping suite files."""
+class TechnicalMappingSuiteSerialiser(MappingPackageAssetSerialiser):
+    """Serialiser for technical mapping suite files."""
 
     def serialize(self, package_folder_path: Path, asset: TechnicalMappingSuite) -> None:
         suite_path = package_folder_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH
@@ -43,8 +43,8 @@ class TechnicalMappingSuiteSerializer(MappingPackageAssetSerializer):
             file_path.write_text(tm_file.content)
 
 
-class VocabularyMappingSuiteSerializer(MappingPackageAssetSerializer):
-    """Serializer for vocabulary mapping suite files."""
+class VocabularyMappingSuiteSerialiser(MappingPackageAssetSerialiser):
+    """Serialiser for vocabulary mapping suite files."""
 
     def serialize(self, package_folder_path: Path, asset: VocabularyMappingSuite) -> None:
         suite_path = package_folder_path / RELATIVE_VOCABULARY_MAPPING_SUITE_PATH
@@ -56,8 +56,8 @@ class VocabularyMappingSuiteSerializer(MappingPackageAssetSerializer):
             file_path.write_text(vm_file.content)
 
 
-class TestDataSuitesSerializer(MappingPackageAssetSerializer):
-    """Serializer for test data suites."""
+class TestDataSuitesSerialiser(MappingPackageAssetSerialiser):
+    """Serialiser for test data suites."""
 
     def serialize(self, package_folder_path: Path, asset: List[TestDataSuite]) -> None:
         for suite in asset:
@@ -70,8 +70,8 @@ class TestDataSuitesSerializer(MappingPackageAssetSerializer):
                 file_path.write_text(test_file.content)
 
 
-class SPARQLTestSuitesSerializer(MappingPackageAssetSerializer):
-    """Serializer for SPARQL test suites."""
+class SPARQLTestSuitesSerialiser(MappingPackageAssetSerialiser):
+    """Serialiser for SPARQL test suites."""
 
     def serialize(self, package_folder_path: Path, asset: List[SAPRQLTestSuite]) -> None:
         for suite in asset:
@@ -84,8 +84,8 @@ class SPARQLTestSuitesSerializer(MappingPackageAssetSerializer):
                 file_path.write_text(query_file.content)
 
 
-class SHACLTestSuitesSerializer(MappingPackageAssetSerializer):
-    """Serializer for SHACL test suites."""
+class SHACLTestSuitesSerialiser(MappingPackageAssetSerialiser):
+    """Serialiser for SHACL test suites."""
 
     def serialize(self, package_folder_path: Path, asset: List[SHACLTestSuite]) -> None:
         for suite in asset:
@@ -98,8 +98,8 @@ class SHACLTestSuitesSerializer(MappingPackageAssetSerializer):
                 file_path.write_text(shape_file.content)
 
 
-class MappingPackageMetadataSerializer(MappingPackageAssetSerializer):
-    """Serializer for mapping package metadata."""
+class MappingPackageMetadataSerialiser(MappingPackageAssetSerialiser):
+    """Serialiser for mapping package metadata."""
 
     def serialize(self, package_folder_path: Path, asset: MappingPackageMetadata) -> None:
         metadata_path = package_folder_path / RELATIVE_SUITE_METADATA_PATH
@@ -107,8 +107,8 @@ class MappingPackageMetadataSerializer(MappingPackageAssetSerializer):
         metadata_path.write_text(asset.model_dump_json(by_alias=True))
 
 
-class ConceptualMappingFileSerializer(MappingPackageAssetSerializer):
-    """Serializer for conceptual mapping files."""
+class ConceptualMappingFileSerialiser(MappingPackageAssetSerialiser):
+    """Serialiser for conceptual mapping files."""
 
     def serialize(self, package_folder_path: Path, asset: ConceptualMappingFile) -> None:
         file_path = package_folder_path / RELATIVE_CONCEPTUAL_MAPPING_PATH
@@ -116,8 +116,8 @@ class ConceptualMappingFileSerializer(MappingPackageAssetSerializer):
         file_path.write_bytes(asset.content)
 
 
-class MappingPackageSerializer(MappingPackageAssetSerializer):
-    """Main serializer for complete mapping packages."""
+class MappingPackageSerialiser(MappingPackageAssetSerialiser):
+    """Main serialiser for complete mapping packages."""
 
     def serialize(self, package_folder_path: Path, asset: MappingPackage) -> None:
         """Serialize all components of a mapping package.
@@ -137,10 +137,10 @@ class MappingPackageSerializer(MappingPackageAssetSerializer):
         """
 
         # Serialize each component
-        MappingPackageMetadataSerializer().serialize(package_folder_path, asset.metadata)
-        ConceptualMappingFileSerializer().serialize(package_folder_path, asset.conceptual_mapping_file)
-        TechnicalMappingSuiteSerializer().serialize(package_folder_path, asset.technical_mapping_suite)
-        VocabularyMappingSuiteSerializer().serialize(package_folder_path, asset.vocabulary_mapping_suite)
-        TestDataSuitesSerializer().serialize(package_folder_path, asset.test_data_suites)
-        SPARQLTestSuitesSerializer().serialize(package_folder_path, asset.test_suites_sparql)
-        SHACLTestSuitesSerializer().serialize(package_folder_path, asset.test_suites_shacl)
+        MappingPackageMetadataSerialiser().serialize(package_folder_path, asset.metadata)
+        ConceptualMappingFileSerialiser().serialize(package_folder_path, asset.conceptual_mapping_file)
+        TechnicalMappingSuiteSerialiser().serialize(package_folder_path, asset.technical_mapping_suite)
+        VocabularyMappingSuiteSerialiser().serialize(package_folder_path, asset.vocabulary_mapping_suite)
+        TestDataSuitesSerialiser().serialize(package_folder_path, asset.test_data_suites)
+        SPARQLTestSuitesSerialiser().serialize(package_folder_path, asset.test_suites_sparql)
+        SHACLTestSuitesSerialiser().serialize(package_folder_path, asset.test_suites_shacl)

@@ -8,7 +8,6 @@ END_BUILD_PRINT = \e[0m
 install: install-poetry
 	@ echo -e "$(BUILD_PRINT)Installing MSSDK$(END_BUILD_PRINT)"
 	@ poetry install --without test,docs --no-root
-
 #-----------------------------------------------------------------------------
 # Dev commands
 #-----------------------------------------------------------------------------

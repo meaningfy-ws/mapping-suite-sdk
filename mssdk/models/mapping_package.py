@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from mssdk.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
 from mssdk.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
@@ -35,6 +35,8 @@ class MappingPackageEligibilityConstraints(CoreModel):
         in the eForms are different from the constraints in the Standard Forms.
     """
     constraints: dict = Field(default_factory=dict)
+
+    description: Optional[str] = Field(default=None, exclude=True)
 
 
 class MappingPackageMetadata(CoreModel):

@@ -27,5 +27,9 @@ class CoreModel(BaseModel):
         arbitrary_types_allowed = False  # Strict type checking
         smart_union = True  # Better Union type handling
         use_enum_values = True  # Use enum values instead of members
-        str_strip_whitespace = True  # Strips whitespace from strings
+        str_strip_whitespace = False  # Strips whitespace from strings
         validate_default = True  # Validates default values
+        val_json_bytes = 'base64'
+        ser_json_bytes = 'base64'
+        populate_by_name = True
+        serialize_by_alias = True

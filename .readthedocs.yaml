@@ -5,9 +5,9 @@ build:
   tools:
     python: "3.12"
     nodejs: "16"
-    # Specify poetry version
-    poetry: "2.0.1"
   commands:
+    # Install poetry
+    - pip install poetry==2.0.1
     # Install poetry dependencies
     - poetry install --with docs
     # Install and build Antora documentation

@@ -1,0 +1,119 @@
+= Advanced Usage and Best Practices
+:description: Advanced features and best practices for using the Mapping Suite SDK
+:keywords: mapping-suite, sdk, python, advanced, tutorial
+
+== Working with Package Components
+
+=== Loading from Archives
+
+The SDK supports loading mapping packages from ZIP archives:
+
+[source,python]
+----
+from mssdk.services.load_mapping_package import load_mapping_package_from_archive
+
+# Load from a ZIP archive
+archive_path = Path("path/to/package.zip")
+mapping_package = load_mapping_package_from_archive(archive_path)
+----
+
+=== Custom Loading Strategies
+
+You can implement custom loading behavior:
+
+[source,python]
+----
+from mssdk.adapters.loader import MappingPackageAssetLoader
+
+class CustomLoader(MappingPackageAssetLoader):
+    def load(self, path: Path):
+        # Custom loading logic here
+        pass
+
+# Use custom loader
+mapping_package = load_mapping_package_from_folder(
+    path,
+    mapping_package_loader=CustomLoader()
+)
+----
+
+== Validation and Testing
+
+=== Using Test Suites
+
+The SDK includes support for various types of testing:
+
+* SPARQL-based testing
+* SHACL validation
+* Test data transformation
+
+=== Working with Test Data
+
+[source,python]
+----
+# Access test suites
+for test_suite in mapping_package.test_data_suites:
+    print(f"Test suite: {test_suite.title}")
+
+# Access SPARQL tests
+for sparql_suite in mapping_package.test_suites_sparql:
+    print(f"SPARQL suite: {sparql_suite.title}")
+----
+
+== Best Practices
+
+=== Package Organization
+
+1. Keep related mappings together
+2. Use meaningful names for mapping files
+3. Document your mappings in conceptual mapping files
+4. Include comprehensive test data
+
+=== Error Handling
+
+Always implement proper error handling:
+
+[source,python]
+----
+try:
+    mapping_package = load_mapping_package_from_folder(path)
+except FileNotFoundError:
+    print("Mapping package folder not found")
+except ValueError as e:
+    print(f"Invalid package structure: {e}")
+----
+
+== Advanced Features
+
+=== Working with Metadata Constraints
+
+[source,python]
+----
+# Access package constraints
+constraints = mapping_package.metadata.eligibility_constraints
+print(f"Package constraints: {constraints}")
+----
+
+=== Package Integrity
+
+The SDK includes features for verifying package integrity:
+
+[source,python]
+----
+# Check package signature
+signature = mapping_package.metadata.signature
+print(f"Package signature: {signature}")
+----
+
+== Tips and Tricks
+
+* Use the package index for efficient content access
+* Implement custom loaders for special use cases
+* Leverage the built-in validation features
+* Keep your mapping packages organized and well-documented
+
+== Resources
+
+* GitHub Repository: [link to repo]
+* Documentation: [link to docs]
+* Issue Tracker: [link to issues]

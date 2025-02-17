@@ -1,13 +1,14 @@
 site:
   title: Mapping Suite SDK Documentation
-  url: https://mapping-suite-sdk.readthedocs.io
+  url: https://mssdk.readthedocs.io
   start_page: mapping-suite-sdk::index.adoc
 
 content:
   sources:
-    - url: ./..
+    - url: https://github.com/meaningfy-ws/mapping-suite-sdk.git
       start_path: docs
-      branches: HEAD
+      branches: ~
+      tags: [release/*, 'v*.*.*']
       edit_url: false
 
 ui:

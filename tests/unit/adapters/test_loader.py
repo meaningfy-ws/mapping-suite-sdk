@@ -9,14 +9,14 @@ from mssdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICA
     SPARQLTestSuitesLoader, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesLoader, RELATIVE_SHACL_SUITE_PATH, \
     MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, MappingPackageLoader, ConceptualMappingFileLoader, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
-from mssdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH, MSSDK_DEFAULT_STR_ENCODE
-from mssdk.models.files import TechnicalMappingSuite, RMLMappingFile, YARRRMLMappingFile
+from mssdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
+from mssdk.models.files import TechnicalMappingSuite, RMLMappingFile
 from mssdk.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
     MappingPackage
 from tests.conftest import _test_mapping_package_asset_loader, _test_mapping_suites_asset_loader
 
 
-def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
+def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -41,7 +41,7 @@ def test_technical_mapping_suite_importer(dummy_mapping_package_path: Path) -> N
             assert file.content is not None
 
 
-def test_value_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
+def test_value_mapping_suite_loader(dummy_mapping_package_path: Path) -> None:
     _test_mapping_package_asset_loader(
         dummy_mapping_package_path,
         VocabularyMappingSuiteLoader(),
@@ -49,7 +49,7 @@ def test_value_mapping_suite_importer(dummy_mapping_package_path: Path) -> None:
     )
 
 
-def test_test_data_suites_importer(dummy_mapping_package_path: Path) -> None:
+def test_test_data_suites_loader(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suites_asset_loader(
         dummy_mapping_package_path,
         TestDataSuitesLoader(),
@@ -57,7 +57,7 @@ def test_test_data_suites_importer(dummy_mapping_package_path: Path) -> None:
     )
 
 
-def test_sparql_validation_suites_importer(dummy_mapping_package_path: Path) -> None:
+def test_sparql_validation_suites_loader(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suites_asset_loader(
         dummy_mapping_package_path,
         SPARQLTestSuitesLoader(),
@@ -65,7 +65,7 @@ def test_sparql_validation_suites_importer(dummy_mapping_package_path: Path) -> 
     )
 
 
-def test_shacl_validation_suites_importer(dummy_mapping_package_path: Path) -> None:
+def test_shacl_validation_suites_loader(dummy_mapping_package_path: Path) -> None:
     _test_mapping_suites_asset_loader(
         dummy_mapping_package_path,
         SHACLTestSuitesLoader(),
@@ -73,7 +73,7 @@ def test_shacl_validation_suites_importer(dummy_mapping_package_path: Path) -> N
     )
 
 
-def test_suite_metadata_importer(dummy_mapping_package_path: Path) -> None:
+def test_suite_metadata_loader(dummy_mapping_package_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         # Setup
         temp_dir_path = Path(temp_dir)
@@ -122,7 +122,7 @@ def test_suite_metadata_importer(dummy_mapping_package_path: Path) -> None:
 
         # Verify signature
         assert metadata.signature is not None
-        assert isinstance(metadata.signature, bytes)
+        assert isinstance(metadata.signature, str)
 
         # Verify field aliases
         # Read the original JSON to verify the aliases are working correctly
@@ -134,10 +134,10 @@ def test_suite_metadata_importer(dummy_mapping_package_path: Path) -> None:
         assert metadata.eligibility_constraints == MappingPackageEligibilityConstraints(
             **original_data["metadata_constraints"]
         )
-        assert metadata.signature == bytearray(original_data["mapping_suite_hash_digest"], MSSDK_DEFAULT_STR_ENCODE)
+        assert metadata.signature == original_data["mapping_suite_hash_digest"]
 
 
-def test_conceptual_mapping_importer(dummy_mapping_package_path: Path) -> None:
+def test_conceptual_mapping_loader(dummy_mapping_package_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -157,7 +157,7 @@ def test_conceptual_mapping_importer(dummy_mapping_package_path: Path) -> None:
         assert len(cm_file.content) > 0
 
 
-def test_mapping_package_importer(dummy_mapping_package_path: Path) -> None:
+def test_mapping_package_loader(dummy_mapping_package_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name

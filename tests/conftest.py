@@ -3,12 +3,14 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from pydantic import TypeAdapter
 
 from mssdk.adapters.loader import MappingPackageAssetLoader
 from mssdk.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
-from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH
+from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
+    TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
@@ -131,3 +133,8 @@ def dummy_mapping_package_path() -> Path:
 @pytest.fixture
 def dummy_corrupted_mapping_package_path() -> Path:
     return TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH
+
+
+@pytest.fixture
+def dummy_mapping_package_model() -> MappingPackage:
+    return TypeAdapter(MappingPackage).validate_json(TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH.read_text())

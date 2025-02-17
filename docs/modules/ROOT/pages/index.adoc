@@ -1,0 +1,35 @@
+= Mapping Suite SDK
+:description: Documentation for the Mapping Suite SDK
+:keywords: mapping, SDK, documentation
+
+== Introduction
+
+The Mapping Suite SDK is a powerful toolkit for handling mapping packages and transformations.
+
+== Features
+
+* Loading and handling mapping packages
+* Serialization and deserialization of mapping data
+* Validation services
+* Transformation capabilities
+
+== Quick Start
+
+[source,python]
+----
+from mssdk import MappingPackage
+
+# Load a mapping package
+package = MappingPackage.load("path/to/package.zip")
+
+# Access package contents
+metadata = package.metadata
+----
+
+== Getting Help
+
+If you need help, please:
+
+1. Check the documentation
+2. Open an issue on GitHub
+3. Contact the development team

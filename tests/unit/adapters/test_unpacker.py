@@ -40,7 +40,7 @@ def test_corrupted_archive(dummy_corrupted_mapping_package_path: Path) -> None:
     with pytest.raises(ValueError) as exc_info:
         with ArchiveUnpacker.extract_temporary(dummy_corrupted_mapping_package_path):
             pass
-    assert "Failed to extract archive" in str(exc_info.value)
+    assert "Failed to extract" in str(exc_info.value)
 
 
 def test_unpacker_pack_directory_generates_same_output(dummy_mapping_package_extracted_path: Path,

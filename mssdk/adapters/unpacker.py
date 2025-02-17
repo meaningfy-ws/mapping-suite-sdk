@@ -81,8 +81,6 @@ class ArchiveUnpacker(Unpacker):
                     zip_ref.extractall(temp_dir_path)
                 yield temp_dir_path
 
-            except zipfile.BadZipFile as e:
-                raise zipfile.BadZipFile(f"Invalid ZIP file: {e}")
             except Exception as e:
                 raise ValueError(f"Failed to extract ZIP file: {e}")
 

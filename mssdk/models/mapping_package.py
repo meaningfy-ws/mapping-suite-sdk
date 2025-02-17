@@ -59,7 +59,7 @@ class MappingPackageMetadata(CoreModel):
     eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
                                                                           description="Constraints defining package applicability",
                                                                           alias="metadata_constraints")
-    signature: bytes = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+    signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
 
 
 class MappingPackageIndex(CoreModel):

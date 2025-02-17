@@ -1,6 +1,7 @@
-import json
 from pathlib import Path
 from typing import Any, List, Protocol
+
+from pydantic import TypeAdapter
 
 from mssdk.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingFile, \
@@ -184,8 +185,7 @@ class MappingPackageMetadataLoader(MappingPackageAssetLoader):
             MappingPackageMetadata: Parsed metadata object.
         """
         metadata_file_path: Path = package_folder_path / RELATIVE_SUITE_METADATA_PATH
-        metadata_file_dict: dict = json.loads(metadata_file_path.read_text())
-        return MappingPackageMetadata(**metadata_file_dict)
+        return TypeAdapter(MappingPackageMetadata).validate_json(metadata_file_path.read_text())
 
 
 class MappingPackageIndexLoader(MappingPackageAssetLoader):

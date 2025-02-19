@@ -5,7 +5,7 @@ from mssdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, RELATIV
     RELATIVE_SUITE_METADATA_PATH, RELATIVE_CONCEPTUAL_MAPPING_PATH
 from mssdk.models.files import (
     TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite,
-    SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingFile
+    SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingPackageAsset
 )
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 
@@ -110,7 +110,7 @@ class MappingPackageMetadataSerialiser(MappingPackageAssetSerialiser):
 class ConceptualMappingFileSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for conceptual mapping files."""
 
-    def serialize(self, package_folder_path: Path, asset: ConceptualMappingFile) -> None:
+    def serialize(self, package_folder_path: Path, asset: ConceptualMappingPackageAsset) -> None:
         file_path = package_folder_path / RELATIVE_CONCEPTUAL_MAPPING_PATH
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_bytes(asset.content)

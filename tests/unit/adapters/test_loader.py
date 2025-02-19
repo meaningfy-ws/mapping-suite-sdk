@@ -10,7 +10,7 @@ from mssdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICA
     MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, MappingPackageLoader, ConceptualMappingFileLoader, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
 from mssdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
-from mssdk.models.files import TechnicalMappingSuite, RMLMappingFile
+from mssdk.models.files import TechnicalMappingSuite, RMLMappingAsset
 from mssdk.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
     MappingPackage
 from tests.conftest import _test_mapping_package_asset_loader, _test_mapping_suites_asset_loader
@@ -28,7 +28,7 @@ def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path) -> Non
 
         mapping_suite: TechnicalMappingSuite = TechnicalMappingSuiteLoader().load(temp_mp_path)
 
-        assert any(isinstance(file, RMLMappingFile) for file in mapping_suite.files)
+        assert any(isinstance(file, RMLMappingAsset) for file in mapping_suite.files)
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None

@@ -3,7 +3,7 @@ from typing import Any, List, Protocol
 
 from pydantic import TypeAdapter
 
-from mssdk.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex

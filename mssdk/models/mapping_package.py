@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import Field
 
 from mssdk.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
-from mssdk.models.files import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 
 

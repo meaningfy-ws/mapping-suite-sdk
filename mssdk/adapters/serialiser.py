@@ -3,7 +3,7 @@ from typing import Any, List, Protocol
 
 from mssdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, \
     RELATIVE_SUITE_METADATA_PATH, RELATIVE_CONCEPTUAL_MAPPING_PATH
-from mssdk.models.files import (
+from mssdk.models.asset import (
     TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite,
     SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingPackageAsset
 )

@@ -9,7 +9,7 @@ import pytest
 from pydantic import TypeAdapter
 
 from mssdk.adapters.loader import MappingPackageAssetLoader
-from mssdk.models.files import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \

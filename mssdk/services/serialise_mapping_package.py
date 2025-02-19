@@ -3,13 +3,13 @@ from pathlib import Path
 from typing import Optional
 
 from mssdk.adapters.serialiser import MappingPackageSerialiser
-from mssdk.adapters.unpacker import ArchiveUnpacker
+from mssdk.adapters.extractor import ArchiveExtractor
 from mssdk.models.mapping_package import MappingPackage
 
 
 def serialise_mapping_package(mapping_package: MappingPackage,
                               serialisation_folder_path: Path,
-                              archive_unpacker: Optional[ArchiveUnpacker] = None) -> None:
+                              archive_unpacker: Optional[ArchiveExtractor] = None) -> None:
     """Serializes a MappingPackage object and packages it into an archive.
 
     This function takes a MappingPackage object, serializes its contents to a temporary
@@ -44,7 +44,7 @@ def serialise_mapping_package(mapping_package: MappingPackage,
         content before packaging. This directory is automatically cleaned up after the
         function completes, regardless of success or failure.
     """
-    archive_unpacker = archive_unpacker or ArchiveUnpacker()
+    archive_unpacker = archive_unpacker or ArchiveExtractor()
 
     with tempfile.TemporaryDirectory() as temp_directory:
         temp_directory_path = Path(temp_directory)

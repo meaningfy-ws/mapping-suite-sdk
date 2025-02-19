@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Generator, Protocol
 
 
-class Unpacker(Protocol):
+class Extractor(Protocol):
     """Protocol defining the interface for file unpacking operations.
 
     This protocol establishes a contract for classes that provide temporary file
@@ -33,8 +33,8 @@ class Unpacker(Protocol):
         raise NotImplementedError
 
 
-class ArchiveUnpacker(Unpacker):
-    """Implementation of Unpacker protocol for ZIP file operations.
+class ArchiveExtractor(Extractor):
+    """Implementation of Extractor protocol for ZIP file operations.
 
     This class provides functionality to:
     - Extract ZIP files to a temporary directory with automatic cleanup
@@ -63,7 +63,7 @@ class ArchiveUnpacker(Unpacker):
         Example:
             >>> from pathlib import Path
             >>> archive_path = Path("example.zip")
-            >>> with ArchiveUnpacker.extract_temporary(archive_path) as temp_path:
+            >>> with ArchiveExtractor.extract_temporary(archive_path) as temp_path:
             ...     # Work with extracted files in temp_path
             ...     pass  # Cleanup is automatic after the with block
         """
@@ -110,7 +110,7 @@ class ArchiveUnpacker(Unpacker):
             >>> from pathlib import Path
             >>> source_dir = Path("folder_to_archive")
             >>> output_path = Path("output/archive")
-            >>> zip_path = ArchiveUnpacker.pack_directory(source_dir, output_path)
+            >>> zip_path = ArchiveExtractor.pack_directory(source_dir, output_path)
         """
         if not source_dir.exists():
             raise FileNotFoundError(f"Source directory not found: {source_dir}")

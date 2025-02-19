@@ -1,4 +1,4 @@
 
 
-def test_dummy() -> bool:
+def test_dummy() -> None:
     assert True

@@ -14,6 +14,6 @@ jobs:
     - name: Update PyLint Badge
       uses: Silleellie/pylint-github-action@v2.1
       with:
-        lint-path: ./mssdk ./tests
+        lint-path: ./mapping_suite_sdk ./tests
         python-version: 3.12
         pylintrc-path: .pylintrc

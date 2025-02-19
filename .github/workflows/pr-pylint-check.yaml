@@ -1,4 +1,4 @@
-name: Quality check
+name: Pylint Quality check
 
 on:
   pull_request:
@@ -10,29 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
 
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.12"
-        cache: 'pip'
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: 'pip'
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-dev libsqlite3-dev
-        make install-dev
-        make install
-        # For PyLint Badge
-        pip freeze > requirements.txt
-    - name: Run Pylint with report
-      run: make lint-report
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev libsqlite3-dev
+          make install-dev
+          make install
+          # For PyLint Badge
+          pip freeze > requirements.txt
+      - name: Run Pylint with report
+        run: make lint-report
 
-    - name: Publish Pylint Comment
-      uses: thollander/actions-comment-pull-request@v2
-      with:
-        filePath: pylint_report.txt
-        comment_tag: pylint
+      - name: Publish Pylint Comment
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: pylint_report.txt
+          comment_tag: pylint

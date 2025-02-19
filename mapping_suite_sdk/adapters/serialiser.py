@@ -1,13 +1,13 @@
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from mssdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, \
+from mapping_suite_sdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, \
     RELATIVE_SUITE_METADATA_PATH, RELATIVE_CONCEPTUAL_MAPPING_PATH
-from mssdk.models.asset import (
+from mapping_suite_sdk.models.asset import (
     TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite,
     SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingPackageAsset
 )
-from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 
 
 class MappingPackageAssetSerialiser(Protocol):

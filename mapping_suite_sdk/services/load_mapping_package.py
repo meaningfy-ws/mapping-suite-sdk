@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import Optional
 
-from mssdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
-from mssdk.adapters.extractor import ArchiveExtractor
-from mssdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
+from mapping_suite_sdk.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
 def load_mapping_package_from_folder(

@@ -2,9 +2,9 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from mssdk.adapters.serialiser import MappingPackageSerialiser
-from mssdk.adapters.extractor import ArchiveExtractor
-from mssdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
+from mapping_suite_sdk.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
 def serialise_mapping_package(mapping_package: MappingPackage,
@@ -33,7 +33,7 @@ def serialise_mapping_package(mapping_package: MappingPackage,
 
     Example:
         >>> from pathlib import Path
-        >>> from mssdk.models.mapping_package import MappingPackage
+        >>> from mapping_suite_sdk.models.mapping_package import MappingPackage
         >>>
         >>> package = MappingPackage(...)  # Create your mapping package
         >>> output_path = Path("./output/package")

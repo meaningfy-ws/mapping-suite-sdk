@@ -2,8 +2,8 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from mssdk.adapters.serialiser import MappingPackageSerialiser
-from mssdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 from tests.conftest import _compare_directories
 
 

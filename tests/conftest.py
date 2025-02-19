@@ -166,7 +166,8 @@ def _compare_directories(source_dir: Path, target_dir: Path) -> tuple[bool, str]
                 return False, f"Invalid JSON in {rel_path}: {str(e)}"
         else:
             # Binary comparison for other files
-            if not filecmp.cmp(str(source_file), str(target_file), shallow=False):
+            # Alternative: #filecmp.cmp(str(source_file), str(target_file), shallow=False) # Also compares timestamp
+            if not source_file.read_text(encoding='utf-8', errors="ignore") == target_file.read_text(encoding='utf-8', errors="ignore"):
                 return False, f"Content differs in {rel_path}"
 
     return True, ""

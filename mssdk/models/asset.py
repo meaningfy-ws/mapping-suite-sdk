@@ -9,7 +9,7 @@ from mssdk.models.core import CoreModel
 
 ### Files
 
-class BaseFile(CoreModel):
+class PackageAsset(CoreModel):
     """A base class representing a file within a mapping package.
 
     This class serves as the foundation for all file types in the mapping suite,
@@ -34,7 +34,7 @@ class BaseFile(CoreModel):
     #     raise NotImplementedError
 
 
-class ConceptualMappingFile(BaseFile):
+class ConceptualMappingPackageAsset(PackageAsset):
     """A class representing a Conceptual Mapping file.
 
     This class handles files that define high-level mapping concepts and relationships
@@ -45,7 +45,7 @@ class ConceptualMappingFile(BaseFile):
     content: bytes = Field(..., description="xlsx file content in bytes")
 
 
-class VocabularyMappingFile(BaseFile):
+class VocabularyMappingAsset(PackageAsset):
     """A class representing a Vocabulary Mapping file.
 
     This class manages files that define specific value transformations and mappings
@@ -56,7 +56,7 @@ class VocabularyMappingFile(BaseFile):
     pass
 
 
-class SPARQLQueryFile(BaseFile):
+class SPARQLQueryAsset(PackageAsset):
     """A class representing a SPARQL Query file.
 
     This class handles files containing SPARQL ASK queries used for validating
@@ -66,7 +66,7 @@ class SPARQLQueryFile(BaseFile):
     pass
 
 
-class SHACLShapesFile(BaseFile):
+class SHACLShapesAsset(PackageAsset):
     """A class representing a SHACL (Shapes Constraint Language) Shapes file.
 
     This class handles files containing SHACL shapes which define constraints
@@ -78,7 +78,7 @@ class SHACLShapesFile(BaseFile):
     pass
 
 
-class TestDataFile(BaseFile):
+class TestDataAsset(PackageAsset):
     """A class representing a Test Data file.
 
     This class manages files containing test data used for validating and verifying
@@ -88,7 +88,7 @@ class TestDataFile(BaseFile):
     pass
 
 
-class TestDataResultFile(BaseFile):
+class TestDataResultAsset(PackageAsset):
     """A class representing a test data result file.
 
     This class handles files that contain the actual output results from
@@ -101,7 +101,7 @@ class TestDataResultFile(BaseFile):
     pass
 
 
-class TechnicalMappingFile(BaseFile, ABC):
+class TechnicalMappingAsset(PackageAsset, ABC):
     """An abstract base class for Technical Mapping files.
 
     This class serves as a base for specific technical mapping implementations.
@@ -112,7 +112,7 @@ class TechnicalMappingFile(BaseFile, ABC):
     pass
 
 
-class RMLMappingFile(TechnicalMappingFile):
+class RMLMappingAsset(TechnicalMappingAsset):
     """A class representing an RML (RDF Mapping Language) Mapping file.
 
     This class handles files containing RML mappings, which are used to express
@@ -123,7 +123,7 @@ class RMLMappingFile(TechnicalMappingFile):
     pass
 
 
-class YARRRMLMappingFile(TechnicalMappingFile):
+class YARRRMLMappingAsset(TechnicalMappingAsset):
     """A class representing a YARRRML Mapping file.
 
     This class manages files containing YARRRML mappings, which are human-readable
@@ -135,7 +135,7 @@ class YARRRMLMappingFile(TechnicalMappingFile):
 
 ### Suites
 
-class BaseFileCollection(CoreModel):
+class PackageAssetCollection(CoreModel):
     """A base class for managing collections of related files within a mapping package.
 
     This class serves as a foundation for organizing and managing groups of related files
@@ -143,10 +143,10 @@ class BaseFileCollection(CoreModel):
     of file collections, making it easier to manage sets of related mapping artifacts.
     """
     path: Path = Field(..., description="Path within a mapping package")
-    files: List[BaseFile] = Field(default_factory=list, description="Collection of files")
+    files: List[PackageAsset] = Field(default_factory=list, description="Collection of files")
 
 
-class TechnicalMappingSuite(BaseFileCollection):
+class TechnicalMappingSuite(PackageAssetCollection):
     """A collection of technical mapping files.
 
     This suite manages a set of technical mapping files that together define the
@@ -154,10 +154,10 @@ class TechnicalMappingSuite(BaseFileCollection):
     files such as RML or YARRRML mappings that work together to achieve a complete
     data transformation solution.
     """
-    files: List[TechnicalMappingFile] = Field(default_factory=list, description="Collection of technical mapping files")
+    files: List[TechnicalMappingAsset] = Field(default_factory=list, description="Collection of technical mapping files")
 
 
-class VocabularyMappingSuite(BaseFileCollection):
+class VocabularyMappingSuite(PackageAssetCollection):
     """A collection of value mapping files.
 
     This suite manages a set of value mapping files that define transformations
@@ -165,21 +165,21 @@ class VocabularyMappingSuite(BaseFileCollection):
     conversions, normalizations, and transformations that are applied during
     the mapping process.
     """
-    files: List[VocabularyMappingFile] = Field(default_factory=list,
-                                               description="Collection of vocabulary mapping files")
+    files: List[VocabularyMappingAsset] = Field(default_factory=list,
+                                                description="Collection of vocabulary mapping files")
 
 
-class TestDataSuite(BaseFileCollection):
+class TestDataSuite(PackageAssetCollection):
     """A collection of test data files.
 
     This suite manages a set of test data files used for validation and verification
     of mapping processes. It typically includes input test data and their corresponding
     expected outputs used to verify the correctness of mapping transformations.
     """
-    files: List[TestDataFile] = Field(default_factory=list, description="Collection of test data files")
+    files: List[TestDataAsset] = Field(default_factory=list, description="Collection of test data files")
 
 
-class SAPRQLTestSuite(BaseFileCollection):
+class SAPRQLTestSuite(PackageAssetCollection):
     """A collection of SPARQL test files.
 
     This suite manages a set of SPARQL query files used for testing and validation.
@@ -187,10 +187,10 @@ class SAPRQLTestSuite(BaseFileCollection):
     the correctness of the transformation results or to perform specific data
     validations.
     """
-    files: List[SPARQLQueryFile] = Field(default_factory=list, description="Collection of SPARQL validation files")
+    files: List[SPARQLQueryAsset] = Field(default_factory=list, description="Collection of SPARQL validation files")
 
 
-class SHACLTestSuite(BaseFileCollection):
+class SHACLTestSuite(PackageAssetCollection):
     """A collection of SHACL test files.
 
     This suite manages a set of SHACL (Shapes Constraint Language) files used for
@@ -198,10 +198,10 @@ class SHACLTestSuite(BaseFileCollection):
     for validating the structure and content of RDF data produced by the mapping
     process.
     """
-    files: List[SHACLShapesFile] = Field(default_factory=list, description="Collection of SHACL shape files")
+    files: List[SHACLShapesAsset] = Field(default_factory=list, description="Collection of SHACL shape files")
 
 
-class TestResultSuite(BaseFileCollection):
+class TestResultSuite(PackageAssetCollection):
     """A collection of test result files.
 
     This suite manages files containing the results of executed tests across
@@ -210,4 +210,4 @@ class TestResultSuite(BaseFileCollection):
     and other test executions. These results can be used for validation,
     debugging, and quality assurance of the mapping processes.
     """
-    files: List[TestDataResultFile] = Field(default_factory=list, description="Collection of test data result files")
+    files: List[TestDataResultAsset] = Field(default_factory=list, description="Collection of test data result files")

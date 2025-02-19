@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from mssdk.adapters.loader import MappingPackageLoader
-from mssdk.adapters.unpacker import ArchiveUnpacker
+from mssdk.adapters.extractor import ArchiveExtractor
 from mssdk.models.mapping_package import MappingPackage
 from mssdk.services.load_mapping_package import load_mapping_package_from_folder, load_mapping_package_from_archive
 from tests.conftest import assert_valid_mapping_package
@@ -71,6 +71,6 @@ def test_load_mapping_package_from_archive_with_success(dummy_mapping_package_pa
     mapping_package: MappingPackage = load_mapping_package_from_archive(
         mapping_package_archive_path=dummy_mapping_package_path,
         mapping_package_loader=MappingPackageLoader(),
-        archive_unpacker=ArchiveUnpacker())
+        archive_unpacker=ArchiveExtractor())
 
     assert_valid_mapping_package(mapping_package=mapping_package)

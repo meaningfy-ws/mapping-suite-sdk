@@ -9,7 +9,7 @@ import pytest
 from pydantic import TypeAdapter
 
 from mssdk.adapters.loader import MappingPackageAssetLoader
-from mssdk.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
@@ -79,7 +79,7 @@ def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
     # Conceptual Mapping File validation
     assert hasattr(mapping_package, 'conceptual_mapping_file'), \
         "Missing required field: conceptual_mapping_file"
-    assert isinstance(mapping_package.conceptual_mapping_file, ConceptualMappingFile), \
+    assert isinstance(mapping_package.conceptual_mapping_file, ConceptualMappingPackageAsset), \
         f"conceptual_mapping_file must be ConceptualMappingFile, got {type(mapping_package.conceptual_mapping_file)}"
 
     # Technical Mapping Suite validation
@@ -166,7 +166,8 @@ def _compare_directories(source_dir: Path, target_dir: Path) -> tuple[bool, str]
                 return False, f"Invalid JSON in {rel_path}: {str(e)}"
         else:
             # Binary comparison for other files
-            if not filecmp.cmp(str(source_file), str(target_file), shallow=False):
+            # Alternative: #filecmp.cmp(str(source_file), str(target_file), shallow=False) # Also compares timestamp
+            if not source_file.read_text(encoding='utf-8', errors="ignore") == target_file.read_text(encoding='utf-8', errors="ignore"):
                 return False, f"Content differs in {rel_path}"
 
     return True, ""

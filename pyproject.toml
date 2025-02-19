@@ -29,4 +29,7 @@ package-mode = true
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
 tox = "^4.24.1"
+pytest-cov = "^6.0.0"
+coverage = "^7.6.12"
+pylint = "^3.3.4"
 

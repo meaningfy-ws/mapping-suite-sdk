@@ -1,14 +1,19 @@
+import filecmp
+import json
 import shutil
 import tempfile
 from pathlib import Path
+from typing import Set
 
 import pytest
+from pydantic import TypeAdapter
 
 from mssdk.adapters.loader import MappingPackageAssetLoader
-from mssdk.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata
-from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH
+from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
+    TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
@@ -74,7 +79,7 @@ def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
     # Conceptual Mapping File validation
     assert hasattr(mapping_package, 'conceptual_mapping_file'), \
         "Missing required field: conceptual_mapping_file"
-    assert isinstance(mapping_package.conceptual_mapping_file, ConceptualMappingFile), \
+    assert isinstance(mapping_package.conceptual_mapping_file, ConceptualMappingPackageAsset), \
         f"conceptual_mapping_file must be ConceptualMappingFile, got {type(mapping_package.conceptual_mapping_file)}"
 
     # Technical Mapping Suite validation
@@ -123,6 +128,51 @@ def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
             f"All test_suites_shacl elements must be SHACLTestSuite, got {type(suite)}"
 
 
+def _get_all_files(directory: Path) -> Set[str]:
+    """Get all files in directory recursively, returning relative paths."""
+    return {str(p.relative_to(directory)) for p in directory.rglob("*") if p.is_file()}
+
+
+def _compare_json_files(file1: Path, file2: Path) -> bool:
+    """Compare two JSON files for semantic equality."""
+    with file1.open() as f1, file2.open() as f2:
+        return json.load(f1) == json.load(f2)
+
+
+def _compare_directories(source_dir: Path, target_dir: Path) -> tuple[bool, str]:
+    """
+    Compare directories recursively, allowing target_dir to have extra files.
+    source_dir: the serialized folder (all files must exist in target)
+    target_dir: the dummy package folder (can have extra files)
+    Returns (is_equal, error_message)
+    """
+
+    source_files = _get_all_files(source_dir)
+    target_files = _get_all_files(target_dir)
+
+    missing_files = source_files - target_files
+    if missing_files:
+        return False, f"Files missing in {target_dir}:\n" + "\n".join(sorted(missing_files))
+
+    for rel_path in source_files:
+        source_file = source_dir / rel_path
+        target_file = target_dir / rel_path
+
+        if source_file.suffix.lower() == '.json':
+            try:
+                if not _compare_json_files(source_file, target_file):
+                    return False, f"JSON content differs in {rel_path}"
+            except json.JSONDecodeError as e:
+                return False, f"Invalid JSON in {rel_path}: {str(e)}"
+        else:
+            # Binary comparison for other files
+            # Alternative: #filecmp.cmp(str(source_file), str(target_file), shallow=False) # Also compares timestamp
+            if not source_file.read_text(encoding='utf-8', errors="ignore") == target_file.read_text(encoding='utf-8', errors="ignore"):
+                return False, f"Content differs in {rel_path}"
+
+    return True, ""
+
+
 @pytest.fixture
 def dummy_mapping_package_path() -> Path:
     return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH
@@ -131,3 +181,13 @@ def dummy_mapping_package_path() -> Path:
 @pytest.fixture
 def dummy_corrupted_mapping_package_path() -> Path:
     return TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH
+
+
+@pytest.fixture
+def dummy_mapping_package_model() -> MappingPackage:
+    return TypeAdapter(MappingPackage).validate_json(TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH.read_text())
+
+
+@pytest.fixture
+def dummy_mapping_package_extracted_path() -> Path:
+    return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH

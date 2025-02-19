@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 .idea
 activate_venv.sh
+pylint_report.json
+pylint_report.txt

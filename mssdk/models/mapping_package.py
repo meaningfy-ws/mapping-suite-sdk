@@ -1,9 +1,9 @@
-from typing import List
+from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from mssdk.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
-from mssdk.models.files import ConceptualMappingFile, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mssdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 
 
@@ -36,6 +36,8 @@ class MappingPackageEligibilityConstraints(CoreModel):
     """
     constraints: dict = Field(default_factory=dict)
 
+    description: Optional[str] = Field(default=None, exclude=True)
+
 
 class MappingPackageMetadata(CoreModel):
     """A class representing the metadata of a mapping package.
@@ -57,7 +59,7 @@ class MappingPackageMetadata(CoreModel):
     eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
                                                                           description="Constraints defining package applicability",
                                                                           alias="metadata_constraints")
-    signature: bytes = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+    signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
 
 
 class MappingPackageIndex(CoreModel):
@@ -82,7 +84,7 @@ class MappingPackage(CoreModel):
     # index: MappingPackageIndex = Field(..., description="Index of package contents and their relationships")
 
     # Package elements (folders and files)
-    conceptual_mapping_file: ConceptualMappingFile = Field(..., description="The CMs in Excel Spreadsheet")
+    conceptual_mapping_file: ConceptualMappingPackageAsset = Field(..., description="The CMs in Excel Spreadsheet")
     technical_mapping_suite: TechnicalMappingSuite = Field(..., description="All teh RML files, which are RMLFragments")
     vocabulary_mapping_suite: VocabularyMappingSuite = Field(..., description="The resources JSONs, CSV and XML files")
     test_data_suites: List[TestDataSuite] = Field(..., description="Collections of test data for transformation")

@@ -1,10 +1,11 @@
-import json
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from mssdk.models.files import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
-    SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingFile, \
-    ConceptualMappingFile, VocabularyMappingFile, TestDataFile, SPARQLQueryFile, SHACLShapesFile
+from pydantic import TypeAdapter
+
+from mssdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+    SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
+    ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset
 from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 
 ### Paths relative to mapping package
@@ -54,12 +55,12 @@ class TechnicalMappingSuiteLoader(MappingPackageAssetLoader):
         Returns:
             TechnicalMappingSuite: Collection of loaded RML and YARRRML mapping files.
         """
-        tm_files: List[RMLMappingFile] = []
+        tm_files: List[RMLMappingAsset] = []
 
         for tm_file in (package_folder_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH).iterdir():
             if tm_file.is_file():
                 tm_files.append(
-                    RMLMappingFile(path=tm_file.relative_to(package_folder_path), content=tm_file.read_text()))
+                    RMLMappingAsset(path=tm_file.relative_to(package_folder_path), content=tm_file.read_text()))
 
         return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=tm_files)
 
@@ -79,12 +80,12 @@ class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
         Returns:
             VocabularyMappingSuite: Collection of loaded vocabulary mapping files.
         """
-        files: List[VocabularyMappingFile] = []
+        files: List[VocabularyMappingAsset] = []
 
         for file in (package_folder_path / RELATIVE_VOCABULARY_MAPPING_SUITE_PATH).iterdir():
             if file.is_file():
                 files.append(
-                    VocabularyMappingFile(path=file.relative_to(package_folder_path), content=file.read_text()))
+                    VocabularyMappingAsset(path=file.relative_to(package_folder_path), content=file.read_text()))
 
         return VocabularyMappingSuite(path=RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, files=files)
 
@@ -108,8 +109,8 @@ class TestDataSuitesLoader(MappingPackageAssetLoader):
         for ts_suite in (package_folder_path / RELATIVE_TEST_DATA_PATH).iterdir():
             if ts_suite.is_dir():
                 test_data_suites.append(TestDataSuite(path=ts_suite.relative_to(package_folder_path),
-                                                      files=[TestDataFile(path=ts_file.relative_to(package_folder_path),
-                                                                          content=ts_file.read_text()) for ts_file in
+                                                      files=[TestDataAsset(path=ts_file.relative_to(package_folder_path),
+                                                                           content=ts_file.read_text()) for ts_file in
                                                              ts_suite.iterdir() if ts_file.is_file()]))
         return test_data_suites
 
@@ -133,7 +134,7 @@ class SPARQLTestSuitesLoader(MappingPackageAssetLoader):
         for sparql_suite in (package_folder_path / RELATIVE_SPARQL_SUITE_PATH).iterdir():
             if sparql_suite.is_dir():
                 sparql_validation_suites.append(SAPRQLTestSuite(path=sparql_suite.relative_to(package_folder_path),
-                                                                files=[SPARQLQueryFile(
+                                                                files=[SPARQLQueryAsset(
                                                                     path=ts_file.relative_to(package_folder_path),
                                                                     content=ts_file.read_text()) for ts_file
                                                                     in
@@ -160,7 +161,7 @@ class SHACLTestSuitesLoader(MappingPackageAssetLoader):
         for shacl_suite in (package_folder_path / RELATIVE_SHACL_SUITE_PATH).iterdir():
             if shacl_suite.is_dir():
                 shacl_validation_suites.append(SHACLTestSuite(path=shacl_suite.relative_to(package_folder_path),
-                                                              files=[SHACLShapesFile(
+                                                              files=[SHACLShapesAsset(
                                                                   path=ts_file.relative_to(package_folder_path),
                                                                   content=ts_file.read_text()) for ts_file
                                                                   in
@@ -184,8 +185,7 @@ class MappingPackageMetadataLoader(MappingPackageAssetLoader):
             MappingPackageMetadata: Parsed metadata object.
         """
         metadata_file_path: Path = package_folder_path / RELATIVE_SUITE_METADATA_PATH
-        metadata_file_dict: dict = json.loads(metadata_file_path.read_text())
-        return MappingPackageMetadata(**metadata_file_dict)
+        return TypeAdapter(MappingPackageMetadata).validate_json(metadata_file_path.read_text())
 
 
 class MappingPackageIndexLoader(MappingPackageAssetLoader):
@@ -236,18 +236,18 @@ class ConceptualMappingFileLoader(MappingPackageAssetLoader):
     Handles loading of conceptual mapping Excel files.
     """
 
-    def load(self, package_folder_path: Path) -> ConceptualMappingFile:
+    def load(self, package_folder_path: Path) -> ConceptualMappingPackageAsset:
         """Load the conceptual mapping Excel file.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
 
         Returns:
-            ConceptualMappingFile: The loaded conceptual mapping file.
+            ConceptualMappingPackageAsset: The loaded conceptual mapping file.
         """
         cm_file_path: Path = package_folder_path / RELATIVE_CONCEPTUAL_MAPPING_PATH
 
-        return ConceptualMappingFile(
+        return ConceptualMappingPackageAsset(
             path=RELATIVE_CONCEPTUAL_MAPPING_PATH,
             content=cm_file_path.read_bytes()
         )

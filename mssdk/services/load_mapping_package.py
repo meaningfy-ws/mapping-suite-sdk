@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional
 
 from mssdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
-from mssdk.adapters.unpacker import ArchiveUnpacker
+from mssdk.adapters.extractor import ArchiveExtractor
 from mssdk.models.mapping_package import MappingPackage
 
 
@@ -46,7 +46,7 @@ def load_mapping_package_from_folder(
 def load_mapping_package_from_archive(
         mapping_package_archive_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
-        archive_unpacker: Optional[ArchiveUnpacker] = None
+        archive_unpacker: Optional[ArchiveExtractor] = None
 ) -> MappingPackage:
     """Load a mapping package from an archive file.
 
@@ -77,7 +77,7 @@ def load_mapping_package_from_archive(
     if not mapping_package_archive_path.is_file():
         raise ValueError(f"Specified path is not a file: {mapping_package_archive_path}")
 
-    archive_unpacker: ArchiveUnpacker = archive_unpacker or ArchiveUnpacker()
+    archive_unpacker: ArchiveExtractor = archive_unpacker or ArchiveExtractor()
 
     with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
 

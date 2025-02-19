@@ -12,10 +12,11 @@ The Mapping Suite SDK is a powerful tool designed for working with mapping suite
 A mapping package is a collection of related mapping components that include:
 
 * Metadata - Package identification and versioning information
-* Conceptual Mappings - Excel spreadsheets defining mapping concepts
-* Technical Mappings - RML files containing transformation rules
-* Vocabulary Mappings - Resource files (JSON, CSV, XML)
-* Test Suites - Various test data and validation rules
+* Conceptual Mappings - Spreadsheets defining mapping concepts (Excel/XLSX)
+* Technical Mappings - Files containing transformation rules (RML/RDF)
+* Vocabulary Mappings - Controlled vocabulary resource files that can be referenced by the rules (JSON, CSV)
+* Test Suites - Various test data (XML)
+* Validation Suites - Various validation rules (SHACL, SPARQL)
 
 === Package Structure
 A typical mapping package follows this structure:
@@ -36,12 +37,12 @@ mapping-package/
 
 == Getting Started
 
-=== Installation
-
-[source,bash]
-----
-pip install mssdk
-----
+// === Installation
+//
+// [source,bash]
+// ----
+// pip install mapping-suite-sdk
+// ----
 
 === Basic Usage
 

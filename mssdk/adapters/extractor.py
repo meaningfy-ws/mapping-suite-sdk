@@ -6,7 +6,7 @@ from typing import Generator, Protocol
 
 
 class Extractor(Protocol):
-    """Protocol defining the interface for file unpacking operations.
+    """Protocol defining the interface for file extract operations.
 
     This protocol establishes a contract for classes that provide temporary file
     extraction capabilities with automatic cleanup. Implementations must provide

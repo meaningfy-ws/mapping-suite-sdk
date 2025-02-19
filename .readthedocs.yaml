@@ -3,7 +3,7 @@ version: 2
 build:
   os: ubuntu-22.04
   tools:
-    nodejs: "22.14.0"
+    nodejs: "22"
   jobs:
     install:
       - npm i -g @antora/cli@3.1 @antora/site-generator@3.1

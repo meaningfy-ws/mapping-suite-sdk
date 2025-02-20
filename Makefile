@@ -44,3 +44,8 @@ lint-full-report:
 	@ echo -e "$(BUILD_PRINT)Running Pylint check and generating report$(END_BUILD_PRINT)"
 	@ poetry run pylint --rcfile=.pylintrc ./mapping_suite_sdk ./tests | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
 	@ echo "Report generated in pylint-report.txt"
+
+create-requirements-txt:
+	@ echo -e "$(BUILD_PRINT)Generating requirements.txt$(END_BUILD_PRINT)"
+	@ pip freeze > requirements.txt
+	@ echo "$(BUILD_PRINT)Generating requirements.txt DONE$(END_BUILD_PRINT)"

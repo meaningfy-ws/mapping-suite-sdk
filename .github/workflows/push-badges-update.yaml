@@ -1,0 +1,34 @@
+name: Update badges
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+
+jobs:
+  test:
+    name: Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev libsqlite3-dev
+          make install-dev
+          make install
+
+      - name: Update PyLint Badge
+        uses: Silleellie/pylint-github-action@v2.1
+        with:
+          lint-path: ./mapping_suite_sdk ./tests
+          python-version: "3.12"
+          pylintrc-path: .pylintrc

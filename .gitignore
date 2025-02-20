@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+.idea
+activate_venv.sh
+pylint_report.json
+pylint_report.txt

@@ -1,0 +1,5 @@
+name: mapping-suite-sdk
+title: Mapping Suite SDK
+version: '~'
+nav:
+  - modules/ROOT/nav.adoc

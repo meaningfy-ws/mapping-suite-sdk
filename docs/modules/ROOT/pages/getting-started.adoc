@@ -1,0 +1,69 @@
+= Getting Started with Mapping Suite SDK
+:description: Introduction to the Mapping Suite SDK and its basic concepts
+:keywords: mapping-suite, sdk, python, tutorial
+
+== Introduction
+
+The Mapping Suite SDK is a powerful tool designed for working with mapping suites, particularly focusing on the re-use of mapping suites in transformation pipelines. This SDK provides a comprehensive set of tools and utilities for handling mapping packages.
+
+== Key Concepts
+
+=== Mapping Package
+A mapping package is a collection of related mapping components that include:
+
+* Metadata - Package identification and versioning information
+* Conceptual Mappings - Spreadsheets defining mapping concepts (Excel/XLSX)
+* Technical Mappings - Files containing transformation rules (RML/RDF)
+* Vocabulary Mappings - Controlled vocabulary resource files that can be referenced by the rules (JSON, CSV)
+* Test Suites - Various test data (XML)
+* Validation Suites - Various validation rules (SHACL, SPARQL)
+
+=== Package Structure
+A typical mapping package follows this structure:
+
+[source]
+----
+mapping-package/
+├── metadata.json
+├── transformation/
+│   ├── conceptual_mappings.xlsx
+│   ├── mappings/
+│   └── resources/
+├── test_data/
+└── validation/
+    ├── shacl/
+    └── sparql/
+----
+
+== Getting Started
+
+// === Installation
+//
+// [source,bash]
+// ----
+// pip install mapping-suite-sdk
+// ----
+
+=== Basic Usage
+
+Here's a simple example of loading a mapping package:
+
+[source,python]
+----
+from pathlib import Path
+from mssdk.services.load_mapping_package import load_mapping_package_from_folder
+
+# Load from a folder
+package_path = Path("path/to/mapping/package")
+mapping_package = load_mapping_package_from_folder(package_path)
+
+# Access package components
+print(mapping_package.metadata.title)
+print(mapping_package.metadata.mapping_version)
+----
+
+== Next Steps
+
+* Continue to the Advanced Usage tutorial to learn about more features
+* Explore the API documentation for detailed information
+* Check out the example mapping packages in the test data

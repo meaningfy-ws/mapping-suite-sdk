@@ -33,3 +33,4 @@ pytest-cov = "^6.0.0"
 coverage = "^7.6.12"
 pylint = "^3.3.4"
 
+[tool.poetry.group.docs.dependencies]

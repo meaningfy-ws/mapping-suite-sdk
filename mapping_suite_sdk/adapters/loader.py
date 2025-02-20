@@ -3,10 +3,10 @@ from typing import Any, List, Protocol
 
 from pydantic import TypeAdapter
 
-from mssdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset
-from mssdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
+from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 
 ### Paths relative to mapping package
 RELATIVE_TECHNICAL_MAPPING_SUITE_PATH = Path("transformation/mappings")

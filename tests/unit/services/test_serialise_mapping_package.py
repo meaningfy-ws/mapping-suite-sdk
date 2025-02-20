@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from mssdk.models.mapping_package import MappingPackage
-from mssdk.services.serialise_mapping_package import serialise_mapping_package
+from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.services.serialise_mapping_package import serialise_mapping_package
 from tests.conftest import _compare_directories
 
 

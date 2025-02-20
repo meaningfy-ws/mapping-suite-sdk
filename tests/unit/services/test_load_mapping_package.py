@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from mssdk.adapters.loader import MappingPackageLoader
-from mssdk.adapters.extractor import ArchiveExtractor
-from mssdk.models.mapping_package import MappingPackage
-from mssdk.services.load_mapping_package import load_mapping_package_from_folder, load_mapping_package_from_archive
+from mapping_suite_sdk.adapters.loader import MappingPackageLoader
+from mapping_suite_sdk.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.services.load_mapping_package import load_mapping_package_from_folder, load_mapping_package_from_archive
 from tests.conftest import assert_valid_mapping_package
 
 

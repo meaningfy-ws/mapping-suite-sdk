@@ -4,7 +4,7 @@ from typing import List
 
 from pydantic import Field
 
-from mssdk.models.core import CoreModel
+from mapping_suite_sdk.models.core import CoreModel
 
 
 ### Files

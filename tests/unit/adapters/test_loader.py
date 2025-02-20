@@ -4,14 +4,14 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-from mssdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
+from mapping_suite_sdk.adapters.loader import TechnicalMappingSuiteLoader, RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
     VocabularyMappingSuiteLoader, RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, RELATIVE_TEST_DATA_PATH, TestDataSuitesLoader, \
     SPARQLTestSuitesLoader, RELATIVE_SPARQL_SUITE_PATH, SHACLTestSuitesLoader, RELATIVE_SHACL_SUITE_PATH, \
     MappingPackageMetadataLoader, RELATIVE_SUITE_METADATA_PATH, MappingPackageLoader, ConceptualMappingFileLoader, \
     RELATIVE_CONCEPTUAL_MAPPING_PATH
-from mssdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
-from mssdk.models.asset import TechnicalMappingSuite, RMLMappingAsset
-from mssdk.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
+from mapping_suite_sdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
+from mapping_suite_sdk.models.asset import TechnicalMappingSuite, RMLMappingAsset
+from mapping_suite_sdk.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
     MappingPackage
 from tests.conftest import _test_mapping_package_asset_loader, _test_mapping_suites_asset_loader
 

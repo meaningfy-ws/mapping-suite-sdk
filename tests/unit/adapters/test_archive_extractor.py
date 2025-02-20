@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from mssdk.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.adapters.extractor import ArchiveExtractor
 from tests.conftest import _compare_directories
 
 

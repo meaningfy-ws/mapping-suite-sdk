@@ -33,14 +33,14 @@ test-unit:
 
 lint:
 	@ echo -e "$(BUILD_PRINT)Running Pylint check$(END_BUILD_PRINT)"
-	@ poetry run pylint --rcfile=.pylintrc ./mssdk ./tests
+	@ poetry run pylint --rcfile=.pylintrc ./mapping_suite_sdk ./tests
 
 lint-report:
 	@ echo -e "$(BUILD_PRINT)Running Pylint check and generating report$(END_BUILD_PRINT)"
-	@ poetry run pylint --rcfile=.pylintrc --recursive=y ./mssdk ./tests | tail -n 3 | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
+	@ poetry run pylint --rcfile=.pylintrc --recursive=y ./mapping_suite_sdk ./tests | tail -n 3 | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
 	@ echo "Report generated in pylint-report.txt"
 
 lint-full-report:
 	@ echo -e "$(BUILD_PRINT)Running Pylint check and generating report$(END_BUILD_PRINT)"
-	@ poetry run pylint --rcfile=.pylintrc ./mssdk ./tests | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
+	@ poetry run pylint --rcfile=.pylintrc ./mapping_suite_sdk ./tests | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
 	@ echo "Report generated in pylint-report.txt"

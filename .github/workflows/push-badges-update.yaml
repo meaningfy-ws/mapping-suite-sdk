@@ -25,7 +25,6 @@ jobs:
           sudo apt-get install -y python3-dev libsqlite3-dev
           make install-dev
           make install
-          make create-requirements-txt
 
       - name: Update PyLint Badge
         uses: Silleellie/pylint-github-action@v2.1

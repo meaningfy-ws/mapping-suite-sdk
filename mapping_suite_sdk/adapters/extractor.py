@@ -1,31 +1,59 @@
 import tempfile
 import zipfile
+from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, Protocol
+from typing import Generator, Any, Optional, List
+
+from git import Repo
 
 
-class Extractor(Protocol):
-    """Protocol defining the interface for file extract operations.
+class MappingPackageExtractorABC(ABC):
+    """Abstract base class defining the interface for mapping package extract operations.
 
-    This protocol establishes a contract for classes that provide temporary file
-    extraction capabilities with automatic cleanup. Implementations must provide
-    a context manager that handles the extraction process and cleanup.
+    This abstract class establishes a contract for classes that provide file
+    extraction capabilities. The interface is designed to be flexible, allowing
+    implementations to define their own argument structure for both permanent
+    and temporary extraction operations.
     """
 
-    @staticmethod
-    @contextmanager
-    def extract_temporary(source_path: Path) -> Generator[Path, None, None]:
-        """Extract content to a temporary directory and yield its path.
+    @abstractmethod
+    def extract(self, *args: Any, **kwargs: Any) -> Any:
+        """Extract content to a specified destination.
 
-        This context manager should handle the extraction of files to a temporary
-        location and ensure proper cleanup after use.
+        This method should be implemented to handle the extraction of content
+        according to the specific needs of the implementing class. The argument
+        structure is deliberately flexible to allow different implementations
+        to define their own parameter requirements.
 
         Args:
-            source_path: Path to the source file to extract
+            *args: Variable positional arguments specific to the implementation
+            **kwargs: Variable keyword arguments specific to the implementation
+
+        Returns:
+            Implementation-specific return type
+
+        Raises:
+            NotImplementedError: When the method is not implemented by a concrete class
+        """
+        raise NotImplementedError
+
+    @contextmanager
+    @abstractmethod
+    def extract_temporary(self, *args: Any, **kwargs: Any) -> Generator[Any, None, None]:
+        """Extract content to a temporary location and yield its path.
+
+        This context manager should handle the extraction of content to a temporary
+        location and ensure proper cleanup after use. The argument structure is
+        deliberately flexible to allow different implementations to define their
+        own parameter requirements.
+
+        Args:
+            *args: Variable positional arguments specific to the implementation
+            **kwargs: Variable keyword arguments specific to the implementation
 
         Yields:
-            Path: Path to the temporary directory containing the extracted contents
+            Implementation-specific yield type
 
         Raises:
             NotImplementedError: When the method is not implemented by a concrete class
@@ -33,24 +61,62 @@ class Extractor(Protocol):
         raise NotImplementedError
 
 
-class ArchiveExtractor(Extractor):
-    """Implementation of Extractor protocol for ZIP file operations.
+class ArchivePackageExtractor(MappingPackageExtractorABC):
+    """Implementation of MappingPackageExtractorABC for ZIP file operations.
 
     This class provides functionality to:
     - Extract ZIP files to a temporary directory with automatic cleanup
+    - Extract ZIP files to a specified destination
     - Pack directories into ZIP files without including the root directory name
     """
 
-    @staticmethod
+    def extract(self, source_path: Path, destination_path: Path) -> Path:
+        """Extract a ZIP archive to a specified destination directory.
+
+        Args:
+            source_path: Path to the ZIP file to extract
+            destination_path: Path where the content should be extracted
+
+        Returns:
+            Path: Path to the directory containing the extracted contents
+
+        Raises:
+            FileNotFoundError: If the archive file doesn't exist
+            ValueError: If the path is not a file
+            zipfile.BadZipFile: If the file is not a valid ZIP archive
+
+        Example:
+            >>> from pathlib import Path
+            >>> archive_path = Path("example.zip")
+            >>> dest_path = Path("output_dir")
+            >>> extracted_path = ArchivePackageExtractor().extract(archive_path, dest_path)
+        """
+        if not source_path.exists():
+            raise FileNotFoundError(f"ZIP file not found: {source_path}")
+
+        if not source_path.is_file():
+            raise ValueError(f"Specified path is not a file: {source_path}")
+
+        # Ensure the destination directory exists
+        destination_path.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with zipfile.ZipFile(source_path) as zip_ref:
+                zip_ref.extractall(destination_path)
+            return destination_path
+
+        except Exception as e:
+            raise ValueError(f"Failed to extract ZIP file: {e}")
+
     @contextmanager
-    def extract_temporary(archive_path: Path) -> Generator[Path, None, None]:
+    def extract_temporary(self, source_path: Path) -> Generator[Path, None, None]:
         """Extract a ZIP archive to a temporary directory and yield its path.
 
         This context manager handles the extraction of ZIP files to a temporary
         location and ensures proper cleanup after use.
 
         Args:
-            archive_path: Path to the ZIP file to extract
+            source_path: Path to the ZIP file to extract
 
         Yields:
             Path: Path to the temporary directory containing the extracted contents
@@ -63,24 +129,15 @@ class ArchiveExtractor(Extractor):
         Example:
             >>> from pathlib import Path
             >>> archive_path = Path("example.zip")
-            >>> with ArchiveExtractor.extract_temporary(archive_path) as temp_path:
+            >>> extractor = ArchivePackageExtractor()
+            >>> with extractor.extract_temporary(archive_path) as temp_path:
             ...     # Work with extracted files in temp_path
             ...     pass  # Cleanup is automatic after the with block
         """
-        if not archive_path.exists():
-            raise FileNotFoundError(f"ZIP file not found: {archive_path}")
-
-        if not archive_path.is_file():
-            raise ValueError(f"Specified path is not a file: {archive_path}")
-
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir_path = Path(temp_dir)
-
             try:
-                with zipfile.ZipFile(archive_path) as zip_ref:
-                    zip_ref.extractall(temp_dir_path)
-                yield temp_dir_path
-
+                yield self.extract(source_path, temp_dir_path)
             except Exception as e:
                 raise ValueError(f"Failed to extract ZIP file: {e}")
 
@@ -110,7 +167,7 @@ class ArchiveExtractor(Extractor):
             >>> from pathlib import Path
             >>> source_dir = Path("folder_to_archive")
             >>> output_path = Path("output/archive")
-            >>> zip_path = ArchiveExtractor.pack_directory(source_dir, output_path)
+            >>> zip_path = ArchivePackageExtractor.pack_directory(source_dir, output_path)
         """
         if not source_dir.exists():
             raise FileNotFoundError(f"Source directory not found: {source_dir}")
@@ -139,3 +196,36 @@ class ArchiveExtractor(Extractor):
 
         except Exception as e:
             raise ValueError(f"Failed to create ZIP file: {e}")
+
+
+class GithubPackageExtractor(MappingPackageExtractorABC):
+
+    def extract(
+            self,
+            repository_url: str,
+            destination_path: Path,
+            package_path: Path, # Relative to repo folder. Example: /mappings/package_can_v1.3
+            branch_or_tag_name: str
+    ) -> Path:
+
+        try:
+            Repo.clone_from(repository_url, destination_path, branch=branch_or_tag_name, depth=1)
+            return destination_path / package_path
+        except Exception as e:
+            raise ValueError(f"Failed to clone repository: {e}")
+
+    @contextmanager
+    def extract_temporary(
+            self,
+            repository_url: str,
+            packages_path_pattern: str, # Example: /mappings/package* or /mappings/*_can_*
+            branch_or_tag_name: str
+    ) -> Generator[List[Path], None, None]:
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir_path = Path(temp_dir)
+            try:
+                Repo.clone_from(repository_url, temp_dir_path, branch=branch_or_tag_name, depth=1)
+                yield [package_path for package_path in temp_dir_path.glob(packages_path_pattern) if package_path.is_dir()]
+            except Exception as e:
+                raise ValueError(f"Failed to clone repository: {e}")

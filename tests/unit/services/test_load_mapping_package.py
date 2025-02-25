@@ -86,7 +86,7 @@ def test_load_mapping_packages_from_github_with_success(dummy_github_project_pat
                                                         dummy_packages_path_pattern: str):
     with tempfile.TemporaryDirectory() as tmp_dir:
         repo_path = Path(tmp_dir) / dummy_github_project_path.name
-        shutil.copytree(dummy_github_project_path, repo_path)
+        repo_path = shutil.copytree(dummy_github_project_path, repo_path)
         repo = Repo.init(repo_path)
         repo.git.add(all=True)
         repo.index.commit("commit for test")

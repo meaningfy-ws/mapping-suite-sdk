@@ -2,9 +2,11 @@ import shutil
 import shutil
 import tempfile
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import List
 
 import pytest
+from git import Repo
 
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
 from mapping_suite_sdk.adapters.loader import MappingPackageLoader
@@ -79,14 +81,22 @@ def test_load_mapping_package_from_archive_with_success(dummy_mapping_package_pa
     assert_valid_mapping_package(mapping_package=mapping_package)
 
 
-def test_load_mapping_packages_from_github_with_success(dummy_github_repo_url: str,
+def test_load_mapping_packages_from_github_with_success(dummy_github_project_path: Path,
                                                         dummy_github_branch_name: str,
                                                         dummy_packages_path_pattern: str):
-    mapping_packages: List[MappingPackage] = load_mapping_packages_from_github(
-        github_repository_url=dummy_github_repo_url,
-        packages_path_pattern=dummy_packages_path_pattern,
-        branch_or_tag_name=dummy_github_branch_name)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        repo_path = Path(tmp_dir) / dummy_github_project_path.name
+        shutil.copytree(dummy_github_project_path, repo_path)
+        repo = Repo.init(repo_path)
+        repo.git.add(all=True)
+        repo.index.commit("commit for test")
+        repo.create_tag(dummy_github_branch_name)
 
-    assert len(mapping_packages) > 0
-    for mapping_package in mapping_packages:
-        assert_valid_mapping_package(mapping_package)
+        mapping_packages: List[MappingPackage] = load_mapping_packages_from_github(
+            github_repository_url=str(repo_path),
+            packages_path_pattern=dummy_packages_path_pattern,
+            branch_or_tag_name=dummy_github_branch_name)
+
+        assert len(mapping_packages) > 0
+        for mapping_package in mapping_packages:
+            assert_valid_mapping_package(mapping_package)

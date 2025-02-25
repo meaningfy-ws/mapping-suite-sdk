@@ -197,7 +197,7 @@ def dummy_mapping_package_extracted_path() -> Path:
 
 
 @pytest.fixture
-def dummy_github_repo_url() -> Path:
+def dummy_github_project_path() -> Path:
     return TEST_DATA_MAPPING_PACKAGES_REPO_PATH
 
 

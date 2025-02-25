@@ -85,16 +85,26 @@ def test_github_extract_temporary_fails_on_wrong_tag_name(dummy_github_project_p
 def test_github_extract_temporary_fails_on_empty_project_path(dummy_github_branch_name: str,
                                                               dummy_packages_path_pattern: str) -> None:
     with pytest.raises(ValueError):
-        with GithubPackageExtractor().extract_temporary(repository_url="",
+        with GithubPackageExtractor().extract_temporary(repository_url=None,
                                                         packages_path_pattern=dummy_packages_path_pattern,
                                                         branch_or_tag_name=dummy_github_branch_name):
             pass
 
 
 def test_github_extract_temporary_fails_on_empty_pattern(dummy_github_project_path: Path,
-                                                       dummy_github_branch_name: str) -> None:
+                                                         dummy_github_branch_name: str) -> None:
     with pytest.raises(ValueError):
         with GithubPackageExtractor().extract_temporary(repository_url=dummy_github_project_path,
-                                                        packages_path_pattern="",
+                                                        packages_path_pattern=None,
                                                         branch_or_tag_name=dummy_github_branch_name):
+            pass
+
+
+def test_github_extract_fails_on_not_existing_dest_path(dummy_github_branch_name: str,
+                                                        dummy_packages_path_pattern: str) -> None:
+    with pytest.raises(ValueError):
+        with GithubPackageExtractor().extract(repository_url="",
+                                              destination_path=Path("non/existing/path"),
+                                              package_path=Path(""),
+                                              branch_or_tag_name=dummy_github_branch_name):
             pass

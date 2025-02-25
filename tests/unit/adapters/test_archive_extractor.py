@@ -55,3 +55,11 @@ def test_unpacker_pack_directory_generates_same_output(dummy_mapping_package_ext
 
         is_equal, error_message = _compare_directories(dummy_mapping_package_extracted_path, extracted_path)
         assert is_equal, f"Directory comparison failed:\n{error_message}"
+
+
+def test_archive_extractor_gets_folder_instead_of_archive() -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        with pytest.raises(ValueError):
+            with ArchivePackageExtractor().extract(source_path=tmp_dir_path, destination_path=tmp_dir_path):
+                pass

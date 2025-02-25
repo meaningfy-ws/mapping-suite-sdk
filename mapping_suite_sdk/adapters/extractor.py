@@ -273,6 +273,9 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
             >>> # Package is now available at package_path
         """
 
+        if not destination_path.exists():
+            raise ValueError(f"Failed to clone repository: Folder {destination_path} does not exist")
+
         try:
             Repo.clone_from(repository_url, destination_path, branch=branch_or_tag_name, depth=1)
             return destination_path / package_path

@@ -20,9 +20,10 @@ def test_github_extractor_success_with_default_args(dummy_github_project_path: P
         repo.index.commit("commit for test")
         repo.create_tag(dummy_github_branch_name)
         # Execute
-
+        dest_path: Path = tmp_dir_path / "test_destination"
+        dest_path.mkdir(exist_ok=True)
         result_path = GithubPackageExtractor().extract(repository_url=str(repo_path),
-                                                       destination_path=tmp_dir_path / "test_destination",
+                                                       destination_path=dest_path,
                                                        package_path=dummy_repo_package_path,
                                                        branch_or_tag_name=dummy_github_branch_name)
         # Assert

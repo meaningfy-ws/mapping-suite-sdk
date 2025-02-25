@@ -9,11 +9,13 @@ import pytest
 from pydantic import TypeAdapter
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
-from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
+from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, \
+    TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
-    TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH
+    TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH, \
+    TEST_DATA_MAPPING_PACKAGES_REPO_PATH
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
@@ -167,7 +169,8 @@ def _compare_directories(source_dir: Path, target_dir: Path) -> tuple[bool, str]
         else:
             # Binary comparison for other files
             # Alternative: #filecmp.cmp(str(source_file), str(target_file), shallow=False) # Also compares timestamp
-            if not source_file.read_text(encoding='utf-8', errors="ignore") == target_file.read_text(encoding='utf-8', errors="ignore"):
+            if not source_file.read_text(encoding='utf-8', errors="ignore") == target_file.read_text(encoding='utf-8',
+                                                                                                     errors="ignore"):
                 return False, f"Content differs in {rel_path}"
 
     return True, ""
@@ -191,3 +194,23 @@ def dummy_mapping_package_model() -> MappingPackage:
 @pytest.fixture
 def dummy_mapping_package_extracted_path() -> Path:
     return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH
+
+
+@pytest.fixture
+def dummy_github_repo_url() -> Path:
+    return TEST_DATA_MAPPING_PACKAGES_REPO_PATH
+
+
+@pytest.fixture
+def dummy_github_branch_name() -> str:
+    return "test_tag"
+
+
+@pytest.fixture
+def dummy_repo_package_path() -> Path:
+    return Path("mappings/package_can_v1.9")
+
+
+@pytest.fixture
+def dummy_packages_path_pattern() -> str:
+    return "mappings/*_can_*"

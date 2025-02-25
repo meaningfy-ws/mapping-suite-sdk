@@ -107,7 +107,7 @@ def load_mapping_packages_from_github(
     5. Returns the list of loaded packages
 
     Args:
-        repository_url: The URL of the GitHub repository. Must be a valid GitHub
+        github_repository_url: The URL of the GitHub repository. Must be a valid GitHub
             repository URL (e.g., "https://github.com/org/repo").
         packages_path_pattern: Glob pattern to match package paths within the repository.
             The pattern is relative to the repository root and supports glob-style

@@ -108,3 +108,16 @@ def test_github_extract_fails_on_not_existing_dest_path(dummy_github_branch_name
                                               package_path=Path(""),
                                               branch_or_tag_name=dummy_github_branch_name):
             pass
+
+
+def test_github_extract_fails_on_not_existing_repo_url(dummy_github_branch_name: str,
+                                                       dummy_repo_package_path: Path,
+                                                       dummy_packages_path_pattern: str) -> None:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        with pytest.raises(ValueError):
+            with GithubPackageExtractor().extract(repository_url="",
+                                                  destination_path=tmp_dir_path,
+                                                  package_path=dummy_repo_package_path,
+                                                  branch_or_tag_name=dummy_github_branch_name):
+                pass

@@ -2,7 +2,6 @@ import shutil
 import shutil
 import tempfile
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import List
 
 import pytest
@@ -100,3 +99,21 @@ def test_load_mapping_packages_from_github_with_success(dummy_github_project_pat
         assert len(mapping_packages) > 0
         for mapping_package in mapping_packages:
             assert_valid_mapping_package(mapping_package)
+
+
+def test_load_mapping_packages_from_github_fails_on_null_url(dummy_github_branch_name: str,
+                                                             dummy_packages_path_pattern: str):
+    with pytest.raises(ValueError):
+        load_mapping_packages_from_github(
+            github_repository_url=None,
+            packages_path_pattern=dummy_packages_path_pattern,
+            branch_or_tag_name=dummy_github_branch_name)
+
+
+def test_load_mapping_packages_from_github_fails_on_null_pattern(dummy_github_project_path: Path,
+                                                                 dummy_github_branch_name: str):
+    with pytest.raises(ValueError):
+        load_mapping_packages_from_github(
+            github_repository_url=str(dummy_github_project_path),
+            packages_path_pattern=None,
+            branch_or_tag_name=dummy_github_branch_name)

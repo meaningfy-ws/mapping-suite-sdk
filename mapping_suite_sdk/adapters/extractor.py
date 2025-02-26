@@ -241,12 +241,12 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
     ) -> Path:
         """Extract a specific package from a GitHub repository.
 
-        This method clones a GitHub repository to a specified destination and returns
+        This method clones a public GitHub repository to a specified destination and returns
         the path to a specific package within that repository. The cloning operation
         uses depth=1 (shallow clone) to minimize download size and time.
 
         Args:
-            repository_url: The URL of the GitHub repository
+            repository_url: The URL of the public GitHub repository
                 (e.g., "https://github.com/org/repo")
             destination_path: Local path where the repository should be cloned
             package_path: Relative path to the package within the repository
@@ -291,7 +291,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
     ) -> Generator[List[Path], None, None]:
         """Temporarily extract matching packages from a GitHub repository.
 
-        This context manager clones a GitHub repository to a temporary location and yields
+        This context manager clones a public GitHub repository to a temporary location and yields
         paths to all packages matching the specified pattern. The temporary files are
         automatically cleaned up when the context manager exits.
 
@@ -299,7 +299,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
         The cloning operation uses depth=1 (shallow clone) to minimize download size and time.
 
         Args:
-            repository_url: The URL of the GitHub repository
+            repository_url: The URL of the public GitHub repository
                 (e.g., "https://github.com/org/repo")
             packages_path_pattern: Glob pattern to match package paths within the repository
                 (e.g., "mappings/package*" or "mappings/*_can_*")

@@ -175,6 +175,9 @@ def load_mapping_packages_from_github(
     if not packages_path_pattern:
         raise ValueError("Packages path pattern is required")
 
+    if not branch_or_tag_name:
+        raise ValueError("Branch or tag name is required")
+
     github_extractor = github_package_extractor or GithubPackageExtractor()
 
     with github_extractor.extract_temporary(repository_url=github_repository_url,

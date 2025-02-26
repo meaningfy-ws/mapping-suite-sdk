@@ -117,3 +117,12 @@ def test_load_mapping_packages_from_github_fails_on_null_pattern(dummy_github_pr
             github_repository_url=str(dummy_github_project_path),
             packages_path_pattern=None,
             branch_or_tag_name=dummy_github_branch_name)
+
+
+def test_load_mapping_packages_from_github_fails_on_null_branch_or_tag_name(dummy_github_project_path: Path,
+                                                                            dummy_packages_path_pattern: str):
+    with pytest.raises(ValueError):
+        load_mapping_packages_from_github(
+            github_repository_url=str(dummy_github_project_path),
+            packages_path_pattern=dummy_packages_path_pattern,
+            branch_or_tag_name=None)

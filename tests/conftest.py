@@ -214,3 +214,7 @@ def dummy_repo_package_path() -> Path:
 @pytest.fixture
 def dummy_packages_path_pattern() -> str:
     return "mappings/*_can_*"
+
+@pytest.fixture
+def dummy_invalid_github_repo_url() -> str:
+    return "https://github.com/OP-TED/"

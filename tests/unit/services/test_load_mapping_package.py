@@ -131,3 +131,16 @@ def test_load_mapping_packages_from_github_fails_on_non_existing_branch_or_tag_n
             load_mapping_packages_from_github(github_repository_url=str(repo_path),
                                               packages_path_pattern=dummy_packages_path_pattern,
                                               branch_or_tag_name=dummy_non_existing_github_branch_name)
+
+
+def test_load_mapping_packages_from_github_success_get_all_packages_pattern(dummy_github_project_path: Path,
+                                                                            dummy_get_all_packages_pattern: str):
+    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+        mapping_packages = load_mapping_packages_from_github(
+            github_repository_url=str(repo_path),
+            packages_path_pattern=dummy_get_all_packages_pattern,
+            branch_or_tag_name=None)
+
+        assert len(mapping_packages) > 0
+        for mapping_package in mapping_packages:
+            assert_valid_mapping_package(mapping_package)

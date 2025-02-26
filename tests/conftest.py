@@ -241,3 +241,8 @@ def dummy_invalid_github_repo_url() -> str:
 @pytest.fixture
 def dummy_non_existing_github_branch_name() -> str:
     return "non_existing_tag_name"
+
+@pytest.fixture
+def dummy_get_all_packages_pattern() -> str:
+    return "mappings/*"
+

@@ -3,7 +3,7 @@ import zipfile
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, Any, List
+from typing import Generator, Any, List, Optional
 
 from git import Repo
 
@@ -237,7 +237,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
             repository_url: str,
             destination_path: Path,
             package_path: Path,  # Relative to repo folder. Example: /mappings/package_can_v1.3
-            branch_or_tag_name: str
+            branch_or_tag_name: Optional[str] = None
     ) -> Path:
         """Extract a specific package from a GitHub repository.
 
@@ -277,7 +277,10 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
             raise ValueError(f"Failed to clone repository: Folder {destination_path} does not exist")
 
         try:
-            Repo.clone_from(repository_url, destination_path, branch=branch_or_tag_name, depth=1)
+            if branch_or_tag_name:
+                Repo.clone_from(repository_url, destination_path, branch=branch_or_tag_name, depth=1)
+            else:
+                Repo.clone_from(repository_url, destination_path, depth=1)
             return destination_path / package_path
         except Exception as e:
             raise ValueError(f"Failed to clone repository: {e}")
@@ -287,7 +290,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
             self,
             repository_url: str,
             packages_path_pattern: str,  # Example: /mappings/package* or /mappings/*_can_*
-            branch_or_tag_name: str
+            branch_or_tag_name: Optional[str] = None
     ) -> Generator[List[Path], None, None]:
         """Temporarily extract matching packages from a GitHub repository.
 
@@ -332,7 +335,10 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
             temp_dir_path = Path(temp_dir)
             try:
                 # TODO: Can be optimised: before cloning, to check the path pattern by yielding all top level files by using GitHub API
-                Repo.clone_from(repository_url, temp_dir_path, branch=branch_or_tag_name, depth=1)
+                if branch_or_tag_name:
+                    Repo.clone_from(repository_url, temp_dir_path, branch=branch_or_tag_name, depth=1)
+                else:
+                    Repo.clone_from(repository_url, temp_dir_path, depth=1)
                 yield [package_path for package_path in temp_dir_path.glob(packages_path_pattern) if
                        package_path.is_dir()]
             except Exception as e:

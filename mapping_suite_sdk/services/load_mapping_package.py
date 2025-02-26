@@ -88,7 +88,7 @@ def load_mapping_package_from_archive(
 def load_mapping_packages_from_github(
         github_repository_url: str,
         packages_path_pattern: str,
-        branch_or_tag_name: str,
+        branch_or_tag_name: Optional[str] = None,
         github_package_extractor: Optional[GithubPackageExtractor] = None,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
 ) -> List[MappingPackage]:
@@ -174,9 +174,6 @@ def load_mapping_packages_from_github(
 
     if not packages_path_pattern:
         raise ValueError("Packages path pattern is required")
-
-    if not branch_or_tag_name:
-        raise ValueError("Branch or tag name is required")
 
     github_extractor = github_package_extractor or GithubPackageExtractor()
 

@@ -1,18 +1,16 @@
 import shutil
-import shutil
 import tempfile
 from pathlib import Path
 from typing import List
 
 import pytest
-from git import Repo
 
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
 from mapping_suite_sdk.adapters.loader import MappingPackageLoader
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 from mapping_suite_sdk.services.load_mapping_package import load_mapping_package_from_folder, \
     load_mapping_package_from_archive, load_mapping_packages_from_github
-from tests.conftest import assert_valid_mapping_package
+from tests.conftest import assert_valid_mapping_package, _setup_temporary_test_git_repository
 
 
 def test_load_mapping_package_from_folder(dummy_mapping_package_path: Path):
@@ -83,14 +81,7 @@ def test_load_mapping_package_from_archive_with_success(dummy_mapping_package_pa
 def test_load_mapping_packages_from_github_with_success(dummy_github_project_path: Path,
                                                         dummy_github_branch_name: str,
                                                         dummy_packages_path_pattern: str):
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        repo_path = Path(tmp_dir) / dummy_github_project_path.name
-        repo_path = shutil.copytree(dummy_github_project_path, repo_path)
-        repo = Repo.init(repo_path)
-        repo.git.add(all=True)
-        repo.index.commit("commit for test")
-        repo.create_tag(dummy_github_branch_name)
-
+    with _setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
         mapping_packages: List[MappingPackage] = load_mapping_packages_from_github(
             github_repository_url=str(repo_path),
             packages_path_pattern=dummy_packages_path_pattern,
@@ -119,10 +110,24 @@ def test_load_mapping_packages_from_github_fails_on_null_pattern(dummy_github_pr
             branch_or_tag_name=dummy_github_branch_name)
 
 
-def test_load_mapping_packages_from_github_fails_on_null_branch_or_tag_name(dummy_github_project_path: Path,
-                                                                            dummy_packages_path_pattern: str):
-    with pytest.raises(ValueError):
-        load_mapping_packages_from_github(
-            github_repository_url=str(dummy_github_project_path),
+def test_load_mapping_packages_from_github_success_on_null_branch_or_tag_name(dummy_github_project_path: Path,
+                                                                              dummy_packages_path_pattern: str):
+    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+        mapping_packages = load_mapping_packages_from_github(
+            github_repository_url=str(repo_path),
             packages_path_pattern=dummy_packages_path_pattern,
             branch_or_tag_name=None)
+
+        assert len(mapping_packages) > 0
+        for mapping_package in mapping_packages:
+            assert_valid_mapping_package(mapping_package)
+
+
+def test_load_mapping_packages_from_github_fails_on_non_existing_branch_or_tag_name(dummy_github_project_path: Path,
+                                                                                    dummy_packages_path_pattern: str,
+                                                                                    dummy_non_existing_github_branch_name: str):
+    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+        with pytest.raises(ValueError):
+            load_mapping_packages_from_github(github_repository_url=str(repo_path),
+                                              packages_path_pattern=dummy_packages_path_pattern,
+                                              branch_or_tag_name=dummy_non_existing_github_branch_name)

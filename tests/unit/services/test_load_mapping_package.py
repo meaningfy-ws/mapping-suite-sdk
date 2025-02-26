@@ -144,3 +144,11 @@ def test_load_mapping_packages_from_github_success_get_all_packages_pattern(dumm
         assert len(mapping_packages) > 0
         for mapping_package in mapping_packages:
             assert_valid_mapping_package(mapping_package)
+
+
+def test_load_mapping_packages_from_github_fails_on_non_existing_pattern(dummy_github_project_path: Path,
+                                                                         dummy_non_existing_pattern: str):
+    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+        with pytest.raises(ValueError):
+            load_mapping_packages_from_github(github_repository_url=str(repo_path),
+                                              packages_path_pattern=dummy_non_existing_pattern)

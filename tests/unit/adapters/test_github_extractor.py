@@ -1,9 +1,7 @@
-import shutil
 import tempfile
 from pathlib import Path
 
 import pytest
-from git import Repo
 
 from mapping_suite_sdk.adapters.extractor import GithubPackageExtractor
 from tests.conftest import _setup_temporary_test_git_repository
@@ -13,21 +11,29 @@ def test_github_extractor_success_with_default_args(dummy_github_project_path: P
                                                     dummy_github_branch_name: str,
                                                     dummy_repo_package_path: Path) -> None:
     # Setup
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_dir_path = Path(tmp_dir)
-        repo_path = tmp_dir_path / dummy_github_project_path.name
-        repo_path = shutil.copytree(dummy_github_project_path, repo_path)
-        repo = Repo.init(repo_path)
-        repo.git.add(all=True)
-        repo.index.commit("commit for test")
-        repo.create_tag(dummy_github_branch_name)
+    with _setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
         # Execute
-        dest_path: Path = tmp_dir_path / "test_destination"
+        dest_path: Path = Path(repo_path) / "test_destination"
         dest_path.mkdir(exist_ok=True)
         result_path = GithubPackageExtractor().extract(repository_url=str(repo_path),
                                                        destination_path=dest_path,
                                                        package_path=dummy_repo_package_path,
                                                        branch_or_tag_name=dummy_github_branch_name)
+        # Assert
+        assert any(result_path.iterdir())
+
+
+def test_github_extractor_success_on_none_branch_or_tag_name(dummy_github_project_path: Path,
+                                                             dummy_repo_package_path: Path) -> None:
+    # Setup
+    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+        # Execute
+        dest_path: Path = Path(repo_path) / "test_destination"
+        dest_path.mkdir(exist_ok=True)
+        result_path = GithubPackageExtractor().extract(repository_url=str(repo_path),
+                                                       destination_path=dest_path,
+                                                       package_path=dummy_repo_package_path,
+                                                       branch_or_tag_name=None)
         # Assert
         assert any(result_path.iterdir())
 

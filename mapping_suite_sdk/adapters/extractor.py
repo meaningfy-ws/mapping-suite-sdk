@@ -331,6 +331,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir_path = Path(temp_dir)
             try:
+                # TODO: Can be optimised: before cloning, to check the path pattern by yielding all top level files by using GitHub API
                 Repo.clone_from(repository_url, temp_dir_path, branch=branch_or_tag_name, depth=1)
                 yield [package_path for package_path in temp_dir_path.glob(packages_path_pattern) if
                        package_path.is_dir()]

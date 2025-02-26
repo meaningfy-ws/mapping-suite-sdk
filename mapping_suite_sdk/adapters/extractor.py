@@ -335,4 +335,4 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
                 yield [package_path for package_path in temp_dir_path.glob(packages_path_pattern) if
                        package_path.is_dir()]
             except Exception as e:
-                raise ValueError(f"Failed to clone repository: {e}")
+                raise ValueError(f"Failed to get packages from repository: {e}")

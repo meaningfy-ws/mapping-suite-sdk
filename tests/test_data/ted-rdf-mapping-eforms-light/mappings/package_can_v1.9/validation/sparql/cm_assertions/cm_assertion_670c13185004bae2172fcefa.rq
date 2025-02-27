@@ -1,0 +1,12 @@
+#title: BT-706-UBO
+#description: “Winner Owner Nationality” The corresponding XML element is /*/ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/efext:EformsExtension/efac:Organizations/efac:UltimateBeneficialOwner/efac:Nationality/cbc:NationalityID. The expected ontology instances are epo: person:Person / at-voc:country .
+#xpath: /*/ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/efext:EformsExtension/efac:Organizations/efac:UltimateBeneficialOwner/efac:Nationality/cbc:NationalityID
+
+PREFIX epo: <http://data.europa.eu/a4g/ontology#>
+PREFIX person: <http://www.w3.org/ns/person#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK WHERE { 
+	?this rdf:type person:Person .
+	?this epo:hasNationality ?value . 
+}

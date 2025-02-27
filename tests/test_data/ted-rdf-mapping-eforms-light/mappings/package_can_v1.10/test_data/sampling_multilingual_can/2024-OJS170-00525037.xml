@@ -1,0 +1,1900 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ContractAwardNotice xmlns="urn:oasis:names:specification:ubl:schema:xsd:ContractAwardNotice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:efac="http://data.europa.eu/p27/eforms-ubl-extension-aggregate-components/1" xmlns:efbc="http://data.europa.eu/p27/eforms-ubl-extension-basic-components/1" xmlns:efext="http://data.europa.eu/p27/eforms-ubl-extensions/1" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+  <ext:UBLExtensions>
+    <ext:UBLExtension>
+      <ext:ExtensionContent>
+        <efext:EformsExtension>
+          <efbc:TransmissionDate>2024-08-29+00:00</efbc:TransmissionDate>
+          <efbc:TransmissionTime>20:40:11+00:00</efbc:TransmissionTime>
+          <efac:NoticeResult>
+            <cbc:TotalAmount currencyID="EUR">2100000</cbc:TotalAmount>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0001</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0001</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>4</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0001</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0002</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0002</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>3</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0002</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0002</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0003</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0003</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>4</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0003</cbc:ID>
+              </efac:SettledContract>
+              <efac:StrategicProcurement>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                  <efac:ProcurementDetails>
+                    <efbc:AssetCategoryCode listName="vehicle-category">m1-m2-n1</efbc:AssetCategoryCode>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-clean</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-zero-emission</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                  </efac:ProcurementDetails>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0003</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0004</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0004</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>3</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0004</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0004</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0005</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0005</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>2</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0005</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0005</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0006</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0006</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>3</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0006</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0006</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0007</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0007</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>4</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0007</cbc:ID>
+              </efac:SettledContract>
+              <efac:StrategicProcurement>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                  <efac:ProcurementDetails>
+                    <efbc:AssetCategoryCode listName="vehicle-category">m1-m2-n1</efbc:AssetCategoryCode>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>3</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-clean</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>3</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-zero-emission</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                  </efac:ProcurementDetails>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0007</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0008</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0008</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>3</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0008</cbc:ID>
+              </efac:SettledContract>
+              <efac:StrategicProcurement>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                  <efac:ProcurementDetails>
+                    <efbc:AssetCategoryCode listName="vehicle-category">m1-m2-n1</efbc:AssetCategoryCode>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-clean</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-zero-emission</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                  </efac:ProcurementDetails>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0008</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0009</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0009</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>4</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0009</cbc:ID>
+              </efac:SettledContract>
+              <efac:StrategicProcurement>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                  <efac:ProcurementDetails>
+                    <efbc:AssetCategoryCode listName="vehicle-category">m1-m2-n1</efbc:AssetCategoryCode>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-clean</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                    <efac:StrategicProcurementStatistics>
+                      <efbc:StatisticsCode listName="vehicles">vehicles-zero-emission</efbc:StatisticsCode>
+                      <efbc:StatisticsNumeric>0</efbc:StatisticsNumeric>
+                    </efac:StrategicProcurementStatistics>
+                  </efac:ProcurementDetails>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0009</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0010</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0010</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>1</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0010</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0010</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0011</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0011</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>2</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0011</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0011</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotResult>
+              <cbc:ID schemeName="result">RES-0012</cbc:ID>
+              <cbc:TenderResultCode listName="winner-selection-status">selec-w</cbc:TenderResultCode>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0012</cbc:ID>
+              </efac:LotTender>
+              <efac:ReceivedSubmissionsStatistics>
+                <efbc:StatisticsCode listName="received-submission-type">t-sme</efbc:StatisticsCode>
+                <efbc:StatisticsNumeric>3</efbc:StatisticsNumeric>
+              </efac:ReceivedSubmissionsStatistics>
+              <efac:SettledContract>
+                <cbc:ID schemeName="contract">CON-0012</cbc:ID>
+              </efac:SettledContract>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0012</cbc:ID>
+              </efac:TenderLot>
+            </efac:LotResult>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0001</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755156</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0002</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0002</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755157</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0003</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0003</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755158</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0004</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0004</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755159</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0005</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0005</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755160</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0006</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">no</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0003</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0006</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3545273-755161</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0007</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0007</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755162</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0008</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">no</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0003</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0008</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3545273-755163</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0009</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0009</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755164</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0010</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">no</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0001</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0010</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3530807-755165</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0011</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0011</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755166</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:LotTender>
+              <cbc:ID schemeName="tender">TEN-0012</cbc:ID>
+              <efac:SubcontractingTerm>
+                <efbc:TermCode listName="applicability">yes</efbc:TermCode>
+              </efac:SubcontractingTerm>
+              <efac:TenderingParty>
+                <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              </efac:TenderingParty>
+              <efac:TenderLot>
+                <cbc:ID schemeName="Lot">LOT-0012</cbc:ID>
+              </efac:TenderLot>
+              <efac:TenderReference>
+                <cbc:ID>tenderReference-3542177-755167</cbc:ID>
+              </efac:TenderReference>
+            </efac:LotTender>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0001</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>B1 Alakylä-Klokkasmäki-Karijoen koulu (aamu ja iltapäivä) / B1. Ytterby-Klockarsbacken-Karijoen koulu (morgon och eftermiddag)</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0001</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0002</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>B2 Myrkky-Karijoen koulu / B2. Mörtmark-Karijoen koulu</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0002</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0003</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>B3 Ylikylä-Karijoen Koulu / B3. Överby-Karijoen Koulu</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0003</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0004</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>B5 Syöttöliikenne Karijoen oppilaat/Kristiinanseudun koulu/krs lukio / B5 Matartrafik Bötoms elever/Kristinestadsnejdens elever/krs gymnasium</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0004</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0005</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>A8 Kaskinen-Piolahti-Kantakaupungin koulu- Kristiinanseudun koulu / A8 Kaskö-Pjelax-Kantakaupungin koulu-Kristiinanseudun koulu</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0005</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0006</cbc:ID>
+              <cbc:IssueDate>2024-08-01Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>C1 Lillbäck-Siipyy-Skaftung-Henriksdahl-Härkmeri Skola / C1 Lillbäck-Sideby-Skaftung-Henriksdahl-Härkmeri Skola</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0006</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0007</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>C2 Korsbäck-Dagsmark-Perus-Lapväärtti-Krs / C2 Korsbäck-Dagsmark-Perus-Lappfjärd-Krs</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0007</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0008</cbc:ID>
+              <cbc:IssueDate>2024-08-01Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>C3 Lillsund-Lålby-Lapväärtti koulu-Karijoentie-Krs esikoulu / C3 Lillsund-Lålby-Lappfjärd Skola-Bötomvägen-Krs förskola</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0008</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0009</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>C4 Liden-Puskamarkki-Savilahti-Krs + Havsbadet / C4 Liden-Påskmark-Lerviken-Krs + Havsbadet</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0009</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0010</cbc:ID>
+              <cbc:IssueDate>2024-07-22Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>D1 Krs-Lapväärtti-Härkmeri-Uttermossa-Heden / D1 Krs-Lappfjärd-Härkmeri-Uttermossa-Heden</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0010</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0011</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>D2 Krs-Lapväärtti-Perus-Dagsmark-Karijoki / D2 Krs-Lappfjärd-Perus-Dagsmark-Bötom</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0011</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:SettledContract>
+              <cbc:ID schemeName="contract">CON-0012</cbc:ID>
+              <cbc:IssueDate>2024-07-31Z</cbc:IssueDate>
+              <efac:ContractReference>
+                <cbc:ID>D3 Krs-Anttila-Skrattnäs-Kaskinen / D3 Krs-Anttila-Skrattnäs-Kaskö</cbc:ID>
+              </efac:ContractReference>
+              <efac:LotTender>
+                <cbc:ID schemeName="tender">TEN-0012</cbc:ID>
+              </efac:LotTender>
+            </efac:SettledContract>
+            <efac:TenderingParty>
+              <cbc:ID schemeName="tendering-party">TPA-0001</cbc:ID>
+              <efac:Tenderer>
+                <cbc:ID schemeName="organization">ORG-0003</cbc:ID>
+              </efac:Tenderer>
+            </efac:TenderingParty>
+            <efac:TenderingParty>
+              <cbc:ID schemeName="tendering-party">TPA-0002</cbc:ID>
+              <efac:Tenderer>
+                <cbc:ID schemeName="organization">ORG-0004</cbc:ID>
+              </efac:Tenderer>
+            </efac:TenderingParty>
+            <efac:TenderingParty>
+              <cbc:ID schemeName="tendering-party">TPA-0003</cbc:ID>
+              <efac:Tenderer>
+                <cbc:ID schemeName="organization">ORG-0005</cbc:ID>
+              </efac:Tenderer>
+            </efac:TenderingParty>
+          </efac:NoticeResult>
+          <efac:NoticeSubType>
+            <cbc:SubTypeCode listName="notice-subtype">29</cbc:SubTypeCode>
+          </efac:NoticeSubType>
+          <efac:Organizations>
+            <efac:Organization>
+              <efac:Company>
+                <cbc:WebsiteURI>http://www.oikeus.fi/markkinaoikeus</cbc:WebsiteURI>
+                <cac:PartyIdentification>
+                  <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyName>
+                  <cbc:Name languageID="FIN">Markkinaoikeus</cbc:Name>
+                </cac:PartyName>
+                <cac:PartyName>
+                  <cbc:Name languageID="SWE">Marknadsdomstolen </cbc:Name>
+                </cac:PartyName>
+                <cac:PostalAddress>
+                  <cbc:StreetName>Banbyggarvägen 5</cbc:StreetName>
+                  <cbc:CityName>Helsinki</cbc:CityName>
+                  <cbc:PostalZone>00520</cbc:PostalZone>
+                  <cbc:CountrySubentityCode listName="nuts">FI1B1</cbc:CountrySubentityCode>
+                  <cac:Country>
+                    <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+                  </cac:Country>
+                </cac:PostalAddress>
+                <cac:PartyLegalEntity>
+                  <cbc:CompanyID schemeID="002">3006157-6</cbc:CompanyID>
+                </cac:PartyLegalEntity>
+                <cac:Contact>
+                  <cbc:Telephone>+358 295643300</cbc:Telephone>
+                  <cbc:ElectronicMail>markkinaoikeus@oikeus.fi</cbc:ElectronicMail>
+                </cac:Contact>
+              </efac:Company>
+            </efac:Organization>
+            <efac:Organization>
+              <efbc:AcquiringCPBIndicator>false</efbc:AcquiringCPBIndicator>
+              <efbc:AwardingCPBIndicator>false</efbc:AwardingCPBIndicator>
+              <efac:Company>
+                <cbc:WebsiteURI>http://www.kristiinankaupunki.fi/</cbc:WebsiteURI>
+                <cac:PartyIdentification>
+                  <cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyName>
+                  <cbc:Name languageID="FIN">Kristinestad Stad/Kristiinankaupungin kaupunki</cbc:Name>
+                </cac:PartyName>
+                <cac:PartyName>
+                  <cbc:Name languageID="SWE">Kristiinankaupungin kaupunki</cbc:Name>
+                </cac:PartyName>
+                <cac:PostalAddress>
+                  <cbc:StreetName>Aitakatu 1</cbc:StreetName>
+                  <cbc:CityName>KRISTIINANKAUPUNKI</cbc:CityName>
+                  <cbc:PostalZone>64100</cbc:PostalZone>
+                  <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+                  <cac:Country>
+                    <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+                  </cac:Country>
+                </cac:PostalAddress>
+                <cac:PartyLegalEntity>
+                  <cbc:CompanyID schemeID="002">0216509-5</cbc:CompanyID>
+                </cac:PartyLegalEntity>
+                <cac:Contact>
+                  <cbc:Name>Sivistysjohtaja Maarit Söderlund</cbc:Name>
+                  <cbc:Telephone>+358 405565733</cbc:Telephone>
+                  <cbc:ElectronicMail>maarit.soderlund@krs.fi</cbc:ElectronicMail>
+                </cac:Contact>
+              </efac:Company>
+            </efac:Organization>
+            <efac:Organization>
+              <efac:Company>
+                <cac:PartyIdentification>
+                  <cbc:ID schemeName="organization">ORG-0003</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyName>
+                  <cbc:Name languageID="FIN">Ingves  Svanbäck Ab</cbc:Name>
+                </cac:PartyName>
+                <cac:PartyName>
+                  <cbc:Name languageID="SWE">Ingves Svanbäck Ab</cbc:Name>
+                </cac:PartyName>
+                <cac:PostalAddress>
+                  <cbc:StreetName>Industrivägen 1.</cbc:StreetName>
+                  <cbc:CityName>Korsholm</cbc:CityName>
+                  <cbc:PostalZone>65610</cbc:PostalZone>
+                  <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+                  <cac:Country>
+                    <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+                  </cac:Country>
+                </cac:PostalAddress>
+                <cac:PartyLegalEntity>
+                  <cbc:CompanyID schemeID="002">2626335-1</cbc:CompanyID>
+                </cac:PartyLegalEntity>
+                <cac:Contact>
+                  <cbc:Telephone>0500645870</cbc:Telephone>
+                  <cbc:ElectronicMail>kennet.svanback@ingsva.fi</cbc:ElectronicMail>
+                </cac:Contact>
+              </efac:Company>
+            </efac:Organization>
+            <efac:Organization>
+              <efac:Company>
+                <cac:PartyIdentification>
+                  <cbc:ID schemeName="organization">ORG-0004</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyName>
+                  <cbc:Name languageID="FIN">Matka-Rengas Niemelä Oy</cbc:Name>
+                </cac:PartyName>
+                <cac:PartyName>
+                  <cbc:Name languageID="SWE">Matka-Rengas Niemelä Oy</cbc:Name>
+                </cac:PartyName>
+                <cac:PostalAddress>
+                  <cbc:StreetName>Asematie 54</cbc:StreetName>
+                  <cbc:CityName>Myrkky</cbc:CityName>
+                  <cbc:PostalZone>64370</cbc:PostalZone>
+                  <cbc:CountrySubentityCode listName="nuts">FI194</cbc:CountrySubentityCode>
+                  <cac:Country>
+                    <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+                  </cac:Country>
+                </cac:PostalAddress>
+                <cac:PartyLegalEntity>
+                  <cbc:CompanyID schemeID="002">FI19921555</cbc:CompanyID>
+                </cac:PartyLegalEntity>
+                <cac:Contact>
+                  <cbc:Telephone>0405912727</cbc:Telephone>
+                  <cbc:ElectronicMail>info@niemela.info</cbc:ElectronicMail>
+                </cac:Contact>
+              </efac:Company>
+            </efac:Organization>
+            <efac:Organization>
+              <efac:Company>
+                <cac:PartyIdentification>
+                  <cbc:ID schemeName="organization">ORG-0005</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyName>
+                  <cbc:Name languageID="FIN">Hellman Transport Ab</cbc:Name>
+                </cac:PartyName>
+                <cac:PartyName>
+                  <cbc:Name languageID="SWE">Hellman Transport Ab</cbc:Name>
+                </cac:PartyName>
+                <cac:PostalAddress>
+                  <cbc:StreetName>Kasabölevägen 40</cbc:StreetName>
+                  <cbc:CityName>Sideby</cbc:CityName>
+                  <cbc:PostalZone>64490</cbc:PostalZone>
+                  <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+                  <cac:Country>
+                    <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+                  </cac:Country>
+                </cac:PostalAddress>
+                <cac:PartyLegalEntity>
+                  <cbc:CompanyID schemeID="002">2450271-8</cbc:CompanyID>
+                </cac:PartyLegalEntity>
+                <cac:Contact>
+                  <cbc:Telephone>0407204260</cbc:Telephone>
+                  <cbc:ElectronicMail>hellmantransportab@gmail.com</cbc:ElectronicMail>
+                </cac:Contact>
+              </efac:Company>
+            </efac:Organization>
+            <efac:Organization>
+              <efac:Company>
+                <cbc:WebsiteURI>http://hankintailmoitukset.fi</cbc:WebsiteURI>
+                <cac:PartyIdentification>
+                  <cbc:ID schemeName="organization">ORG-0006</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyName>
+                  <cbc:Name languageID="FIN">Hansel Oy (Hilma)</cbc:Name>
+                </cac:PartyName>
+                <cac:PartyName>
+                  <cbc:Name languageID="SWE">Hansel Oy (Hilma)</cbc:Name>
+                </cac:PartyName>
+                <cac:PostalAddress>
+                  <cbc:StreetName>Mannerheiminaukio 1a</cbc:StreetName>
+                  <cbc:CityName>Helsinki</cbc:CityName>
+                  <cbc:PostalZone>00100</cbc:PostalZone>
+                  <cbc:CountrySubentityCode listName="nuts">FI1B1</cbc:CountrySubentityCode>
+                  <cac:Country>
+                    <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+                  </cac:Country>
+                </cac:PostalAddress>
+                <cac:PartyLegalEntity>
+                  <cbc:CompanyID schemeID="002">FI09880841</cbc:CompanyID>
+                </cac:PartyLegalEntity>
+                <cac:Contact>
+                  <cbc:Name>eSender</cbc:Name>
+                  <cbc:Telephone>029 55 636 30</cbc:Telephone>
+                  <cbc:ElectronicMail>tekninen@hankintailmoitukset.fi</cbc:ElectronicMail>
+                </cac:Contact>
+              </efac:Company>
+            </efac:Organization>
+          </efac:Organizations>
+        <efac:Publication><efbc:NoticePublicationID schemeName="ojs-notice-id">00525037-2024</efbc:NoticePublicationID><efbc:GazetteID schemeName="ojs-id">170/2024</efbc:GazetteID><efbc:PublicationDate>2024-09-02+02:00</efbc:PublicationDate></efac:Publication></efext:EformsExtension>
+      </ext:ExtensionContent>
+    </ext:UBLExtension>
+  </ext:UBLExtensions>
+  <cbc:UBLVersionID>2.3</cbc:UBLVersionID>
+  <cbc:CustomizationID>eforms-sdk-1.10</cbc:CustomizationID>
+  <cbc:ID schemeName="notice-id">14ccbc47-6890-49a9-93d5-73e036f17956</cbc:ID>
+  <cbc:ContractFolderID>2b8f15d3-6c08-47ed-aa46-1c34463e51b3</cbc:ContractFolderID>
+  <cbc:IssueDate>2024-08-29+00:00</cbc:IssueDate>
+  <cbc:IssueTime>20:39:51+00:00</cbc:IssueTime>
+  <cbc:VersionID>01</cbc:VersionID>
+  <cbc:RegulatoryDomain>32014L0024</cbc:RegulatoryDomain>
+  <cbc:NoticeTypeCode listName="result">can-standard</cbc:NoticeTypeCode>
+  <cbc:NoticeLanguageCode>FIN</cbc:NoticeLanguageCode>
+  <cac:AdditionalNoticeLanguage>
+    <cbc:ID>SWE</cbc:ID>
+  </cac:AdditionalNoticeLanguage>
+  <cac:ContractingParty>
+    <cac:ContractingPartyType>
+      <cbc:PartyTypeCode listName="buyer-legal-type">la</cbc:PartyTypeCode>
+    </cac:ContractingPartyType>
+    <cac:ContractingActivity>
+      <cbc:ActivityTypeCode listName="authority-activity">gen-pub</cbc:ActivityTypeCode>
+    </cac:ContractingActivity>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:ServiceProviderParty>
+        <cbc:ServiceTypeCode listName="organisation-role">ted-esen</cbc:ServiceTypeCode>
+        <cac:Party>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0006</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:Party>
+      </cac:ServiceProviderParty>
+    </cac:Party>
+  </cac:ContractingParty>
+  <cac:TenderingTerms>
+    <cac:ProcurementLegislationDocumentReference>
+      <cbc:ID schemeName="ELI">Direktiv 2014/24/EU</cbc:ID>
+    </cac:ProcurementLegislationDocumentReference>
+  </cac:TenderingTerms>
+  <cac:TenderingProcess>
+    <cbc:ProcedureCode listName="procurement-procedure-type">open</cbc:ProcedureCode>
+    <cac:NoticeDocumentReference>
+      <cbc:ID schemeName="notice-id-ref">00783c31-8e58-4833-9ca7-0a8135f046e8-01</cbc:ID>
+    </cac:NoticeDocumentReference>
+  </cac:TenderingProcess>
+  <cac:ProcurementProject>
+    <cbc:ID schemeName="InternalID">494063</cbc:ID>
+    <cbc:Name languageID="FIN">Kristiinankaupungin kuljetuspalveluiden hankinta  / Kristinestads upphandling av transportservice </cbc:Name>
+    <cbc:Name languageID="SWE">Kristiinankaupungin kuljetuspalveluiden hankinta  / Kristinestads upphandling av transportservice</cbc:Name>
+    <cbc:Description languageID="FIN">Hankinnan kohteena ovat Kristiinankaupungin kaupungin oppilaskuljetukset. Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa liitteineen. 
+
+Föremål för denna upphandlig är Staden Kristinestads elevtransporter. Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan och dess bilagor. </cbc:Description>
+    <cbc:Description languageID="SWE">Föremål för denna upphandlig är Staden Kristinestads elevtransporter. Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan och dess bilagor. </cbc:Description>
+    <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+    <cac:MainCommodityClassification>
+      <cbc:ItemClassificationCode listName="cpv">60100000</cbc:ItemClassificationCode>
+    </cac:MainCommodityClassification>
+    <cac:RealizedLocation>
+      <cac:Address>
+        <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+        <cac:Country>
+          <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+        </cac:Country>
+      </cac:Address>
+    </cac:RealizedLocation>
+  </cac:ProcurementProject>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+
+Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">B1 </cbc:ID>
+      <cbc:Name languageID="FIN">B1 Alakylä-Klokkasmäki-Karijoen koulu (aamu ja iltapäivä) / B1. Ytterby-Klockarsbacken-Karijoen koulu (morgon och eftermiddag)</cbc:Name>
+      <cbc:Name languageID="SWE">B1 Alakylä-Klokkasmäki-Karijoen koulu (aamu ja iltapäivä) / B1. Ytterby-Klockarsbacken-Karijoen koulu (morgon och eftermiddag)</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Alakylä-Klokkasmäki-Karijoen koulu (aamu) ja Karijoen Koulu-Klokkasmäki-Alakylä (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Alakylä-Klockarsbacken-Karijoen koulu (morgon) och Karijoen koulu-Klockarsbacken-Alakylä (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Alakylä-Klokkasmäki-Karijoen koulu (aamu) ja Karijoen Koulu-Klokkasmäki-Alakylä (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Alakylä-Klockarsbacken-Karijoen koulu (morgon) och Karijoen koulu-Klockarsbacken-Alakylä (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0002</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+
+Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">B2</cbc:ID>
+      <cbc:Name languageID="FIN">B2 Myrkky-Karijoen koulu / B2. Mörtmark-Karijoen koulu</cbc:Name>
+      <cbc:Name languageID="SWE">B2 Myrkky-Karijoen koulu / B2. Mörtmark-Karijoen koulu</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Myrkky-Karijoen koulu (aamu) ja Karijoen Koulu-Myrkky (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Mörtmark-Karijoen koulu (morgon) och Karijoen koulu-Mörtmark (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Myrkky-Karijoen koulu (aamu) ja Karijoen Koulu-Myrkky (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Mörtmark-Karijoen koulu (morgon) och Karijoen koulu-Mörtmark (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0003</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">true</efbc:ApplicableLegalBasis>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+
+Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">B3</cbc:ID>
+      <cbc:Name languageID="FIN">B3 Ylikylä-Karijoen Koulu / B3. Överby-Karijoen Koulu</cbc:Name>
+      <cbc:Name languageID="SWE">B3 Ylikylä-Karijoen Koulu / B3. Överby-Karijoen Koulu</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Ylikylä-Karijoen Koulu (aamu) ja Karijoen Koulu-Ylikylä (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Överby-Karijoen Koulu (morgon) och Karijoen Koulu-Överby (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan.</cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Ylikylä-Karijoen Koulu (aamu) ja Karijoen Koulu-Ylikylä (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Överby-Karijoen Koulu (morgon) och Karijoen Koulu-Överby (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan.</cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0004</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">B5</cbc:ID>
+      <cbc:Name languageID="FIN">B5 Syöttöliikenne Karijoen oppilaat/Kristiinanseudun koulu/krs lukio / B5 Matartrafik Bötoms elever/Kristinestadsnejdens elever/krs gymnasium</cbc:Name>
+      <cbc:Name languageID="SWE">B5 Syöttöliikenne Karijoen oppilaat/Kristiinanseudun koulu/krs lukio / B5 Matartrafik Bötoms elever/Kristinestadsnejdens elever/krs gymnasium</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetusten syöttöliikenne reitillä Karijoen oppilaat/Kristiinanseudun koulu/krs lukio ja koulukuljetukset reitillä Karijoen keskusta-Alakylä-Salomäenkylä. Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är matartrafik på rutten Bötoms elever/Kristinestadsnejdens elever/krs gymnasium och skoltransport på rutten Bötoms centrum-Ytterby-Salomäenkylä. Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetusten syöttöliikenne reitillä Karijoen oppilaat/Kristiinanseudun koulu/krs lukio ja koulukuljetukset reitillä Karijoen keskusta-Alakylä-Salomäenkylä. Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är matartrafik på rutten Bötoms elever/Kristinestadsnejdens elever/krs gymnasium och skoltransport på rutten Bötoms centrum-Ytterby-Salomäenkylä. Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0005</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+
+Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">A8 </cbc:ID>
+      <cbc:Name languageID="FIN">A8 Kaskinen-Piolahti-Kantakaupungin koulu- Kristiinanseudun koulu / A8 Kaskö-Pjelax-Kantakaupungin koulu-Kristiinanseudun koulu</cbc:Name>
+      <cbc:Name languageID="SWE">A8 Kaskinen-Piolahti-Kantakaupungin koulu- Kristiinanseudun koulu / A8 Kaskö-Pjelax-Kantakaupungin koulu-Kristiinanseudun koulu</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Kaskinen-Piolahti-Kantakaupungin koulu- Kristiinanseudun koulu (aamu) ja Kristiinanseudun koulu-Kantakaupungin koulu-Piolahti-Kaskinen (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten  Kaskö-Pjelax-Kantakaupungin koulu-Kristiinanseudun koulu (morgon) och Kristiinanseudun koulu-Kantakaupungin koulu-Pjelax-Kaskö .Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Kaskinen-Piolahti-Kantakaupungin koulu- Kristiinanseudun koulu (aamu) ja Kristiinanseudun koulu-Kantakaupungin koulu-Piolahti-Kaskinen (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten  Kaskö-Pjelax-Kantakaupungin koulu-Kristiinanseudun koulu (morgon) och Kristiinanseudun koulu-Kantakaupungin koulu-Pjelax-Kaskö .Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0006</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">C1 </cbc:ID>
+      <cbc:Name languageID="FIN">C1 Lillbäck-Siipyy-Skaftung-Henriksdahl-Härkmeri Skola / C1 Lillbäck-Sideby-Skaftung-Henriksdahl-Härkmeri Skola</cbc:Name>
+      <cbc:Name languageID="SWE">C1 Lillbäck-Siipyy-Skaftung-Henriksdahl-Härkmeri Skola / C1 Lillbäck-Sideby-Skaftung-Henriksdahl-Härkmeri Skola</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reiteillä Lillbäck-Siipyy-Skaftung-Henriksdahl-Härkmeri Skola (aamu), Kantak.koulu-Lapväärtin koulu-Härkmeri-Henriksdahl-Skaftung-Lillbäck-Siipyy  (iltapäivä), Kantakaupungin koulu-Lapväärtti-Uttermossa-Ömossa-Kalträsk-Heden (iltapäivä) ja Högstadiet-Yläkoulu-Lapväärtti-Härkmeri-Metsälä-Siipyy (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+
+Föremål för denna upphandling är skoltransport på rutten Lillbäck-Sideby-Skaftung-Henriksdahl-Härkmeri Skola (morgon), Kantakaupungin koulu-Lappfjärd Skola-Härkmeri-Henriksdahl-Skaftung-Lillbäck-Sideby (eftermiddag), Kantakaupungin koulu-Lappfjärd-Uttermossa-Ömossa-Kalträsk-Heden (eftermiddag) och Högstadiet-Yläkoulu-Lapväärtti-Härkmeri-Metsälä-Siipyy (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reiteillä Lillbäck-Siipyy-Skaftung-Henriksdahl-Härkmeri Skola (aamu), Kantak.koulu-Lapväärtin koulu-Härkmeri-Henriksdahl-Skaftung-Lillbäck-Siipyy  (iltapäivä), Kantakaupungin koulu-Lapväärtti-Uttermossa-Ömossa-Kalträsk-Heden (iltapäivä) ja Högstadiet-Yläkoulu-Lapväärtti-Härkmeri-Metsälä-Siipyy (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+
+Föremål för denna upphandling är skoltransport på rutten Lillbäck-Sideby-Skaftung-Henriksdahl-Härkmeri Skola (morgon), Kantakaupungin koulu-Lappfjärd Skola-Härkmeri-Henriksdahl-Skaftung-Lillbäck-Sideby (eftermiddag), Kantakaupungin koulu-Lappfjärd-Uttermossa-Ömossa-Kalträsk-Heden (eftermiddag) och Högstadiet-Yläkoulu-Lapväärtti-Härkmeri-Metsälä-Siipyy (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0007</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">true</efbc:ApplicableLegalBasis>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">C2 </cbc:ID>
+      <cbc:Name languageID="FIN">C2 Korsbäck-Dagsmark-Perus-Lapväärtti-Krs / C2 Korsbäck-Dagsmark-Perus-Lappfjärd-Krs </cbc:Name>
+      <cbc:Name languageID="SWE">C2 Korsbäck-Dagsmark-Perus-Lapväärtti-Krs / C2 Korsbäck-Dagsmark-Perus-Lappfjärd-Krs </cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Korsbäck-Dagsmark-Perus-Lapväärtti-Krs (aamu) ja Krs-Lapväärtti-Perus-Dagsmark-Korsbäck (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandlig är skoltransport på rutten Korsbäck-Dagsmark-Perus-Lappfjärd-Krs (morgon) och Krs-Lappfjärd-Perus-Dagsmark-Korsbäck (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Korsbäck-Dagsmark-Perus-Lapväärtti-Krs (aamu) ja Krs-Lapväärtti-Perus-Dagsmark-Korsbäck (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandlig är skoltransport på rutten Korsbäck-Dagsmark-Perus-Lappfjärd-Krs (morgon) och Krs-Lappfjärd-Perus-Dagsmark-Korsbäck (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0008</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">true</efbc:ApplicableLegalBasis>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+
+Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">C3</cbc:ID>
+      <cbc:Name languageID="FIN">C3 Lillsund-Lålby-Lapväärtti koulu-Karijoentie-Krs esikoulu / C3 Lillsund-Lålby-Lappfjärd Skola-Bötomvägen-Krs förskola</cbc:Name>
+      <cbc:Name languageID="SWE">C3 Lillsund-Lålby-Lapväärtti koulu-Karijoentie-Krs esikoulu / C3 Lillsund-Lålby-Lappfjärd Skola-Bötomvägen-Krs förskola</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reiteillä Lillsund-Lålby-Lapväärtti koulu-Karijoentie-Krs esikoulu (aamu), Krs-Lålby-Lapväärtti-Karijoentie-Lillsund (iltapäivä) ja Lapväärtin koulu-Lålby- ABC pysäkki (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Lillsund-Lålby-Lappfjärd Skola-Bötomvägen-Krs förskola (morgon), Krs-Lålby-Lappfjärd-Bötomvägen-Lillsund (eftermiddag) och Lappfjärd skola-Lålby-ABC hållplats (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reiteillä Lillsund-Lålby-Lapväärtti koulu-Karijoentie-Krs esikoulu (aamu), Krs-Lålby-Lapväärtti-Karijoentie-Lillsund (iltapäivä) ja Lapväärtin koulu-Lålby- ABC pysäkki (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Lillsund-Lålby-Lappfjärd Skola-Bötomvägen-Krs förskola (morgon), Krs-Lålby-Lappfjärd-Bötomvägen-Lillsund (eftermiddag) och Lappfjärd skola-Lålby-ABC hållplats (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0009</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">true</efbc:ApplicableLegalBasis>
+                <efac:StrategicProcurementInformation>
+                  <efbc:ProcurementCategoryCode listName="cvd-contract-type">pass-tran-serv</efbc:ProcurementCategoryCode>
+                </efac:StrategicProcurementInformation>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">C4 </cbc:ID>
+      <cbc:Name languageID="FIN">C4 Liden-Puskamarkki-Savilahti-Krs  + Havsbadet / C4 Liden-Påskmark-Lerviken-Krs + Havsbadet</cbc:Name>
+      <cbc:Name languageID="SWE">C4 Liden-Puskamarkki-Savilahti-Krs  + Havsbadet / C4 Liden-Påskmark-Lerviken-Krs + Havsbadet</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reiteillä Liden-Puskamarkki-Savilahti-Krs  + Havsbadet (aamu), Krs-Havsbadet-Savilahti-Tiukka-Puskamarkki-Liden (iltapäivä), Krs-Anttila-Skrattnäs-Tiukka-Myrkyntie-Björndalintie (iltapäivä) ja Krs-Savilahti-Tiukka-Björndalintie (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Liden-Påskmark-Lervikeni-Krs  + Havsbadet (morgon), Krs-Havsbadet-Lerviken-Tjöck-Påskmark-Liden (eftermiddag), Krs-Anttila-Skrattnäs-Tjöck-Mörtmarkvägen-Björndalsvägen (eftermiddag) och Krs-Lerviken-Tjöck-Björndalsvägen (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reiteillä Liden-Puskamarkki-Savilahti-Krs  + Havsbadet (aamu), Krs-Havsbadet-Savilahti-Tiukka-Puskamarkki-Liden (iltapäivä), Krs-Anttila-Skrattnäs-Tiukka-Myrkyntie-Björndalintie (iltapäivä) ja Krs-Savilahti-Tiukka-Björndalintie (iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Liden-Påskmark-Lervikeni-Krs  + Havsbadet (morgon), Krs-Havsbadet-Lerviken-Tjöck-Påskmark-Liden (eftermiddag), Krs-Anttila-Skrattnäs-Tjöck-Mörtmarkvägen-Björndalsvägen (eftermiddag) och Krs-Lerviken-Tjöck-Björndalsvägen (eftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0010</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">D1</cbc:ID>
+      <cbc:Name languageID="FIN">D1 Krs-Lapväärtti-Härkmeri-Uttermossa-Heden / D1 Krs-Lappfjärd-Härkmeri-Uttermossa-Heden</cbc:Name>
+      <cbc:Name languageID="SWE">D1 Krs-Lapväärtti-Härkmeri-Uttermossa-Heden / D1 Krs-Lappfjärd-Härkmeri-Uttermossa-Heden</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Krs-Lapväärtti-Härkmeri-Uttermossa-Heden (perjantai-iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa. 
+
+Föremål för denna upphandling är skoltransport på rutten Krs-Lappfjärd-Härkmeri-Uttermossa-Heden (fredagseftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Krs-Lapväärtti-Härkmeri-Uttermossa-Heden (perjantai-iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa. 
+
+Föremål för denna upphandling är skoltransport på rutten Krs-Lappfjärd-Härkmeri-Uttermossa-Heden (fredagseftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0011</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">D2</cbc:ID>
+      <cbc:Name languageID="FIN">D2 Krs-Lapväärtti-Perus-Dagsmark-Karijoki / D2 Krs-Lappfjärd-Perus-Dagsmark-Bötom</cbc:Name>
+      <cbc:Name languageID="SWE">D2 Krs-Lapväärtti-Perus-Dagsmark-Karijoki / D2 Krs-Lappfjärd-Perus-Dagsmark-Bötom</cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Krs-Lapväärtti-Perus-Dagsmark-Karijoki (perjantai-iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Krs-Lappfjärd-Perus-Dagsmark-Karijoki (fredagseftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Krs-Lapväärtti-Perus-Dagsmark-Karijoki (perjantai-iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Krs-Lappfjärd-Perus-Dagsmark-Karijoki (fredagseftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:ProcurementProjectLot>
+    <cbc:ID schemeName="Lot">LOT-0012</cbc:ID>
+    <cac:TenderingTerms>
+      <ext:UBLExtensions>
+        <ext:UBLExtension>
+          <ext:ExtensionContent>
+            <efext:EformsExtension>
+              <efac:StrategicProcurement>
+                <efbc:ApplicableLegalBasis listName="cvd-scope">false</efbc:ApplicableLegalBasis>
+              </efac:StrategicProcurement>
+            </efext:EformsExtension>
+          </ext:ExtensionContent>
+        </ext:UBLExtension>
+      </ext:UBLExtensions>
+      <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+      <cac:AwardingTerms>
+        <cac:AwardingCriterion>
+          <cac:SubordinateAwardingCriterion>
+            <ext:UBLExtensions>
+              <ext:UBLExtension>
+                <ext:ExtensionContent>
+                  <efext:EformsExtension>
+                    <efac:AwardCriterionParameter>
+                      <efbc:ParameterCode listName="number-weight">poi-exa</efbc:ParameterCode>
+                      <efbc:ParameterNumeric>100</efbc:ParameterNumeric>
+                    </efac:AwardCriterionParameter>
+                  </efext:EformsExtension>
+                </ext:ExtensionContent>
+              </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:AwardingCriterionTypeCode listName="award-criterion-type">price</cbc:AwardingCriterionTypeCode>
+            <cbc:Description languageID="FIN">Tarjouksen valintaperusteena on halvin hinta. Vertailuhinta on palvelun päivähinta.
+
+Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.
+</cbc:Description>
+            <cbc:Description languageID="SWE">Jämförelsegrund för anbudet är det lägsta priset. Jämförelsepriset är dagspris för servicen.</cbc:Description>
+          </cac:SubordinateAwardingCriterion>
+        </cac:AwardingCriterion>
+      </cac:AwardingTerms>
+      <cac:AppealTerms>
+        <cac:AppealReceiverParty>
+          <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+          </cac:PartyIdentification>
+        </cac:AppealReceiverParty>
+      </cac:AppealTerms>
+    </cac:TenderingTerms>
+    <cac:TenderingProcess>
+      <cbc:GovernmentAgreementConstraintIndicator>true</cbc:GovernmentAgreementConstraintIndicator>
+      <cac:AuctionTerms>
+        <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+      </cac:AuctionTerms>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+      <cac:ContractingSystem>
+        <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+      </cac:ContractingSystem>
+    </cac:TenderingProcess>
+    <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">D3</cbc:ID>
+      <cbc:Name languageID="FIN">D3 Krs-Anttila-Skrattnäs-Kaskinen / D3 Krs-Anttila-Skrattnäs-Kaskö </cbc:Name>
+      <cbc:Name languageID="SWE">D3 Krs-Anttila-Skrattnäs-Kaskinen / D3 Krs-Anttila-Skrattnäs-Kaskö </cbc:Name>
+      <cbc:Description languageID="FIN">Hankinnan kohteena on koulukuljetukset reitillä Krs-Anttila-Skrattnäs-Kaskinen (perjantai-iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Krs-Anttila-Skrattnäs-Kaskö (fredagseftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:Description languageID="SWE">Hankinnan kohteena on koulukuljetukset reitillä Krs-Anttila-Skrattnäs-Kaskinen (perjantai-iltapäivä). Hankinnan kohdetta on kuvattu tarkemmin tarjouspyyntöasiakirjoissa.
+
+Föremål för denna upphandling är skoltransport på rutten Krs-Anttila-Skrattnäs-Kaskö (fredagseftermiddag). Föremål för upphandlingen har beskrivits mer specifikt i dokument som tillhör anbudsförfrågan. </cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">services</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+        <cbc:ItemClassificationCode listName="cpv">60140000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:RealizedLocation>
+        <cac:Address>
+          <cbc:CountrySubentityCode listName="nuts">FI195</cbc:CountrySubentityCode>
+          <cac:Country>
+            <cbc:IdentificationCode listName="country">FIN</cbc:IdentificationCode>
+          </cac:Country>
+        </cac:Address>
+      </cac:RealizedLocation>
+    </cac:ProcurementProject>
+  </cac:ProcurementProjectLot>
+  <cac:TenderResult>
+    <cbc:AwardDate>2000-01-01Z</cbc:AwardDate>
+  </cac:TenderResult>
+</ContractAwardNotice>

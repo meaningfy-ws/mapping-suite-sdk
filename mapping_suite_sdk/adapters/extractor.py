@@ -4,6 +4,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator, Protocol
 
+from mapping_suite_sdk.adapters.tracing import traced_class
+
 
 class Extractor(Protocol):
     """Protocol defining the interface for file extract operations.
@@ -33,6 +35,7 @@ class Extractor(Protocol):
         raise NotImplementedError
 
 
+@traced_class
 class ArchiveExtractor(Extractor):
     """Implementation of Extractor protocol for ZIP file operations.
 

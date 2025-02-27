@@ -138,7 +138,7 @@ class MappingPackageSerialiser(MappingPackageAssetSerialiser):
 
         # Serialize each component
         MappingPackageMetadataSerialiser().serialize(package_folder_path, asset.metadata)
-        ConceptualMappingFileSerialiser().serialize(package_folder_path, asset.conceptual_mapping_file)
+        ConceptualMappingFileSerialiser().serialize(package_folder_path, asset.conceptual_mapping_asset)
         TechnicalMappingSuiteSerialiser().serialize(package_folder_path, asset.technical_mapping_suite)
         VocabularyMappingSuiteSerialiser().serialize(package_folder_path, asset.vocabulary_mapping_suite)
         TestDataSuitesSerialiser().serialize(package_folder_path, asset.test_data_suites)

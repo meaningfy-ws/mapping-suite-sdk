@@ -287,7 +287,7 @@ class MappingPackageLoader(MappingPackageAssetLoader):
 
         return MappingPackage(
             metadata=metadata,
-            conceptual_mapping_file=conceptual_mapping_file,
+            conceptual_mapping_asset=conceptual_mapping_file,
             technical_mapping_suite=technical_mapping_suite,
             vocabulary_mapping_suite=vocabulary_mapping_suite,
             test_data_suites=test_data_suites,

@@ -16,6 +16,7 @@ class CoreModel(BaseModel):
     id: Optional[str] = Field(
         default=None,
         alias="_id",
+        exclude=True,
         description="Unique identifier for the model instance, automatically generated."
     )
 

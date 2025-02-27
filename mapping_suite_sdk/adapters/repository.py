@@ -53,7 +53,9 @@ class MongoDBRepository(RepositoryABC[T]):
         self.collection = self.database[self.collection_name]
 
     def create(self, model: T) -> T:
+        model_id = model.id
         model_dict = model.model_dump(by_alias=True, mode="json")
+        model_dict["_id"] = model_id
         self.collection.insert_one(model_dict)
 
         return model
@@ -75,11 +77,14 @@ class MongoDBRepository(RepositoryABC[T]):
         return models
 
     def update(self, model: T) -> T:
-        model_dict = model.model_dump(by_alias=True, mode="json")
         query = {'_id': model.id}
         existing = self.collection.find_one(query)
         if existing is None:
             raise ModelNotFoundError(f"Model with ID {model.id} not found")
+
+        model_id = model.id
+        model_dict = model.model_dump(by_alias=True, mode="json")
+        model_dict["_id"] = model_id
         self.collection.replace_one(query, model_dict)
 
         return model

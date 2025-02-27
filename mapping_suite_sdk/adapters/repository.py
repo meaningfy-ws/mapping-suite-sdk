@@ -19,23 +19,23 @@ class ModelNotFoundError(RepositoryError):
 class RepositoryABC(Generic[T], ABC):
     @abstractmethod
     def create(self, model: T) -> str:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def read(self, model_id: str) -> T:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def read_many(self, filters: Optional[Dict[str, Any]] = None) -> List[T]:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def update(self, model: T) -> T:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def delete(self, model_id: str) -> None:
-        pass
+        raise NotImplementedError
 
 
 class MongoDBRepository(RepositoryABC[T]):

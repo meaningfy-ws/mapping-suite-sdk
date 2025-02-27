@@ -63,7 +63,7 @@ class MongoDBRepository(RepositoryABC[T]):
     def read(self, model_id: str) -> T:
         result = self.collection.find_one({"_id": model_id})
         if result is None:
-            raise ModelNotFoundError(f"Model with ID {model_id} not found")
+            raise ModelNotFoundError(f"Asset with ID {model_id} not found")
 
         return self.model_class.model_validate(result)
 
@@ -80,7 +80,7 @@ class MongoDBRepository(RepositoryABC[T]):
         query = {'_id': model.id}
         existing = self.collection.find_one(query)
         if existing is None:
-            raise ModelNotFoundError(f"Model with ID {model.id} not found")
+            raise ModelNotFoundError(f"Asset with ID {model.id} not found")
 
         model_id = model.id
         model_dict = model.model_dump(by_alias=True, mode="json")
@@ -93,7 +93,7 @@ class MongoDBRepository(RepositoryABC[T]):
         result = self.collection.delete_one({'_id': model_id})
 
         if result.deleted_count < 1:
-            raise ModelNotFoundError(f"Model with ID {model_id} not found")
+            raise ModelNotFoundError(f"Asset with ID {model_id} not found")
 
     def __del__(self):
         self.client.close()

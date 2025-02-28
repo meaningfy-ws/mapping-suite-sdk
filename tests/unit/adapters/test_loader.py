@@ -177,6 +177,6 @@ def test_mapping_package_loader(dummy_mapping_package_path: Path) -> None:
         assert len(mapping_package.test_data_suites) > 0
 
         assert mapping_package.metadata is not None
-        assert mapping_package.conceptual_mapping_file is not None
+        assert mapping_package.conceptual_mapping_asset is not None
         assert mapping_package.technical_mapping_suite is not None
         assert mapping_package.vocabulary_mapping_suite is not None

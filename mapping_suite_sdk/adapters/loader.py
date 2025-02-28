@@ -3,6 +3,7 @@ from typing import Any, List, Protocol
 
 from pydantic import TypeAdapter
 
+from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset
@@ -109,9 +110,10 @@ class TestDataSuitesLoader(MappingPackageAssetLoader):
         for ts_suite in (package_folder_path / RELATIVE_TEST_DATA_PATH).iterdir():
             if ts_suite.is_dir():
                 test_data_suites.append(TestDataSuite(path=ts_suite.relative_to(package_folder_path),
-                                                      files=[TestDataAsset(path=ts_file.relative_to(package_folder_path),
-                                                                           content=ts_file.read_text()) for ts_file in
-                                                             ts_suite.iterdir() if ts_file.is_file()]))
+                                                      files=[
+                                                          TestDataAsset(path=ts_file.relative_to(package_folder_path),
+                                                                        content=ts_file.read_text()) for ts_file in
+                                                          ts_suite.iterdir() if ts_file.is_file()]))
         return test_data_suites
 
 
@@ -253,6 +255,7 @@ class ConceptualMappingFileLoader(MappingPackageAssetLoader):
         )
 
 
+@traced_class
 class MappingPackageLoader(MappingPackageAssetLoader):
     """Main loader for complete mapping packages.
 
@@ -287,7 +290,7 @@ class MappingPackageLoader(MappingPackageAssetLoader):
 
         return MappingPackage(
             metadata=metadata,
-            conceptual_mapping_file=conceptual_mapping_file,
+            conceptual_mapping_asset=conceptual_mapping_file,
             technical_mapping_suite=technical_mapping_suite,
             vocabulary_mapping_suite=vocabulary_mapping_suite,
             test_data_suites=test_data_suites,

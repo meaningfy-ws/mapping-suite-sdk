@@ -3,9 +3,12 @@ from typing import Optional, List
 
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
+from mapping_suite_sdk.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
+@traced_routine
 def load_mapping_package_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None
@@ -43,6 +46,7 @@ def load_mapping_package_from_folder(
     return mapping_package_loader.load(mapping_package_folder_path)
 
 
+@traced_routine
 def load_mapping_package_from_archive(
         mapping_package_archive_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
@@ -84,7 +88,8 @@ def load_mapping_package_from_archive(
         return load_mapping_package_from_folder(mapping_package_folder_path=temp_mapping_package_folder_path,
                                                 mapping_package_loader=mapping_package_loader)
 
-
+      
+@traced_routine
 def load_mapping_packages_from_github(
         github_repository_url: str,
         packages_path_pattern: str,
@@ -192,3 +197,42 @@ def load_mapping_packages_from_github(
                 mapping_package_loader=mapping_package_loader
             )
             for package_path in package_paths]
+
+      
+@traced_routine
+def load_mapping_package_from_mongo_db(
+        mapping_package_id: str,
+        mapping_package_repository: MongoDBRepository[MappingPackage]
+) -> MappingPackage:
+    """
+    Load a mapping package from a MongoDB database.
+
+    This function retrieves a mapping package from a MongoDB database using its unique ID.
+    The mapping package is retrieved using a provided MongoDB repository instance, which
+    should be configured with the appropriate database connection and collection settings.
+
+    Args:
+        mapping_package_id: The unique identifier of the mapping package to load. This ID
+            corresponds to the '_id' field in the MongoDB collection.
+        mapping_package_repository: A configured MongoDBRepository instance specifically for
+            MappingPackage objects. This repository should already be initialized with the
+            correct MongoDB client, database name, and collection name.
+
+    Returns:
+        MappingPackage: The loaded mapping package containing all components including
+            technical mappings, vocabulary mappings, test suites, and metadata.
+
+    Raises:
+        ValueError: If mapping_package_id or mapping_package_repository is not provided
+        ModelNotFoundError: If the mapping package with the specified ID is not found
+        Exception: Any additional exceptions that might be raised by the repository
+            implementation during the read operation
+    """
+    if not mapping_package_id:
+        raise ValueError("Mapping package ID must be provided")
+
+    if not mapping_package_repository:
+        raise ValueError("MongoDB repository must be provided")
+
+    return mapping_package_repository.read(mapping_package_id)
+

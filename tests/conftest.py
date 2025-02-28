@@ -1,12 +1,13 @@
 import json
-import json
 import shutil
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Set, Optional
 
 import mongomock
 import pytest
+from git import Repo
 from pydantic import TypeAdapter
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
@@ -17,7 +18,8 @@ from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, Techni
 from mapping_suite_sdk.models.core import CoreModel
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
-    TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH
+    TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH, \
+    TEST_DATA_MAPPING_PACKAGES_REPO_PATH
 
 
 class TestModel(CoreModel):
@@ -184,6 +186,21 @@ def _compare_directories(source_dir: Path, target_dir: Path) -> tuple[bool, str]
     return True, ""
 
 
+@contextmanager
+def _setup_temporary_test_git_repository(dummy_github_project_path: Path, dummy_github_branch_name: str = None):
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        repo_path = Path(tmp_dir) / dummy_github_project_path.name
+        repo_path = shutil.copytree(dummy_github_project_path, repo_path)
+        repo = Repo.init(repo_path)
+        repo.git.add(all=True)
+        repo.index.commit("commit for test")
+
+        if dummy_github_branch_name:
+            repo.create_tag(dummy_github_branch_name)
+
+        yield repo_path
+
+
 @pytest.fixture
 def dummy_mapping_package_path() -> Path:
     return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH
@@ -202,6 +219,46 @@ def dummy_mapping_package_model() -> MappingPackage:
 @pytest.fixture
 def dummy_mapping_package_extracted_path() -> Path:
     return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH
+
+
+@pytest.fixture
+def dummy_github_project_path() -> Path:
+    return TEST_DATA_MAPPING_PACKAGES_REPO_PATH
+
+
+@pytest.fixture
+def dummy_github_branch_name() -> str:
+    return "test_tag"
+
+
+@pytest.fixture
+def dummy_repo_package_path() -> Path:
+    return Path("mappings/package_can_v1.9")
+
+
+@pytest.fixture
+def dummy_packages_path_pattern() -> str:
+    return "mappings/*_can_*"
+
+
+@pytest.fixture
+def dummy_invalid_github_repo_url() -> str:
+    return "https://github.com/OP-TED/"
+
+
+@pytest.fixture
+def dummy_non_existing_github_branch_name() -> str:
+    return "non_existing_tag_name"
+
+
+@pytest.fixture
+def dummy_get_all_packages_pattern() -> str:
+    return "mappings/*"
+
+
+@pytest.fixture
+def dummy_non_existing_pattern() -> str:
+    return "non_existing_pattern*___*_"
 
 
 @pytest.fixture

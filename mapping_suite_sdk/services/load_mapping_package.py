@@ -4,7 +4,7 @@ from typing import Optional
 from mapping_suite_sdk.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
-from mapping_suite_sdk.adapters.tracing import traced_routine
+from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 

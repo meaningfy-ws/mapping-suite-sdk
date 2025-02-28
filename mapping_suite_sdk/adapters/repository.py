@@ -3,7 +3,7 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 from pymongo import MongoClient
 
-from mapping_suite_sdk.adapters.tracing import traced_class
+from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.core import CoreModel
 
 T = TypeVar('T', bound=CoreModel)

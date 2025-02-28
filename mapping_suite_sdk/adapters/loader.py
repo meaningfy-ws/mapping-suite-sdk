@@ -3,7 +3,7 @@ from typing import Any, List, Protocol
 
 from pydantic import TypeAdapter
 
-from mapping_suite_sdk.adapters.tracing import traced_class
+from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset

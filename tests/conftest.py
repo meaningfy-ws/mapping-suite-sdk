@@ -1,5 +1,4 @@
 import json
-import json
 import shutil
 import tempfile
 from contextlib import contextmanager
@@ -262,6 +261,7 @@ def dummy_non_existing_pattern() -> str:
     return "non_existing_pattern*___*_"
 
 
+@pytest.fixture
 def mongo_client() -> mongomock.MongoClient:
     return mongomock.MongoClient()
 
@@ -297,4 +297,3 @@ def dummy_database_name() -> str:
 @pytest.fixture
 def dummy_collection_name() -> str:
     return "test_collection_Name"
-

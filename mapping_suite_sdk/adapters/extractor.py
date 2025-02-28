@@ -4,6 +4,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator, Protocol
 
+from mapping_suite_sdk.adapters.tracer import traced_class
+
 
 class Extractor(Protocol):
     """Protocol defining the interface for file extract operations.
@@ -13,9 +15,8 @@ class Extractor(Protocol):
     a context manager that handles the extraction process and cleanup.
     """
 
-    @staticmethod
     @contextmanager
-    def extract_temporary(source_path: Path) -> Generator[Path, None, None]:
+    def extract_temporary(self, source_path: Path) -> Generator[Path, None, None]:
         """Extract content to a temporary directory and yield its path.
 
         This context manager should handle the extraction of files to a temporary
@@ -33,6 +34,7 @@ class Extractor(Protocol):
         raise NotImplementedError
 
 
+@traced_class
 class ArchiveExtractor(Extractor):
     """Implementation of Extractor protocol for ZIP file operations.
 
@@ -41,9 +43,8 @@ class ArchiveExtractor(Extractor):
     - Pack directories into ZIP files without including the root directory name
     """
 
-    @staticmethod
     @contextmanager
-    def extract_temporary(archive_path: Path) -> Generator[Path, None, None]:
+    def extract_temporary(self, archive_path: Path) -> Generator[Path, None, None]:
         """Extract a ZIP archive to a temporary directory and yield its path.
 
         This context manager handles the extraction of ZIP files to a temporary
@@ -84,8 +85,7 @@ class ArchiveExtractor(Extractor):
             except Exception as e:
                 raise ValueError(f"Failed to extract ZIP file: {e}")
 
-    @staticmethod
-    def pack_directory(source_dir: Path, output_path: Path) -> Path:
+    def pack_directory(self, source_dir: Path, output_path: Path) -> Path:
         """Pack a directory's contents into a ZIP file without including the root directory name.
 
         Creates a ZIP file containing the contents of the specified directory.

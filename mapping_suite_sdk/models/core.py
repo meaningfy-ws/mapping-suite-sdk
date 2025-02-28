@@ -40,7 +40,6 @@ class CoreModel(BaseModel):
         extra = "forbid"
         frozen = False
         arbitrary_types_allowed = False
-        smart_union = True
         use_enum_values = True
         str_strip_whitespace = False
         validate_default = True

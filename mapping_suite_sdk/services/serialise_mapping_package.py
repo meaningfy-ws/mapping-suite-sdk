@@ -2,11 +2,13 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
 from mapping_suite_sdk.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
+from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
+@traced_routine
 def serialise_mapping_package(mapping_package: MappingPackage,
                               serialisation_folder_path: Path,
                               archive_unpacker: Optional[ArchiveExtractor] = None) -> None:

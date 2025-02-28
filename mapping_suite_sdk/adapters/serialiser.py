@@ -1,8 +1,10 @@
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from mapping_suite_sdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, \
+from mapping_suite_sdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
+    RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, \
     RELATIVE_SUITE_METADATA_PATH, RELATIVE_CONCEPTUAL_MAPPING_PATH
+from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import (
     TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite,
     SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingPackageAsset
@@ -116,6 +118,7 @@ class ConceptualMappingFileSerialiser(MappingPackageAssetSerialiser):
         file_path.write_bytes(asset.content)
 
 
+@traced_class
 class MappingPackageSerialiser(MappingPackageAssetSerialiser):
     """Main serialiser for complete mapping packages."""
 

@@ -1,12 +1,14 @@
 from pathlib import Path
 from typing import Optional
 
-from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
 from mapping_suite_sdk.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
+@traced_routine
 def load_mapping_package_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None
@@ -44,6 +46,7 @@ def load_mapping_package_from_folder(
     return mapping_package_loader.load(mapping_package_folder_path)
 
 
+@traced_routine
 def load_mapping_package_from_archive(
         mapping_package_archive_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
@@ -86,6 +89,7 @@ def load_mapping_package_from_archive(
                                                 mapping_package_loader=mapping_package_loader)
 
 
+@traced_routine
 def load_mapping_package_from_mongo_db(
         mapping_package_id: str,
         mapping_package_repository: MongoDBRepository[MappingPackage]

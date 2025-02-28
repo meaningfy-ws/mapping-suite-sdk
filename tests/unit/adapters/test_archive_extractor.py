@@ -9,13 +9,13 @@ from tests.conftest import _compare_directories
 
 
 def test_archive_unpack_successful(dummy_mapping_package_path: Path) -> None:
-    with ArchiveExtractor.extract_temporary(dummy_mapping_package_path) as extracted_path:
+    with ArchiveExtractor().extract_temporary(dummy_mapping_package_path) as extracted_path:
         assert extracted_path.exists()
         assert extracted_path.is_dir()
 
 
 def test_archive_cleanup_after_context(dummy_mapping_package_path: Path) -> None:
-    with ArchiveExtractor.extract_temporary(dummy_mapping_package_path) as path:
+    with ArchiveExtractor().extract_temporary(dummy_mapping_package_path) as path:
         extracted_path = path
         assert extracted_path.exists()
 
@@ -24,21 +24,21 @@ def test_archive_cleanup_after_context(dummy_mapping_package_path: Path) -> None
 
 def test_nonexistent_archive() -> None:
     with pytest.raises(FileNotFoundError) as exc_info:
-        with ArchiveExtractor.extract_temporary(Path("nonexistent.zip")):
+        with ArchiveExtractor().extract_temporary(Path("nonexistent.zip")):
             pass
         assert "Archive file not found" in str(exc_info.value)
 
 
 def test_invalid_archive_path() -> None:
     with pytest.raises(ValueError) as exc_info:
-        with ArchiveExtractor.extract_temporary(Path(__file__)):
+        with ArchiveExtractor().extract_temporary(Path(__file__)):
             pass
         assert "Specified path is not a file" in str(exc_info.value)
 
 
 def test_corrupted_archive(dummy_corrupted_mapping_package_path: Path) -> None:
     with pytest.raises(ValueError) as exc_info:
-        with ArchiveExtractor.extract_temporary(dummy_corrupted_mapping_package_path):
+        with ArchiveExtractor().extract_temporary(dummy_corrupted_mapping_package_path):
             pass
     assert "Failed to extract" in str(exc_info.value)
 

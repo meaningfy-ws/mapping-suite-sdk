@@ -11,10 +11,11 @@ from mapping_suite_sdk.adapters.tracer import (
     traced_routine,
     traced_class,
     _MSSDK_TRACE_VAR_NAME,
-    _MSSDK_TRACER_PROVIDER
+    _MSSDK_TRACER_PROVIDER,
+    add_span_processor_to_mssdk_tracer_provider,
 )
 
-# Setup a memory exporter to capture spans for testing
+# Set up a memory exporter to capture spans for testing
 memory_exporter = InMemorySpanExporter()
 span_processor = SimpleSpanProcessor(memory_exporter)
 _MSSDK_TRACER_PROVIDER.add_span_processor(span_processor)
@@ -50,6 +51,20 @@ def test_get_mssdk_tracing():
     if _MSSDK_TRACE_VAR_NAME in os.environ:
         del os.environ[_MSSDK_TRACE_VAR_NAME]
     assert get_mssdk_tracing() == False
+
+
+def test_add_span_processor_to_mssdk_tracer_provider_gets_invalid_value():
+    _test_tracer_setup_function()
+    current_len = len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors)
+    add_span_processor_to_mssdk_tracer_provider(None)
+    assert len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors) == current_len
+
+
+def test_add_span_processor_to_mssdk_tracer_provider_gets_valid_value():
+    _test_tracer_setup_function()
+    current_len = len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors)
+    add_span_processor_to_mssdk_tracer_provider(SimpleSpanProcessor(memory_exporter))
+    assert len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors) == current_len + 1
 
 
 def test_is_mssdk_tracing_enabled():

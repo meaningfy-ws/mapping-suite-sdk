@@ -20,12 +20,6 @@ memory_exporter = InMemorySpanExporter()
 span_processor = SimpleSpanProcessor(memory_exporter)
 _MSSDK_TRACER_PROVIDER.add_span_processor(span_processor)
 
-
-def _test_tracer_setup_function():
-    """Reset the memory exporter before each test."""
-    memory_exporter.clear()
-
-
 def test_set_mssdk_tracing():
     """Test setting the trace state via environment variable."""
     # Test setting to ON
@@ -54,16 +48,15 @@ def test_get_mssdk_tracing():
 
 
 def test_add_span_processor_to_mssdk_tracer_provider_gets_invalid_value():
-    _test_tracer_setup_function()
     current_len = len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors)
     add_span_processor_to_mssdk_tracer_provider(None)
     assert len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors) == current_len
 
 
 def test_add_span_processor_to_mssdk_tracer_provider_gets_valid_value():
-    _test_tracer_setup_function()
     current_len = len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors)
-    add_span_processor_to_mssdk_tracer_provider(SimpleSpanProcessor(memory_exporter))
+    _memory_exporter = InMemorySpanExporter()
+    add_span_processor_to_mssdk_tracer_provider(SimpleSpanProcessor(_memory_exporter))
     assert len(_MSSDK_TRACER_PROVIDER._active_span_processor._span_processors) == current_len + 1
 
 

@@ -7,30 +7,33 @@ allowing users to monitor and debug performance and execution flow.
 
 import functools
 import os
-from enum import Enum
 
 from opentelemetry import trace
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace import TracerProvider, SpanProcessor
 
 # Environment variable to control tracing state
-MSSDK_TRACE_VAR_NAME = "MSSDK_TRACE"
-# Setup the OpenTelemetry tracer provider
-MSSDK_TRACER_PROVIDER = TracerProvider(resource=Resource(attributes={SERVICE_NAME: "mapping-suite-sdk"}))
-trace.set_tracer_provider(MSSDK_TRACER_PROVIDER)
+_MSSDK_TRACE_VAR_NAME = "MSSDK_TRACE"
+# Set up the OpenTelemetry tracer provider
+_MSSDK_TRACER_PROVIDER = TracerProvider(resource=Resource(attributes={SERVICE_NAME: "mapping-suite-sdk"}))
+trace.set_tracer_provider(_MSSDK_TRACER_PROVIDER)
 
 
-class MSSDKTraceState(Enum):
-    """Enumeration for tracing states: ON or OFF."""
-    OFF = "false"
-    ON = "true"
+def add_span_processor_to_mssdk_tracer_provider(sp: SpanProcessor) -> None:
+    """
+    Set span processor to mssdk tracer provider.
 
-    def __bool__(self):
-        """Convert trace state to boolean: True if tracing is ON, False otherwise."""
-        return self == MSSDKTraceState.ON
+    Args:
+        sp: OpenTelemetry SpanProcessor
+
+    Returns:
+        None
+    """
+    if isinstance(sp, SpanProcessor):
+        _MSSDK_TRACER_PROVIDER.add_span_processor(sp)
 
 
-def set_mssdk_tracing(state: MSSDKTraceState) -> MSSDKTraceState:
+def set_mssdk_tracing(state: bool) -> None:
     """
     Set the tracing state for the SDK.
 
@@ -38,21 +41,19 @@ def set_mssdk_tracing(state: MSSDKTraceState) -> MSSDKTraceState:
         state: The desired tracing state (ON or OFF)
 
     Returns:
-        The new tracing state
+        None
     """
-    os.environ[MSSDK_TRACE_VAR_NAME] = state.value
-    return state
+    os.environ[_MSSDK_TRACE_VAR_NAME] = str(state).casefold().strip()
 
 
-def get_mssdk_tracing() -> MSSDKTraceState:
+def get_mssdk_tracing() -> bool:
     """
     Get the current tracing state.
 
     Returns:
-        The current tracing state (defaults to ON if not set)
+        The current tracing state (true or false)
     """
-    env_value = os.environ.get(MSSDK_TRACE_VAR_NAME, MSSDKTraceState.ON.value)
-    return MSSDKTraceState.ON if env_value == "true" else MSSDKTraceState.OFF
+    return os.getenv(_MSSDK_TRACE_VAR_NAME, 'false').casefold().strip() == 'true'
 
 
 def is_mssdk_tracing_enabled() -> bool:

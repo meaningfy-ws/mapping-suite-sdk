@@ -5,20 +5,19 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 from mapping_suite_sdk.adapters.tracer import (
-    MSSDKTraceState,
     set_mssdk_tracing,
     get_mssdk_tracing,
     is_mssdk_tracing_enabled,
     traced_routine,
     traced_class,
-    MSSDK_TRACE_VAR_NAME,
-    MSSDK_TRACER_PROVIDER
+    _MSSDK_TRACE_VAR_NAME,
+    _MSSDK_TRACER_PROVIDER
 )
 
 # Setup a memory exporter to capture spans for testing
 memory_exporter = InMemorySpanExporter()
 span_processor = SimpleSpanProcessor(memory_exporter)
-MSSDK_TRACER_PROVIDER.add_span_processor(span_processor)
+_MSSDK_TRACER_PROVIDER.add_span_processor(span_processor)
 
 
 def _test_tracer_setup_function():
@@ -26,56 +25,48 @@ def _test_tracer_setup_function():
     memory_exporter.clear()
 
 
-def test_trace_state_bool():
-    """Test that MSSDKTraceState enum boolean conversion works correctly."""
-    assert bool(MSSDKTraceState.ON) is True
-    assert bool(MSSDKTraceState.OFF) is False
-
-
 def test_set_mssdk_tracing():
     """Test setting the trace state via environment variable."""
     # Test setting to ON
-    result = set_mssdk_tracing(MSSDKTraceState.ON)
-    assert result == MSSDKTraceState.ON
-    assert os.environ[MSSDK_TRACE_VAR_NAME] == "true"
+    set_mssdk_tracing(True)
+    assert os.environ[_MSSDK_TRACE_VAR_NAME] == "true"
 
     # Test setting to OFF
-    result = set_mssdk_tracing(MSSDKTraceState.OFF)
-    assert result == MSSDKTraceState.OFF
-    assert os.environ[MSSDK_TRACE_VAR_NAME] == "false"
+    set_mssdk_tracing(False)
+    assert os.environ[_MSSDK_TRACE_VAR_NAME] == "false"
 
 
 def test_get_mssdk_tracing():
     """Test getting the trace state."""
     # Test with ON state
-    os.environ[MSSDK_TRACE_VAR_NAME] = "true"
-    assert get_mssdk_tracing() == MSSDKTraceState.ON
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "true"
+    assert get_mssdk_tracing() == True
 
     # Test with OFF state
-    os.environ[MSSDK_TRACE_VAR_NAME] = "false"
-    assert get_mssdk_tracing() == MSSDKTraceState.OFF
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "false"
+    assert get_mssdk_tracing() == False
 
     # Test default state (when environment variable isn't set)
-    if MSSDK_TRACE_VAR_NAME in os.environ:
-        del os.environ[MSSDK_TRACE_VAR_NAME]
-    assert get_mssdk_tracing() == MSSDKTraceState.ON
+    if _MSSDK_TRACE_VAR_NAME in os.environ:
+        del os.environ[_MSSDK_TRACE_VAR_NAME]
+    assert get_mssdk_tracing() == False
 
 
 def test_is_mssdk_tracing_enabled():
     """Test checking if tracing is enabled."""
     # Test with ON state
-    os.environ[MSSDK_TRACE_VAR_NAME] = "true"
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "true"
     assert is_mssdk_tracing_enabled() is True
 
     # Test with OFF state
-    os.environ[MSSDK_TRACE_VAR_NAME] = "false"
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "false"
     assert is_mssdk_tracing_enabled() is False
 
 
 def test_traced_routine_with_tracing_enabled():
     """Test traced_routine decorator when tracing is enabled."""
     # Set tracing to enabled
-    os.environ[MSSDK_TRACE_VAR_NAME] = "true"
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "true"
     memory_exporter.clear()
 
     # Define a test function
@@ -104,7 +95,7 @@ def test_traced_routine_with_tracing_enabled():
 def test_traced_routine_with_tracing_disabled():
     """Test traced_routine decorator when tracing is disabled."""
     # Set tracing to disabled
-    os.environ[MSSDK_TRACE_VAR_NAME] = "false"
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "false"
     memory_exporter.clear()
 
     # Define a test function
@@ -126,7 +117,7 @@ def test_traced_routine_with_tracing_disabled():
 def test_traced_routine_with_exception():
     """Test traced_routine decorator when function raises an exception."""
     # Set tracing to enabled
-    os.environ[MSSDK_TRACE_VAR_NAME] = "true"
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "true"
     memory_exporter.clear()
 
     # Define a test function that raises an exception
@@ -155,7 +146,7 @@ def test_traced_routine_with_exception():
 def test_traced_class_decorator():
     """Test traced_class decorator."""
     # Set tracing to enabled
-    os.environ[MSSDK_TRACE_VAR_NAME] = "true"
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "true"
     memory_exporter.clear()
 
     # Define a test class
@@ -204,7 +195,7 @@ def test_traced_class_decorator():
 def test_traced_class_with_tracing_disabled():
     """Test traced_class decorator when tracing is disabled."""
     # Set tracing to disabled
-    os.environ[MSSDK_TRACE_VAR_NAME] = "false"
+    os.environ[_MSSDK_TRACE_VAR_NAME] = "false"
     memory_exporter.clear()
 
     # Define a test class

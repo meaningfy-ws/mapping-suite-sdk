@@ -84,7 +84,7 @@ class MappingPackage(CoreModel):
     # index: MappingPackageIndex = Field(..., description="Index of package contents and their relationships")
 
     # Package elements (folders and files)
-    conceptual_mapping_file: ConceptualMappingPackageAsset = Field(..., description="The CMs in Excel Spreadsheet")
+    conceptual_mapping_asset: ConceptualMappingPackageAsset = Field(..., description="The CMs in Excel Spreadsheet")
     technical_mapping_suite: TechnicalMappingSuite = Field(..., description="All teh RML files, which are RMLFragments")
     vocabulary_mapping_suite: VocabularyMappingSuite = Field(..., description="The resources JSONs, CSV and XML files")
     test_data_suites: List[TestDataSuite] = Field(..., description="Collections of test data for transformation")

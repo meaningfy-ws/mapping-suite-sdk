@@ -8,6 +8,9 @@ jobs:
   test:
     name: Pylint
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,3 +35,4 @@ jobs:
           lint-path: ./mapping_suite_sdk ./tests
           python-version: "3.12"
           pylintrc-path: .pylintrc
+          token: ${{ secrets.GITHUB_TOKEN }}

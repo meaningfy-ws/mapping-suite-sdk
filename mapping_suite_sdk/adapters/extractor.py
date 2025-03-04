@@ -7,6 +7,8 @@ from typing import Generator, Any, List, Optional
 
 from git import Repo
 
+from mapping_suite_sdk.adapters.tracer import traced_class
+
 
 class MappingPackageExtractorABC(ABC):
     """Abstract base class defining the interface for mapping package extract operations.
@@ -61,6 +63,7 @@ class MappingPackageExtractorABC(ABC):
         raise NotImplementedError
 
 
+@traced_class
 class ArchivePackageExtractor(MappingPackageExtractorABC):
     """Implementation of MappingPackageExtractorABC for ZIP file operations.
 
@@ -141,8 +144,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
             except Exception as e:
                 raise ValueError(f"Failed to extract ZIP file: {e}")
 
-    @staticmethod
-    def pack_directory(source_dir: Path, output_path: Path) -> Path:
+    def pack_directory(self, source_dir: Path, output_path: Path) -> Path:
         """Pack a directory's contents into a ZIP file without including the root directory name.
 
         Creates a ZIP file containing the contents of the specified directory.
@@ -198,6 +200,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
             raise ValueError(f"Failed to create ZIP file: {e}")
 
 
+@traced_class
 class GithubPackageExtractor(MappingPackageExtractorABC):
     """A mapping package extractor for GitHub repositories.
 

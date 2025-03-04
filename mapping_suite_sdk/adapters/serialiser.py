@@ -1,8 +1,10 @@
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from mapping_suite_sdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, \
+from mapping_suite_sdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
+    RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, \
     RELATIVE_SUITE_METADATA_PATH, RELATIVE_CONCEPTUAL_MAPPING_PATH
+from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import (
     TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite,
     SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingPackageAsset
@@ -116,6 +118,7 @@ class ConceptualMappingFileSerialiser(MappingPackageAssetSerialiser):
         file_path.write_bytes(asset.content)
 
 
+@traced_class
 class MappingPackageSerialiser(MappingPackageAssetSerialiser):
     """Main serialiser for complete mapping packages."""
 
@@ -138,7 +141,7 @@ class MappingPackageSerialiser(MappingPackageAssetSerialiser):
 
         # Serialize each component
         MappingPackageMetadataSerialiser().serialize(package_folder_path, asset.metadata)
-        ConceptualMappingFileSerialiser().serialize(package_folder_path, asset.conceptual_mapping_file)
+        ConceptualMappingFileSerialiser().serialize(package_folder_path, asset.conceptual_mapping_asset)
         TechnicalMappingSuiteSerialiser().serialize(package_folder_path, asset.technical_mapping_suite)
         VocabularyMappingSuiteSerialiser().serialize(package_folder_path, asset.vocabulary_mapping_suite)
         TestDataSuitesSerialiser().serialize(package_folder_path, asset.test_data_suites)

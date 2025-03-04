@@ -1,35 +1,163 @@
 = Mapping Suite SDK
-:description: Documentation for the Mapping Suite SDK
-:keywords: mapping, SDK, documentation
+:description: Comprehensive software development kit for XML-RML mapping rules packaging
+:keywords: mapping-suite-sdk, XML, RML, mapping, transformation, SDK
 
 == Introduction
 
-The Mapping Suite SDK is a powerful toolkit for handling mapping packages and transformations.
+The Mapping Suite SDK is a powerful software development kit designed to standardize and simplify the handling of mapping packages containing XML-to-RML (RDF Mapping Language) transformation rules and related components.
 
-== Features
+== Key Features
 
-* Loading and handling mapping packages
-* Serialization and deserialization of mapping data
-* Validation services
+=== Flexible Package Management
+- Load mapping packages from multiple sources
+** Local folders
+** ZIP archives
+** GitHub repositories
+** MongoDB databases
+
+=== Comprehensive Serialization
+- Convert mapping packages between file-based and object representations
+- Support for complex mapping package structures
+- Robust error handling and validation
+
+=== Advanced Extraction
+- Flexible extractors for different package sources
+- Temporary and permanent extraction modes
+- Pattern-based package discovery
+
+=== MongoDB Integration
+- Type-safe repository operations
+- CRUD functionality for mapping packages
+- Advanced querying capabilities
+
+=== Observability
+- Built-in OpenTelemetry tracing
+- Performance monitoring
+- Detailed error tracking
+
+=== In future
+* Validation service
 * Transformation capabilities
 
 == Quick Start
 
+=== Installation
+
+==== Using pip
+[source,bash]
+----
+pip install mapping-suite-sdk
+----
+
+==== Using Poetry
+[source,bash]
+----
+poetry add mapping-suite-sdk
+----
+
+=== Basic Usage
+
 [source,python]
 ----
-from mssdk import MappingPackage
+from pathlib import Path
+import mapping_suite_sdk as mssdk
 
 # Load a mapping package
-package = MappingPackage.load("path/to/package.zip")
+package = mssdk.load_mapping_package_from_folder(
+    mapping_package_folder_path=Path("/path/to/mapping/package")
+)
 
-# Access package contents
-metadata = package.metadata
+# Serialize the package
+mssdk.serialise_mapping_package(
+    mapping_package=package,
+    serialisation_folder_path=Path("/output/path")
+)
 ----
+
+== Core Components
+
+=== Adapters
+- *Extractor*: Handle package extraction from various sources
+- *Loader*: Load different components of mapping packages
+- *Repository*: Manage package storage and retrieval
+- *Serialiser*: Convert packages between formats
+- *Tracer*: Provide observability and performance monitoring
+
+=== Services
+- Package loading from multiple sources
+- Package serialization
+- Tracing and monitoring
+
+== Supported Mapping Package Components
+
+- Metadata
+- Conceptual mappings
+- Technical mapping suites
+- Vocabulary mapping suites
+- Test data suites
+- SPARQL validation suites
+- SHACL validation suites
+
+== Advanced Features
+
+=== Custom Extraction
+[source,python]
+----
+from mapping_suite_sdk.adapters.extractor import MappingPackageExtractorABC
+
+class CustomPackageExtractor(MappingPackageExtractorABC):
+    def extract(self, source, destination, **kwargs):
+        # Implement custom extraction logic
+        pass
+
+    def extract_temporary(self, source, **kwargs):
+        # Implement temporary extraction
+        pass
+----
+
+=== Tracing and Monitoring
+[source,python]
+----
+import mapping_suite_sdk as mssdk
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter
+
+# Enable tracing
+mssdk.set_mssdk_tracing(True)
+
+# Add console exporter for trace details
+console_exporter = ConsoleSpanExporter()
+mssdk.add_span_processor_to_mssdk_tracer_provider(console_exporter)
+----
+
+== Performance and Scalability
+
+- Efficient package handling
+- Minimal resource overhead
+- Supports large mapping packages
+- Configurable tracing and monitoring
+
+== References
+
+- https://github.com/meaningfy-ws/mapping-suite-sdk[GitHub Repository]
+- http://docs.ted.europa.eu/ODS/latest/mapping_eforms/package_structure.html#_the_eforms_metadata_json_file[Mapping Package Structure Documentation]
+- https://github.com/OP-TED/ted-rdf-conversion-pipeline[TED RDF Conversion Pipeline]
 
 == Getting Help
 
-If you need help, please:
+- *Issues*: https://github.com/meaningfy-ws/mapping-suite-sdk/issues[Report bugs and feature requests]
+- *Email*: hi@meaningfy.ws
+- *Website*: https://meaningfy.ws
 
-1. Check the documentation
-2. Open an issue on GitHub
-3. Contact the development team
+== Contributing
+
+Contributions are welcome! Please follow our contribution guidelines:
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+== License
+
+Apache License 2.0

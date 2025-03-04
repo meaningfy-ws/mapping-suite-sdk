@@ -1,3 +1,6 @@
 * xref:index.adoc[Home]
-* xref:getting-started.adoc[Getting Started]
-* xref:advanced-usage.adoc[Advanced Usage]
+* xref:quick-start.adoc[Quick Start]
+* xref:extractors.adoc[Extractors]
+* xref:serialisation.adoc[Serialisation]
+* xref:mongodb-support.adoc[MongoDB Support]
+* xref:opentelemetry-tracing.adoc[OpenTelemetry Tracing and Monitoring]

@@ -173,3 +173,6 @@ cython_debug/
 activate_venv.sh
 pylint_report.json
 pylint_report.txt
+node_modules
+package.json
+package-lock.json

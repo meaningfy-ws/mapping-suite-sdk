@@ -1,0 +1,162 @@
+= Extractors in Mapping Suite SDK
+:description: Advanced usage and customization of package extractors
+:keywords: mapping-suite-sdk, extractors, github, archive, custom extractors
+
+== Overview
+
+The Mapping Suite SDK provides two primary extractors for handling mapping packages:
+
+- `ArchivePackageExtractor`: For working with ZIP archives
+- `GithubPackageExtractor`: For extracting packages from GitHub repositories
+
+== Archive Package Extractor
+
+=== Basic Usage
+
+[source,python]
+----
+from pathlib import Path
+from mapping_suite_sdk import ArchivePackageExtractor
+
+# Create an extractor instance
+extractor = ArchivePackageExtractor()
+
+# Extract to a specific destination
+output_path = extractor.extract(
+    source_path=Path("package.zip"),
+    destination_path=Path("output_directory")
+)
+
+# Extract to a temporary location (automatically cleaned up)
+with extractor.extract_temporary(Path("package.zip")) as temp_path:
+    # Work with extracted files
+    print(f"Extracted to temporary path: {temp_path}")
+    # Files will be automatically cleaned up after the block
+----
+
+=== Advanced Packing
+
+[source,python]
+----
+# Pack a directory into a ZIP file
+source_dir = Path("folder_to_archive")
+output_path = Path("output/my_package")
+
+# Creates a ZIP without including the root directory
+zip_path = extractor.pack_directory(source_dir, output_path)
+print(f"Created ZIP at: {zip_path}")
+----
+
+== GitHub Package Extractor
+
+=== Basic Repository Extraction
+
+[source,python]
+----
+from mapping_suite_sdk import GithubPackageExtractor
+
+extractor = GithubPackageExtractor()
+
+# Extract a specific package from a repository
+package_path = extractor.extract(
+    repository_url="https://github.com/org/repo",
+    destination_path=Path("/local/path"),
+    package_path=Path("mappings/package_v1"),
+    branch_or_tag_name="main"
+)
+----
+
+=== Multiple Package Extraction
+
+[source,python]
+----
+# Extract multiple packages matching a pattern
+with extractor.extract_temporary(
+    repository_url="https://github.com/org/repo",
+    packages_path_pattern="mappings/package*",
+    branch_or_tag_name="v1.0.0"
+) as package_paths:
+    for path in package_paths:
+        print(f"Found package at: {path}")
+        # Process each package as needed
+----
+
+== Custom Extractor Implementation
+
+You can create custom extractors by implementing the `MappingPackageExtractorABC` abstract base class:
+
+[source,python]
+----
+from abc import ABC
+from pathlib import Path
+from contextlib import contextmanager
+from typing import Generator, List
+
+from mapping_suite_sdk.adapters.extractor import MappingPackageExtractorABC
+
+class CustomPackageExtractor(MappingPackageExtractorABC):
+    def extract(
+        self,
+        source: Path,
+        destination: Path,
+        **kwargs
+    ) -> Path:
+
+        # Implement custom extraction logic
+        destination.mkdir(parents=True, exist_ok=True)
+        # Your extraction code here
+        return destination
+
+    @contextmanager
+    def extract_temporary(
+        self,
+        source: Path,
+        **kwargs
+    ) -> Generator[List[Path], None, None]:
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            # Your temporary extraction logic
+            yield [temp_path]
+
+# Usage example
+custom_extractor = CustomPackageExtractor()
+with custom_extractor.extract_temporary(Path("source_package")) as paths:
+    for path in paths:
+        print(f"Extracted to: {path}")
+----
+
+== Best Practices
+
+- Always use context managers (`with` statement) for temporary extractions
+- Handle exceptions gracefully
+- Be mindful of system resources when working with large packages
+- Consider network and storage limitations when extracting from remote sources
+
+== Error Handling
+
+[source,python]
+----
+from pathlib import Path
+from mapping_suite_sdk import ArchivePackageExtractor, GithubPackageExtractor
+
+def safe_extract(extractor, source):
+    try:
+        with extractor.extract_temporary(source) as temp_paths:
+            # Process extracted paths
+            pass
+    except FileNotFoundError:
+        print(f"Source not found: {source}")
+    except ValueError as e:
+        print(f"Extraction error: {e}")
+
+# Example usage
+archive_extractor = ArchivePackageExtractor()
+github_extractor = GithubPackageExtractor()
+
+safe_extract(archive_extractor, Path("non_existent.zip"))
+safe_extract(
+    github_extractor,
+    "https://github.com/non-existent-repo/mapping-packages"
+)
+----

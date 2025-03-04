@@ -1,0 +1,181 @@
+= OpenTelemetry Tracing in Mapping Suite SDK
+:description: Comprehensive guide to tracing and monitoring with OpenTelemetry
+:keywords: mapping-suite-sdk, opentelemetry, tracing, monitoring, performance
+
+== Overview
+
+The Mapping Suite SDK provides built-in OpenTelemetry tracing support, allowing you to monitor and debug your mapping package operations with minimal configuration.
+
+== Tracing Fundamentals
+
+=== Enabling Tracing
+
+[source,python]
+----
+import mapping_suite_sdk as mssdk
+
+# Enable tracing globally
+mssdk.set_mssdk_tracing(True)
+
+# Check tracing status
+is_tracing_enabled = mssdk.get_mssdk_tracing()
+print(f"Tracing is {'enabled' if is_tracing_enabled else 'disabled'}")
+----
+
+== Span Processors and Exporters
+
+=== Console Exporter
+
+[source,python]
+----
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
+from mapping_suite_sdk import add_span_processor_to_mssdk_tracer_provider
+
+# Create a console exporter to print trace details
+console_exporter = ConsoleSpanExporter()
+span_processor = SimpleSpanProcessor(console_exporter)
+
+# Add the span processor to the SDK's tracer provider
+add_span_processor_to_mssdk_tracer_provider(span_processor)
+----
+
+=== OTLP Exporter (Advanced)
+
+[source,python]
+----
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# Configure OTLP exporter for remote tracing
+otlp_exporter = OTLPSpanExporter(
+    endpoint="localhost:4317",  # OpenTelemetry Collector endpoint
+    insecure=True  # Use TLS in production
+)
+batch_processor = BatchSpanProcessor(otlp_exporter)
+
+# Add OTLP processor to tracer provider
+add_span_processor_to_mssdk_tracer_provider(batch_processor)
+----
+
+== Automatic Tracing of SDK Methods
+
+The SDK automatically traces many of its core methods:
+
+[source,python]
+----
+from pathlib import Path
+import mapping_suite_sdk as mssdk
+
+# These methods are automatically traced
+package = mssdk.load_mapping_package_from_folder(
+    mapping_package_folder_path=Path("/path/to/package")
+)
+
+mssdk.serialise_mapping_package(
+    mapping_package=package,
+    serialisation_folder_path=Path("/output/path")
+)
+----
+
+== Custom Method Tracing
+
+=== Using Decorators
+
+[source,python]
+----
+from mapping_suite_sdk.adapters.tracer import traced_routine, traced_class
+
+# Trace a single function
+@traced_routine
+def custom_mapping_operation(package):
+    # Your custom logic here
+    return processed_package
+
+# Trace an entire class
+@traced_class
+class MappingProcessor:
+    def process_package(self, package):
+        # Class methods automatically traced
+        pass
+----
+
+== Trace Attributes and Metadata
+
+Traced methods automatically capture:
+- Function name
+- Module name
+- Arguments
+- Execution status
+- Error details (if applicable)
+
+=== Manual Span Annotation
+
+[source,python]
+----
+from opentelemetry import trace
+
+# Get the tracer
+tracer = trace.get_tracer(__name__)
+
+def advanced_tracing_example():
+    # Start a custom span
+    with tracer.start_as_current_span("custom_operation") as span:
+        # Add custom attributes
+        span.set_attribute("operation.type", "custom_mapping")
+        span.set_attribute("package.version", "1.0.0")
+
+        try:
+            # Your operation logic
+            result = perform_complex_operation()
+            span.set_attribute("operation.status", "success")
+            return result
+        except Exception as e:
+            # Automatically record exceptions
+            span.set_attribute("operation.status", "error")
+            span.record_exception(e)
+            raise
+----
+
+== Performance and Configuration
+
+=== Tracing Configuration
+
+[source,python]
+----
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+
+# Customize tracing resource
+resource = Resource(attributes={
+    SERVICE_NAME: "mapping-suite-sdk-application"
+})
+
+# Update tracer provider (advanced configuration)
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+
+custom_tracer_provider = TracerProvider(resource=resource)
+trace.set_tracer_provider(custom_tracer_provider)
+----
+
+== Best Practices
+
+1. *Performance*
+   - Enable tracing selectively
+   - Use batch processors for production
+   - Configure appropriate sampling rates
+
+2. *Security*
+   - Use secure endpoints for exporters
+   - Be cautious with sensitive data in spans
+   - Implement proper access controls
+
+3. *Monitoring*
+   - Integrate with observability platforms
+   - Set up alerts for error rates and performance
+
+== Troubleshooting
+
+- Ensure OpenTelemetry dependencies are installed
+- Check network connectivity for remote exporters
+- Verify exporter configurations
+- Review trace sampling and performance impact

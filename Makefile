@@ -11,7 +11,8 @@ ICON_PROGRESS = [-]
 NODE ?= $(shell command -v node)
 NPM ?= $(shell command -v npm)
 NPX ?= $(shell command -v npx)
-ANTORA_PLAYBOOK := $(shell pwd)/docs/antora-playbook.yml
+DOC_BUILD_DIR=docs/build
+ANTORA_PLAYBOOK := $(shell pwd)/docs/antora-playbook.local.yml
 #-----------------------------------------------------------------------------
 # Dev commands
 #-----------------------------------------------------------------------------
@@ -54,6 +55,11 @@ lint-full-report:
 # Documentation commands
 #-----------------------------------------------------------------------------
 build-docs: run-antora
+
+clean-docs:
+	@echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Cleaning up Antora build...$(END_BUILD_PRINT)"
+	rm -rfv $(DOC_BUILD_DIR)
+	@echo -e "$(BUILD_PRINT)$(ICON_DONE) Antora build successfully cleaned!$(END_BUILD_PRINT)"
 
 check-node:
 ifeq ($(NODE),)

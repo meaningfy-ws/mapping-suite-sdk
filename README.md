@@ -14,9 +14,9 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 
-The mapping-suite-sdk is a software development kit designed to standardize 
-and simplify the handling of mapping packages that contain XML-to-RML (RDF Mapping Language) 
-transformation rules and related components.
+The Mapping Suite SDK, or MSSDK, is a software development kit (SDK) designed to standardize 
+and simplify the handling of packages that contain transformation rules and related artefacts
+for mapping data from XML to RDF (RDF Mapping Language).
 
 ## Quick Start
 

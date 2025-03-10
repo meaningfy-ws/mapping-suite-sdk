@@ -4,9 +4,11 @@ from typing import Optional
 
 from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
+from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
+@traced_routine
 def serialise_mapping_package(mapping_package: MappingPackage,
                               serialisation_folder_path: Path,
                               archive_unpacker: Optional[ArchivePackageExtractor] = None) -> None:
@@ -49,6 +51,6 @@ def serialise_mapping_package(mapping_package: MappingPackage,
     with tempfile.TemporaryDirectory() as temp_directory:
         temp_directory_path = Path(temp_directory)
 
-        MappingPackageSerialiser().serialize(temp_directory_path, mapping_package)
+        MappingPackageSerialiser().serialise(temp_directory_path, mapping_package)
 
         archive_unpacker.pack_directory(temp_directory_path, serialisation_folder_path)

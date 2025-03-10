@@ -1,0 +1,173 @@
+= MongoDB Support in Mapping Suite SDK
+:description: Comprehensive guide to using MongoDB for mapping package storage and retrieval
+:keywords: mapping-suite-sdk, mongodb, repository, storage, retrieval
+
+== Overview
+
+The Mapping Suite SDK provides robust MongoDB integration through the `MongoDBRepository` class, enabling seamless storage, retrieval, and management of mapping packages in a MongoDB database.
+
+== Key Features
+
+- Create, read, update, and delete mapping packages
+- Flexible querying capabilities
+- Type-safe operations with Pydantic models
+- Tracing and logging support
+
+== Setting Up MongoDB Repository
+
+=== Basic Initialisation
+
+[source,python]
+----
+from pymongo import MongoClient
+from mapping_suite_sdk import MongoDBRepository
+from mapping_suite_sdk.models.mapping_package import MappingPackage
+
+# Initialise MongoDB client
+mongo_client = MongoClient("mongodb://localhost:27017/")
+
+# Create a repository for mapping packages
+repository = MongoDBRepository(
+    model_class=MappingPackage,
+    mongo_client=mongo_client,
+    database_name="mapping_suites",
+    collection_name="packages"
+)
+----
+
+== CRUD Operations
+
+=== Create a Mapping Package
+
+[source,python]
+----
+from pathlib import Path
+from mapping_suite_sdk import load_mapping_package_from_folder
+
+# Load a mapping package
+package = load_mapping_package_from_folder(
+    mapping_package_folder_path=Path("/path/to/package")
+)
+
+# Store the package in MongoDB
+repository.create(package)
+print(f"Package stored with ID: {package.id}")
+----
+
+=== Retrieve a Mapping Package
+
+[source,python]
+----
+from mapping_suite_sdk import load_mapping_package_from_mongo_db
+
+# Retrieve a package by its unique ID
+retrieved_package = load_mapping_package_from_mongo_db(
+    mapping_package_id=package.id,
+    mapping_package_repository=repository
+)
+----
+
+=== Query Multiple Packages
+
+[source,python]
+----
+# Query packages based on metadata
+packages_v1 = repository.read_many({"metadata.version": "1.0.0"})
+
+# Query with complex filters
+packages_can = repository.read_many({
+    "metadata.version": {"$gte": "1.5.0"}
+})
+----
+
+=== Update a Mapping Package
+
+[source,python]
+----
+# Modify the package
+retrieved_package.metadata.description = "Updated package description"
+
+# Update in MongoDB
+updated_package = repository.update(retrieved_package)
+----
+
+=== Delete a Mapping Package
+
+[source,python]
+----
+# Delete a package by its ID
+repository.delete(package.id)
+----
+
+== Advanced Repository Usage
+
+=== Custom Model Repositories
+
+You can create repositories for custom models by implementing the `RepositoryABC`:
+
+[source,python]
+----
+from typing import Optional, Dict, Any, List
+from pydantic import BaseModel
+from mapping_suite_sdk.adapters.repository import RepositoryABC, MongoDBRepository
+
+class CustomModel(BaseModel):
+    name: str
+    version: str
+    metadata: Optional[Dict[str, Any]] = None
+
+class CustomModelRepository(MongoDBRepository[CustomModel]):
+    # Optional: Add custom methods specific to your model
+    def find_by_name(self, name: str) -> List[CustomModel]:
+        return self.read_many({"name": name})
+
+# Usage
+custom_repo = CustomModelRepository(
+    model_class=CustomModel,
+    mongo_client=MongoClient("mongodb://localhost:27017/"),
+    database_name="custom_db",
+    collection_name="custom_models"
+)
+----
+
+== Error Handling
+
+[source,python]
+----
+from mapping_suite_sdk.adapters.repository import ModelNotFoundError, RepositoryError
+
+def safe_repository_operation(repository, package_id):
+    try:
+        # Retrieve package
+        package = repository.read(package_id)
+        print(f"Package found: {package}")
+    except ModelNotFoundError:
+        print(f"No package found with ID: {package_id}")
+    except RepositoryError as e:
+        print(f"Repository operation failed: {e}")
+
+# Example usage
+safe_repository_operation(repository, "non_existent_id")
+----
+
+== Best Practices
+
+1. *Connection Management*
+   - Use connection pooling
+   - Close MongoDB connections when done
+   - Handle connection errors gracefully
+
+2. *Security*
+   - Use environment variables for connection strings
+   - Implement authentication
+   - Use TLS/SSL for connections
+
+3. *Performance*
+   - Index frequently queried fields
+   - Use appropriate connection settings
+   - Monitor query performance
+
+4. *Error Handling*
+   - Implement robust error catching
+   - Log repository operations
+   - Provide meaningful error messages

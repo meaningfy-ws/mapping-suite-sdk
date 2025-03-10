@@ -1,23 +1,31 @@
 import json
-import json
 import shutil
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Set
+from typing import Set, Optional
 
+import mongomock
 import pytest
 from git import Repo
 from pydantic import TypeAdapter
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
+from mapping_suite_sdk.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, \
     TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
+from mapping_suite_sdk.models.core import CoreModel
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
     TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH, \
     TEST_DATA_MAPPING_PACKAGES_REPO_PATH
+
+
+class TestModel(CoreModel):
+    name: str
+    description: Optional[str] = None
+    count: int = 0
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
@@ -81,10 +89,10 @@ def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
         f"metadata must be MappingPackageMetadata, got {type(mapping_package.metadata)}"
 
     # Conceptual Mapping File validation
-    assert hasattr(mapping_package, 'conceptual_mapping_file'), \
-        "Missing required field: conceptual_mapping_file"
-    assert isinstance(mapping_package.conceptual_mapping_file, ConceptualMappingPackageAsset), \
-        f"conceptual_mapping_file must be ConceptualMappingFile, got {type(mapping_package.conceptual_mapping_file)}"
+    assert hasattr(mapping_package, 'conceptual_mapping_asset'), \
+        "Missing required field: conceptual_mapping_asset"
+    assert isinstance(mapping_package.conceptual_mapping_asset, ConceptualMappingPackageAsset), \
+        f"conceptual_mapping_asset must be ConceptualMappingFile, got {type(mapping_package.conceptual_mapping_asset)}"
 
     # Technical Mapping Suite validation
     assert hasattr(mapping_package, 'technical_mapping_suite'), \
@@ -251,3 +259,41 @@ def dummy_get_all_packages_pattern() -> str:
 @pytest.fixture
 def dummy_non_existing_pattern() -> str:
     return "non_existing_pattern*___*_"
+
+
+@pytest.fixture
+def mongo_client() -> mongomock.MongoClient:
+    return mongomock.MongoClient()
+
+
+@pytest.fixture
+def dummy_mongo_repository(mongo_client: mongomock.MongoClient) -> MongoDBRepository:
+    return MongoDBRepository(
+        model_class=TestModel,
+        mongo_client=mongo_client,
+        database_name="test_db"
+    )
+
+
+@pytest.fixture
+def sample_model() -> TestModel:
+    return TestModel(name="Test Model", description="Test Description", count=5)
+
+
+@pytest.fixture
+def updated_sample_model(sample_model: TestModel) -> TestModel:
+    updated_model = sample_model.model_copy()
+    updated_model.name = "Updated Model"
+    updated_model.description = "Updated Description"
+    updated_model.count = 10
+    return updated_model
+
+
+@pytest.fixture
+def dummy_database_name() -> str:
+    return "test_db_name"
+
+
+@pytest.fixture
+def dummy_collection_name() -> str:
+    return "test_collection_Name"

@@ -7,8 +7,6 @@ content:
   sources:
     - url: https://github.com/meaningfy-ws/mapping-suite-sdk.git
       start_path: docs
-      branches: ~
-      tags: [release/*, '*.*.*']
       edit_url: false
 
 ui:

@@ -87,7 +87,6 @@ You can create custom extractors by implementing the `MappingPackageExtractorABC
 
 [source,python]
 ----
-from abc import ABC
 from pathlib import Path
 from contextlib import contextmanager
 from typing import Generator, List
@@ -142,7 +141,7 @@ from mapping_suite_sdk import ArchivePackageExtractor, GithubPackageExtractor
 
 def safe_extract(extractor, source):
     try:
-        with extractor.extract_temporary(source) as temp_paths:
+        with extractor.extract_temporary(source):
             # Process extracted paths
             pass
     except FileNotFoundError:

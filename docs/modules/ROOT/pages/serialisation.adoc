@@ -1,10 +1,10 @@
 = Serialisation in Mapping Suite SDK
-:description: Comprehensive guide to serializing mapping packages
+:description: Comprehensive guide to serialising mapping packages
 :keywords: mapping-suite-sdk, serialisation, mapping package, export
 
 == Overview
 
-The Mapping Suite SDK provides a robust serialization framework that allows you to convert mapping packages into file-based representations.
+The Mapping Suite SDK provides a robust serialisation framework that allows you to convert mapping packages into file-based representations.
 This process enables easy storage, sharing, and version control of mapping packages.
 
 == Core Serialisation Workflow
@@ -38,7 +38,7 @@ from mapping_suite_sdk.adapters.serialiser import MappingPackageMetadataSerialis
 
 # Serialise package metadata
 metadata_serialiser = MappingPackageMetadataSerialiser()
-metadata_serialiser.serialize(
+metadata_serialiser.serialise(
     package_folder_path=Path("/output/path"),
     asset=package.metadata
 )
@@ -52,7 +52,7 @@ from mapping_suite_sdk.adapters.serialiser import TechnicalMappingSuiteSerialise
 
 # Serialise technical mapping files
 tech_serialiser = TechnicalMappingSuiteSerialiser()
-tech_serialiser.serialize(
+tech_serialiser.serialise(
     package_folder_path=Path("/output/path"),
     asset=package.technical_mapping_suite
 )
@@ -66,7 +66,7 @@ from mapping_suite_sdk.adapters.serialiser import VocabularyMappingSuiteSerialis
 
 # Serialise vocabulary mapping files
 vocab_serialiser = VocabularyMappingSuiteSerialiser()
-vocab_serialiser.serialize(
+vocab_serialiser.serialise(
     package_folder_path=Path("/output/path"),
     asset=package.vocabulary_mapping_suite
 )
@@ -85,7 +85,7 @@ from typing import Any
 from mapping_suite_sdk.adapters.serialiser import MappingPackageAssetSerialiser
 
 class CustomAssetSerialiser(MappingPackageAssetSerialiser):
-    def serialize(self, package_folder_path: Path, asset: Any) -> None:
+    def serialise(self, package_folder_path: Path, asset: Any) -> None:
         """
         Custom serialisation logic
 
@@ -105,7 +105,7 @@ class CustomAssetSerialiser(MappingPackageAssetSerialiser):
 
 # Usage
 custom_serialiser = CustomAssetSerialiser()
-custom_serialiser.serialize(Path("/output/path"), package.metadata)
+custom_serialiser.serialise(Path("/output/path"), package.metadata)
 ----
 
 === Comprehensive Package Serialisation
@@ -116,7 +116,7 @@ from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
 
 # Comprehensive serialisation of entire mapping package
 full_serialiser = MappingPackageSerialiser()
-full_serialiser.serialize(
+full_serialiser.serialise(
     package_folder_path=Path("/output/path"),
     asset=package
 )
@@ -133,7 +133,7 @@ from mapping_suite_sdk import ArchivePackageExtractor
 # Create an extractor
 extractor = ArchivePackageExtractor()
 
-# Serialize and pack into a ZIP
+# Serialise and pack into a ZIP
 output_zip_path = extractor.pack_directory(
     source_dir=Path("/output/path/package"),
     output_path=Path("packaged_mapping_suite.zip")

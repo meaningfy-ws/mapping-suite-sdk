@@ -107,7 +107,7 @@ from pymongo import MongoClient
 from mapping_suite_sdk import MongoDBRepository, load_mapping_package_from_mongo_db
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
-# Initialize MongoDB repository
+# Initialise MongoDB repository
 mongo_client = MongoClient("mongodb://localhost:27017/")
 repository = MongoDBRepository(
     model_class=MappingPackage,
@@ -123,14 +123,14 @@ package = load_mapping_package_from_mongo_db(
 )
 ----
 
-=== Serializing Mapping Packages
+=== Serialising Mapping Packages
 
 [source,python]
 ----
 from pathlib import Path
 import mapping_suite_sdk as mssdk
 
-# Serialize a mapping package to a specified directory
+# Serialise a mapping package to a specified directory
 mssdk.serialise_mapping_package(
     mapping_package=package,
     serialisation_folder_path=Path("/output/path/package")

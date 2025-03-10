@@ -144,7 +144,7 @@ def advanced_tracing_example():
 ----
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 
-# Customize tracing resource
+# Customise tracing resource
 resource = Resource(attributes={
     SERVICE_NAME: "mapping-suite-sdk-application"
 })

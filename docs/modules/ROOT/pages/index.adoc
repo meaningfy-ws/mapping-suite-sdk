@@ -4,7 +4,7 @@
 
 == Introduction
 
-The Mapping Suite SDK is a powerful software development kit designed to standardize and simplify the handling of mapping packages containing XML-to-RML (RDF Mapping Language) transformation rules and related components.
+The Mapping Suite SDK is a powerful software development kit designed to standardise and simplify the handling of mapping packages containing XML-to-RML (RDF Mapping Language) transformation rules and related components.
 
 == Key Features
 
@@ -15,7 +15,7 @@ The Mapping Suite SDK is a powerful software development kit designed to standar
 ** GitHub repositories
 ** MongoDB databases
 
-=== Comprehensive Serialization
+=== Comprehensive Serialisation
 - Convert mapping packages between file-based and object representations
 - Support for complex mapping package structures
 - Robust error handling and validation
@@ -67,7 +67,7 @@ package = mssdk.load_mapping_package_from_folder(
     mapping_package_folder_path=Path("/path/to/mapping/package")
 )
 
-# Serialize the package
+# Serialise the package
 mssdk.serialise_mapping_package(
     mapping_package=package,
     serialisation_folder_path=Path("/output/path")
@@ -85,7 +85,7 @@ mssdk.serialise_mapping_package(
 
 === Services
 - Package loading from multiple sources
-- Package serialization
+- Package serialisation
 - Tracing and monitoring
 
 == Supported Mapping Package Components

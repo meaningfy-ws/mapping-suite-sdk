@@ -20,7 +20,7 @@ def test_serialiser_generates_same_output(dummy_mapping_package_model: MappingPa
 
         shutil.unpack_archive(dummy_mapping_package_path, temp_mp_path)
 
-        MappingPackageSerialiser().serialize(serialised_folder_path, dummy_mapping_package_model)
+        MappingPackageSerialiser().serialise(serialised_folder_path, dummy_mapping_package_model)
 
         is_equal, error_message = _compare_directories(serialised_folder_path, temp_mp_path)
         assert is_equal, f"Directory comparison failed:\n{error_message}"

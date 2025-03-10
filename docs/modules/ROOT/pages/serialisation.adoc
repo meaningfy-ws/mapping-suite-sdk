@@ -1,0 +1,188 @@
+= Serialisation in Mapping Suite SDK
+:description: Comprehensive guide to serialising mapping packages
+:keywords: mapping-suite-sdk, serialisation, mapping package, export
+
+== Overview
+
+The Mapping Suite SDK provides a robust serialisation framework that allows you to convert mapping packages into file-based representations.
+This process enables easy storage, sharing, and version control of mapping packages.
+
+== Core Serialisation Workflow
+
+[source,python]
+----
+from pathlib import Path
+import mapping_suite_sdk as mssdk
+
+# Load a mapping package
+package = mssdk.load_mapping_package_from_folder(
+    mapping_package_folder_path=Path("/path/to/mapping/package")
+)
+
+# Serialise the package to a specific directory
+mssdk.serialise_mapping_package(
+    mapping_package=package,
+    serialisation_folder_path=Path("/output/path/package")
+)
+----
+
+== Serialisation Components
+
+The serialisation process breaks down a mapping package into several key components:
+
+=== Metadata Serialisation
+
+[source,python]
+----
+from mapping_suite_sdk.adapters.serialiser import MappingPackageMetadataSerialiser
+
+# Serialise package metadata
+metadata_serialiser = MappingPackageMetadataSerialiser()
+metadata_serialiser.serialise(
+    package_folder_path=Path("/output/path"),
+    asset=package.metadata
+)
+----
+
+=== Technical Mapping Suite Serialisation
+
+[source,python]
+----
+from mapping_suite_sdk.adapters.serialiser import TechnicalMappingSuiteSerialiser
+
+# Serialise technical mapping files
+tech_serialiser = TechnicalMappingSuiteSerialiser()
+tech_serialiser.serialise(
+    package_folder_path=Path("/output/path"),
+    asset=package.technical_mapping_suite
+)
+----
+
+=== Vocabulary Mapping Serialisation
+
+[source,python]
+----
+from mapping_suite_sdk.adapters.serialiser import VocabularyMappingSuiteSerialiser
+
+# Serialise vocabulary mapping files
+vocab_serialiser = VocabularyMappingSuiteSerialiser()
+vocab_serialiser.serialise(
+    package_folder_path=Path("/output/path"),
+    asset=package.vocabulary_mapping_suite
+)
+----
+
+== Advanced Serialisation Scenarios
+
+=== Custom Serialisation
+
+You can create custom serialisers by implementing the `MappingPackageAssetSerialiser` protocol:
+
+[source,python]
+----
+from pathlib import Path
+from typing import Any
+from mapping_suite_sdk.adapters.serialiser import MappingPackageAssetSerialiser
+
+class CustomAssetSerialiser(MappingPackageAssetSerialiser):
+    def serialise(self, package_folder_path: Path, asset: Any) -> None:
+        """
+        Custom serialisation logic
+
+        Args:
+            package_folder_path: Destination path for serialisation
+            asset: The asset to serialise
+        """
+        # Implement custom serialisation logic
+        custom_file_path = package_folder_path / "custom_asset.json"
+
+        # Example: Custom serialisation for a specific asset type
+        if hasattr(asset, 'model_dump_json'):
+            custom_file_path.write_text(asset.model_dump_json())
+        else:
+            # Fallback serialisation
+            custom_file_path.write_text(str(asset))
+
+# Usage
+custom_serialiser = CustomAssetSerialiser()
+custom_serialiser.serialise(Path("/output/path"), package.metadata)
+----
+
+=== Comprehensive Package Serialisation
+
+[source,python]
+----
+from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
+
+# Comprehensive serialisation of entire mapping package
+full_serialiser = MappingPackageSerialiser()
+full_serialiser.serialise(
+    package_folder_path=Path("/output/path"),
+    asset=package
+)
+----
+
+== Serialisation with Extractors
+
+Combine serialisation with archive extraction:
+
+[source,python]
+----
+from mapping_suite_sdk import ArchivePackageExtractor
+
+# Create an extractor
+extractor = ArchivePackageExtractor()
+
+# Serialise and pack into a ZIP
+output_zip_path = extractor.pack_directory(
+    source_dir=Path("/output/path/package"),
+    output_path=Path("packaged_mapping_suite.zip")
+)
+----
+
+== Error Handling and Validation
+
+[source,python]
+----
+def safe_serialise(package, output_path):
+    try:
+        # Validate package before serialisation
+        package.model_validate(package)
+
+        # Perform serialisation
+        mssdk.serialise_mapping_package(
+            mapping_package=package,
+            serialisation_folder_path=output_path
+        )
+        print(f"Successfully serialised package to {output_path}")
+
+    except ValidationError as ve:
+        print(f"Package validation failed: {ve}")
+    except IOError as io:
+        print(f"Serialisation IO error: {io}")
+    except Exception as e:
+        print(f"Unexpected serialisation error: {e}")
+
+# Usage
+safe_serialise(package, Path("/safe/output/path"))
+----
+
+== Best Practices
+
+1. *Validation*
+- Always validate mapping packages before serialisation
+- Use Pydantic's built-in validation
+
+2. *Error Handling*
+- Implement comprehensive error catching
+- Use hard failing approach
+- Provide meaningful error messages
+- Log serialisation operations
+
+3. *Performance*
+- Use efficient file writing methods
+- Consider large file handling for extensive mapping packages
+
+4. *Consistency*
+- Maintain a standard directory structure
+- Use relative paths within packages

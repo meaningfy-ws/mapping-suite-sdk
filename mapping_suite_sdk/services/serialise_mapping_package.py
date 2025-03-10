@@ -51,6 +51,6 @@ def serialise_mapping_package(mapping_package: MappingPackage,
     with tempfile.TemporaryDirectory() as temp_directory:
         temp_directory_path = Path(temp_directory)
 
-        MappingPackageSerialiser().serialize(temp_directory_path, mapping_package)
+        MappingPackageSerialiser().serialise(temp_directory_path, mapping_package)
 
         archive_unpacker.pack_directory(temp_directory_path, serialisation_folder_path)

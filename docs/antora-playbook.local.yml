@@ -1,0 +1,22 @@
+site:
+  title: Mapping Suite SDK Documentation
+  url: https://mapping-suite-sdk.readthedocs.io
+  start_page: mapping-suite-sdk::index.adoc
+
+content:
+  sources:
+    - url: ./..
+      start_path: docs
+      edit_url: false
+
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/HEAD/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+
+asciidoc:
+  attributes:
+    experimental: ''
+    idprefix: ''
+    idseparator: '-'
+    page-pagination: ''

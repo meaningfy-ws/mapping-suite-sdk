@@ -1,0 +1,138 @@
+= Getting Started with Mapping Suite SDK
+:description: Introduction to the Mapping Suite SDK and its basic concepts
+:keywords: mapping-suite, sdk, python, tutorial
+
+== Introduction
+
+The Mapping Suite SDK is a powerful tool designed for working with mapping suites, particularly focusing on the re-use of mapping suites in transformation pipelines. This SDK provides a comprehensive set of tools and utilities for handling mapping packages.
+
+== Key Concepts
+
+=== Mapping Package
+A mapping package is a collection of related mapping components that include:
+
+* Metadata - Package identification and versioning information
+* Conceptual Mappings - Spreadsheets defining mapping concepts (Excel/XLSX)
+* Technical Mappings - Files containing transformation rules (RML/RDF)
+* Vocabulary Mappings - Controlled vocabulary resource files that can be referenced by the rules (JSON, CSV)
+* Test Suites - Various test data (XML)
+* Validation Suites - Various validation rules (SHACL, SPARQL)
+
+=== Package Structure
+A typical mapping package follows this structure:
+
+[source]
+----
+mapping-package/
+├── metadata.json
+├── transformation/
+│   ├── conceptual_mappings.xlsx
+│   ├── mappings/
+│   └── resources/
+├── test_data/
+└── validation/
+    ├── shacl/
+    └── sparql/
+----
+
+== Installation
+
+Install the Mapping Suite SDK using your preferred package manager.
+
+=== Using pip
+
+[source,bash]
+----
+pip install mapping-suite-sdk
+----
+
+=== Using Poetry
+
+[source,bash]
+----
+poetry add mapping-suite-sdk
+----
+
+== Core Functionalities
+
+The Mapping Suite SDK provides several key functionalities for handling mapping packages.
+
+=== Loading Mapping Packages
+
+==== From Local Folder
+
+[source,python]
+----
+from pathlib import Path
+import mapping_suite_sdk as mssdk
+
+# Load from a local folder
+package = mssdk.load_mapping_package_from_folder(
+    mapping_package_folder_path=Path("/path/to/mapping/package")
+)
+----
+
+==== From ZIP Archive
+
+[source,python]
+----
+from pathlib import Path
+import mapping_suite_sdk as mssdk
+
+# Load from a ZIP archive
+package = mssdk.load_mapping_package_from_archive(
+    mapping_package_archive_path=Path("/path/to/package.zip")
+)
+----
+
+==== From GitHub
+
+[source,python]
+----
+import mapping_suite_sdk as mssdk
+
+# Load from GitHub repository
+packages = mssdk.load_mapping_packages_from_github(
+    github_repository_url="https://github.com/your-org/mapping-repo",
+    packages_path_pattern="mappings/package*",
+    branch_or_tag_name="main"
+)
+----
+
+==== From MongoDB
+
+[source,python]
+----
+from pymongo import MongoClient
+from mapping_suite_sdk import MongoDBRepository, load_mapping_package_from_mongo_db
+from mapping_suite_sdk.models.mapping_package import MappingPackage
+
+# Initialise MongoDB repository
+mongo_client = MongoClient("mongodb://localhost:27017/")
+repository = MongoDBRepository(
+    model_class=MappingPackage,
+    mongo_client=mongo_client,
+    database_name="mapping_suites",
+    collection_name="packages"
+)
+
+# Load package from MongoDB
+package = load_mapping_package_from_mongo_db(
+    mapping_package_id="unique_package_id",
+    mapping_package_repository=repository
+)
+----
+
+=== Serialising Mapping Packages
+
+[source,python]
+----
+from pathlib import Path
+import mapping_suite_sdk as mssdk
+
+# Serialise a mapping package to a specified directory
+mssdk.serialise_mapping_package(
+    mapping_package=package,
+    serialisation_folder_path=Path("/output/path/package")
+)
+----

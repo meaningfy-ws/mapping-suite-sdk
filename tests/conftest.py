@@ -1,5 +1,7 @@
 import json
+import random
 import shutil
+import string
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -26,6 +28,12 @@ class TestModel(CoreModel):
     name: str
     description: Optional[str] = None
     count: int = 0
+
+
+def _get_random_string(length: int = 20) -> str:
+    characters = string.ascii_letters + string.digits
+    random_string = ''.join(random.choice(characters) for _ in range(length))
+    return random_string
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,

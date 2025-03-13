@@ -49,12 +49,14 @@ class MappingPackageMetadata(CoreModel):
     identifier: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
     title: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
     issue_date: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="created_at")
+    description: str = Field(..., description="Metadata description")
+    mapping_version: str = Field(..., description="Version of source data that will be mapped")
+    ontology_version: str = Field(..., description="Version of target ontology")
     type: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="mapping_type")
 
     # source: MappingSource = Field(..., description="Source data configuration and specifications")
     # target: MappingTarget = Field(..., description="Target data configuration and specifications")
-    mapping_version: str = Field(..., description="Version of source data that will be mapped")
-    ontology_version: str = Field(..., description="Version of target ontology")
+
 
     eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
                                                                           description="Constraints defining package applicability",

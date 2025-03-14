@@ -14,6 +14,7 @@ from pydantic import TypeAdapter
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.adapters.validator import MappingPackageValidator
 from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, \
     TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
@@ -305,3 +306,8 @@ def dummy_database_name() -> str:
 @pytest.fixture
 def dummy_collection_name() -> str:
     return "test_collection_Name"
+
+
+@pytest.fixture
+def dummy_mapping_package_validator() -> MappingPackageValidator:
+    return MappingPackageValidator()

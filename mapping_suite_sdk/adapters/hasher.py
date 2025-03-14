@@ -10,6 +10,16 @@ from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPack
 
 # TODO: This is a class from MWB and TED_SWS adopted for SDK Models. It must be improved then documented in future
 class MappingPackageHasher:
+    """
+    Generates signature for a Mapping Package (used in metadata.json).
+
+    Args:
+        mapping_package (MappingPackage): The Mapping Package instance to hash.
+
+    Methods:
+        hash_mapping_package(with_version: Optional[str] = None) -> str:
+            Generates a comprehensive hash for the entire Mapping Package, including files and metadata.
+    """
 
     def __init__(self, mapping_package: MappingPackage):
         self.mapping_package = mapping_package

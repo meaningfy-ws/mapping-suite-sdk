@@ -24,6 +24,17 @@ def validate_next(func: FunctionType):
 
 
 class MPValidationStepABC(ABC):
+    """
+    An abstract base class that defines the interface for a Mapping Package validation step.
+
+    Attributes:
+        next_validator (Optional[MPValidationStepABC]): The next validation step in the chain.
+
+    Methods:
+        validate(mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+            Validates the given Mapping Package. If the validation passes, it returns True. If the validation fails, it raises an exception.
+    """
+
     def __init__(self, next_validator: Optional["MPValidationStepABC"] = None):
         self.next_validator = next_validator
 
@@ -34,6 +45,9 @@ class MPValidationStepABC(ABC):
 
 
 class MPStructuralValidationStep(MPValidationStepABC):
+    """
+    Validates the structural integrity of a Mapping Package, such as ensuring non-empty test suites.
+    """
 
     @validate_next
     def validate(self, mapping_package: MappingPackage) -> Literal[True] | NoReturn:
@@ -58,6 +72,9 @@ class MPStructuralValidationStep(MPValidationStepABC):
 
 
 class MPHashValidationStep(MPValidationStepABC):
+    """
+    Validates the hash-based signature of a Mapping Package to ensure its integrity.
+    """
 
     @validate_next
     def validate(self, mapping_package: MappingPackage) -> Literal[True] | NoReturn:
@@ -77,6 +94,16 @@ class MPHashValidationStep(MPValidationStepABC):
 @final
 @traced_class
 class MappingPackageValidator:
+    """
+    The main class that orchestrates the validation process by chaining the validation steps.
+
+    Attributes:
+        validation_chain (MPValidationStepABC): The chain of validation steps to be executed.
+
+    Methods:
+        validate(mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+            Executes the validation chain to validate the given Mapping Package.
+    """
 
     def __init__(self, validation_chain: Optional[MPValidationStepABC] = None):
         self.validation_chain = validation_chain or MPStructuralValidationStep(MPHashValidationStep())

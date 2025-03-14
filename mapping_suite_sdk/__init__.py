@@ -1,6 +1,7 @@
 from mapping_suite_sdk.adapters.extractor import (ArchivePackageExtractor,
                                                   GithubPackageExtractor
                                                   )
+from mapping_suite_sdk.adapters.hasher import (MappingPackageHasher)
 from mapping_suite_sdk.adapters.loader import (TechnicalMappingSuiteLoader,
                                                VocabularyMappingSuiteLoader,
                                                TestDataSuitesLoader,
@@ -27,6 +28,7 @@ from mapping_suite_sdk.adapters.tracer import (add_span_processor_to_mssdk_trace
                                                set_mssdk_tracing,
                                                get_mssdk_tracing,
                                                )
+from mapping_suite_sdk.adapters.validator import (MappingPackageValidator)
 from mapping_suite_sdk.services.load_mapping_package import (load_mapping_package_from_folder,
                                                              load_mapping_package_from_archive,
                                                              load_mapping_packages_from_github,
@@ -34,12 +36,17 @@ from mapping_suite_sdk.services.load_mapping_package import (load_mapping_packag
                                                              )
 from mapping_suite_sdk.services.serialise_mapping_package import (serialise_mapping_package,
                                                                   )
+from mapping_suite_sdk.services.validate_mapping_package import (validate_mapping_package,
+                                                                 validate_mapping_package_from_archive)
 
 __all__ = [
     ## Adapters
     # extractor.py
     "ArchivePackageExtractor",
     "GithubPackageExtractor",
+
+    # hasher.py
+    "MappingPackageHasher",
 
     # loader.py
     "TechnicalMappingSuiteLoader",
@@ -71,6 +78,9 @@ __all__ = [
     "set_mssdk_tracing",
     "get_mssdk_tracing",
 
+    # validator.py
+    "MappingPackageValidator",
+
     ## Services
     # load_mapping_package.py
     "load_mapping_package_from_folder",
@@ -80,4 +90,8 @@ __all__ = [
 
     # serialise_mapping_package.py
     "serialise_mapping_package",
+
+    # validate_mapping_package.py
+    "validate_mapping_package",
+    "validate_mapping_package_from_archive",
 ]

@@ -1,5 +1,7 @@
 import json
+import random
 import shutil
+import string
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -12,6 +14,7 @@ from pydantic import TypeAdapter
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.adapters.validator import MappingPackageValidator
 from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, \
     TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
@@ -26,6 +29,12 @@ class TestModel(CoreModel):
     name: str
     description: Optional[str] = None
     count: int = 0
+
+
+def _get_random_string(length: int = 20) -> str:
+    characters = string.ascii_letters + string.digits
+    random_string = ''.join(random.choice(characters) for _ in range(length))
+    return random_string
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
@@ -297,3 +306,8 @@ def dummy_database_name() -> str:
 @pytest.fixture
 def dummy_collection_name() -> str:
     return "test_collection_Name"
+
+
+@pytest.fixture
+def dummy_mapping_package_validator() -> MappingPackageValidator:
+    return MappingPackageValidator()

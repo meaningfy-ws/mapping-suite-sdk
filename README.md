@@ -1,6 +1,10 @@
 # mapping-suite-sdk
 
 ![pylint](https://img.shields.io/badge/PyLint-8.62-yellow?logo=python&logoColor=white)
+[![PyPI version](https://img.shields.io/pypi/v/mapping-suite-sdk.svg)](https://pypi.org/project/mapping-suite-sdk/)
+[![PyPI Downloads](https://static.pepy.tech/badge/mapping-suite-sdk)](https://pepy.tech/projects/mapping-suite-sdk)
+
+[![Stack Overflow](https://img.shields.io/badge/stackoverflow-get%20help-black.svg)](https://stackoverflow.com/questions/tagged/mapping-suite-sdk)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=bugs)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)

@@ -2,5 +2,6 @@
 * xref:quick-start.adoc[Quick Start]
 * xref:extractors.adoc[Extractors]
 * xref:serialisation.adoc[Serialisation]
+* xref:validation.adoc[Validation]
 * xref:mongodb-support.adoc[MongoDB Support]
 * xref:opentelemetry-tracing.adoc[OpenTelemetry Tracing and Monitoring]

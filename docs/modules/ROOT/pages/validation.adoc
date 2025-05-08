@@ -1,0 +1,49 @@
+= Mapping Package Validation
+
+The Mapping Suite SDK provides a comprehensive validation system to ensure the integrity and correctness of Mapping Packages.
+
+== Validation Process
+
+The validation process is handled by the `MappingPackageValidator` class, which orchestrates a chain of validation steps:
+
+* `MPStructuralValidationStep`: Validates the structural integrity of the Mapping Package, such as ensuring non-empty test suites.
+* `MPHashValidationStep`: Validates the hash-based signature of the Mapping Package to ensure its integrity.
+
+The `MappingPackageValidator` class allows you to validate a `MappingPackage` instance or a Mapping Package loaded from an archive file.
+
+== Example Usage
+
+To validate a Mapping Package:
+
+[source,python]
+----
+import mapping_suite_sdk
+from mapping_suite_sdk.models.mapping_package import MappingPackage
+
+mapping_package = MappingPackage(...)
+try:
+    mapping_suite_sdk.validate_mapping_package(mapping_package)
+    print("Mapping Package validation successful!")
+except Exception as e:
+    print(f"Mapping Package validation failed: {e}")
+----
+
+To validate a Mapping Package from an archive file:
+
+[source,python]
+----
+from pathlib import Path
+
+import mapping_suite_sdk
+
+archive_path = Path("/path/to/mapping-package.zip")
+try:
+    mapping_suite_sdk.validate_mapping_package_from_archive(archive_path)
+    print("Mapping Package validation successful!")
+except Exception as e:
+    print(f"Mapping Package validation failed: {e}")
+----
+
+== Error Handling
+
+If the validation fails, the `validate_mapping_package` and `validate_mapping_package_from_archive` functions will raise an appropriate exception, such as `MPStructuralValidationException` or `MPHashValidationException`. You can catch these exceptions and handle the errors accordingly in your application.

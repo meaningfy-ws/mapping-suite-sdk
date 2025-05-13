@@ -1,3 +1,6 @@
+import importlib.metadata
+import logging
+
 from mapping_suite_sdk.adapters.extractor import (ArchivePackageExtractor,
                                                   GithubPackageExtractor
                                                   )
@@ -37,7 +40,16 @@ from mapping_suite_sdk.services.load_mapping_package import (load_mapping_packag
 from mapping_suite_sdk.services.serialise_mapping_package import (serialise_mapping_package,
                                                                   )
 from mapping_suite_sdk.services.validate_mapping_package import (validate_mapping_package,
-                                                                 validate_mapping_package_from_archive)
+                                                                 validate_mapping_package_from_archive,
+                                                                 validate_bulk_mapping_packages_from_folder,
+                                                                 validate_bulk_mapping_packages_from_github)
+from mapping_suite_sdk.vars import MSSDK_LOGGING_STRING_FORMAT, MSSDK_DATE_FORMAT
+
+logging.basicConfig(level=logging.INFO,
+                    format=MSSDK_LOGGING_STRING_FORMAT,
+                    datefmt=MSSDK_DATE_FORMAT)
+
+__version__ = importlib.metadata.version('mapping-suite-sdk')
 
 __all__ = [
     ## Adapters
@@ -94,4 +106,9 @@ __all__ = [
     # validate_mapping_package.py
     "validate_mapping_package",
     "validate_mapping_package_from_archive",
+    "validate_bulk_mapping_packages_from_folder",
+    "validate_bulk_mapping_packages_from_github",
+
+    # Other
+    "__version__"
 ]

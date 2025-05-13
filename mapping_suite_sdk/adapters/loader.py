@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
+from pydantic_core import InitErrorDetails
 
 from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
@@ -280,13 +281,23 @@ class MappingPackageLoader(MappingPackageAssetLoader):
         Returns:
             MappingPackage: Complete mapping package with all loaded components.
         """
-        metadata = MappingPackageMetadataLoader().load(package_folder_path)
-        conceptual_mapping_file = ConceptualMappingFileLoader().load(package_folder_path)
-        technical_mapping_suite = TechnicalMappingSuiteLoader().load(package_folder_path)
-        vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(package_folder_path)
-        test_data_suites = TestDataSuitesLoader().load(package_folder_path)
-        test_suites_sparql = SPARQLTestSuitesLoader().load(package_folder_path)
-        test_suites_shacl = SHACLTestSuitesLoader().load(package_folder_path)
+        try:
+            metadata = MappingPackageMetadataLoader().load(package_folder_path)
+            conceptual_mapping_file = ConceptualMappingFileLoader().load(package_folder_path)
+            technical_mapping_suite = TechnicalMappingSuiteLoader().load(package_folder_path)
+            vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(package_folder_path)
+            test_data_suites = TestDataSuitesLoader().load(package_folder_path)
+            test_suites_sparql = SPARQLTestSuitesLoader().load(package_folder_path)
+            test_suites_shacl = SHACLTestSuitesLoader().load(package_folder_path)
+        except FileNotFoundError as validation_error:
+            raise ValidationError.from_exception_data(title="Mapping Package Validation Error",
+                                                      line_errors=[InitErrorDetails(
+                                                          type="missing",
+                                                          loc=(str(validation_error.filename),),
+                                                          input=str(package_folder_path),
+                                                          ctx={"error": str(validation_error)},
+                                                      )])
+
 
         return MappingPackage(
             metadata=metadata,

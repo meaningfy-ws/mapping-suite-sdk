@@ -11,6 +11,7 @@ import mongomock
 import pytest
 from git import Repo
 from pydantic import TypeAdapter
+from typer.testing import CliRunner
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
@@ -311,3 +312,7 @@ def dummy_collection_name() -> str:
 @pytest.fixture
 def dummy_mapping_package_validator() -> MappingPackageValidator:
     return MappingPackageValidator()
+
+@pytest.fixture
+def typer_cli_runner() -> CliRunner:
+    return CliRunner()

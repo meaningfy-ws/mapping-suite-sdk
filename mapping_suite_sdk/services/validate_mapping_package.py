@@ -1,13 +1,15 @@
+import json
 import logging
 from pathlib import Path
 from typing import Optional, Literal, NoReturn, List
 
 from pydantic import ValidationError
 
-from mapping_suite_sdk import ArchivePackageExtractor, GithubPackageExtractor
+from mapping_suite_sdk import ArchivePackageExtractor, GithubPackageExtractor, MappingPackageHasher
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.tracer import traced_routine
-from mapping_suite_sdk.adapters.validator import MappingPackageValidator, MPValidationException
+from mapping_suite_sdk.adapters.validator import MappingPackageValidator, MPValidationException, \
+    MPHashValidationException
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 from mapping_suite_sdk.services.load_mapping_package import load_mapping_package_from_archive, \
     load_mapping_package_from_folder, load_mapping_packages_from_github
@@ -88,7 +90,9 @@ def validate_mapping_package_from_folder(
 @traced_routine
 def validate_bulk_mapping_packages_from_folder(
         mapping_packages_folder_path: Path,
-        mp_validator: Optional[MappingPackageValidator] = None) -> NoReturn:
+        mp_validator: Optional[MappingPackageValidator] = None,
+        update_hash: bool = False,
+) -> bool | NoReturn:
     if not mapping_packages_folder_path.exists():
         message: str = f"Cannot bulk validate packages form folder. Folder path does not exist: {mapping_packages_folder_path}"
         logger.error(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_packages_folder_path,
@@ -101,12 +105,31 @@ def validate_bulk_mapping_packages_from_folder(
                                                          message=message))
         raise NotADirectoryError(message)
 
+    all_valid: bool = True
     for mp_folder in mapping_packages_folder_path.iterdir():
         try:
             validate_mapping_package_from_folder(mapping_package_folder_path=mp_folder, mp_validator=mp_validator)
+        except MPHashValidationException as hash_validation_exception:
+            # TODO: Temporary solution. This logic needs to be in the validator.
+            #  It will be done there when MSSDK will have Full MP support (currently no support for output folder)
+            message: str = f"Mapping package is not valid: {hash_validation_exception}"
+            if update_hash:
+                message += f"\n🔀  The hash for {mp_folder} is changed."
+                metadata_file = Path(mp_folder / "metadata.json")
+                metadata = json.loads(metadata_file.read_text())
+                metadata['mapping_suite_hash_digest'] = MappingPackageHasher(
+                    load_mapping_package_from_folder(mp_folder)).hash_mapping_package()
+                metadata_file.write_text(json.dumps(metadata, indent=4))
+            else:
+                all_valid = False
+            logger.error(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
+                                                             message=message))
         except (MPValidationException, ValidationError) as validation_exception:
-            logger.warning(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
-                                                               message=f"Mapping package is not valid: {validation_exception}"))
+            logger.error(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
+                                                             message=f"Mapping package is not valid: {validation_exception}"))
+            all_valid = False
+
+    return all_valid
 
 
 @traced_routine

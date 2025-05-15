@@ -2,8 +2,8 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
+from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
 from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
@@ -54,3 +54,25 @@ def serialise_mapping_package(mapping_package: MappingPackage,
         MappingPackageSerialiser().serialise(temp_directory_path, mapping_package)
 
         archive_unpacker.pack_directory(temp_directory_path, serialisation_folder_path)
+
+
+@traced_routine
+def serialise_mapping_package_to_folder(mapping_package: MappingPackage,
+                                        serialisation_folder_path: Path) -> None:
+    """
+    Serialises a MappingPackage instance to a specified folder path.
+
+    This function takes a MappingPackage object and serialises it into a folder
+    specified by the given path. The function does not return any value and is
+    used for persisting the MappingPackage into a structured folder format.
+
+    Args:
+        mapping_package: MappingPackage
+            The MappingPackage instance to serialise.
+        serialisation_folder_path: Path
+            The folder path where the MappingPackage should be serialised.
+
+    Returns:
+        None
+    """
+    MappingPackageSerialiser().serialise(serialisation_folder_path, mapping_package)

@@ -1,0 +1,34 @@
+{
+    "created_at": "2025-05-14 15:13:38.097661+00:00",
+    "results": [
+        {
+            "shacl_suite": {
+                "shacl_suite_oid": "6824b3184e423a46c4f6c2ad",
+                "shacl_suite_id": "epo"
+            },
+            "results": [
+                {
+                    "conforms": true,
+                    "results": [],
+                    "test_data": {
+                        "test_data_suite_oid": "6824b3184e423a46c4f6c2a4",
+                        "test_data_suite_id": "sdk_examples_can_invalid",
+                        "test_data_oid": "6824b3184e423a46c4f6c2a6",
+                        "test_data_id": "INVALID_can_24_stage-1"
+                    },
+                    "error": null,
+                    "message": null
+                }
+            ]
+        }
+    ],
+    "summary": {
+        "shacl_suites": [
+            {
+                "shacl_suite_oid": "6824b3184e423a46c4f6c2ad",
+                "shacl_suite_id": "epo"
+            }
+        ],
+        "results": []
+    }
+}

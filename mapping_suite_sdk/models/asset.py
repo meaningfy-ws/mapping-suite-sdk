@@ -1,6 +1,6 @@
 from abc import ABC
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from pydantic import Field
 
@@ -154,7 +154,8 @@ class TechnicalMappingSuite(PackageAssetCollection):
     files such as RML or YARRRML mappings that work together to achieve a complete
     data transformation solution.
     """
-    files: List[TechnicalMappingAsset] = Field(default_factory=list, description="Collection of technical mapping files")
+    files: List[TechnicalMappingAsset] = Field(default_factory=list,
+                                               description="Collection of technical mapping files")
 
 
 class VocabularyMappingSuite(PackageAssetCollection):
@@ -201,13 +202,16 @@ class SHACLTestSuite(PackageAssetCollection):
     files: List[SHACLShapesAsset] = Field(default_factory=list, description="Collection of SHACL shape files")
 
 
-class TestResultSuite(PackageAssetCollection):
-    """A collection of test result files.
+class ReportAsset(PackageAsset):
+    pass
 
-    This suite manages files containing the results of executed tests across
-    the mapping suite. It stores the outputs and outcomes from various testing
-    processes, which may include results from SPARQL queries, SHACL validations,
-    and other test executions. These results can be used for validation,
-    debugging, and quality assurance of the mapping processes.
-    """
-    files: List[TestDataResultAsset] = Field(default_factory=list, description="Collection of test data result files")
+
+class TestDataResultCollection(PackageAssetCollection):
+    files: List[ReportAsset] = Field(default_factory=list, description="Collection of reports for a suite of tests")
+    test_data_output: TestDataResultAsset
+
+
+class TestResultSuite(PackageAssetCollection):
+    files: List[ReportAsset] = Field(default_factory=list, description="Collection of reports for a suite of tests")
+    result_suites: List[Union['TestResultSuite' , TestDataResultCollection]] = Field(default_factory=list,
+                                                                                     description="Collection of test result suites")

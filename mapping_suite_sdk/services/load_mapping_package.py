@@ -1,11 +1,17 @@
+import logging
 from pathlib import Path
 from typing import Optional, List
+
+from pydantic import ValidationError
 
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.vars import MSSDK_LOGGING_MESSAGE_FORMAT
+
+logger = logging.getLogger(__name__)
 
 
 @traced_routine
@@ -39,7 +45,7 @@ def load_mapping_package_from_folder(
     if not mapping_package_folder_path.exists():
         raise FileNotFoundError(f"Mapping package folder not found: {mapping_package_folder_path}")
     if not mapping_package_folder_path.is_dir():
-        raise ValueError(f"Specified path is not a directory: {mapping_package_folder_path}")
+        raise NotADirectoryError(f"Specified path is not a directory: {mapping_package_folder_path}")
 
     mapping_package_loader = mapping_package_loader or MappingPackageLoader()
 
@@ -102,7 +108,8 @@ def load_mapping_packages_from_github(
     This function downloads mapping packages from a GitHub repository and loads them.
     It supports loading multiple packages that match a specified path pattern within
     the repository. The function uses shallow cloning to minimize download size and
-    automatically cleans up temporary files after loading.
+    automatically cleans up temporary files after loading. If a package is not valid,
+    it will be skipped and a warning will be logged.
 
     The function follows these steps:
     1. Clones the specified repository (shallow clone)
@@ -191,12 +198,18 @@ def load_mapping_packages_from_github(
                 f"No mapping packages found matching pattern '{packages_path_pattern}' "
                 f"in repository {github_repository_url} at {branch_or_tag_name}")
 
-        return [
-            load_mapping_package_from_folder(
-                mapping_package_folder_path=package_path,
-                mapping_package_loader=mapping_package_loader
-            )
-            for package_path in package_paths]
+        mapping_packages: List[MappingPackage] = []
+        for package_path in package_paths:
+            try:
+                package = load_mapping_package_from_folder(
+                    mapping_package_folder_path=package_path,
+                    mapping_package_loader=mapping_package_loader
+                )
+                mapping_packages.append(package)
+            except (ValidationError, Exception) as pydantic_validation_error:
+                logger.warning(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=package_path,
+                                                                   message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}"))
+        return mapping_packages
 
 
 @traced_routine
@@ -235,4 +248,3 @@ def load_mapping_package_from_mongo_db(
         raise ValueError("MongoDB repository must be provided")
 
     return mapping_package_repository.read(mapping_package_id)
-

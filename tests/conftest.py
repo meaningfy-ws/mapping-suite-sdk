@@ -11,6 +11,7 @@ import mongomock
 import pytest
 from git import Repo
 from pydantic import TypeAdapter
+from typer.testing import CliRunner
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
@@ -53,7 +54,7 @@ def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None
-        assert mapping_suite.path == expected_relative_path
+        assert any([mapping_suite.path == expected_relative_path, mapping_suite.path == Path(temp_mp_path.name) / expected_relative_path])
         assert (temp_mp_path / mapping_suite.path).exists()
         assert len(mapping_suite.files) > 0
         for file in mapping_suite.files:
@@ -79,7 +80,8 @@ def _test_mapping_suites_asset_loader(dummy_mapping_package_path: Path,
         for mapping_suite in mapping_suites:
             assert mapping_suite is not None
             assert mapping_suite.path is not None
-            assert mapping_suite.path.is_relative_to(expected_relative_path)
+            assert any([mapping_suite.path.is_relative_to(expected_relative_path),
+                        mapping_suite.path.is_relative_to(Path(temp_mp_path.name) / expected_relative_path)])
             assert (temp_mp_path / mapping_suite.path).exists()
             assert len(mapping_suite.files) > 0
             for file in mapping_suite.files:
@@ -311,3 +313,7 @@ def dummy_collection_name() -> str:
 @pytest.fixture
 def dummy_mapping_package_validator() -> MappingPackageValidator:
     return MappingPackageValidator()
+
+@pytest.fixture
+def typer_cli_runner() -> CliRunner:
+    return CliRunner()

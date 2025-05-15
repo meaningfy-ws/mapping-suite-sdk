@@ -1,10 +1,12 @@
+from pathlib import Path
 from typing import List, Optional
 
 from pydantic import Field
 
+from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, \
+    TestDataSuite, \
+    SAPRQLTestSuite, SHACLTestSuite, TestResultSuite
 from mapping_suite_sdk.models.core import CoreModel, MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
-from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
-    SAPRQLTestSuite, SHACLTestSuite
 
 
 # class MappingSource(CoreModel):
@@ -57,11 +59,12 @@ class MappingPackageMetadata(CoreModel):
     # source: MappingSource = Field(..., description="Source data configuration and specifications")
     # target: MappingTarget = Field(..., description="Target data configuration and specifications")
 
-
     eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
                                                                           description="Constraints defining package applicability",
                                                                           alias="metadata_constraints")
     signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+
+    path: Path = Field(..., description="Path within a mapping package")
 
 
 class MappingPackageIndex(CoreModel):
@@ -94,4 +97,4 @@ class MappingPackage(CoreModel):
     test_suites_shacl: List[SHACLTestSuite] = Field(...,
                                                     description="Collections of SHACL-based validation test suites")
     # Note: To implement when import will require transform results
-    # test_results: List[TestResultSuite] = Field(..., description="Collections of test transformation results")
+    test_results: TestResultSuite = Field(..., description="Collections of test transformation results")

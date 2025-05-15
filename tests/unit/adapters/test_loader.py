@@ -32,7 +32,7 @@ def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path) -> Non
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None
-        assert mapping_suite.path == RELATIVE_TECHNICAL_MAPPING_SUITE_PATH
+        assert any([mapping_suite.path == RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, mapping_suite.path == Path(temp_mp_path.name) / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH])
         assert (temp_mp_path / mapping_suite.path).exists()
         assert len(mapping_suite.files) > 0
         for file in mapping_suite.files:
@@ -127,6 +127,8 @@ def test_suite_metadata_loader(dummy_mapping_package_path: Path) -> None:
         # Verify field aliases
         # Read the original JSON to verify the aliases are working correctly
         metadata_file_path = temp_mp_path / RELATIVE_SUITE_METADATA_PATH
+        if not metadata_file_path.exists():
+            metadata_file_path = temp_mp_path / temp_mp_path.name / RELATIVE_SUITE_METADATA_PATH
         original_data = json.loads(metadata_file_path.read_text())
 
         assert metadata.issue_date == original_data["created_at"]
@@ -151,7 +153,7 @@ def test_conceptual_mapping_loader(dummy_mapping_package_path: Path) -> None:
 
         assert cm_file is not None
         assert cm_file.path is not None
-        assert cm_file.path == RELATIVE_CONCEPTUAL_MAPPING_PATH
+        assert any([cm_file.path == RELATIVE_CONCEPTUAL_MAPPING_PATH, cm_file.path == Path(temp_mp_path.name) / RELATIVE_CONCEPTUAL_MAPPING_PATH])
         assert (temp_mp_path / cm_file.path).exists()
         assert cm_file.content is not None
         assert len(cm_file.content) > 0

@@ -36,7 +36,7 @@ class TechnicalMappingSuiteSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for technical mapping suite files."""
 
     def serialise(self, package_folder_path: Path, asset: TechnicalMappingSuite) -> None:
-        suite_path = package_folder_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH
+        suite_path = package_folder_path / asset.path
         suite_path.mkdir(parents=True, exist_ok=True)
 
         for tm_file in asset.files:
@@ -49,7 +49,7 @@ class VocabularyMappingSuiteSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for vocabulary mapping suite files."""
 
     def serialise(self, package_folder_path: Path, asset: VocabularyMappingSuite) -> None:
-        suite_path = package_folder_path / RELATIVE_VOCABULARY_MAPPING_SUITE_PATH
+        suite_path = package_folder_path / asset.path
         suite_path.mkdir(parents=True, exist_ok=True)
 
         for vm_file in asset.files:
@@ -106,7 +106,9 @@ class MappingPackageMetadataSerialiser(MappingPackageAssetSerialiser):
     def serialise(self, package_folder_path: Path, asset: MappingPackageMetadata) -> None:
         metadata_path = package_folder_path / asset.path
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
-        metadata_path.write_text(asset.model_dump_json(by_alias=True, exclude={fields(MappingPackageMetadata).path}))
+        metadata_path.write_text(asset.model_dump_json(by_alias=True,
+                                                       exclude={fields(MappingPackageMetadata).path},
+                                                       indent=4))
 
 
 class ConceptualMappingFileSerialiser(MappingPackageAssetSerialiser):

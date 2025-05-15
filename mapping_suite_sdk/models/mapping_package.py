@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Optional
 
 from pydantic import Field
@@ -62,6 +63,8 @@ class MappingPackageMetadata(CoreModel):
                                                                           description="Constraints defining package applicability",
                                                                           alias="metadata_constraints")
     signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+
+    path: Path = Field(..., description="Path within a mapping package")
 
 
 class MappingPackageIndex(CoreModel):

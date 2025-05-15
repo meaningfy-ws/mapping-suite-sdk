@@ -1,8 +1,9 @@
+import json
 from pathlib import Path
 from typing import Any, List, Protocol, NoReturn
 
 from pydantic import TypeAdapter, ValidationError
-from pydantic_core import InitErrorDetails
+from pydantic_core import InitErrorDetails, PydanticCustomError
 
 from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
@@ -227,7 +228,10 @@ class MappingPackageMetadataLoader(MappingPackageAssetLoader):
         if root_folder.exists():
             asset_path = root_folder / RELATIVE_SUITE_METADATA_PATH
 
-        return TypeAdapter(MappingPackageMetadata).validate_json(asset_path.read_text())
+        model_dict: dict = json.loads(asset_path.read_text())
+        model_dict['path'] = asset_path.relative_to(package_folder_path)
+
+        return TypeAdapter(MappingPackageMetadata).validate_python(model_dict)
 
 
 class MappingPackageIndexLoader(MappingPackageAssetLoader):
@@ -257,7 +261,7 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
     [Not implemented] Handles loading of test execution results.
     """
 
-    def load(self, package_folder_path: Path) -> TestResultSuite | NoReturn:
+    def load(self, package_folder_path: Path) -> TestResultSuite:
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
         asset_path: Path = package_folder_path / RELATIVE_TEST_RESULT_PATH
@@ -286,7 +290,7 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
                         (test_data_suites_result / RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH).iterdir() if
                         test_data_report.is_file()],
                     test_data_output=TestDataResultAsset(
-                        path=next(test_data_suites_result.glob('*.ttl'), None),
+                        path=next(test_data_suites_result.glob('*.ttl'), None).relative_to(package_folder_path),
                         content=next(test_data_suites_result.glob('*.ttl'), None).read_text()),
                 ) for test_data_suites_result in suite_path.iterdir() if test_data_suites_result.is_dir()]
             ) for suite_path in test_result_path.iterdir() if suite_path.is_dir()]
@@ -345,24 +349,65 @@ class MappingPackageLoader(MappingPackageAssetLoader):
         Returns:
             MappingPackage: Complete mapping package with all loaded components.
         """
+        validation_errors: List[InitErrorDetails] = []
+
+        def _process_exception(exception):
+            if type(exception) is FileNotFoundError:
+                validation_errors.append(InitErrorDetails(
+                    type="missing",
+                    loc=(str(exception.filename),),
+                    input=str(package_folder_path),
+                    ctx={"error": str(exception)},
+                ))
+            elif type(exception) is json.decoder.JSONDecodeError:
+                validation_errors.append(InitErrorDetails(
+                    type=PydanticCustomError(
+                        "metadata_JSON_decode_error",
+                        "Ensure metadata.json is valid JSON."
+                    ),
+                    loc=('metadata.json',),
+                    input=str(package_folder_path),
+                    ctx={"error": str(exception)},
+                ))
+            else:
+                raise exception
+
         try:
             metadata = MappingPackageMetadataLoader().load(package_folder_path)
+        except Exception as e:
+            _process_exception(e)
+        try:
             conceptual_mapping_file = ConceptualMappingFileLoader().load(package_folder_path)
+        except Exception as e:
+            _process_exception(e)
+        try:
             technical_mapping_suite = TechnicalMappingSuiteLoader().load(package_folder_path)
+        except Exception as e:
+            _process_exception(e)
+        try:
             vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(package_folder_path)
+        except Exception as e:
+            _process_exception(e)
+        try:
             test_data_suites = TestDataSuitesLoader().load(package_folder_path)
+        except Exception as e:
+            _process_exception(e)
+        try:
             test_suites_sparql = SPARQLTestSuitesLoader().load(package_folder_path)
+        except Exception as e:
+            _process_exception(e)
+        try:
             test_suites_shacl = SHACLTestSuitesLoader().load(package_folder_path)
+        except Exception as e:
+            _process_exception(e)
+        try:
             test_results = TestResultSuiteLoader().load(package_folder_path)
-        except FileNotFoundError as validation_error:
-            raise ValidationError.from_exception_data(title="Mapping Package Validation Error",
-                                                      line_errors=[InitErrorDetails(
-                                                          type="missing",
-                                                          loc=(str(validation_error.filename),),
-                                                          input=str(package_folder_path),
-                                                          ctx={"error": str(validation_error)},
-                                                      )])
+        except Exception as e:
+            _process_exception(e)
 
+        if len(validation_errors) > 0:
+            raise ValidationError.from_exception_data(title="Mapping Package Validation Error",
+                                                      line_errors=validation_errors)
         return MappingPackage(
             metadata=metadata,
             conceptual_mapping_asset=conceptual_mapping_file,

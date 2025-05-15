@@ -53,7 +53,7 @@ class MappingPackageHasher:
 
     def hash_mapping_metadata(self) -> str:
         model_dict = self.mapping_package.metadata.model_dump(by_alias=True,
-                                                              exclude={fields(MappingPackageMetadata).signature})
+                                                              exclude={fields(MappingPackageMetadata).signature, fields(MappingPackageMetadata).path})
 
         return hashlib.sha256(
             json.dumps(model_dict).encode('utf-8')

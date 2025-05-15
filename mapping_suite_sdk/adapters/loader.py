@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, List, Protocol
+from typing import Any, List, Protocol, NoReturn
 
 from pydantic import TypeAdapter, ValidationError
 from pydantic_core import InitErrorDetails
@@ -7,7 +7,8 @@ from pydantic_core import InitErrorDetails
 from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
-    ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset
+    ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset, \
+    ReportAsset, TestDataResultCollection, TestDataResultAsset
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 
 ### Paths relative to mapping package
@@ -18,6 +19,8 @@ RELATIVE_SPARQL_SUITE_PATH = Path("validation/sparql")
 RELATIVE_SHACL_SUITE_PATH = Path("validation/shacl")
 RELATIVE_SUITE_METADATA_PATH = Path("metadata.json")
 RELATIVE_CONCEPTUAL_MAPPING_PATH = Path("transformation/conceptual_mappings.xlsx")
+RELATIVE_TEST_RESULT_PATH = Path("output")
+RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH = Path("test_suite_report")
 
 
 class MappingPackageAssetLoader(Protocol):
@@ -57,14 +60,20 @@ class TechnicalMappingSuiteLoader(MappingPackageAssetLoader):
         Returns:
             TechnicalMappingSuite: Collection of loaded RML and YARRRML mapping files.
         """
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH
+
         tm_files: List[RMLMappingAsset] = []
 
-        for tm_file in (package_folder_path / RELATIVE_TECHNICAL_MAPPING_SUITE_PATH).iterdir():
+        for tm_file in asset_path.iterdir():
             if tm_file.is_file():
                 tm_files.append(
                     RMLMappingAsset(path=tm_file.relative_to(package_folder_path), content=tm_file.read_text()))
 
-        return TechnicalMappingSuite(path=RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, files=tm_files)
+        return TechnicalMappingSuite(path=asset_path.relative_to(package_folder_path), files=tm_files)
 
 
 class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
@@ -82,14 +91,20 @@ class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
         Returns:
             VocabularyMappingSuite: Collection of loaded vocabulary mapping files.
         """
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_VOCABULARY_MAPPING_SUITE_PATH
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_VOCABULARY_MAPPING_SUITE_PATH
+
         files: List[VocabularyMappingAsset] = []
 
-        for file in (package_folder_path / RELATIVE_VOCABULARY_MAPPING_SUITE_PATH).iterdir():
+        for file in asset_path.iterdir():
             if file.is_file():
                 files.append(
                     VocabularyMappingAsset(path=file.relative_to(package_folder_path), content=file.read_text()))
 
-        return VocabularyMappingSuite(path=RELATIVE_VOCABULARY_MAPPING_SUITE_PATH, files=files)
+        return VocabularyMappingSuite(path=asset_path.relative_to(package_folder_path), files=files)
 
 
 class TestDataSuitesLoader(MappingPackageAssetLoader):
@@ -107,8 +122,14 @@ class TestDataSuitesLoader(MappingPackageAssetLoader):
         Returns:
             List[TestDataSuite]: List of test data suites, each containing test files.
         """
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_TEST_DATA_PATH
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_TEST_DATA_PATH
+
         test_data_suites: List[TestDataSuite] = []
-        for ts_suite in (package_folder_path / RELATIVE_TEST_DATA_PATH).iterdir():
+        for ts_suite in asset_path.iterdir():
             if ts_suite.is_dir():
                 test_data_suites.append(TestDataSuite(path=ts_suite.relative_to(package_folder_path),
                                                       files=[
@@ -133,8 +154,14 @@ class SPARQLTestSuitesLoader(MappingPackageAssetLoader):
         Returns:
             List[SAPRQLTestSuite]: List of SPARQL validation suites.
         """
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_SPARQL_SUITE_PATH
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_SPARQL_SUITE_PATH
+
         sparql_validation_suites: List[SAPRQLTestSuite] = []
-        for sparql_suite in (package_folder_path / RELATIVE_SPARQL_SUITE_PATH).iterdir():
+        for sparql_suite in asset_path.iterdir():
             if sparql_suite.is_dir():
                 sparql_validation_suites.append(SAPRQLTestSuite(path=sparql_suite.relative_to(package_folder_path),
                                                                 files=[SPARQLQueryAsset(
@@ -160,8 +187,14 @@ class SHACLTestSuitesLoader(MappingPackageAssetLoader):
         Returns:
             List[SHACLTestSuite]: List of SHACL validation suites.
         """
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_SHACL_SUITE_PATH
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_SHACL_SUITE_PATH
+
         shacl_validation_suites: List[SHACLTestSuite] = []
-        for shacl_suite in (package_folder_path / RELATIVE_SHACL_SUITE_PATH).iterdir():
+        for shacl_suite in asset_path.iterdir():
             if shacl_suite.is_dir():
                 shacl_validation_suites.append(SHACLTestSuite(path=shacl_suite.relative_to(package_folder_path),
                                                               files=[SHACLShapesAsset(
@@ -187,8 +220,14 @@ class MappingPackageMetadataLoader(MappingPackageAssetLoader):
         Returns:
             MappingPackageMetadata: Parsed metadata object.
         """
-        metadata_file_path: Path = package_folder_path / RELATIVE_SUITE_METADATA_PATH
-        return TypeAdapter(MappingPackageMetadata).validate_json(metadata_file_path.read_text())
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_SUITE_METADATA_PATH
+
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_SUITE_METADATA_PATH
+
+        return TypeAdapter(MappingPackageMetadata).validate_json(asset_path.read_text())
 
 
 class MappingPackageIndexLoader(MappingPackageAssetLoader):
@@ -218,19 +257,40 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
     [Not implemented] Handles loading of test execution results.
     """
 
-    def load(self, package_folder_path: Path) -> TestResultSuite:
-        """Load test result suite.
+    def load(self, package_folder_path: Path) -> TestResultSuite | NoReturn:
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_TEST_RESULT_PATH
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_TEST_RESULT_PATH
 
-        Args:
-            package_folder_path (Path): Path to the mapping package folder.
-
-        Returns:
-            TestResultSuite: The loaded test results.
-
-        Raises:
-            NotImplementedError: This loader is not yet implemented.
-        """
-        raise NotImplementedError
+        test_result_path: Path = asset_path
+        return TestResultSuite(
+            path=test_result_path,
+            files=[ReportAsset(
+                path=report_path.relative_to(package_folder_path),
+                content=report_path.read_text()
+            ) for report_path in test_result_path.iterdir() if report_path.is_file()],
+            result_suites=[TestResultSuite(
+                path=suite_path.relative_to(package_folder_path),
+                files=[ReportAsset(
+                    path=report_path.relative_to(package_folder_path),
+                    content=report_path.read_text()
+                ) for report_path in suite_path.iterdir() if report_path.is_file()],
+                result_suites=[TestDataResultCollection(
+                    path=test_data_suites_result.relative_to(package_folder_path),
+                    files=[ReportAsset(
+                        path=test_data_report.relative_to(package_folder_path),
+                        content=test_data_report.read_text()
+                    ) for test_data_report in
+                        (test_data_suites_result / RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH).iterdir() if
+                        test_data_report.is_file()],
+                    test_data_output=TestDataResultAsset(
+                        path=next(test_data_suites_result.glob('*.ttl'), None),
+                        content=next(test_data_suites_result.glob('*.ttl'), None).read_text()),
+                ) for test_data_suites_result in suite_path.iterdir() if test_data_suites_result.is_dir()]
+            ) for suite_path in test_result_path.iterdir() if suite_path.is_dir()]
+        )
 
 
 class ConceptualMappingFileLoader(MappingPackageAssetLoader):
@@ -248,11 +308,15 @@ class ConceptualMappingFileLoader(MappingPackageAssetLoader):
         Returns:
             ConceptualMappingPackageAsset: The loaded conceptual mapping file.
         """
-        cm_file_path: Path = package_folder_path / RELATIVE_CONCEPTUAL_MAPPING_PATH
+        # If the root folder persists
+        root_folder: Path = package_folder_path / package_folder_path.name
+        asset_path: Path = package_folder_path / RELATIVE_CONCEPTUAL_MAPPING_PATH
+        if root_folder.exists():
+            asset_path = root_folder / RELATIVE_CONCEPTUAL_MAPPING_PATH
 
         return ConceptualMappingPackageAsset(
-            path=RELATIVE_CONCEPTUAL_MAPPING_PATH,
-            content=cm_file_path.read_bytes()
+            path=asset_path.relative_to(package_folder_path),
+            content=asset_path.read_bytes()
         )
 
 
@@ -289,6 +353,7 @@ class MappingPackageLoader(MappingPackageAssetLoader):
             test_data_suites = TestDataSuitesLoader().load(package_folder_path)
             test_suites_sparql = SPARQLTestSuitesLoader().load(package_folder_path)
             test_suites_shacl = SHACLTestSuitesLoader().load(package_folder_path)
+            test_results = TestResultSuiteLoader().load(package_folder_path)
         except FileNotFoundError as validation_error:
             raise ValidationError.from_exception_data(title="Mapping Package Validation Error",
                                                       line_errors=[InitErrorDetails(
@@ -298,7 +363,6 @@ class MappingPackageLoader(MappingPackageAssetLoader):
                                                           ctx={"error": str(validation_error)},
                                                       )])
 
-
         return MappingPackage(
             metadata=metadata,
             conceptual_mapping_asset=conceptual_mapping_file,
@@ -306,5 +370,6 @@ class MappingPackageLoader(MappingPackageAssetLoader):
             vocabulary_mapping_suite=vocabulary_mapping_suite,
             test_data_suites=test_data_suites,
             test_suites_sparql=test_suites_sparql,
-            test_suites_shacl=test_suites_shacl
+            test_suites_shacl=test_suites_shacl,
+            test_results=test_results,
         )

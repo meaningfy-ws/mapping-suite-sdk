@@ -38,6 +38,7 @@ from mapping_suite_sdk.services.load_mapping_package import (load_mapping_packag
                                                              load_mapping_package_from_mongo_db
                                                              )
 from mapping_suite_sdk.services.serialise_mapping_package import (serialise_mapping_package,
+                                                                  serialise_mapping_package_to_folder,
                                                                   )
 from mapping_suite_sdk.services.validate_mapping_package import (validate_mapping_package,
                                                                  validate_mapping_package_from_archive,
@@ -102,6 +103,7 @@ __all__ = [
 
     # serialise_mapping_package.py
     "serialise_mapping_package",
+    "serialise_mapping_package_to_folder",
 
     # validate_mapping_package.py
     "validate_mapping_package",

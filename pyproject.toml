@@ -1,6 +1,6 @@
 [project]
 name = "mapping-suite-sdk"
-version = "0.2.0-rc.1"
+version = "0.3.0"
 description = "Software development kit for XML-RML mapping rules packaging"
 authors = [
     { name = "meaningfy.ws", email = "hi@meaningfy.ws" }

@@ -21,7 +21,7 @@ build:
 
 install: install-poetry
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Installing MSSDK requirements$(END_BUILD_PRINT)"
-	@ poetry install --all-groups --no-root
+	@ poetry install --all-groups
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) MSSDK requirements are installed$(END_BUILD_PRINT)"
 
 install-poetry:

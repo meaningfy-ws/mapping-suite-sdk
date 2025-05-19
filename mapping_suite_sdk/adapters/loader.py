@@ -23,6 +23,7 @@ RELATIVE_CONCEPTUAL_MAPPING_PATH = Path("transformation/conceptual_mappings.xlsx
 RELATIVE_TEST_RESULT_PATH = Path("output")
 RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH = Path("test_suite_report")
 
+TEST_RESULT_FILE_EXTENSIONS = [".html", ".json", ".csv"]
 
 class MappingPackageAssetLoader(Protocol):
     """Protocol defining the interface for mapping package asset loaders.
@@ -274,13 +275,13 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
             files=[ReportAsset(
                 path=report_path.relative_to(package_folder_path),
                 content=report_path.read_text()
-            ) for report_path in test_result_path.iterdir() if report_path.is_file()],
+            ) for report_path in test_result_path.iterdir() if report_path.is_file() and report_path.suffix in TEST_RESULT_FILE_EXTENSIONS],
             result_suites=[TestResultSuite(
                 path=suite_path.relative_to(package_folder_path),
                 files=[ReportAsset(
                     path=report_path.relative_to(package_folder_path),
                     content=report_path.read_text()
-                ) for report_path in suite_path.iterdir() if report_path.is_file()],
+                ) for report_path in suite_path.iterdir() if report_path.is_file() and report_path.suffix in TEST_RESULT_FILE_EXTENSIONS],
                 result_suites=[TestDataResultCollection(
                     path=test_data_suites_result.relative_to(package_folder_path),
                     files=[ReportAsset(

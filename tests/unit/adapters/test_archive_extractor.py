@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -55,6 +56,33 @@ def test_unpacker_pack_directory_generates_same_output(dummy_mapping_package_ext
 
         is_equal, error_message = _compare_directories(dummy_mapping_package_extracted_path, extracted_path)
         assert is_equal, f"Directory comparison failed:\n{error_message}"
+
+def test_pack_directory_raises_file_not_found():
+    non_existent_path = Path("non_existent_path") # Using a non-existent path
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_path = Path(temp_dir) / "output.zip"
+        with pytest.raises(FileNotFoundError):
+            ArchivePackageExtractor().pack_directory(non_existent_path, output_path)
+
+def test_pack_directory_raises_not_a_directory():
+    non_directory_path = Path(__file__)  # Using a file instead of a directory
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_path = Path(temp_dir) / "output.zip"
+        with pytest.raises(ValueError):
+            ArchivePackageExtractor().pack_directory(non_directory_path, output_path)
+
+def test_pack_directory_output_has_zip_extension(dummy_mapping_package_extracted_path: Path) -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_path = Path(temp_dir) / "output"
+        result = ArchivePackageExtractor().pack_directory(dummy_mapping_package_extracted_path, output_path)
+        assert result.name.endswith('.zip'), "Packed archive should have a .zip extension"
+
+def test_pack_directory_raises_zip_creation_fail(dummy_mapping_package_extracted_path : Path) -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_path = Path(temp_dir) / "output.zip"
+        with mock.patch("zipfile.ZipFile", side_effect=Exception("Zip creation failed")):
+            with pytest.raises(ValueError):
+                ArchivePackageExtractor().pack_directory(dummy_mapping_package_extracted_path, output_path)
 
 
 def test_archive_extractor_gets_folder_instead_of_archive() -> None:

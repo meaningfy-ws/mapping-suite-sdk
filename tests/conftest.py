@@ -39,6 +39,11 @@ def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        technical_mapping_dir = temp_mp_path / expected_relative_path
+        technical_mapping_dir.mkdir(parents=True, exist_ok=True)
+
+        # Add a subdirectory to ensure only files are loaded (not directories)
+        (technical_mapping_dir / "subdir").mkdir()
 
         mapping_suite = loader_class.load(temp_mp_path)
 
@@ -64,6 +69,12 @@ def _test_mapping_suites_asset_loader(dummy_mapping_package_path: Path,
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        technical_mapping_dir = temp_mp_path / expected_relative_path
+        technical_mapping_dir.mkdir(parents=True, exist_ok=True)
+
+        # Add a file to ensure files are not loaded
+        (technical_mapping_dir / "dummy_file.txt").write_text("This is a dummy file.")
+
 
         mapping_suites = loader_class.load(temp_mp_path)
 

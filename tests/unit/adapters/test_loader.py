@@ -17,28 +17,11 @@ from tests.conftest import _test_mapping_package_asset_loader, _test_mapping_sui
 
 
 def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path) -> None:
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_dir_path = Path(temp_dir)
-        temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
-        shutil.copy(dummy_mapping_package_path, temp_mp_archive_path)
-
-        temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
-        temp_mp_path.mkdir()
-        shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
-
-        mapping_suite: TechnicalMappingSuite = TechnicalMappingSuiteLoader().load(temp_mp_path)
-
-        assert any(isinstance(file, RMLMappingAsset) for file in mapping_suite.files)
-
-        assert mapping_suite is not None
-        assert mapping_suite.path is not None
-        assert mapping_suite.path == RELATIVE_TECHNICAL_MAPPING_SUITE_PATH
-        assert (temp_mp_path / mapping_suite.path).exists()
-        assert len(mapping_suite.files) > 0
-        for file in mapping_suite.files:
-            assert file is not None
-            assert (temp_mp_path / file.path).exists()
-            assert file.content is not None
+    _test_mapping_package_asset_loader(
+        dummy_mapping_package_path,
+        TechnicalMappingSuiteLoader(),
+        RELATIVE_TECHNICAL_MAPPING_SUITE_PATH
+    )
 
 
 def test_value_mapping_suite_loader(dummy_mapping_package_path: Path) -> None:

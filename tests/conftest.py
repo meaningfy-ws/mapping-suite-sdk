@@ -201,6 +201,7 @@ def _setup_temporary_test_git_repository(dummy_github_project_path: Path, dummy_
         yield repo_path
 
 
+
 @pytest.fixture
 def dummy_mapping_package_path() -> Path:
     return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH

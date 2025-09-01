@@ -70,7 +70,7 @@ class MPStructuralValidationStep(MPValidationStepABC):
                 assert suite.files
 
         except AssertionError:
-            raise MPStructuralValidationException("nMapping Package validation error:\nThere are empty suites")
+            raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites")
         return True
 
 

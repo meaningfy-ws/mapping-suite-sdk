@@ -259,7 +259,7 @@ class MappingPackageIndexLoader(MappingPackageAssetLoader):
 class TestResultSuiteLoader(MappingPackageAssetLoader):
     """Loader for test result suite.
 
-    [Not implemented] Handles loading of test execution results.
+    Handles loading of test execution results.
     """
 
     def load(self, package_folder_path: Path) -> TestResultSuite:
@@ -289,7 +289,7 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
                         content=test_data_report.read_text()
                     ) for test_data_report in
                         (test_data_suites_result / RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH).iterdir() if
-                        test_data_report.is_file()],
+                        test_data_report.is_file() and test_data_report.suffix in TEST_RESULT_FILE_EXTENSIONS],
                     test_data_output=TestDataResultAsset(
                         path=next(test_data_suites_result.glob('*.ttl'), None).relative_to(package_folder_path),
                         content=next(test_data_suites_result.glob('*.ttl'), None).read_text()),

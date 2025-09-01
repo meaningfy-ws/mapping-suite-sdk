@@ -167,3 +167,6 @@ def validate_bulk_mapping_packages_from_github(
         except MPValidationException as validation_exception:
             logger.warning(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.identifier,
                                                                message=f"Mapping package is not valid: {validation_exception}"))
+        else:
+            logger.info(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.identifier,
+                                                            message=f"✅ The package is valid!"))

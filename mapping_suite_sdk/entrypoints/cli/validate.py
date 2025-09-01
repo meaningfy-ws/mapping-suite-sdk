@@ -30,7 +30,14 @@ def mssdk_cli_validate_mapping_package_from_archive(
     logger.debug(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_archive_path,
                                                      message="Running mapping package validation from archive using command line"))
 
-    validate_mapping_package_from_archive(mapping_package_archive_path=mapping_package_archive_path)
+    all_valid: bool = validate_mapping_package_from_archive(mapping_package_archive_path=mapping_package_archive_path)
+    if all_valid:
+        logger.info(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_archive_path, message="Running mapping package validation from archive using command line finished successfully.\n✅ The package is valid!"))
+    else:
+        logger.info(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_archive_path, message="Running mapping package validation from archive using command line finished successfully.\n❌ The package is invalid! Please check the logs."))
+
+    logger.debug(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_archive_path,
+                                                     message="DONE Running mapping package validation from archive using command line"))
 
 
 @mssdk_cli_validate_subcommand.command(**MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,

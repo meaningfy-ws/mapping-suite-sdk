@@ -2,8 +2,6 @@ name: Update badges
 
 on:
   pull_request:
-    branches:
-      - "**"
     branches-ignore:
       #Ignoring protected branches
       # See: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpull_requestpull_request_targetbranchesbranches-ignore

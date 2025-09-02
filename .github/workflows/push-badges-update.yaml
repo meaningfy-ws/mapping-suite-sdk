@@ -1,8 +1,13 @@
 name: Update badges
 
 on:
-  push:
-    branches: [ "main", "develop" ]
+  pull_request:
+    branches:
+      - "**"
+      #Ignoring protected branches
+      - "!main"
+      - "!develop"
+      - "!v*"
 
 jobs:
   test:

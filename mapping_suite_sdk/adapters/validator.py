@@ -57,9 +57,9 @@ class MPStructuralValidationStep(MPValidationStepABC):
         # Most of structural validation where done by model itself (using Pydantic)
 
         try:
-            assert mapping_package.test_data_suites
-            for suite in mapping_package.test_data_suites:
-                assert suite.files
+            if mapping_package.test_data_suites:
+                for suite in mapping_package.test_data_suites:
+                    assert suite.files
 
             assert mapping_package.test_suites_shacl
             for suite in mapping_package.test_suites_shacl:
@@ -68,6 +68,12 @@ class MPStructuralValidationStep(MPValidationStepABC):
             assert mapping_package.test_suites_sparql
             for suite in mapping_package.test_suites_sparql:
                 assert suite.files
+
+            if mapping_package.test_results:
+                for suite in mapping_package.test_results.result_suites:
+                    assert suite.files
+
+        #TODO: structural validation also must check relation between test data and results
 
         except AssertionError:
             raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites")

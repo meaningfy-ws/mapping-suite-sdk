@@ -68,7 +68,8 @@ def validate_mapping_package_from_archive(
 @traced_routine
 def validate_mapping_package_from_folder(
         mapping_package_folder_path: Path,
-        mp_validator: Optional[MappingPackageValidator] = None) -> Literal[True] | NoReturn:
+        mp_validator: Optional[MappingPackageValidator] = None,
+        mapping_package_loader: Optional[MappingPackageAssetLoader] = None) -> Literal[True] | NoReturn:
     if not mapping_package_folder_path.exists():
         message: str = f"Cannot validate package from folder. Folder path does not exist: {mapping_package_folder_path}"
         logger.error(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_folder_path,
@@ -82,7 +83,9 @@ def validate_mapping_package_from_folder(
         raise NotADirectoryError(message)
 
     mapping_package: MappingPackage = load_mapping_package_from_folder(
-        mapping_package_folder_path=mapping_package_folder_path)
+        mapping_package_folder_path=mapping_package_folder_path,
+        mapping_package_loader=mapping_package_loader,
+    )
 
     return validate_mapping_package(mapping_package=mapping_package, mp_validator=mp_validator)
 
@@ -91,6 +94,7 @@ def validate_mapping_package_from_folder(
 def validate_bulk_mapping_packages_from_folder(
         mapping_packages_folder_path: Path,
         mp_validator: Optional[MappingPackageValidator] = None,
+        mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
         update_hash: bool = False,
 ) -> bool | NoReturn:
     if not mapping_packages_folder_path.exists():
@@ -108,7 +112,9 @@ def validate_bulk_mapping_packages_from_folder(
     all_valid: bool = True
     for mp_folder in mapping_packages_folder_path.iterdir():
         try:
-            validate_mapping_package_from_folder(mapping_package_folder_path=mp_folder, mp_validator=mp_validator)
+            validate_mapping_package_from_folder(mapping_package_folder_path=mp_folder,
+                                                 mp_validator=mp_validator,
+                                                 mapping_package_loader=mapping_package_loader,)
         except MPHashValidationException as hash_validation_exception:
             # TODO: Temporary solution. This logic needs to be in the validator.
             #  It will be done there when MSSDK will have Full MP support (currently no support for output folder)
@@ -138,7 +144,7 @@ def validate_bulk_mapping_packages_from_github(
         packages_path_pattern: str,
         branch_or_tag_name: Optional[str] = None,
         github_package_extractor: Optional[GithubPackageExtractor] = None,
-        mapping_package_loader: [MappingPackageAssetLoader] = None,
+        mapping_package_loader: MappingPackageAssetLoader = None,
         mp_validator: Optional[MappingPackageValidator] = None) -> NoReturn:
     if not github_repository_url:
         message: str = "Cannot validate packages from github. Repository URL is empty"

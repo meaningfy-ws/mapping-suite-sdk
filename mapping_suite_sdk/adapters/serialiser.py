@@ -1,8 +1,6 @@
 from pathlib import Path
 from typing import Any, List, Protocol
 
-from mapping_suite_sdk.adapters.loader import RELATIVE_TECHNICAL_MAPPING_SUITE_PATH, \
-    RELATIVE_VOCABULARY_MAPPING_SUITE_PATH
 from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.asset import (
     TechnicalMappingSuite, VocabularyMappingSuite, TestDataSuite,
@@ -10,6 +8,7 @@ from mapping_suite_sdk.models.asset import (
 )
 from mapping_suite_sdk.models.core import fields
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.utils import write_file_by_content_type
 
 
 class MappingPackageAssetSerialiser(Protocol):
@@ -41,8 +40,7 @@ class TechnicalMappingSuiteSerialiser(MappingPackageAssetSerialiser):
 
         for tm_file in asset.files:
             file_path = package_folder_path / tm_file.path
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            file_path.write_text(tm_file.content)
+            write_file_by_content_type(file_path=file_path, content=tm_file.content)
 
 
 class VocabularyMappingSuiteSerialiser(MappingPackageAssetSerialiser):
@@ -54,8 +52,7 @@ class VocabularyMappingSuiteSerialiser(MappingPackageAssetSerialiser):
 
         for vm_file in asset.files:
             file_path = package_folder_path / vm_file.path
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            file_path.write_text(vm_file.content)
+            write_file_by_content_type(file_path=file_path, content=vm_file.content)
 
 
 class TestDataSuitesSerialiser(MappingPackageAssetSerialiser):
@@ -68,8 +65,7 @@ class TestDataSuitesSerialiser(MappingPackageAssetSerialiser):
 
             for test_file in suite.files:
                 file_path = package_folder_path / test_file.path
-                file_path.parent.mkdir(parents=True, exist_ok=True)
-                file_path.write_text(test_file.content)
+                write_file_by_content_type(file_path=file_path, content=test_file.content)
 
 
 class SPARQLTestSuitesSerialiser(MappingPackageAssetSerialiser):
@@ -82,8 +78,7 @@ class SPARQLTestSuitesSerialiser(MappingPackageAssetSerialiser):
 
             for query_file in suite.files:
                 file_path = package_folder_path / query_file.path
-                file_path.parent.mkdir(parents=True, exist_ok=True)
-                file_path.write_text(query_file.content)
+                write_file_by_content_type(file_path=file_path, content=query_file.content)
 
 
 class SHACLTestSuitesSerialiser(MappingPackageAssetSerialiser):
@@ -106,6 +101,7 @@ class MappingPackageMetadataSerialiser(MappingPackageAssetSerialiser):
     def serialise(self, package_folder_path: Path, asset: MappingPackageMetadata) -> None:
         metadata_path = package_folder_path / asset.path
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
+        # TODO: We need somehow to store metadata file content separately in case the ident is different
         metadata_path.write_text(asset.model_dump_json(by_alias=True,
                                                        exclude={fields(MappingPackageMetadata).path},
                                                        indent=4))
@@ -127,8 +123,7 @@ class TestResultSuiteSerialiser(MappingPackageAssetSerialiser):
         folder_path = package_folder_path
         for report in asset.files:
             report_path = folder_path / report.path
-            report_path.parent.mkdir(parents=True, exist_ok=True)
-            report_path.write_text(report.content)
+            write_file_by_content_type(file_path=report_path, content=report.content)
 
         for test_data_suite in asset.result_suites:
 
@@ -137,18 +132,17 @@ class TestResultSuiteSerialiser(MappingPackageAssetSerialiser):
 
             for test_suite_report in test_data_suite.files:
                 test_suite_report_path = folder_path / test_suite_report.path
-                test_suite_report_path.parent.mkdir(parents=True, exist_ok=True)
-                test_suite_report_path.write_text(test_suite_report.content)
+                write_file_by_content_type(file_path=test_suite_report_path, content=test_suite_report.content)
 
             for test_data_result_collection in test_data_suite.result_suites:
                 test_data_result_path = folder_path / test_data_result_collection.test_data_output.path
-                test_data_result_path.parent.mkdir(parents=True, exist_ok=True)
-                test_data_result_path.write_text(test_data_result_collection.test_data_output.content)
+                write_file_by_content_type(file_path=test_data_result_path,
+                                           content=test_data_result_collection.test_data_output.content)
 
                 for test_data_result_reports in test_data_result_collection.files:
                     test_data_result_reports_path = folder_path / test_data_result_reports.path
-                    test_data_result_reports_path.parent.mkdir(parents=True, exist_ok=True)
-                    test_data_result_reports_path.write_text(test_data_result_reports.content)
+                    write_file_by_content_type(file_path=test_data_result_reports_path,
+                                               content=test_data_result_reports.content)
 
 
 @traced_class

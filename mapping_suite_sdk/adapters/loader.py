@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, List, Protocol, NoReturn
+from typing import Any, List, Protocol
 
 from pydantic import TypeAdapter, ValidationError
 from pydantic_core import InitErrorDetails, PydanticCustomError
@@ -11,6 +11,7 @@ from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMapp
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset, \
     ReportAsset, TestDataResultCollection, TestDataResultAsset
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
+from mapping_suite_sdk.utils import load_file_by_extensions
 
 ### Paths relative to mapping package
 RELATIVE_TECHNICAL_MAPPING_SUITE_PATH = Path("transformation/mappings")
@@ -23,7 +24,6 @@ RELATIVE_CONCEPTUAL_MAPPING_PATH = Path("transformation/conceptual_mappings.xlsx
 RELATIVE_TEST_RESULT_PATH = Path("output")
 RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH = Path("test_suite_report")
 
-TEST_RESULT_FILE_EXTENSIONS = [".html", ".json", ".csv"]
 
 class MappingPackageAssetLoader(Protocol):
     """Protocol defining the interface for mapping package asset loaders.
@@ -274,25 +274,24 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
             path=test_result_path,
             files=[ReportAsset(
                 path=report_path.relative_to(package_folder_path),
-                content=report_path.read_text()
-            ) for report_path in test_result_path.iterdir() if report_path.is_file() and report_path.suffix in TEST_RESULT_FILE_EXTENSIONS],
+                content=load_file_by_extensions(report_path)
+            ) for report_path in test_result_path.iterdir() if report_path.is_file()],
             result_suites=[TestResultSuite(
                 path=suite_path.relative_to(package_folder_path),
                 files=[ReportAsset(
                     path=report_path.relative_to(package_folder_path),
-                    content=report_path.read_text()
-                ) for report_path in suite_path.iterdir() if report_path.is_file() and report_path.suffix in TEST_RESULT_FILE_EXTENSIONS],
+                    content=load_file_by_extensions(report_path)
+                ) for report_path in suite_path.iterdir() if report_path.is_file()],
                 result_suites=[TestDataResultCollection(
                     path=test_data_suites_result.relative_to(package_folder_path),
                     files=[ReportAsset(
                         path=test_data_report.relative_to(package_folder_path),
-                        content=test_data_report.read_text()
+                        content=load_file_by_extensions(test_data_report)
                     ) for test_data_report in
-                        (test_data_suites_result / RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH).iterdir() if
-                        test_data_report.is_file() and test_data_report.suffix in TEST_RESULT_FILE_EXTENSIONS],
+                        (test_data_suites_result / RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH).iterdir() if test_data_report.is_file()],
                     test_data_output=TestDataResultAsset(
                         path=next(test_data_suites_result.glob('*.ttl'), None).relative_to(package_folder_path),
-                        content=next(test_data_suites_result.glob('*.ttl'), None).read_text()),
+                        content=load_file_by_extensions(next(test_data_suites_result.glob('*.ttl'), None))),
                 ) for test_data_suites_result in suite_path.iterdir() if test_data_suites_result.is_dir()]
             ) for suite_path in test_result_path.iterdir() if suite_path.is_dir()]
         )

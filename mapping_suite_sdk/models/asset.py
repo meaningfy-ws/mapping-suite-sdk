@@ -18,7 +18,7 @@ class PackageAsset(CoreModel):
     across different file types in the mapping package.
     """
     path: Path = Field(..., description="Path within a mapping package")
-    content: str = Field(..., description="Content of the file")
+    content: str | bytes = Field(..., description="Content of the file")
 
     # Note: Potential future
     # @abstractmethod

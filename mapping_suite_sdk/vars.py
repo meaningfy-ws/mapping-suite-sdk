@@ -1,3 +1,5 @@
+from typing import Tuple
+
 MSSDK_LOGGING_STRING_FORMAT = "%(asctime)s | %(levelname)s | %(filename)s | Line: %(lineno)d | %(message)s"
 MSSDK_LOGGING_EXTENDED_STRING_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(filename)s | %(funcName)s | Line: %(lineno)d | %(message)s"
 MSSDK_LOGGING_MESSAGE_FORMAT = "[{package_source}] - {message}"
@@ -16,3 +18,6 @@ MSSDK_TYPER_DEFAULT_ARGS = {
 MSSDK_TYPER_COMMANDS_DEFAULT_ARGS = {
     "no_args_is_help": True,
 }
+
+SUPPORTED_TEXT_FILE_EXTENSIONS: Tuple = (".html", ".json", ".csv", ".ttl")
+SUPPORTED_BYTES_FILE_EXTENSIONS: Tuple = (".zip",)

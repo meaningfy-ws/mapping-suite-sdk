@@ -20,6 +20,12 @@ The Mapping Suite SDK is a powerful software development kit designed to standar
 - Support for complex mapping package structures
 - Robust error handling and validation
 
+=== Command Line Interface
+- Powerful CLI for common operations
+- Validation of mapping packages from archives, folders, and GitHub repositories
+- Options for including test data and output in validation
+- Verbose mode for detailed debugging information
+
 === Advanced Extraction
 - Flexible extractors for different package sources
 - Temporary and permanent extraction modes

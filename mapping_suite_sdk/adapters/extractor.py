@@ -102,6 +102,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
 
         # Ensure the destination directory exists
         destination_path.mkdir(parents=True, exist_ok=True)
+        destination_path = destination_path / source_path.stem
 
         try:
             with zipfile.ZipFile(source_path) as zip_ref:

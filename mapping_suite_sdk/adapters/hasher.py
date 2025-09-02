@@ -1,11 +1,14 @@
 import hashlib
 import json
+import logging
 import re
 from typing import Tuple, List, Optional
 
 from mapping_suite_sdk.models.asset import PackageAsset
 from mapping_suite_sdk.models.core import fields
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
+
+logger = logging.getLogger(__name__)
 
 
 # TODO: This is a class from MWB and TED_SWS adopted for SDK Models. It must be improved then documented in future
@@ -36,10 +39,12 @@ class MappingPackageHasher:
 
     def hash_critical_mapping_files(self) -> List[Tuple[str, str]]:
         files_to_hash: List[PackageAsset] = [
-            self.mapping_package.conceptual_mapping_asset,
             *[asset for asset in self.mapping_package.technical_mapping_suite.files],
             *[asset for asset in self.mapping_package.vocabulary_mapping_suite.files],
         ]
+
+        if self.mapping_package.metadata.type != "eforms": # TODO: Temporary solution. Depends on metadata model update
+            files_to_hash.append(self.mapping_package.conceptual_mapping_asset)
 
         result = [self.hash_a_file(item) for item in files_to_hash]
         result.sort(key=lambda x: x[0])
@@ -48,7 +53,7 @@ class MappingPackageHasher:
 
     def hash_mapping_metadata(self) -> str:
         model_dict = self.mapping_package.metadata.model_dump(by_alias=True,
-                                                              exclude={fields(MappingPackageMetadata).signature})
+                                                              exclude={fields(MappingPackageMetadata).signature, fields(MappingPackageMetadata).path})
 
         return hashlib.sha256(
             json.dumps(model_dict).encode('utf-8')

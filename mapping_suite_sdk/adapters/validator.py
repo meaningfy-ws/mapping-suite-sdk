@@ -7,10 +7,13 @@ from mapping_suite_sdk.adapters.tracer import traced_class
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
-class MPStructuralValidationException(Exception): pass
+class MPValidationException(Exception): pass
 
 
-class MPHashValidationException(Exception): pass
+class MPStructuralValidationException(MPValidationException): pass
+
+
+class MPHashValidationException(MPValidationException): pass
 
 
 def validate_next(func: FunctionType):
@@ -67,7 +70,7 @@ class MPStructuralValidationStep(MPValidationStepABC):
                 assert suite.files
 
         except AssertionError:
-            raise MPStructuralValidationException("nMapping Package validation error:\nThere are empty suites")
+            raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites")
         return True
 
 
@@ -84,9 +87,10 @@ class MPHashValidationStep(MPValidationStepABC):
         try:
             assert generated_hash == mapping_package.metadata.signature
         except AssertionError:
-            raise MPHashValidationException("\nMapping Package validation error: different signature:\n"
-                                            f"Expected signature: {mapping_package.metadata.signature}\n"
-                                            f"Generated signature: {generated_hash}")
+            raise MPHashValidationException(
+                f"Mapping Package validation error: Package with identifier {mapping_package.metadata.identifier} has different signature:\n"
+                f"Expected  signature for {mapping_package.metadata.identifier}: {mapping_package.metadata.signature}\n"
+                f"Generated signature for {mapping_package.metadata.identifier}: {generated_hash}")
 
         return True
 

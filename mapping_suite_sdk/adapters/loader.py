@@ -288,7 +288,8 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
                         path=test_data_report.relative_to(package_folder_path),
                         content=load_file_by_extensions(test_data_report)
                     ) for test_data_report in
-                        (test_data_suites_result / RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH).iterdir() if test_data_report.is_file()],
+                        (test_data_suites_result / RELATIVE_TEST_DATA_REPORTS_OUTPUT_PATH).iterdir() if
+                        test_data_report.is_file()],
                     test_data_output=TestDataResultAsset(
                         path=next(test_data_suites_result.glob('*.ttl'), None).relative_to(package_folder_path),
                         content=load_file_by_extensions(next(test_data_suites_result.glob('*.ttl'), None))),
@@ -330,6 +331,19 @@ class MappingPackageLoader(MappingPackageAssetLoader):
 
     Coordinates the loading of all components of a mapping package using specialized loaders.
     """
+
+    def __init__(self,
+                 include_test_data: bool = True,
+                 include_output: bool = True,
+                 ):
+        self.include_test_data = include_test_data
+        self.include_output = include_output
+
+    def __eq__(self, other):
+        if isinstance(other, MappingPackageLoader):
+            return (self.include_test_data == other.include_test_data and
+                    self.include_output == other.include_output)
+        return False
 
     def load(self, package_folder_path: Path) -> MappingPackage:
         """Load all components of a mapping package.
@@ -389,7 +403,10 @@ class MappingPackageLoader(MappingPackageAssetLoader):
         except Exception as e:
             _process_exception(e)
         try:
-            test_data_suites = TestDataSuitesLoader().load(package_folder_path)
+            if self.include_test_data:
+                test_data_suites = TestDataSuitesLoader().load(package_folder_path)
+            else:
+                test_data_suites = []
         except Exception as e:
             _process_exception(e)
         try:
@@ -401,7 +418,10 @@ class MappingPackageLoader(MappingPackageAssetLoader):
         except Exception as e:
             _process_exception(e)
         try:
-            test_results = TestResultSuiteLoader().load(package_folder_path)
+            if self.include_output:
+                test_results = TestResultSuiteLoader().load(package_folder_path)
+            else:
+                test_results = TestResultSuite(path=package_folder_path / RELATIVE_TEST_RESULT_PATH)
         except Exception as e:
             _process_exception(e)
 

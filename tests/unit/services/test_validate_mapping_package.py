@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from mapping_suite_sdk.adapters.validator import MappingPackageValidator, MPHashValidationException
-from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage
 from mapping_suite_sdk.services.validate_mapping_package import validate_mapping_package, \
     validate_mapping_package_from_archive, validate_mapping_package_from_folder, \
     validate_bulk_mapping_packages_from_folder, validate_bulk_mapping_packages_from_github

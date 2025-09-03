@@ -18,7 +18,7 @@ To validate a Mapping Package:
 [source,python]
 ----
 import mapping_suite_sdk
-from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage
 
 mapping_package = MappingPackage(...)
 try:

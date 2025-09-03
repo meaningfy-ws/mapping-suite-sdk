@@ -1,5 +1,5 @@
 from mapping_suite_sdk.adapters.hasher import MappingPackageHasher
-from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage
 from tests.conftest import _get_random_string
 
 

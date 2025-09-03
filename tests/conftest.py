@@ -20,7 +20,7 @@ from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, Techni
     TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mapping_suite_sdk.models.core import CoreModel
-from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
     TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH, \
     TEST_DATA_MAPPING_PACKAGES_REPO_PATH

@@ -7,7 +7,7 @@ from mapping_suite_sdk.models.asset import (
     SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingPackageAsset, TestResultSuite
 )
 from mapping_suite_sdk.models.core import fields
-from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata
 from mapping_suite_sdk.utils import write_file_by_content_type
 
 

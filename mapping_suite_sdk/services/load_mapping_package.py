@@ -8,7 +8,7 @@ from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor, Github
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.adapters.tracer import traced_routine
-from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage
 from mapping_suite_sdk.vars import MSSDK_LOGGING_MESSAGE_FORMAT
 
 logger = logging.getLogger(__name__)

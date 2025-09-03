@@ -5,7 +5,7 @@ from typing import Optional
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
 from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
 from mapping_suite_sdk.adapters.tracer import traced_routine
-from mapping_suite_sdk.models.mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage
 
 
 @traced_routine

@@ -6,7 +6,7 @@ from typing import Tuple, List, Optional
 
 from mapping_suite_sdk.models.asset import PackageAsset
 from mapping_suite_sdk.models.core import fields
-from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata
 
 logger = logging.getLogger(__name__)
 

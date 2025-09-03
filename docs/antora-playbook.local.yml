@@ -7,6 +7,8 @@ content:
   sources:
     - url: ./..
       start_path: docs
+      branches: [HEAD]
+      tags: []
       edit_url: false
 
 ui:

@@ -1,0 +1,160 @@
+= Mapping Suite SDK CLI
+:description: Command-line interface for the Mapping Suite SDK
+:keywords: mapping-suite-sdk, CLI, command-line, validation
+
+== Introduction
+
+The Mapping Suite SDK provides a command-line interface (CLI) that allows users to interact with mapping packages directly from the terminal. The CLI offers validation capabilities for mapping packages from various sources including archives, GitHub repositories, and local folders.
+
+== Installation
+
+The CLI is automatically installed with the Mapping Suite SDK package:
+
+[source,bash]
+----
+pip install mapping-suite-sdk
+----
+
+After installation, you can access the CLI using the `mssdk` command.
+
+== CLI Structure
+
+The Mapping Suite SDK CLI is structured with commands and subcommands:
+
+[source,text]
+----
+mssdk [OPTIONS] COMMAND [ARGS]...
+----
+
+Global options:
+[horizontal]
+`--version`:: Display the current version of the Mapping Suite SDK and exit.
+`--help`:: Show the help message and exit.
+
+=== Available Commands
+
+Currently, the CLI provides the following commands:
+
+* `validate`: Commands for validating mapping packages from different sources
+
+== Validation Commands
+
+The `validate` command group provides several subcommands for validating mapping packages from different sources:
+
+=== Validate from Archive
+
+Validates a single mapping package from a ZIP archive:
+
+[source,bash]
+----
+mssdk validate from-archive [OPTIONS] MAPPING_PACKAGE_ARCHIVE_PATH
+----
+
+Options:
+[horizontal]
+`--include-test-data`:: Whether to load the test data folder or not
+`--include-output`:: Whether to load the output folder or not
+`--verbose, -v`:: Show debug logs
+
+Example:
+[source,bash]
+----
+mssdk validate from-archive --include-test-data path/to/mapping_package.zip
+----
+
+=== Validate from GitHub
+
+Validates multiple mapping packages from a GitHub repository:
+
+[source,bash]
+----
+mssdk validate from-github [OPTIONS] GITHUB_REPOSITORY_URL PACKAGES_PATH_PATTERN
+----
+
+Options:
+[horizontal]
+`--include-test-data`:: Whether to load the test data folder or not
+`--include-output`:: Whether to load the output folder or not
+`--branch, -b TEXT`:: Branch or tag name
+`--verbose, -v`:: Show debug logs
+
+Example:
+[source,bash]
+----
+mssdk validate from-github --branch main https://github.com/user/repo mappings/*
+----
+
+=== Validate from Folder
+
+Validates multiple mapping packages from a local folder:
+
+[source,bash]
+----
+mssdk validate from-folder [OPTIONS] FOLDER_PATH
+----
+
+Options:
+[horizontal]
+`--update-hash, -u`:: Update hash for packages that have invalid hash
+`--include-test-data`:: Whether to load the test data folder or not
+`--include-output`:: Whether to load the output folder or not
+`--verbose, -v`:: Show debug logs
+
+Example:
+[source,bash]
+----
+mssdk validate from-folder --update-hash path/to/mappings/folder
+----
+
+== Common Options
+
+The following options are available across multiple commands:
+
+=== Verbose Mode
+
+The `--verbose` or `-v` option increases the logging level to DEBUG, providing more detailed information during execution:
+
+[source,bash]
+----
+mssdk validate from-archive --verbose path/to/mapping_package.zip
+----
+
+=== Include Test Data
+
+The `--include-test-data` option instructs the CLI to include test data when loading mapping packages:
+
+[source,bash]
+----
+mssdk validate from-archive --include-test-data path/to/mapping_package.zip
+----
+
+=== Include Output
+
+The `--include-output` option instructs the CLI to include output data when loading mapping packages:
+
+[source,bash]
+----
+mssdk validate from-archive --include-output path/to/mapping_package.zip
+----
+
+== Programmatic Usage
+
+The CLI can also be used programmatically in Python scripts:
+
+[source,python]
+----
+from mapping_suite_sdk.entrypoints.cli.mssdk import mssdk_cli_command
+
+if __name__ == "__main__":
+    mssdk_cli_command()
+----
+
+== Summary
+
+The Mapping Suite SDK CLI provides a convenient way to validate mapping packages from various sources. It is particularly useful for:
+
+1. Quick validation of individual mapping packages
+2. Batch validation of multiple packages from a folder or GitHub repository
+3. Integration into CI/CD pipelines for automated validation
+
+For more advanced use cases, consider using the Mapping Suite SDK's Python API directly.

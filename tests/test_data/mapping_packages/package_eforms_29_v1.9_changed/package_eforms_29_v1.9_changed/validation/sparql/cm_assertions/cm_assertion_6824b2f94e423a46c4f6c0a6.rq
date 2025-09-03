@@ -1,0 +1,11 @@
+#title: ND-Root
+#description: The corresponding XML element is /*. The expected ontology instances are epo: epo-not:CompetitionNotice .
+#xpath: /*
+
+PREFIX epo-not: <^>
+PREFIX rdf: <^>
+
+ASK WHERE { 
+	?this rdf:type epo-not:CompetitionNotice .
+	?this a epo-not:CompetitionNotice . 
+}

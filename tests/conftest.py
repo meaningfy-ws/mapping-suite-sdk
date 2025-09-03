@@ -1,5 +1,7 @@
 import json
+import random
 import shutil
+import string
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -9,9 +11,11 @@ import mongomock
 import pytest
 from git import Repo
 from pydantic import TypeAdapter
+from typer.testing import CliRunner
 
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.adapters.validator import MappingPackageValidator
 from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, \
     TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
@@ -26,6 +30,12 @@ class TestModel(CoreModel):
     name: str
     description: Optional[str] = None
     count: int = 0
+
+
+def _get_random_string(length: int = 20) -> str:
+    characters = string.ascii_letters + string.digits
+    random_string = ''.join(random.choice(characters) for _ in range(length))
+    return random_string
 
 
 def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
@@ -44,7 +54,7 @@ def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None
-        assert mapping_suite.path == expected_relative_path
+        assert any([mapping_suite.path == expected_relative_path, mapping_suite.path == Path(temp_mp_path.name) / expected_relative_path])
         assert (temp_mp_path / mapping_suite.path).exists()
         assert len(mapping_suite.files) > 0
         for file in mapping_suite.files:
@@ -70,7 +80,8 @@ def _test_mapping_suites_asset_loader(dummy_mapping_package_path: Path,
         for mapping_suite in mapping_suites:
             assert mapping_suite is not None
             assert mapping_suite.path is not None
-            assert mapping_suite.path.is_relative_to(expected_relative_path)
+            assert any([mapping_suite.path.is_relative_to(expected_relative_path),
+                        mapping_suite.path.is_relative_to(Path(temp_mp_path.name) / expected_relative_path)])
             assert (temp_mp_path / mapping_suite.path).exists()
             assert len(mapping_suite.files) > 0
             for file in mapping_suite.files:
@@ -297,3 +308,12 @@ def dummy_database_name() -> str:
 @pytest.fixture
 def dummy_collection_name() -> str:
     return "test_collection_Name"
+
+
+@pytest.fixture
+def dummy_mapping_package_validator() -> MappingPackageValidator:
+    return MappingPackageValidator()
+
+@pytest.fixture
+def typer_cli_runner() -> CliRunner:
+    return CliRunner()

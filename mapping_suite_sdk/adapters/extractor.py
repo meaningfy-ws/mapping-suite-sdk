@@ -102,6 +102,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
 
         # Ensure the destination directory exists
         destination_path.mkdir(parents=True, exist_ok=True)
+        destination_path = destination_path / source_path.stem
 
         try:
             with zipfile.ZipFile(source_path) as zip_ref:
@@ -142,7 +143,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
             try:
                 yield self.extract(source_path, temp_dir_path)
             except Exception as e:
-                raise ValueError(f"Failed to extract ZIP file: {e}")
+                raise ValueError(f"Failed to extract ZIP file {source_path}: {e}")
 
     def pack_directory(self, source_dir: Path, output_path: Path) -> Path:
         """Pack a directory's contents into a ZIP file without including the root directory name.

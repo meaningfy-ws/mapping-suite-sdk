@@ -31,7 +31,7 @@ def test_load_mapping_package_from_folder(dummy_mapping_package_path: Path):
 
         with pytest.raises(FileNotFoundError):
             load_mapping_package_from_folder(mapping_package_folder_path=Path("/non/existing/path"))
-        with pytest.raises(ValueError):
+        with pytest.raises(NotADirectoryError):
             load_mapping_package_from_folder(mapping_package_folder_path=random_file)
 
         mapping_package: MappingPackage = load_mapping_package_from_folder(mapping_package_folder_path=temp_mp_path)

@@ -1,6 +1,10 @@
 # mapping-suite-sdk
 
 ![pylint](https://img.shields.io/badge/PyLint-8.62-yellow?logo=python&logoColor=white)
+[![PyPI version](https://img.shields.io/pypi/v/mapping-suite-sdk.svg)](https://pypi.org/project/mapping-suite-sdk/)
+[![PyPI Downloads](https://static.pepy.tech/badge/mapping-suite-sdk)](https://pepy.tech/projects/mapping-suite-sdk)
+
+[![Stack Overflow](https://img.shields.io/badge/stackoverflow-get%20help-black.svg)](https://stackoverflow.com/questions/tagged/mapping-suite-sdk)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=bugs)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
@@ -17,6 +21,69 @@
 The Mapping Suite SDK, or MSSDK, is a software development kit (SDK) designed to standardize 
 and simplify the handling of packages that contain transformation rules and related artefacts
 for mapping data from XML to RDF (RDF Mapping Language).
+
+## Mapping package anatomy
+
+A mapping package is a standardized collection of files and directories that contains all the necessary components for transforming data from one format to another, specifically from XML to RDF using RDF Mapping Language (RML).
+
+### Structure Overview
+
+A mapping package consists of the following core components:
+
+1. **Metadata** - Essential identifying information about the package including:
+   - Identifier
+   - Title
+   - Issue date
+   - Description
+   - Mapping version
+   - Ontology version
+   - Type
+   - Eligibility constraints
+   - Signature (hash digest for integrity verification)
+
+2. **Conceptual Mapping Asset** - Excel spreadsheets that define high-level mapping concepts and relationships between source data and target ontologies.
+
+3. **Technical Mapping Suite** - A collection of implementation-specific mapping files:
+   - RML Mapping files - Define transformations from heterogeneous data structures to RDF
+
+4. **Vocabulary Mapping Suite** - Files that define specific value transformations and mappings between source and target data values (JSON, CSV, XML).
+
+5. **Test Data Suites** - Collections of test data files used for validation and verification of mapping processes.
+
+6. **SPARQL Test Suites** - Collections of SPARQL query files used for testing and validation of the transformed data.
+
+7. **SHACL Test Suites** - Collections of SHACL (Shapes Constraint Language) files used for RDF data validation.
+
+### Package Structure Diagram
+
+```
+mapping-package/
+├── metadata.json                  # Package metadata
+├── transformation/                # Transformation assets
+│   ├── conceptual_mappings.xlsx   # Excel file with conceptual mappings
+│   ├── mappings/                  # Technical mapping suite
+│   │   ├── mapping1.rml.ttl       # RML mapping files
+│   │   ├── mapping2.rml.ttl
+│   │   └── mapping3.rml.ttl
+│   └── resources/                 # Vocabulary mapping suite
+│       ├── codelist1.json         # Value mapping files in various formats
+│       └── codelist2.csv
+├── validation/                    # Validation assets
+│   ├── shacl/                     # SHACL test suites
+│   │   └── shacl_suite1/                # Domain-specific SHACL shapes
+│   │       └── shape1.ttl         # SHACL shape files
+│   └── sparql/                    # SPARQL test suites
+│       └── sparql_suite1/              # Category-specific SPARQL queries
+│           ├── query1.rq          # SPARQL query files
+│           └── query2.rq
+└── test_data/                     # Test data suites
+    ├── test_data_suite1/                # Test case directory
+    │   └── input.xml              # Input test data
+    └── test_data_suite2/                # Another test case directory
+        └── input.xml              # Input test data
+```
+
+This standardized structure ensures consistency across mapping packages and simplifies the process of loading, validating, and executing data transformations.
 
 ## Quick Start
 
@@ -224,8 +291,3 @@ make test-unit
 - **Issues**: Report bugs and feature requests on our [GitHub Issues](https://github.com/meaningfy-ws/mapping-suite-sdk/issues)
 - **Email**: Contact the team at [hi@meaningfy.ws](mailto:hi@meaningfy.ws)
 - **Website**: Visit our website at [meaningfy.ws](https://meaningfy.ws)
-
-## References
-
-- [Mapping Package Structure Documentation](http://docs.ted.europa.eu/ODS/latest/mapping_eforms/package_structure.html#_the_eforms_metadata_json_file)
-- [TED RDF Conversion Pipeline](https://github.com/OP-TED/ted-rdf-conversion-pipeline)

@@ -1,6 +1,8 @@
 * xref:index.adoc[Home]
 * xref:quick-start.adoc[Quick Start]
+* xref:cli.adoc[Command Line Interface]
 * xref:extractors.adoc[Extractors]
 * xref:serialisation.adoc[Serialisation]
+* xref:validation.adoc[Validation]
 * xref:mongodb-support.adoc[MongoDB Support]
 * xref:opentelemetry-tracing.adoc[OpenTelemetry Tracing and Monitoring]

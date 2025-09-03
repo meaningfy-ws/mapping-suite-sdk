@@ -72,7 +72,7 @@ class MappingPackageIndex(CoreModel):
     value: dict = Field(..., description="Index of package contents and their relationships")
 
 
-class MappingPackage(CoreModel):
+class FullMappingPackage(CoreModel):
     """
     A class representing a complete mapping package configuration.
 

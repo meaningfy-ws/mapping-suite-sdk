@@ -8,7 +8,7 @@ from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor, Github
 from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
 from mapping_suite_sdk.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.adapters.tracer import traced_routine
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 from mapping_suite_sdk.vars import MSSDK_LOGGING_MESSAGE_FORMAT
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def load_mapping_package_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None
-) -> MappingPackage:
+) -> FullMappingPackage:
     """
     Load a mapping package from a folder path.
 
@@ -34,7 +34,7 @@ def load_mapping_package_from_folder(
             strategies if needed.
 
     Returns:
-        MappingPackage: The loaded mapping package containing all components including
+        FullMappingPackage: The loaded mapping package containing all components including
             technical mappings, vocabulary mappings, test suites, and metadata.
 
     Raises:
@@ -57,7 +57,7 @@ def load_mapping_package_from_archive(
         mapping_package_archive_path: Path,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
         archive_unpacker: Optional[ArchivePackageExtractor] = None
-) -> MappingPackage:
+) -> FullMappingPackage:
     """Load a mapping package from an archive file.
 
     This function extracts an archive containing a mapping package to a temporary location
@@ -72,7 +72,7 @@ def load_mapping_package_from_archive(
             a default ArchiveUnpacker will be used
 
     Returns:
-        MappingPackage: The loaded mapping package containing all components including
+        FullMappingPackage: The loaded mapping package containing all components including
             technical mappings, vocabulary mappings, test suites, and metadata
 
     Raises:
@@ -102,7 +102,7 @@ def load_mapping_packages_from_github(
         branch_or_tag_name: Optional[str] = None,
         github_package_extractor: Optional[GithubPackageExtractor] = None,
         mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
-) -> List[MappingPackage]:
+) -> List[FullMappingPackage]:
     """Load mapping packages from a GitHub repository.
 
     This function downloads mapping packages from a GitHub repository and loads them.
@@ -135,7 +135,7 @@ def load_mapping_packages_from_github(
             MappingPackageLoader will be used.
 
     Returns:
-        List[MappingPackage]: A list of loaded mapping packages. Each package
+        List[FullMappingPackage]: A list of loaded mapping packages. Each package
             contains all components including technical mappings, vocabulary
             mappings, test suites, and metadata. The list will be empty if no
             packages are found matching the pattern.
@@ -198,7 +198,7 @@ def load_mapping_packages_from_github(
                 f"No mapping packages found matching pattern '{packages_path_pattern}' "
                 f"in repository {github_repository_url} at {branch_or_tag_name}")
 
-        mapping_packages: List[MappingPackage] = []
+        mapping_packages: List[FullMappingPackage] = []
         for package_path in package_paths:
             try:
                 package = load_mapping_package_from_folder(
@@ -215,8 +215,8 @@ def load_mapping_packages_from_github(
 @traced_routine
 def load_mapping_package_from_mongo_db(
         mapping_package_id: str,
-        mapping_package_repository: MongoDBRepository[MappingPackage]
-) -> MappingPackage:
+        mapping_package_repository: MongoDBRepository[FullMappingPackage]
+) -> FullMappingPackage:
     """
     Load a mapping package from a MongoDB database.
 
@@ -232,7 +232,7 @@ def load_mapping_package_from_mongo_db(
             correct MongoDB client, database name, and collection name.
 
     Returns:
-        MappingPackage: The loaded mapping package containing all components including
+        FullMappingPackage: The loaded mapping package containing all components including
             technical mappings, vocabulary mappings, test suites, and metadata.
 
     Raises:

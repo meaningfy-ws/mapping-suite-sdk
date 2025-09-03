@@ -5,11 +5,11 @@ from typing import Optional
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
 from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
 from mapping_suite_sdk.adapters.tracer import traced_routine
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 
 
 @traced_routine
-def serialise_mapping_package(mapping_package: MappingPackage,
+def serialise_mapping_package(mapping_package: FullMappingPackage,
                               serialisation_folder_path: Path,
                               archive_unpacker: Optional[ArchivePackageExtractor] = None) -> None:
     """Serializes a MappingPackage object and packages it into an archive.
@@ -20,7 +20,7 @@ def serialise_mapping_package(mapping_package: MappingPackage,
     while the archiving is managed by an ArchiveUnpacker instance.
 
     Args:
-        mapping_package (MappingPackage): The mapping package object to be serialized.
+        mapping_package (FullMappingPackage): The mapping package object to be serialized.
         serialisation_folder_path (Path): The destination path where the archived package
             will be stored.
         archive_unpacker (Optional[ArchiveUnpacker], optional): Custom archive unpacker
@@ -57,20 +57,20 @@ def serialise_mapping_package(mapping_package: MappingPackage,
 
 
 @traced_routine
-def serialise_mapping_package_to_folder(mapping_package: MappingPackage,
+def serialise_mapping_package_to_folder(mapping_package: FullMappingPackage,
                                         serialisation_folder_path: Path) -> None:
     """
-    Serialises a MappingPackage instance to a specified folder path.
+    Serialises a FullMappingPackage instance to a specified folder path.
 
-    This function takes a MappingPackage object and serialises it into a folder
+    This function takes a FullMappingPackage object and serialises it into a folder
     specified by the given path. The function does not return any value and is
-    used for persisting the MappingPackage into a structured folder format.
+    used for persisting the FullMappingPackage into a structured folder format.
 
     Args:
-        mapping_package: MappingPackage
-            The MappingPackage instance to serialise.
+        mapping_package: FullMappingPackage
+            The FullMappingPackage instance to serialise.
         serialisation_folder_path: Path
-            The folder path where the MappingPackage should be serialised.
+            The folder path where the FullMappingPackage should be serialised.
 
     Returns:
         None

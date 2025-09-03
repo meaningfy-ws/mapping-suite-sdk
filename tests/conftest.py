@@ -20,7 +20,7 @@ from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, Techni
     TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mapping_suite_sdk.models.core import CoreModel
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
     TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH, \
     TEST_DATA_MAPPING_PACKAGES_REPO_PATH
@@ -90,9 +90,9 @@ def _test_mapping_suites_asset_loader(dummy_mapping_package_path: Path,
                 assert file.content is not None
 
 
-def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
-    assert isinstance(mapping_package, MappingPackage), \
-        f"Expected MappingPackage instance, got {type(mapping_package)}"
+def assert_valid_mapping_package(mapping_package: FullMappingPackage) -> None:
+    assert isinstance(mapping_package, FullMappingPackage), \
+        f"Expected FullMappingPackage instance, got {type(mapping_package)}"
 
     # Metadata validation
     assert hasattr(mapping_package, 'metadata'), "Missing required field: metadata"
@@ -223,8 +223,8 @@ def dummy_corrupted_mapping_package_path() -> Path:
 
 
 @pytest.fixture
-def dummy_mapping_package_model() -> MappingPackage:
-    return TypeAdapter(MappingPackage).validate_json(TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH.read_text())
+def dummy_mapping_package_model() -> FullMappingPackage:
+    return TypeAdapter(FullMappingPackage).validate_json(TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH.read_text())
 
 
 @pytest.fixture

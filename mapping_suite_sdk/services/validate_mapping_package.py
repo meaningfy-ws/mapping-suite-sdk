@@ -10,7 +10,7 @@ from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.adapters.validator import MappingPackageValidator, MPValidationException, \
     MPHashValidationException
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 from mapping_suite_sdk.services.load_mapping_package import load_mapping_package_from_archive, \
     load_mapping_package_from_folder, load_mapping_packages_from_github
 from mapping_suite_sdk.vars import MSSDK_LOGGING_MESSAGE_FORMAT
@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 
 @traced_routine
 def validate_mapping_package(
-        mapping_package: MappingPackage,
+        mapping_package: FullMappingPackage,
         mp_validator: Optional[MappingPackageValidator] = None) -> Literal[True] | NoReturn:
     """
     Validates the given Mapping Package using the provided MappingPackageValidator.
 
     Args:
-        mapping_package (MappingPackage): The Mapping Package instance to validate.
+        mapping_package (FullMappingPackage): The Mapping Package instance to validate.
         mp_validator (Optional[MappingPackageValidator]): The MappingPackageValidator to use for validation. If not provided, a new instance will be created.
 
     Returns:
@@ -57,7 +57,7 @@ def validate_mapping_package_from_archive(
                                                          message=message))
         raise FileNotFoundError(message)
 
-    mapping_package: MappingPackage = load_mapping_package_from_archive(
+    mapping_package: FullMappingPackage = load_mapping_package_from_archive(
         mapping_package_archive_path=mapping_package_archive_path,
         mapping_package_loader=mapping_package_loader,
         archive_unpacker=archive_unpacker)
@@ -82,7 +82,7 @@ def validate_mapping_package_from_folder(
                                                          message=message))
         raise NotADirectoryError(message)
 
-    mapping_package: MappingPackage = load_mapping_package_from_folder(
+    mapping_package: FullMappingPackage = load_mapping_package_from_folder(
         mapping_package_folder_path=mapping_package_folder_path,
         mapping_package_loader=mapping_package_loader,
     )
@@ -160,7 +160,7 @@ def validate_bulk_mapping_packages_from_github(
         package_source=f"URL: {github_repository_url} | branch_or_tag_name: {branch_or_tag_name} | pattern: {packages_path_pattern}",
         message=f"Validating bulk mapping packages from Github"))
 
-    mapping_packages: List[MappingPackage] = load_mapping_packages_from_github(
+    mapping_packages: List[FullMappingPackage] = load_mapping_packages_from_github(
         github_repository_url=github_repository_url,
         packages_path_pattern=packages_path_pattern,
         branch_or_tag_name=branch_or_tag_name,

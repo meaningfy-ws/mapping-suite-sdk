@@ -4,7 +4,7 @@ from typing import final, Optional, NoReturn, Literal
 
 from mapping_suite_sdk.adapters.hasher import MappingPackageHasher
 from mapping_suite_sdk.adapters.tracer import traced_class
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 
 
 class MPValidationException(Exception): pass
@@ -17,7 +17,7 @@ class MPHashValidationException(MPValidationException): pass
 
 
 def validate_next(func: FunctionType):
-    def wrapper(self, mapping_package: MappingPackage):
+    def wrapper(self, mapping_package: FullMappingPackage):
         result = func(self, mapping_package)
         if self.next_validator:
             return self.next_validator.validate(mapping_package)
@@ -34,7 +34,7 @@ class MPValidationStepABC(ABC):
         next_validator (Optional[MPValidationStepABC]): The next validation step in the chain.
 
     Methods:
-        validate(mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+        validate(mapping_package: FullMappingPackage) -> Literal[True] | NoReturn:
             Validates the given Mapping Package. If the validation passes, it returns True. If the validation fails, it raises an exception.
     """
 
@@ -43,7 +43,7 @@ class MPValidationStepABC(ABC):
 
     @abstractmethod
     @validate_next
-    def validate(self, mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+    def validate(self, mapping_package: FullMappingPackage) -> Literal[True] | NoReturn:
         raise NotImplementedError
 
 
@@ -53,7 +53,7 @@ class MPStructuralValidationStep(MPValidationStepABC):
     """
 
     @validate_next
-    def validate(self, mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+    def validate(self, mapping_package: FullMappingPackage) -> Literal[True] | NoReturn:
         # Most of structural validation where done by model itself (using Pydantic)
 
         try:
@@ -86,7 +86,7 @@ class MPHashValidationStep(MPValidationStepABC):
     """
 
     @validate_next
-    def validate(self, mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+    def validate(self, mapping_package: FullMappingPackage) -> Literal[True] | NoReturn:
         hasher = MappingPackageHasher(mapping_package=mapping_package)
         generated_hash: str = hasher.hash_mapping_package()
 
@@ -111,12 +111,12 @@ class MappingPackageValidator:
         validation_chain (MPValidationStepABC): The chain of validation steps to be executed.
 
     Methods:
-        validate(mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+        validate(mapping_package: FullMappingPackage) -> Literal[True] | NoReturn:
             Executes the validation chain to validate the given Mapping Package.
     """
 
     def __init__(self, validation_chain: Optional[MPValidationStepABC] = None):
         self.validation_chain = validation_chain or MPStructuralValidationStep(MPHashValidationStep())
 
-    def validate(self, mapping_package: MappingPackage) -> Literal[True] | NoReturn:
+    def validate(self, mapping_package: FullMappingPackage) -> Literal[True] | NoReturn:
         return self.validation_chain.validate(mapping_package=mapping_package)

@@ -6,7 +6,7 @@ from typing import Tuple, List, Optional
 
 from mapping_suite_sdk.models.asset import PackageAsset
 from mapping_suite_sdk.models.core import fields
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage, MappingPackageMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -17,14 +17,14 @@ class MappingPackageHasher:
     Generates signature for a Mapping Package (used in metadata.json).
 
     Args:
-        mapping_package (MappingPackage): The Mapping Package instance to hash.
+        mapping_package (FullMappingPackage): The Mapping Package instance to hash.
 
     Methods:
         hash_mapping_package(with_version: Optional[str] = None) -> str:
             Generates a comprehensive hash for the entire Mapping Package, including files and metadata.
     """
 
-    def __init__(self, mapping_package: MappingPackage):
+    def __init__(self, mapping_package: FullMappingPackage):
         self.mapping_package = mapping_package
 
     def hash_a_file(self, package_asset: PackageAsset) -> Tuple[str, str]:

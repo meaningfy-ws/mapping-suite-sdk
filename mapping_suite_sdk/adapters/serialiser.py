@@ -7,7 +7,7 @@ from mapping_suite_sdk.models.asset import (
     SAPRQLTestSuite, SHACLTestSuite, ConceptualMappingPackageAsset, TestResultSuite
 )
 from mapping_suite_sdk.models.core import fields
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage, MappingPackageMetadata
 from mapping_suite_sdk.utils import write_file_by_content_type
 
 
@@ -149,7 +149,7 @@ class TestResultSuiteSerialiser(MappingPackageAssetSerialiser):
 class MappingPackageSerialiser(MappingPackageAssetSerialiser):
     """Main serialiser for complete mapping packages."""
 
-    def serialise(self, package_folder_path: Path, asset: MappingPackage) -> None:
+    def serialise(self, package_folder_path: Path, asset: FullMappingPackage) -> None:
         """Serialize all components of a mapping package.
 
         This method orchestrates the serialization of:
@@ -163,7 +163,7 @@ class MappingPackageSerialiser(MappingPackageAssetSerialiser):
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
-            asset (MappingPackage): Complete mapping package to serialize.
+            asset (FullMappingPackage): Complete mapping package to serialize.
         """
 
         # Serialize each component

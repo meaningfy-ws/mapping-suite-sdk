@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 from mapping_suite_sdk.services.serialise_mapping_package import serialise_mapping_package
 from tests.conftest import _compare_directories
 
 
-def test_serialise_mapping_package_successful_serialisation(dummy_mapping_package_model: MappingPackage,
+def test_serialise_mapping_package_successful_serialisation(dummy_mapping_package_model: FullMappingPackage,
                                                             dummy_mapping_package_extracted_path: Path):
     with tempfile.TemporaryDirectory() as temp_directory:
         temp_directory_path = Path(temp_directory)
@@ -29,7 +29,7 @@ def test_serialise_mapping_package_successful_serialisation(dummy_mapping_packag
         assert is_equal, f"Directory comparison failed:\n{error_message}"
 
 
-def test_serialise_mapping_package_service_failure_leaves_output_untouched(dummy_mapping_package_model: MappingPackage,
+def test_serialise_mapping_package_service_failure_leaves_output_untouched(dummy_mapping_package_model: FullMappingPackage,
                                                                            dummy_mapping_package_extracted_path: Path):
     with tempfile.TemporaryDirectory() as temp_directory:
         temp_directory_path = Path(temp_directory)

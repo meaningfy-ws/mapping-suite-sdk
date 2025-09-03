@@ -1,9 +1,9 @@
 from mapping_suite_sdk.adapters.hasher import MappingPackageHasher
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 from tests.conftest import _get_random_string
 
 
-def test_hasher_generates_same_hash(dummy_mapping_package_model: MappingPackage):
+def test_hasher_generates_same_hash(dummy_mapping_package_model: FullMappingPackage):
     hasher = MappingPackageHasher(mapping_package=dummy_mapping_package_model)
     result_hash = hasher.hash_mapping_package()
 
@@ -13,7 +13,7 @@ def test_hasher_generates_same_hash(dummy_mapping_package_model: MappingPackage)
 
     assert result_hash == dummy_mapping_package_model.metadata.signature
 
-def test_hasher_generates_different_hash_on_data_changes(dummy_mapping_package_model: MappingPackage):
+def test_hasher_generates_different_hash_on_data_changes(dummy_mapping_package_model: FullMappingPackage):
     random_string = _get_random_string()
     hasher = MappingPackageHasher(mapping_package=dummy_mapping_package_model)
     result_hash = hasher.hash_mapping_package()

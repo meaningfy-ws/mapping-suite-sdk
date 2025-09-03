@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from mapping_suite_sdk.adapters.validator import MappingPackageValidator, MPHashValidationException
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 from mapping_suite_sdk.services.validate_mapping_package import validate_mapping_package, \
     validate_mapping_package_from_archive, validate_mapping_package_from_folder, \
     validate_bulk_mapping_packages_from_folder, validate_bulk_mapping_packages_from_github
@@ -13,7 +13,7 @@ from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH
 from tests.conftest import _get_random_string, _setup_temporary_test_git_repository
 
 
-def test_validate_mapping_package_runs_with_success(dummy_mapping_package_model: MappingPackage,
+def test_validate_mapping_package_runs_with_success(dummy_mapping_package_model: FullMappingPackage,
                                                     dummy_mapping_package_validator: MappingPackageValidator):
     is_valid: bool = validate_mapping_package(mapping_package=dummy_mapping_package_model)
 
@@ -25,7 +25,7 @@ def test_validate_mapping_package_runs_with_success(dummy_mapping_package_model:
     assert is_valid == True
 
 
-def test_validate_mapping_package_fails_on_bad_package(dummy_mapping_package_model: MappingPackage,
+def test_validate_mapping_package_fails_on_bad_package(dummy_mapping_package_model: FullMappingPackage,
                                                        dummy_mapping_package_validator: MappingPackageValidator):
     random_string: str = _get_random_string()
     assert random_string != dummy_mapping_package_model.metadata.signature
@@ -102,7 +102,7 @@ def test_validate_bulk_mapping_packages_from_folder_fails_on_non_directory():
 
 def test_validate_bulk_mapping_packages_from_folder_continues_on_package_failure(
         dummy_mapping_package_extracted_path: Path,
-        dummy_mapping_package_model: MappingPackage):
+        dummy_mapping_package_model: FullMappingPackage):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
 

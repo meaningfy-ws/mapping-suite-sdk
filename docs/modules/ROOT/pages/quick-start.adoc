@@ -105,12 +105,12 @@ packages = mssdk.load_mapping_packages_from_github(
 ----
 from pymongo import MongoClient
 from mapping_suite_sdk import MongoDBRepository, load_mapping_package_from_mongo_db
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
 
 # Initialise MongoDB repository
 mongo_client = MongoClient("mongodb://localhost:27017/")
 repository = MongoDBRepository(
-    model_class=MappingPackage,
+    model_class=FullMappingPackage,
     mongo_client=mongo_client,
     database_name="mapping_suites",
     collection_name="packages"

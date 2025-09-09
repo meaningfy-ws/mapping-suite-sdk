@@ -2,7 +2,7 @@ from abc import ABC
 from pathlib import Path
 from typing import List, Optional
 
-from pydantic import Field
+from pydantic import Field, model_serializer
 
 from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, TechnicalMappingSuite, VocabularyMappingSuite, \
     TestDataSuite, \
@@ -55,7 +55,8 @@ class MappingPackageMetadata(CoreModel, ABC):
     description: str = Field(..., description="Metadata description")
     mapping_version: str = Field(..., description="Version of source data that will be mapped")
     ontology_version: str = Field(..., description="Version of target ontology")
-    type: Optional[str] = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="mapping_type")
+    type: Optional[str] = Field(default=None, min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH,
+                                alias="mapping_type")
 
     eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
                                                                           description="Constraints defining package applicability",
@@ -66,6 +67,7 @@ class MappingPackageMetadata(CoreModel, ABC):
 
     class Config(CoreModel.Config):
         extra = "ignore"
+        populate_by_name = True
 
 
 class eFormsMappingPackageMetadata(MappingPackageMetadata):
@@ -87,6 +89,36 @@ class eFormsMappingPackageMetadata(MappingPackageMetadata):
                                                                           description="Constraints defining package applicability",
                                                                           alias="metadata_constraints")
     signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+
+
+class StandardFormsMappingPackageMetadata(MappingPackageMetadata):
+    """
+        A class representing the metadata of Standard Forms specific mapping package.
+    """
+    title: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
+    identifier: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
+    issue_date: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="created_at")
+    mapping_version: str = Field(..., description="Version of source data that will be mapped", alias="version")
+    ontology_version: str = Field(..., description="Version of target ontology")
+    description: str = Field(..., description="Metadata description")
+    eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
+                                                                          description="Constraints defining package applicability",
+                                                                          alias="metadata_constraints")
+    signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+
+    @model_serializer
+    def ser(self) -> dict:
+        # To keep the order. Unfortunately Pydantic always takes the parent class order when model_dump or model_dump_json
+        return {
+            "title": self.title,
+            "identifier": self.identifier,
+            "created_at": self.issue_date,
+            "version": self.mapping_version,
+            "ontology_version": self.ontology_version,
+            "description": self.description,
+            "metadata_constraints": self.eligibility_constraints,
+            "mapping_suite_hash_digest": self.signature,
+        }
 
 
 class MappingPackageIndex(CoreModel):

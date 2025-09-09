@@ -62,7 +62,8 @@ class MappingPackageHasher:
     def hash_mapping_package(self, with_version: Optional[str] = None) -> str:
         list_of_hashes = self.hash_critical_mapping_files()
         signatures = [signature[1] for signature in list_of_hashes]
-        signatures.append(self.hash_mapping_metadata())
+        if self.mapping_package.metadata.type == "eforms":
+            signatures.append(self.hash_mapping_metadata())
         if with_version:
             signatures += with_version
         else:

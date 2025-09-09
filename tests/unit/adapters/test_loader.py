@@ -109,9 +109,10 @@ def test_suite_metadata_loader(dummy_mapping_package_path: Path) -> None:
         except ValueError:
             assert False, "issue_date is not in valid ISO format"
 
-        assert metadata.type and isinstance(metadata.type, str)
-        assert len(metadata.type) >= MSSDK_STR_MIN_LENGTH
-        assert len(metadata.type) <= MSSDK_STR_MAX_LENGTH
+        # eForms specific
+        #assert metadata.type and isinstance(metadata.type, str)
+        #assert len(metadata.type) >= MSSDK_STR_MIN_LENGTH
+        #assert len(metadata.type) <= MSSDK_STR_MAX_LENGTH
 
         assert metadata.mapping_version and isinstance(metadata.mapping_version, str)
         assert metadata.ontology_version and isinstance(metadata.ontology_version, str)
@@ -132,7 +133,8 @@ def test_suite_metadata_loader(dummy_mapping_package_path: Path) -> None:
         original_data = json.loads(metadata_file_path.read_text())
 
         assert metadata.issue_date == original_data["created_at"]
-        assert metadata.type == original_data["mapping_type"]
+        # eForms specific
+        #assert metadata.type == original_data["mapping_type"]
         assert metadata.eligibility_constraints == MappingPackageEligibilityConstraints(
             **original_data["metadata_constraints"]
         )

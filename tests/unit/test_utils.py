@@ -2,6 +2,10 @@ from pathlib import Path
 
 import pytest
 
+from mapping_suite_sdk import load_mapping_package_from_folder, serialise_mapping_package_to_folder, \
+    load_mapping_package_from_archive, serialise_mapping_package
+from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader, MappingPackageLoader
+from mapping_suite_sdk.services.validate_mapping_package import validate_mapping_package_from_folder
 from mapping_suite_sdk.utils import load_file_by_extensions, write_file_by_content_type
 
 
@@ -81,3 +85,9 @@ def test_write_file_by_content_type(tmp_path):
         assert "Permission denied" in str(excinfo.value)
     finally:
         Path.write_text = original_write_text
+
+
+# def test_l():
+#     mp = load_mapping_package_from_archive(mapping_package_archive_path=
+#                                            Path("/home/duprijil/work/mapping-suite-sdk/tests/test_data/mapping_packages/package_eforms_29_v1.9_changed.zip"))
+#     serialise_mapping_package(mp, serialisation_folder_path=Path("/home/duprijil/work/mapping-suite-sdk/tests/test_data/mapping_packages/alooo.zip"))

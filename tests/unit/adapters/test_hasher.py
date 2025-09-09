@@ -20,8 +20,10 @@ def test_hasher_generates_different_hash_on_data_changes(dummy_mapping_package_m
 
     assert result_hash == dummy_mapping_package_model.metadata.signature
 
-    assert random_string != dummy_mapping_package_model.metadata.description
-    dummy_mapping_package_model.metadata.description = random_string
+    # Metadata is not used in SF hashing
+    # assert random_string != dummy_mapping_package_model.metadata.description
+    # dummy_mapping_package_model.metadata.description = random_string
+    dummy_mapping_package_model.technical_mapping_suite.files[0].content = random_string
 
     result_hash = hasher.hash_mapping_package()
     assert result_hash != dummy_mapping_package_model.metadata.signature

@@ -8,11 +8,11 @@ import pytest
 
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
 from mapping_suite_sdk.adapters.loader import MappingPackageLoader
+from mapping_suite_sdk.adapters.repository import MongoDBRepository, ModelNotFoundError
 from mapping_suite_sdk.models.mapping_package import MappingPackage
 from mapping_suite_sdk.services.load_mapping_package import load_mapping_package_from_folder, \
     load_mapping_package_from_archive, load_mapping_packages_from_github, load_mapping_package_from_mongo_db
 from tests.conftest import assert_valid_mapping_package, _setup_temporary_test_git_repository
-from mapping_suite_sdk.adapters.repository import MongoDBRepository, ModelNotFoundError
 
 
 def test_load_mapping_package_from_folder(dummy_mapping_package_path: Path):
@@ -197,5 +197,4 @@ def test_load_mapping_package_from_mongo_db_with_success(mongo_client: mongomock
         mapping_package_repository=mongodb_repo
     )
 
-    assert mapping_package == dummy_mapping_package_model
-
+    assert mapping_package.model_dump(mode="json") == dummy_mapping_package_model.model_dump(mode="json")

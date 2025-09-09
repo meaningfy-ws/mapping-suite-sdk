@@ -9,7 +9,6 @@ from mapping_suite_sdk.models.mapping_package import MappingPackage
 from mapping_suite_sdk.services.validate_mapping_package import validate_mapping_package, \
     validate_mapping_package_from_archive, validate_mapping_package_from_folder, \
     validate_bulk_mapping_packages_from_folder, validate_bulk_mapping_packages_from_github
-from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH
 from tests.conftest import _get_random_string, _setup_temporary_test_git_repository
 
 
@@ -34,12 +33,12 @@ def test_validate_mapping_package_fails_on_bad_package(dummy_mapping_package_mod
         validate_mapping_package(mapping_package=dummy_mapping_package_model)
 
 
-def test_validate_mapping_package_from_archive_runs_with_success():
+def test_validate_mapping_package_from_archive_runs_with_success(dummy_mapping_package_path: Path):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path: Path = Path(tmpdir)
-        tmpdir_archive_path: Path = tmpdir_path / TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH.name
+        tmpdir_archive_path: Path = tmpdir_path / dummy_mapping_package_path.name
 
-        shutil.copy(TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, tmpdir_archive_path)
+        shutil.copy(dummy_mapping_package_path, tmpdir_archive_path)
 
         is_valid: bool = validate_mapping_package_from_archive(tmpdir_archive_path)
 

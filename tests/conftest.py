@@ -20,10 +20,13 @@ from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, Techni
     TestDataSuite, \
     SAPRQLTestSuite, SHACLTestSuite
 from mapping_suite_sdk.models.core import CoreModel
-from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
-from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
+from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata, \
+    eFormsMappingPackageMetadata, StandardFormsMappingPackageMetadata
+from tests import TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH, \
-    TEST_DATA_MAPPING_PACKAGES_REPO_PATH
+    TEST_DATA_MAPPING_PACKAGES_REPO_PATH, TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH, \
+    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH, TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH, \
+    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH
 
 
 class TestModel(CoreModel):
@@ -54,7 +57,8 @@ def _test_mapping_package_asset_loader(dummy_mapping_package_path: Path,
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None
-        assert any([mapping_suite.path == expected_relative_path, mapping_suite.path == Path(temp_mp_path.name) / expected_relative_path])
+        assert any([mapping_suite.path == expected_relative_path,
+                    mapping_suite.path == Path(temp_mp_path.name) / expected_relative_path])
         assert (temp_mp_path / mapping_suite.path).exists()
         assert len(mapping_suite.files) > 0
         for file in mapping_suite.files:
@@ -213,23 +217,53 @@ def _setup_temporary_test_git_repository(dummy_github_project_path: Path, dummy_
 
 
 @pytest.fixture
-def dummy_mapping_package_path() -> Path:
-    return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH
-
-
-@pytest.fixture
 def dummy_corrupted_mapping_package_path() -> Path:
     return TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH
 
 
-@pytest.fixture
-def dummy_mapping_package_model() -> MappingPackage:
-    return TypeAdapter(MappingPackage).validate_json(TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH.read_text())
+@pytest.fixture(
+    params=[
+        pytest.param(
+            ((eFormsMappingPackageMetadata, TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH),
+             TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH,
+             TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH),
+            id="eForms"
+        ),
+        pytest.param(
+            ((StandardFormsMappingPackageMetadata, TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH),
+             TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
+             TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH),
+            id="SF"
+        )
+    ]
+)
+def dummy_mapping_package_params(request):
+    """Fixture that returns a tuple of (model_path, folder_path, archive_path)"""
+    return request.param
 
 
 @pytest.fixture
-def dummy_mapping_package_extracted_path() -> Path:
-    return TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH
+def dummy_mapping_package_model(dummy_mapping_package_params):
+    """Returns the model path from the parameter tuple"""
+    model_info, _, _ = dummy_mapping_package_params
+    metadata_type, model_path = model_info
+    model = TypeAdapter(MappingPackage).validate_json(model_path.read_text())
+    model.metadata = metadata_type(**model.metadata.model_dump())
+    return model
+
+
+@pytest.fixture
+def dummy_mapping_package_extracted_path(dummy_mapping_package_params):
+    """Returns the folder path from the parameter tuple"""
+    _, folder_path, _ = dummy_mapping_package_params
+    return folder_path
+
+
+@pytest.fixture
+def dummy_mapping_package_path(dummy_mapping_package_params):
+    """Returns the archive path from the parameter tuple"""
+    _, _, archive_path = dummy_mapping_package_params
+    return archive_path
 
 
 @pytest.fixture
@@ -313,6 +347,7 @@ def dummy_collection_name() -> str:
 @pytest.fixture
 def dummy_mapping_package_validator() -> MappingPackageValidator:
     return MappingPackageValidator()
+
 
 @pytest.fixture
 def typer_cli_runner() -> CliRunner:

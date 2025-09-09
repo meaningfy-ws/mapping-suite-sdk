@@ -185,14 +185,14 @@ The SDK provides seamless integration with MongoDB for storing and retrieving ma
 ```python
 from pymongo import MongoClient
 from mapping_suite_sdk import MongoDBRepository
-from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage
 
 # Initialize MongoDB client
 mongo_client = MongoClient("mongodb://localhost:27017/")
 
 # Create a repository for mapping packages
 repository = MongoDBRepository(
-    model_class=FullMappingPackage,
+    model_class=MappingPackage,
     mongo_client=mongo_client,
     database_name="mapping_suites",
     collection_name="packages"

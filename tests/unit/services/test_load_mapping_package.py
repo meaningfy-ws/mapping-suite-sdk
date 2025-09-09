@@ -8,7 +8,7 @@ import pytest
 
 from mapping_suite_sdk.adapters.extractor import ArchivePackageExtractor
 from mapping_suite_sdk.adapters.loader import MappingPackageLoader
-from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage
 from mapping_suite_sdk.services.load_mapping_package import load_mapping_package_from_folder, \
     load_mapping_package_from_archive, load_mapping_packages_from_github, load_mapping_package_from_mongo_db
 from tests.conftest import assert_valid_mapping_package, _setup_temporary_test_git_repository
@@ -34,12 +34,12 @@ def test_load_mapping_package_from_folder(dummy_mapping_package_path: Path):
         with pytest.raises(NotADirectoryError):
             load_mapping_package_from_folder(mapping_package_folder_path=random_file)
 
-        mapping_package: FullMappingPackage = load_mapping_package_from_folder(mapping_package_folder_path=temp_mp_path)
+        mapping_package: MappingPackage = load_mapping_package_from_folder(mapping_package_folder_path=temp_mp_path)
 
         assert_valid_mapping_package(mapping_package=mapping_package)
 
-        mapping_package: FullMappingPackage = load_mapping_package_from_folder(mapping_package_folder_path=temp_mp_path,
-                                                                               mapping_package_loader=MappingPackageLoader())
+        mapping_package: MappingPackage = load_mapping_package_from_folder(mapping_package_folder_path=temp_mp_path,
+                                                                           mapping_package_loader=MappingPackageLoader())
 
         assert_valid_mapping_package(mapping_package=mapping_package)
 
@@ -61,18 +61,18 @@ def test_load_mapping_package_from_archive_gets_invalid_path(dummy_mapping_packa
 
 
 def test_load_mapping_package_from_archive_with_success(dummy_mapping_package_path: Path):
-    mapping_package: FullMappingPackage = load_mapping_package_from_archive(
+    mapping_package: MappingPackage = load_mapping_package_from_archive(
         mapping_package_archive_path=dummy_mapping_package_path)
 
     assert_valid_mapping_package(mapping_package=mapping_package)
 
-    mapping_package: FullMappingPackage = load_mapping_package_from_archive(
+    mapping_package: MappingPackage = load_mapping_package_from_archive(
         mapping_package_archive_path=dummy_mapping_package_path,
         mapping_package_loader=MappingPackageLoader())
 
     assert_valid_mapping_package(mapping_package=mapping_package)
 
-    mapping_package: FullMappingPackage = load_mapping_package_from_archive(
+    mapping_package: MappingPackage = load_mapping_package_from_archive(
         mapping_package_archive_path=dummy_mapping_package_path,
         mapping_package_loader=MappingPackageLoader(),
         archive_unpacker=ArchivePackageExtractor())
@@ -84,7 +84,7 @@ def test_load_mapping_packages_from_github_with_success(dummy_github_project_pat
                                                         dummy_github_branch_name: str,
                                                         dummy_packages_path_pattern: str):
     with _setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
-        mapping_packages: List[FullMappingPackage] = load_mapping_packages_from_github(
+        mapping_packages: List[MappingPackage] = load_mapping_packages_from_github(
             github_repository_url=str(repo_path),
             packages_path_pattern=dummy_packages_path_pattern,
             branch_or_tag_name=dummy_github_branch_name)
@@ -166,27 +166,27 @@ def test_load_mapping_package_from_mongo_db_fails_on_invalid_id(dummy_mongo_repo
 
 
 def test_load_mapping_package_from_mongo_db_fails_on_invalid_repository(dummy_mongo_repository: MongoDBRepository,
-                                                                        dummy_mapping_package_model: FullMappingPackage):
+                                                                        dummy_mapping_package_model: MappingPackage):
     with pytest.raises(ValueError):
         load_mapping_package_from_mongo_db(mapping_package_id=dummy_mapping_package_model.id,
                                            mapping_package_repository=None)
 
 
 def test_load_mapping_package_from_mongo_db_package_fails_on_id_not_found(dummy_mongo_repository: MongoDBRepository,
-                                                                          dummy_mapping_package_model: FullMappingPackage):
+                                                                          dummy_mapping_package_model: MappingPackage):
     with pytest.raises(ModelNotFoundError):
         load_mapping_package_from_mongo_db(mapping_package_id="non_existing_id",
                                            mapping_package_repository=dummy_mongo_repository)
 
 
 def test_load_mapping_package_from_mongo_db_with_success(mongo_client: mongomock.MongoClient,
-                                                         dummy_mapping_package_model: FullMappingPackage):
+                                                         dummy_mapping_package_model: MappingPackage):
     model_id = dummy_mapping_package_model.id
     model_dict = dummy_mapping_package_model.model_dump(by_alias=True, mode="json")
     model_dict["_id"] = model_id
 
     mongodb_repo = MongoDBRepository(
-        model_class=FullMappingPackage,
+        model_class=MappingPackage,
         mongo_client=mongo_client,
         database_name="test_db"
     )

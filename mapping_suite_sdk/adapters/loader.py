@@ -10,7 +10,7 @@ from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMapp
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset, \
     ReportAsset, TestDataResultCollection, TestDataResultAsset
-from mapping_suite_sdk.models.full_mapping_package import FullMappingPackage, MappingPackageMetadata, MappingPackageIndex
+from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 from mapping_suite_sdk.utils import load_file_by_extensions
 
 ### Paths relative to mapping package
@@ -345,7 +345,7 @@ class MappingPackageLoader(MappingPackageAssetLoader):
                     self.include_output == other.include_output)
         return False
 
-    def load(self, package_folder_path: Path) -> FullMappingPackage:
+    def load(self, package_folder_path: Path) -> MappingPackage:
         """Load all components of a mapping package.
 
         This method orchestrates the loading of:
@@ -361,7 +361,7 @@ class MappingPackageLoader(MappingPackageAssetLoader):
             package_folder_path (Path): Path to the mapping package folder.
 
         Returns:
-            FullMappingPackage: Complete mapping package with all loaded components.
+            MappingPackage: Complete mapping package with all loaded components.
         """
         validation_errors: List[InitErrorDetails] = []
 
@@ -428,7 +428,7 @@ class MappingPackageLoader(MappingPackageAssetLoader):
         if len(validation_errors) > 0:
             raise ValidationError.from_exception_data(title="Mapping Package Validation Error",
                                                       line_errors=validation_errors)
-        return FullMappingPackage(
+        return MappingPackage(
             metadata=metadata,
             conceptual_mapping_asset=conceptual_mapping_file,
             technical_mapping_suite=technical_mapping_suite,

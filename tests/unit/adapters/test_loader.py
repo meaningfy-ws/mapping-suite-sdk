@@ -12,7 +12,7 @@ from mapping_suite_sdk.adapters.loader import TechnicalMappingSuiteLoader, RELAT
 from mapping_suite_sdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
 from mapping_suite_sdk.models.asset import TechnicalMappingSuite, RMLMappingAsset
 from mapping_suite_sdk.models.full_mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
-    FullMappingPackage
+    MappingPackage
 from tests.conftest import _test_mapping_package_asset_loader, _test_mapping_suites_asset_loader
 
 
@@ -169,7 +169,7 @@ def test_mapping_package_loader(dummy_mapping_package_path: Path) -> None:
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
-        mapping_package: FullMappingPackage = MappingPackageLoader().load(temp_mp_path)
+        mapping_package: MappingPackage = MappingPackageLoader().load(temp_mp_path)
 
         assert mapping_package.test_suites_shacl is not None
         assert len(mapping_package.test_suites_shacl) > 0

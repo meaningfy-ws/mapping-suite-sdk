@@ -2,7 +2,7 @@ import pytest
 
 from mapping_suite_sdk.adapters.validator import MappingPackageValidator, MPStructuralValidationStep, \
     MPHashValidationStep, MPHashValidationException, MPStructuralValidationException
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 from tests.conftest import _get_random_string
 
 

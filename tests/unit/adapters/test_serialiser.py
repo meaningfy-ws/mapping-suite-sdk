@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 
 from mapping_suite_sdk.adapters.serialiser import MappingPackageSerialiser
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 from tests.conftest import _compare_directories
 
 

@@ -10,7 +10,7 @@ from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMapp
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset, \
     ReportAsset, TestDataResultCollection, TestDataResultAsset
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
+from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
 from mapping_suite_sdk.utils import load_file_by_extensions
 
 ### Paths relative to mapping package

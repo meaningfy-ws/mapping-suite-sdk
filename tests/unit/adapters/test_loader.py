@@ -11,7 +11,7 @@ from mapping_suite_sdk.adapters.loader import TechnicalMappingSuiteLoader, RELAT
     RELATIVE_CONCEPTUAL_MAPPING_PATH
 from mapping_suite_sdk.models.core import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
 from mapping_suite_sdk.models.asset import TechnicalMappingSuite, RMLMappingAsset
-from mapping_suite_sdk.models.full_mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
+from mapping_suite_sdk.models.mapping_package import MappingPackageMetadata, MappingPackageEligibilityConstraints, \
     MappingPackage
 from tests.conftest import _test_mapping_package_asset_loader, _test_mapping_suites_asset_loader
 

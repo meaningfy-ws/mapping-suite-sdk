@@ -21,7 +21,7 @@ The Mapping Suite SDK provides robust MongoDB integration through the `MongoDBRe
 ----
 from pymongo import MongoClient
 from mapping_suite_sdk import MongoDBRepository
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 # Initialise MongoDB client
 mongo_client = MongoClient("mongodb://localhost:27017/")

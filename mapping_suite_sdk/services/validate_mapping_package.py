@@ -10,7 +10,7 @@ from mapping_suite_sdk.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.adapters.tracer import traced_routine
 from mapping_suite_sdk.adapters.validator import MappingPackageValidator, MPValidationException, \
     MPHashValidationException
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 from mapping_suite_sdk.services.load_mapping_package import load_mapping_package_from_archive, \
     load_mapping_package_from_folder, load_mapping_packages_from_github
 from mapping_suite_sdk.vars import MSSDK_LOGGING_MESSAGE_FORMAT

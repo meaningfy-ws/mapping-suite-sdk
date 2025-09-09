@@ -4,7 +4,7 @@ from typing import final, Optional, NoReturn, Literal
 
 from mapping_suite_sdk.adapters.hasher import MappingPackageHasher
 from mapping_suite_sdk.adapters.tracer import traced_class
-from mapping_suite_sdk.models.full_mapping_package import MappingPackage
+from mapping_suite_sdk.models.mapping_package import MappingPackage
 
 
 class MPValidationException(Exception): pass

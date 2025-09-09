@@ -22,7 +22,7 @@ from mapping_suite_sdk.models.asset import ConceptualMappingPackageAsset, Techni
 from mapping_suite_sdk.models.core import CoreModel
 from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata
 from tests import TEST_DATA_EXAMPLE_MAPPING_PACKAGE_PATH, TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH, \
-    TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH, \
+    TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH, \
     TEST_DATA_MAPPING_PACKAGES_REPO_PATH
 
 
@@ -224,12 +224,12 @@ def dummy_corrupted_mapping_package_path() -> Path:
 
 @pytest.fixture
 def dummy_mapping_package_model() -> MappingPackage:
-    return TypeAdapter(MappingPackage).validate_json(TEST_DATA_EXAMPLE_MAPPING_PACKAGE_MODEL_PATH.read_text())
+    return TypeAdapter(MappingPackage).validate_json(TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH.read_text())
 
 
 @pytest.fixture
 def dummy_mapping_package_extracted_path() -> Path:
-    return TEST_DATA_EXAMPLE_MAPPING_PACKAGE_FOLDER_PATH
+    return TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH
 
 
 @pytest.fixture

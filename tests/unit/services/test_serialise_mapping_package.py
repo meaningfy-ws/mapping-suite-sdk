@@ -29,8 +29,9 @@ def test_serialise_mapping_package_successful_serialisation(dummy_mapping_packag
         assert is_equal, f"Directory comparison failed:\n{error_message}"
 
 
-def test_serialise_mapping_package_service_failure_leaves_output_untouched(dummy_mapping_package_model: MappingPackage,
-                                                                           dummy_mapping_package_extracted_path: Path):
+def test_serialise_mapping_package_service_failure_leaves_output_untouched(
+        dummy_mapping_package_model: MappingPackage,
+        dummy_mapping_package_extracted_path: Path):
     with tempfile.TemporaryDirectory() as temp_directory:
         temp_directory_path = Path(temp_directory)
         temp_archive_path = temp_directory_path / "serialised.zip"

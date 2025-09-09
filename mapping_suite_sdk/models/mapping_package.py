@@ -1,3 +1,4 @@
+from abc import ABC
 from pathlib import Path
 from typing import List, Optional
 
@@ -41,12 +42,35 @@ class MappingPackageEligibilityConstraints(CoreModel):
     description: Optional[str] = Field(default=None, exclude=True)
 
 
-class MappingPackageMetadata(CoreModel):
-    """A class representing the metadata of a mapping package.
+class MappingPackageMetadata(CoreModel, ABC):
+    """
+        A class representing general metadata of a mapping package.
 
     This class contains essential identifying information and metadata about
-    a mapping package, including its unique identifier, title, creation date,
-    and type classification.
+    a mapping package (not specific one).
+    """
+    identifier: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
+    title: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
+    issue_date: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="created_at")
+    description: str = Field(..., description="Metadata description")
+    mapping_version: str = Field(..., description="Version of source data that will be mapped")
+    ontology_version: str = Field(..., description="Version of target ontology")
+    type: Optional[str] = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="mapping_type")
+
+    eligibility_constraints: MappingPackageEligibilityConstraints = Field(...,
+                                                                          description="Constraints defining package applicability",
+                                                                          alias="metadata_constraints")
+    signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
+
+    path: Path = Field(..., description="Path within a mapping package")
+
+    class Config(CoreModel.Config):
+        extra = "ignore"
+
+
+class eFormsMappingPackageMetadata(MappingPackageMetadata):
+    """
+        A class representing the metadata of eForms specific mapping package.
     """
     identifier: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
     title: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
@@ -63,8 +87,6 @@ class MappingPackageMetadata(CoreModel):
                                                                           description="Constraints defining package applicability",
                                                                           alias="metadata_constraints")
     signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")
-
-    path: Path = Field(..., description="Path within a mapping package")
 
 
 class MappingPackageIndex(CoreModel):

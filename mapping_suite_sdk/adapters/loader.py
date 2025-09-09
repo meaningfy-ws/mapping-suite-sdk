@@ -10,7 +10,8 @@ from mapping_suite_sdk.models.asset import TechnicalMappingSuite, VocabularyMapp
     SAPRQLTestSuite, SHACLTestSuite, TestResultSuite, RMLMappingAsset, \
     ConceptualMappingPackageAsset, VocabularyMappingAsset, TestDataAsset, SPARQLQueryAsset, SHACLShapesAsset, \
     ReportAsset, TestDataResultCollection, TestDataResultAsset
-from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex
+from mapping_suite_sdk.models.mapping_package import MappingPackage, MappingPackageMetadata, MappingPackageIndex, \
+    eFormsMappingPackageMetadata
 from mapping_suite_sdk.utils import load_file_by_extensions
 
 ### Paths relative to mapping package
@@ -232,7 +233,10 @@ class MappingPackageMetadataLoader(MappingPackageAssetLoader):
         model_dict: dict = json.loads(asset_path.read_text())
         model_dict['path'] = asset_path.relative_to(package_folder_path)
 
-        return TypeAdapter(MappingPackageMetadata).validate_python(model_dict)
+        if 'mapping_type' in model_dict.keys():
+            return TypeAdapter(eFormsMappingPackageMetadata).validate_python(model_dict)
+
+        raise TypeError("Loader cannot identify type of mapping package")
 
 
 class MappingPackageIndexLoader(MappingPackageAssetLoader):

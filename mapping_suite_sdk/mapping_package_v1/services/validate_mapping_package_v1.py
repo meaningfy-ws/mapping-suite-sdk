@@ -5,6 +5,7 @@ from typing import Optional, Literal, NoReturn, List
 
 from pydantic import ValidationError
 
+from mapping_suite_sdk import serialise_mapping_package_v1_to_folder
 from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
 from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
@@ -123,11 +124,15 @@ def validate_bulk_mapping_packages_v1_from_folder(
             message: str = f"Mapping package is not valid: {hash_validation_exception}"
             if update_hash:
                 message += f"\n🔀  The hash for {mp_folder} is changed."
-                metadata_file = Path(mp_folder / "metadata.json")
-                metadata = json.loads(metadata_file.read_text())
-                metadata['mapping_suite_hash_digest'] = MappingPackageV1Hasher(
-                    load_mapping_package_v1_from_folder(mp_folder)).hash()
-                metadata_file.write_text(json.dumps(metadata, indent=4))
+                # metadata_file = Path(mp_folder / "metadata.json")
+                # metadata = json.loads(metadata_file.read_text())
+                # metadata['mapping_suite_hash_digest'] = MappingPackageV1Hasher(
+                #     load_mapping_package_v1_from_folder(mp_folder)).hash()
+                # metadata_file.write_text(json.dumps(metadata, indent=4))
+                mp = load_mapping_package_v1_from_folder(mp_folder)
+                new_hash = MappingPackageV1Hasher(mp).hash()
+                mp.metadata.signature = new_hash
+                serialise_mapping_package_v1_to_folder(mp, mp_folder)
             else:
                 all_valid = False
             logger.error(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,

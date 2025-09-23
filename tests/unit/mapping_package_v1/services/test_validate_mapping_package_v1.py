@@ -1,3 +1,4 @@
+import json
 import shutil
 import tempfile
 from pathlib import Path
@@ -50,6 +51,11 @@ def test_validate_mapping_package_v1_from_archive_fails_on_bad_archive_path():
         validate_mapping_package_v1_from_archive(wrong_path)
 
 
+def test_validate_mapping_package_v1_from_archive_fails_on_folder_instead_of_archive_path(tmp_path: Path):
+    with pytest.raises(FileNotFoundError):
+        validate_mapping_package_v1_from_archive(tmp_path)
+
+
 def test_validate_mapping_package_v1_from_folder_runs_with_success(dummy_mapping_package_v1_path: Path):
     is_valid: bool = validate_mapping_package_v1_from_folder(dummy_mapping_package_v1_path)
 
@@ -79,6 +85,24 @@ def test_validate_bulk_mapping_packages_v1_from_folder_runs_with_success(dummy_m
         shutil.copytree(dummy_mapping_package_v1_path, package_dir)
 
         validate_bulk_mapping_packages_v1_from_folder(tmpdir_path)
+
+
+def test_validate_bulk_mapping_packages_v1_from_folder_updates_hash(dummy_mapping_package_v1_path: Path):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        package_dir = tmpdir_path / "package_F22_changed"
+        shutil.copytree(dummy_mapping_package_v1_path, package_dir)
+
+        metadata_dir = package_dir / "package_F22_changed" / "metadata.json"
+        mp_metadata = json.loads(metadata_dir.read_text())
+        # Wrong signature
+        mp_metadata["mapping_suite_hash_digest"] = "a7e3277f0820255270d488ffb4cf944e684f7e426b329ae8031abe73bf85bd6b"
+        metadata_dir.write_text(json.dumps(mp_metadata))
+
+        validate_bulk_mapping_packages_v1_from_folder(tmpdir_path, update_hash=True)
+
+        mp_metadata_after_validation = json.loads(metadata_dir.read_text())
+        assert mp_metadata_after_validation["mapping_suite_hash_digest"] != mp_metadata["mapping_suite_hash_digest"]
 
 
 def test_validate_bulk_mapping_packages_v1_from_folder_fails_on_bad_folder_path():

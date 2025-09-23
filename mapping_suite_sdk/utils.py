@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import Tuple, NoReturn, Union, Optional
 
@@ -63,3 +64,24 @@ def write_file_by_content_type(file_path: Path, content: Union[str, bytes]) -> O
         raise TypeError(f"Content must be str or bytes, got {type(content).__name__}")
 
     return None
+
+
+def normalize_content(content: Union[str, bytes]) -> bytes:
+    """
+    Normalize content by removing different types of line endings.
+
+    This function removes all variations of line endings (CR, LF, CRLF) from the content
+    to ensure consistent hashing across different operating systems.
+
+    Args:
+        content (Union[str, bytes]): The content to normalize.
+
+    Returns:
+        bytes: The normalized content as bytes with line endings removed.
+    """
+    new_line_pattern = re.compile(b'\r\n|\r|\n')
+
+    if isinstance(content, str):
+        return re.sub(new_line_pattern, b'', content.encode('utf-8'))
+    else:
+        return re.sub(new_line_pattern, b'', content)

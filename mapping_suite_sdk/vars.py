@@ -1,5 +1,9 @@
 from typing import Tuple
 
+MSSDK_STR_MIN_LENGTH = 1
+MSSDK_STR_MAX_LENGTH = 256
+MSSDK_DEFAULT_STR_ENCODE = 'utf-8'
+
 MSSDK_LOGGING_STRING_FORMAT = "%(asctime)s | %(levelname)s | %(filename)s | Line: %(lineno)d | %(message)s"
 MSSDK_LOGGING_EXTENDED_STRING_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(filename)s | %(funcName)s | Line: %(lineno)d | %(message)s"
 MSSDK_LOGGING_MESSAGE_FORMAT = "[{package_source}] - {message}"

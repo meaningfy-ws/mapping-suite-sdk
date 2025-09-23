@@ -1,6 +1,6 @@
 [project]
 name = "mapping-suite-sdk"
-version = "0.3.0"
+version = "1.0.0"
 description = "Software development kit for XML-RML mapping rules packaging"
 authors = [
     { name = "meaningfy.ws", email = "hi@meaningfy.ws" }
@@ -30,7 +30,7 @@ name = "mapping-suite-sdk"
 package-mode = true
 
 [tool.poetry.scripts]
-mssdk = "mapping_suite_sdk.entrypoints.cli.mssdk:mssdk_cli_command"
+mssdk = "mapping_suite_sdk.core.entrypoints.cli.mssdk:mssdk_cli_command"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"

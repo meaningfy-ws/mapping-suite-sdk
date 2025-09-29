@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
-from mapping_suite_sdk import MappingPackageV2Hasher
 from mapping_suite_sdk.core.adapters.hasher import SHA256Hasher, HasherABC
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_hasher import MappingPackageV2Hasher
 
 
 def test_mp_v2_hasher_initialization_with_default_hasher(dummy_mapping_package_v2_model):

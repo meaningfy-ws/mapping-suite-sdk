@@ -1,11 +1,10 @@
 import json
 from typing import Optional
 
-from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher
+from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
-from mapping_suite_sdk.utils import normalize_content
 
 
 class MappingPackageV2Hasher(MappingPackageHasher):

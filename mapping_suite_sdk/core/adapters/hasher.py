@@ -1,9 +1,31 @@
 import hashlib
 import logging
+import re
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
+
+
+def normalize_content(content: Union[str, bytes]) -> bytes:
+    """
+    Normalize content by removing different types of line endings.
+
+    This function removes all variations of line endings (CR, LF, CRLF) from the content
+    to ensure consistent hashing across different operating systems.
+
+    Args:
+        content (Union[str, bytes]): The content to normalize.
+
+    Returns:
+        bytes: The normalized content as bytes with line endings removed.
+    """
+    new_line_pattern = re.compile(b'\r\n|\r|\n')
+
+    if isinstance(content, str):
+        return re.sub(new_line_pattern, b'', content.encode('utf-8'))
+    else:
+        return re.sub(new_line_pattern, b'', content)
 
 
 class HasherABC(ABC):

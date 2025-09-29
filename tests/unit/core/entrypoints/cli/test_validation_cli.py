@@ -3,8 +3,9 @@ from unittest.mock import patch
 
 from typer.testing import CliRunner
 
-from mapping_suite_sdk import MappingPackageV1Loader, MappingPackageV2Loader
 from mapping_suite_sdk.core.entrypoints.cli.validate import mssdk_cli_validate_subcommand
+from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 
 
 def test_validate_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:

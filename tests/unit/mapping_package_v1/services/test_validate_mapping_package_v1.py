@@ -5,10 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk import MappingPackageV1, validate_mapping_package_v1, MappingPackageV1Validator, \
+from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_validator import MPHashValidationException, \
+    MappingPackageV1Validator
+from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import validate_mapping_package_v1, \
     validate_mapping_package_v1_from_archive, validate_mapping_package_v1_from_folder, \
     validate_bulk_mapping_packages_v1_from_folder, validate_bulk_mapping_packages_v1_from_github
-from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_validator import MPHashValidationException
 from tests.conftest import _get_random_string, _setup_temporary_test_git_repository
 
 

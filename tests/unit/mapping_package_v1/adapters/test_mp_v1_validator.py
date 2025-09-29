@@ -55,6 +55,7 @@ def test_mp_v1_structural_validation_step_empty_test_data_suite():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("shacl_result_query.rq"),
         )
     )
     mock_package.test_suites_sparql = [
@@ -70,7 +71,8 @@ def test_mp_v1_structural_validation_step_empty_test_data_suite():
                 path=Path("output/test_suite"),
                 files=[ReportFileAsset(path=Path("report.html"), content="test")]
             )
-        ]
+        ],
+        path=Path("output/test_suite"),
     )
 
     validator = MPV1StructuralValidationStep()
@@ -102,6 +104,7 @@ def test_mp_v1_structural_validation_step_empty_shacl_collection():
         shacl_collections=[empty_shacl_collection],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("shacl_result_query.rq"),
         )
     )
 
@@ -111,7 +114,7 @@ def test_mp_v1_structural_validation_step_empty_shacl_collection():
             files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
         )
     ]
-    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[])
+    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[], path=Path("output/test_suite"))
 
     validator = MPV1StructuralValidationStep()
 
@@ -139,6 +142,7 @@ def test_mp_v1_structural_validation_step_empty_sparql_suite():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("shacl_result_query.rq"),
         )
     )
 
@@ -149,7 +153,7 @@ def test_mp_v1_structural_validation_step_empty_sparql_suite():
     )
 
     mock_package.test_suites_sparql = [empty_sparql_suite]
-    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[])
+    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[], path=Path("output/test_suite"))
 
     validator = MPV1StructuralValidationStep()
 
@@ -177,6 +181,7 @@ def test_mp_v1_structural_validation_step_empty_test_results_suite():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("shacl_result_query.rq"),
         )
     )
 
@@ -195,7 +200,8 @@ def test_mp_v1_structural_validation_step_empty_test_results_suite():
 
     mock_package.test_results = TestResultCollectionAsset(
         files=[],
-        result_suites=[empty_result_suite]
+        result_suites=[empty_result_suite],
+        path=Path("output/test_suite"),
     )
 
     validator = MPV1StructuralValidationStep()
@@ -219,6 +225,7 @@ def test_mp_v1_structural_validation_step_none_test_data_suites():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("shacl_result_query.rq"),
         )
     )
 
@@ -229,7 +236,7 @@ def test_mp_v1_structural_validation_step_none_test_data_suites():
         )
     ]
 
-    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[])
+    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[], path=Path("output/test_suite"))
 
     validator = MPV1StructuralValidationStep()
 

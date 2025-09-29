@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk import MappingPackageV2, serialise_mapping_package_v2
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+from mapping_suite_sdk.mapping_package_v2.services.serialise_mapping_package_v2 import serialise_mapping_package_v2
 
 
 # def test_serialise_mapping_package_successful_serialisation(dummy_mapping_package_v1_model: MappingPackageV1,

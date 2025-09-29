@@ -2,7 +2,7 @@ import mongomock
 import pytest
 from pymongo.errors import DuplicateKeyError
 
-from mapping_suite_sdk import MongoDBRepository, ModelNotFoundError
+from mapping_suite_sdk.core.adapters.repository import MongoDBRepository, ModelNotFoundError
 from tests.conftest import TestModel
 
 

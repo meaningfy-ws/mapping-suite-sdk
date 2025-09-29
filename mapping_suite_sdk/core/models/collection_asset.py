@@ -24,7 +24,7 @@ class VocabularyMappingCollectionAsset(CollectionAsset):
     """
 
     """
-    path: Path = Field(default=Path("transformation/resources"), description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")
     files: List[VocabularyMappingFileAsset] = Field(default_factory=list, description="Collection of vocabulary files")
 
 
@@ -32,7 +32,7 @@ class TechnicalMappingCollectionAsset(CollectionAsset):
     """
 
     """
-    path: Path = Field(default=Path("transformation/mappings"), description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")
     files: List[TechnicalMappingFileAsset] = Field(default_factory=list,
                                                    description="Collection of technical mapping files")
 
@@ -44,7 +44,7 @@ class TestDataCollectionAsset(CollectionAsset):
     of mapping processes. It typically includes input test data and their corresponding
     expected outputs used to verify the correctness of mapping transformations.
     """
-    path: Path = Field(default=Path("test_data"), description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")
     files: List[TestDataFileAsset] = Field(default_factory=list, description="Collection of test data files")
 
 
@@ -56,7 +56,7 @@ class SAPRQLTestCollectionAsset(CollectionAsset):
     the correctness of the transformation results or to perform specific data
     validations.
     """
-    path: Path = Field(default=Path("validation/sparql"), description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")
     files: List[SPARQLQueryFileAsset] = Field(default_factory=list, description="Collection of SPARQL validation files")
 
 
@@ -74,7 +74,7 @@ class SHACLTestCollectionAsset(CollectionAsset):
     """
     shacl_collections: List[SHACLShapesCollectionAsset] = Field(default_factory=list,
                                                                 description="Collection of SHACL shape files")
-    path: Path = Field(default=Path("validation/shacl"), description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")
     shacl_result_query: SHACLShapesResultQueryFileAsset = Field(default=None, description="SHACL result query")
 
 
@@ -87,4 +87,4 @@ class TestResultCollectionAsset(CollectionAsset):
     files: List[ReportFileAsset] = Field(default_factory=list, description="Collection of reports for a suite of tests")
     result_suites: List[Union['TestResultCollectionAsset', TestDataResultCollectionAsset]] = Field(default_factory=list,
                                                                                                    description="Collection of test result suites")
-    path: Path = Field(default=Path("output"), description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")

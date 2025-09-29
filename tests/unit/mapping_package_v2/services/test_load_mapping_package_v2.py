@@ -4,10 +4,13 @@ from unittest.mock import Mock
 
 import pytest
 
-from mapping_suite_sdk import load_mapping_package_v2_from_folder, MappingPackageV2, MappingPackageV2Loader, \
-    load_mapping_package_v2_from_archive, load_mapping_packages_v2_from_github, load_mapping_package_v2_from_mongo_db
 from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder, \
+    load_mapping_package_v2_from_archive, load_mapping_packages_v2_from_github, load_mapping_package_v2_from_mongo_db
+
 
 def test_load_mapping_package_v2_from_folder_success(dummy_mapping_package_v2_path: Path):
     result = load_mapping_package_v2_from_folder(dummy_mapping_package_v2_path)

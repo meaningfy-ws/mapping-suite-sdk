@@ -3,9 +3,10 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader, ConceptualMappingFileLoader, \
     TechnicalMappingSuiteLoader, VocabularyMappingSuiteLoader, TestDataSuitesLoader, SPARQLTestSuitesLoader, \
-    SHACLTestSuitesLoader, TestResultSuiteLoader
+    SHACLTestSuitesLoader, TestResultSuiteLoader, MappingPackageLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.collection_asset import TestResultCollectionAsset
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
@@ -18,23 +19,23 @@ class MappingPackageV2MetadataLoader(MappingPackageAssetLoader):
     Handles loading and parsing of the package metadata JSON file.
     """
 
-    def load(self, package_folder_path: Path) -> MappingPackageV2Metadata:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> MappingPackageV2Metadata:
         """Load metadata from the package's metadata.json file.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             MappingPackageMetadata: Parsed metadata object.
         """
-        relative_suite_metadata_path = Path("metadata.json")
 
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_suite_metadata_path
+        asset_path: Path = package_folder_path / relative_asset_path
 
         if root_folder.exists():
-            asset_path = root_folder / relative_suite_metadata_path
+            asset_path = root_folder / relative_asset_path
 
         model_dict: dict = json.loads(asset_path.read_text())
         model_dict['path'] = asset_path.relative_to(package_folder_path)
@@ -43,7 +44,7 @@ class MappingPackageV2MetadataLoader(MappingPackageAssetLoader):
 
 
 @traced_class
-class MappingPackageV2Loader(MappingPackageAssetLoader):
+class MappingPackageV2Loader(MappingPackageLoader):
     """Main loader for complete mapping packages.
 
     Coordinates the loading of all components of a mapping package using specialized loaders.
@@ -81,26 +82,36 @@ class MappingPackageV2Loader(MappingPackageAssetLoader):
             MappingPackageABC: Complete mapping package with all loaded components.
         """
 
-        metadata = MappingPackageV2MetadataLoader().load(package_folder_path)
+        metadata = MappingPackageV2MetadataLoader().load(package_folder_path=package_folder_path,
+                                                         relative_asset_path=mssdk_config.MPV2_METADATA_FILE_ASSET_PATH)
 
-        conceptual_mapping_file = ConceptualMappingFileLoader().load(package_folder_path)
+        conceptual_mapping_file = ConceptualMappingFileLoader().load(package_folder_path=package_folder_path,
+                                                                     relative_asset_path=mssdk_config.MPV2_CONCEPTUAL_MAPPING_FILE_ASSET_PATH)
 
-        technical_mapping_suite = TechnicalMappingSuiteLoader().load(package_folder_path)
+        technical_mapping_suite = TechnicalMappingSuiteLoader().load(package_folder_path=package_folder_path,
+                                                                     relative_asset_path=mssdk_config.MPV2_TECHNICAL_COLLECTION_ASSET_PATH)
 
-        vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(package_folder_path)
+        vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(package_folder_path=package_folder_path,
+                                                                       relative_asset_path=mssdk_config.MPV2_VOCABULARY_COLLECTION_ASSET_PATH)
         if self.include_test_data:
-            test_data_suites = TestDataSuitesLoader().load(package_folder_path)
+            test_data_suites = TestDataSuitesLoader().load(package_folder_path=package_folder_path,
+                                                           relative_asset_path=mssdk_config.MPV2_TEST_DATA_COLLECTION_ASSET_PATH)
         else:
             test_data_suites = []
 
-        test_suites_sparql = SPARQLTestSuitesLoader().load(package_folder_path)
+        test_suites_sparql = SPARQLTestSuitesLoader().load(package_folder_path=package_folder_path,
+                                                           relative_asset_path=mssdk_config.MPV2_SPARQL_TEST_COLLECTION_ASSET_PATH, )
 
-        test_suites_shacl = SHACLTestSuitesLoader().load(package_folder_path)
+        test_suites_shacl = SHACLTestSuitesLoader().load(package_folder_path=package_folder_path,
+                                                         relative_asset_path=mssdk_config.MPV2_SHACL_TEST_COLLECTION_ASSET_PATH, )
 
         if self.include_output:
-            test_results = TestResultSuiteLoader().load(package_folder_path)
+            test_results = TestResultSuiteLoader().load(package_folder_path=package_folder_path,
+                                                        relative_asset_path=mssdk_config.MPV2_TEST_RESULT_COLLECTION_ASSET_PATH, )
         else:
-            test_results = TestResultCollectionAsset()
+            test_results = TestResultCollectionAsset(
+                path=mssdk_config.MPV2_TEST_RESULT_COLLECTION_ASSET_PATH,
+            )
 
         return MappingPackageV2(
             metadata=metadata,

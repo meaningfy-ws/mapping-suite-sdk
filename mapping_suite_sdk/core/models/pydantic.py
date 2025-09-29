@@ -6,7 +6,7 @@ from typing import Optional, Any, TypeVar, cast
 
 from pydantic import BaseModel, Field, model_validator
 
-from mapping_suite_sdk.vars import MSSDK_DEFAULT_STR_ENCODE
+from mapping_suite_sdk import mssdk_config
 
 
 class PydanticModel(BaseModel):
@@ -33,7 +33,7 @@ class PydanticModel(BaseModel):
         if self.id is None:
             model_data = self.model_dump(exclude={'id'}, exclude_none=False, exclude_unset=False, mode='json')
             data_string = json.dumps(model_data, sort_keys=True)
-            hash_value = hashlib.sha256(data_string.encode(MSSDK_DEFAULT_STR_ENCODE)).hexdigest()
+            hash_value = hashlib.sha256(data_string.encode(mssdk_config.MSSDK_DEFAULT_STR_ENCODE)).hexdigest()
             object.__setattr__(self, 'id', hash_value)
         return self
 

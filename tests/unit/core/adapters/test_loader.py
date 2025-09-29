@@ -5,14 +5,13 @@ from pathlib import Path
 import pytest
 
 from mapping_suite_sdk.core.adapters.loader import (
-    MappingPackageAssetLoader,
     TechnicalMappingSuiteLoader,
     VocabularyMappingSuiteLoader,
     TestDataSuitesLoader,
     SPARQLTestSuitesLoader,
     SHACLTestSuitesLoader,
     TestResultSuiteLoader,
-    ConceptualMappingFileLoader
+    ConceptualMappingFileLoader, load_file_by_extensions
 )
 from mapping_suite_sdk.core.models.collection_asset import (
     TechnicalMappingCollectionAsset,
@@ -32,7 +31,42 @@ from mapping_suite_sdk.core.models.file_asset import (
 )
 
 
-def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path) -> None:
+def test_load_file_by_extensions(tmp_path: Path):
+    """Test the load_file_by_extensions function with various file types."""
+
+    test_dir = tmp_path / "test_files"
+    test_dir.mkdir()
+
+    text_file = test_dir / "test.txt"
+    text_file.write_text("This is a text file")
+
+    binary_file = test_dir / "test.bin"
+    binary_file.write_bytes(b'\x00\x01\x02\x03')
+
+    unsupported_file = test_dir / "test.unknown"
+    unsupported_file.write_text("This has an unsupported extension")
+
+    str_extensions = (".txt", ".html", ".json")
+    bytes_extensions = (".bin", ".zip")
+
+    text_content = load_file_by_extensions(text_file, str_extensions, bytes_extensions)
+    assert isinstance(text_content, str)
+    assert text_content == "This is a text file"
+
+    binary_content = load_file_by_extensions(binary_file, str_extensions, bytes_extensions)
+    assert isinstance(binary_content, bytes)
+    assert binary_content == b'\x00\x01\x02\x03'
+
+    unsupported_content = load_file_by_extensions(unsupported_file, str_extensions, bytes_extensions)
+    assert unsupported_content is None
+
+    non_existent_file = test_dir / "non_existent.txt"
+    non_existent_content = load_file_by_extensions(non_existent_file, str_extensions, bytes_extensions)
+    assert non_existent_content is None
+
+
+def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path,
+                                        dummy_mapping_package_technical_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -43,7 +77,7 @@ def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path) -> Non
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         loader = TechnicalMappingSuiteLoader()
-        mapping_suite = loader.load(temp_mp_path)
+        mapping_suite = loader.load(temp_mp_path, dummy_mapping_package_technical_collection_path)
 
         assert isinstance(mapping_suite, TechnicalMappingCollectionAsset)
         assert any(isinstance(file, RMLMappingFileAsset) for file in mapping_suite.files)
@@ -58,7 +92,8 @@ def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path) -> Non
             assert file.content is not None
 
 
-def test_technical_mapping_suite_loader_with_root_folder(dummy_mapping_package_path: Path) -> None:
+def test_technical_mapping_suite_loader_with_root_folder(dummy_mapping_package_path: Path,
+                                                         dummy_mapping_package_technical_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -72,13 +107,15 @@ def test_technical_mapping_suite_loader_with_root_folder(dummy_mapping_package_p
         root_folder = temp_mp_path / temp_mp_path.name
         if root_folder.exists():
             loader = TechnicalMappingSuiteLoader()
-            mapping_suite = loader.load(temp_mp_path)
+            mapping_suite = loader.load(package_folder_path=temp_mp_path,
+                                        relative_asset_path=dummy_mapping_package_technical_collection_path)
 
             assert isinstance(mapping_suite, TechnicalMappingCollectionAsset)
             assert mapping_suite.path is not None
 
 
-def test_vocabulary_mapping_suite_loader(dummy_mapping_package_path: Path) -> None:
+def test_vocabulary_mapping_suite_loader(dummy_mapping_package_path: Path,
+                                         dummy_mapping_package_vocabulary_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -89,7 +126,8 @@ def test_vocabulary_mapping_suite_loader(dummy_mapping_package_path: Path) -> No
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         loader = VocabularyMappingSuiteLoader()
-        mapping_suite = loader.load(temp_mp_path)
+        mapping_suite = loader.load(package_folder_path=temp_mp_path,
+                                    relative_asset_path=dummy_mapping_package_vocabulary_collection_path)
 
         assert isinstance(mapping_suite, VocabularyMappingCollectionAsset)
         assert mapping_suite.path is not None
@@ -103,7 +141,8 @@ def test_vocabulary_mapping_suite_loader(dummy_mapping_package_path: Path) -> No
             assert file.content is not None
 
 
-def test_test_data_suites_loader(dummy_mapping_package_path: Path) -> None:
+def test_test_data_suites_loader(dummy_mapping_package_path: Path,
+                                 dummy_mapping_package_test_data_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -114,7 +153,8 @@ def test_test_data_suites_loader(dummy_mapping_package_path: Path) -> None:
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         loader = TestDataSuitesLoader()
-        test_data_suites = loader.load(temp_mp_path)
+        test_data_suites = loader.load(package_folder_path=temp_mp_path,
+                                       relative_asset_path=dummy_mapping_package_test_data_collection_path)
 
         assert isinstance(test_data_suites, list)
         assert len(test_data_suites) > 0
@@ -131,7 +171,8 @@ def test_test_data_suites_loader(dummy_mapping_package_path: Path) -> None:
                 assert file.content is not None
 
 
-def test_sparql_test_suites_loader(dummy_mapping_package_path: Path) -> None:
+def test_sparql_test_suites_loader(dummy_mapping_package_path: Path,
+                                   dummy_mapping_package_sparql_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -142,7 +183,8 @@ def test_sparql_test_suites_loader(dummy_mapping_package_path: Path) -> None:
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         loader = SPARQLTestSuitesLoader()
-        sparql_suites = loader.load(temp_mp_path)
+        sparql_suites = loader.load(package_folder_path=temp_mp_path,
+                                    relative_asset_path=dummy_mapping_package_sparql_collection_path)
 
         assert isinstance(sparql_suites, list)
         assert len(sparql_suites) > 0
@@ -159,7 +201,8 @@ def test_sparql_test_suites_loader(dummy_mapping_package_path: Path) -> None:
                 assert file.content is not None
 
 
-def test_shacl_test_suites_loader(dummy_mapping_package_path: Path) -> None:
+def test_shacl_test_suites_loader(dummy_mapping_package_path: Path,
+                                  dummy_mapping_package_shacl_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -170,7 +213,8 @@ def test_shacl_test_suites_loader(dummy_mapping_package_path: Path) -> None:
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         loader = SHACLTestSuitesLoader()
-        shacl_suite = loader.load(temp_mp_path)
+        shacl_suite = loader.load(package_folder_path=temp_mp_path,
+                                  relative_asset_path=dummy_mapping_package_shacl_collection_path)
 
         assert isinstance(shacl_suite, SHACLTestCollectionAsset)
         assert shacl_suite.shacl_result_query is not None
@@ -188,7 +232,8 @@ def test_shacl_test_suites_loader(dummy_mapping_package_path: Path) -> None:
                 assert file.content is not None
 
 
-def test_conceptual_mapping_file_loader(dummy_mapping_package_path: Path) -> None:
+def test_conceptual_mapping_file_loader(dummy_mapping_package_path: Path,
+                                        dummy_mapping_package_conceptual_mapping_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -199,7 +244,8 @@ def test_conceptual_mapping_file_loader(dummy_mapping_package_path: Path) -> Non
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
 
         loader = ConceptualMappingFileLoader()
-        cm_file = loader.load(temp_mp_path)
+        cm_file = loader.load(package_folder_path=temp_mp_path,
+                              relative_asset_path=dummy_mapping_package_conceptual_mapping_path)
 
         assert isinstance(cm_file, ConceptualMappingFileAsset)
         assert cm_file.path is not None
@@ -208,7 +254,7 @@ def test_conceptual_mapping_file_loader(dummy_mapping_package_path: Path) -> Non
         assert len(cm_file.content) > 0
 
 
-def test_test_result_suite_loader_with_valid_structure():
+def test_test_result_suite_loader_with_valid_structure(dummy_mapping_test_result_collection_path: Path):
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
 
@@ -234,29 +280,19 @@ def test_test_result_suite_loader_with_valid_structure():
         (test_report_dir / "report.html").write_text("test report")
 
         loader = TestResultSuiteLoader()
-        result = loader.load(temp_dir_path)
+        result = loader.load(temp_dir_path, dummy_mapping_test_result_collection_path)
 
         assert isinstance(result, TestResultCollectionAsset)
-
-
-def test_mapping_package_asset_loader_protocol():
-    class TestLoader:
-        def load(self, package_folder_path: Path):
-            return "loaded"
-
-    loader = TestLoader()
-    result = loader.load(Path("/test/path"))
-    assert result == "loaded"
 
 
 def test_loader_with_nonexistent_path():
     loader = TechnicalMappingSuiteLoader()
 
     with pytest.raises(FileNotFoundError):
-        loader.load(Path("/nonexistent/path"))
+        loader.load(Path("/nonexistent/path"), Path("/nonexistent/path"))
 
 
-def test_loader_with_empty_directory():
+def test_loader_with_empty_directory(dummy_mapping_package_technical_collection_path: Path):
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
 
@@ -265,13 +301,14 @@ def test_loader_with_empty_directory():
         mapping_dir.mkdir(parents=True)
 
         loader = TechnicalMappingSuiteLoader()
-        result = loader.load(temp_dir_path)
+        result = loader.load(temp_dir_path, dummy_mapping_package_technical_collection_path)
 
         assert isinstance(result, TechnicalMappingCollectionAsset)
         assert len(result.files) == 0
 
 
-def test_vocabulary_mapping_suite_loader_with_root_folder(dummy_mapping_package_path: Path) -> None:
+def test_vocabulary_mapping_suite_loader_with_root_folder(dummy_mapping_package_path: Path,
+                                                          dummy_mapping_package_vocabulary_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -285,12 +322,13 @@ def test_vocabulary_mapping_suite_loader_with_root_folder(dummy_mapping_package_
         root_folder = temp_mp_path / temp_mp_path.name
         if root_folder.exists():
             loader = VocabularyMappingSuiteLoader()
-            mapping_suite = loader.load(temp_mp_path)
+            mapping_suite = loader.load(temp_mp_path, dummy_mapping_package_vocabulary_collection_path)
 
             assert isinstance(mapping_suite, VocabularyMappingCollectionAsset)
 
 
-def test_test_data_suites_loader_with_root_folder(dummy_mapping_package_path: Path) -> None:
+def test_test_data_suites_loader_with_root_folder(dummy_mapping_package_path: Path,
+                                                  dummy_mapping_package_test_data_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -304,12 +342,13 @@ def test_test_data_suites_loader_with_root_folder(dummy_mapping_package_path: Pa
         root_folder = temp_mp_path / temp_mp_path.name
         if root_folder.exists():
             loader = TestDataSuitesLoader()
-            test_data_suites = loader.load(temp_mp_path)
+            test_data_suites = loader.load(temp_mp_path, dummy_mapping_package_test_data_collection_path)
 
             assert isinstance(test_data_suites, list)
 
 
-def test_sparql_test_suites_loader_with_root_folder(dummy_mapping_package_path: Path) -> None:
+def test_sparql_test_suites_loader_with_root_folder(dummy_mapping_package_path: Path,
+                                                    dummy_mapping_package_sparql_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -323,12 +362,13 @@ def test_sparql_test_suites_loader_with_root_folder(dummy_mapping_package_path: 
         root_folder = temp_mp_path / temp_mp_path.name
         if root_folder.exists():
             loader = SPARQLTestSuitesLoader()
-            sparql_suites = loader.load(temp_mp_path)
+            sparql_suites = loader.load(temp_mp_path, dummy_mapping_package_sparql_collection_path)
 
             assert isinstance(sparql_suites, list)
 
 
-def test_shacl_test_suites_loader_with_root_folder(dummy_mapping_package_path: Path) -> None:
+def test_shacl_test_suites_loader_with_root_folder(dummy_mapping_package_path: Path,
+                                                   dummy_mapping_package_shacl_collection_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -342,12 +382,13 @@ def test_shacl_test_suites_loader_with_root_folder(dummy_mapping_package_path: P
         root_folder = temp_mp_path / temp_mp_path.name
         if root_folder.exists():
             loader = SHACLTestSuitesLoader()
-            shacl_suite = loader.load(temp_mp_path)
+            shacl_suite = loader.load(temp_mp_path, dummy_mapping_package_shacl_collection_path)
 
             assert isinstance(shacl_suite, SHACLTestCollectionAsset)
 
 
-def test_conceptual_mapping_file_loader_with_root_folder(dummy_mapping_package_path: Path) -> None:
+def test_conceptual_mapping_file_loader_with_root_folder(dummy_mapping_package_path: Path,
+                                                         dummy_mapping_package_conceptual_mapping_path: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
@@ -361,6 +402,6 @@ def test_conceptual_mapping_file_loader_with_root_folder(dummy_mapping_package_p
         root_folder = temp_mp_path / temp_mp_path.name
         if root_folder.exists():
             loader = ConceptualMappingFileLoader()
-            cm_file = loader.load(temp_mp_path)
+            cm_file = loader.load(temp_mp_path, dummy_mapping_package_conceptual_mapping_path)
 
             assert isinstance(cm_file, ConceptualMappingFileAsset)

@@ -5,7 +5,9 @@ from unittest.mock import patch
 
 import pytest
 
-from mapping_suite_sdk import MappingPackageV2, MappingPackageV2MetadataSerialiser, MappingPackageV2Serialiser
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser import MappingPackageV2MetadataSerialiser, \
+    MappingPackageV2Serialiser
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 
 
 def test_mp_v1_metadata_serialiser_creates_metadata_file(dummy_mapping_package_v2_model):

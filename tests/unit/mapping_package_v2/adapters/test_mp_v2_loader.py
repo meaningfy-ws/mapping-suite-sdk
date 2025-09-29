@@ -4,8 +4,6 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk import MappingPackageV2MetadataLoader, MappingPackageV2Loader, MappingPackageV2, \
-    MappingPackageV2Metadata
 from mapping_suite_sdk.core.models.collection_asset import (
     TechnicalMappingCollectionAsset,
     VocabularyMappingCollectionAsset,
@@ -15,6 +13,9 @@ from mapping_suite_sdk.core.models.collection_asset import (
     TestResultCollectionAsset
 )
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2MetadataLoader, \
+    MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
 
 
 def test_mp_v2_metadata_loader_handles_missing_file():
@@ -24,7 +25,7 @@ def test_mp_v2_metadata_loader_handles_missing_file():
         loader = MappingPackageV2MetadataLoader()
 
         with pytest.raises(FileNotFoundError):
-            loader.load(temp_dir_path)
+            loader.load(temp_dir_path, relative_asset_path=Path("non_existing_path.json"))
 
 
 def test_mp_v2_metadata_loader_handles_invalid_json():
@@ -38,7 +39,7 @@ def test_mp_v2_metadata_loader_handles_invalid_json():
         loader = MappingPackageV2MetadataLoader()
 
         with pytest.raises(json.JSONDecodeError):
-            loader.load(temp_dir_path)
+            loader.load(temp_dir_path, relative_asset_path=metadata_path)
 
 
 def test_mp_v2_loader_initialization_default_values():
@@ -83,7 +84,6 @@ def test_mp_v2_loader_handles_nonexistent_path():
 
 
 def test_mp_v2_loader_validates_package_structure(dummy_mapping_package_v2_model):
-
     # This is more of an integration test to ensure the loaded package
     # has the same structure as our test fixtures
     assert hasattr(dummy_mapping_package_v2_model, 'metadata')
@@ -97,7 +97,6 @@ def test_mp_v2_loader_validates_package_structure(dummy_mapping_package_v2_model
 
 
 def test_mp_v2_loader_component_types(dummy_mapping_package_v2_model):
-
     assert isinstance(dummy_mapping_package_v2_model.metadata, MappingPackageV2Metadata)
     assert isinstance(dummy_mapping_package_v2_model.conceptual_mapping_asset, ConceptualMappingFileAsset)
     assert isinstance(dummy_mapping_package_v2_model.technical_mapping_suite, TechnicalMappingCollectionAsset)

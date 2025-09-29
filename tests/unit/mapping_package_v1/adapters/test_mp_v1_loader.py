@@ -28,7 +28,7 @@ def test_mp_v1_metadata_loader_handles_missing_file():
         loader = MappingPackageV1MetadataLoader()
 
         with pytest.raises(FileNotFoundError):
-            loader.load(temp_dir_path)
+            loader.load(temp_dir_path, relative_asset_path=Path("non_existing_path.json"))
 
 
 def test_mp_v1_metadata_loader_handles_invalid_json():
@@ -42,7 +42,7 @@ def test_mp_v1_metadata_loader_handles_invalid_json():
         loader = MappingPackageV1MetadataLoader()
 
         with pytest.raises(json.JSONDecodeError):
-            loader.load(temp_dir_path)
+            loader.load(temp_dir_path, relative_asset_path=metadata_path)
 
 
 def test_mp_v1_loader_initialization_default_values():

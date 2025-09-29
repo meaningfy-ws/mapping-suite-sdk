@@ -3,19 +3,20 @@ from pathlib import Path
 
 import typer
 
-from mapping_suite_sdk import (validate_mapping_package_v1_from_archive, validate_mapping_package_v2_from_archive,
-                               validate_bulk_mapping_packages_v1_from_github,
-                               validate_bulk_mapping_packages_v2_from_github,
-                               validate_bulk_mapping_packages_v1_from_folder,
-                               validate_bulk_mapping_packages_v2_from_folder,
-                               MappingPackageV1Loader, MappingPackageV2Loader)
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.entrypoints.cli import typer_verbose_callback
-from mapping_suite_sdk.vars import MSSDK_TYPER_DEFAULT_ARGS, MSSDK_TYPER_COMMANDS_DEFAULT_ARGS, \
-    MSSDK_LOGGING_MESSAGE_FORMAT
+from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
+from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import \
+    validate_mapping_package_v1_from_archive, validate_bulk_mapping_packages_v1_from_github, \
+    validate_bulk_mapping_packages_v1_from_folder
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import \
+    validate_mapping_package_v2_from_archive, validate_bulk_mapping_packages_v2_from_github, \
+    validate_bulk_mapping_packages_v2_from_folder
 
 logger = logging.getLogger(__name__)
 
-mssdk_cli_validate_subcommand = typer.Typer(**MSSDK_TYPER_DEFAULT_ARGS,
+mssdk_cli_validate_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
                                             name="validate",
                                             help="Mapping Package Validation commands.")
 
@@ -33,7 +34,7 @@ def validate_common(
     ctx.obj['version'] = version
 
 
-@mssdk_cli_validate_subcommand.command(**MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+@mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
                                        name="from-archive",
                                        help="Validate archive.")
 def mssdk_cli_validate_mapping_package_from_archive(
@@ -48,7 +49,7 @@ def mssdk_cli_validate_mapping_package_from_archive(
     """Validate archive."""
     version = ctx.obj['version']
 
-    logger.debug(MSSDK_LOGGING_MESSAGE_FORMAT.format(
+    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=mapping_package_archive_path,
         message=f"Validating {version} package from archive"))
 
@@ -64,12 +65,12 @@ def mssdk_cli_validate_mapping_package_from_archive(
             mapping_package_loader=loader)
 
     status = "✅ Valid" if all_valid else "❌ Invalid"
-    logger.info(MSSDK_LOGGING_MESSAGE_FORMAT.format(
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=mapping_package_archive_path,
         message=f"{status} {version} package"))
 
 
-@mssdk_cli_validate_subcommand.command(**MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+@mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
                                        name="from-github",
                                        help="Validate packages from GitHub.")
 def mssdk_cli_validate_mapping_packages_from_github(
@@ -102,7 +103,7 @@ def mssdk_cli_validate_mapping_packages_from_github(
             mapping_package_loader=loader)
 
 
-@mssdk_cli_validate_subcommand.command(**MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+@mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
                                        name="from-folder",
                                        help="Validate packages from folder.")
 def mssdk_cli_validate_mapping_packages_from_folder(
@@ -118,7 +119,7 @@ def mssdk_cli_validate_mapping_packages_from_folder(
     """Validate packages from folder."""
     version = ctx.obj['version']
 
-    logger.info(MSSDK_LOGGING_MESSAGE_FORMAT.format(
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
         message=f"Validating {version} packages from folder"))
 
@@ -136,6 +137,6 @@ def mssdk_cli_validate_mapping_packages_from_folder(
             mapping_package_loader=loader)
 
     status = "✅ All valid" if all_valid else "❌ Invalid packages found"
-    logger.info(MSSDK_LOGGING_MESSAGE_FORMAT.format(
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
         message=f"{status} {version} packages"))

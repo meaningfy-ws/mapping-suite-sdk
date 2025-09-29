@@ -1,6 +1,7 @@
 from pathlib import Path
-from typing import Any, List, Protocol
+from typing import Any, List, Protocol, Tuple
 
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.models.collection_asset import TestDataCollectionAsset, SAPRQLTestCollectionAsset, \
     SHACLTestCollectionAsset, \
     TestResultCollectionAsset, TestDataResultCollectionAsset, TechnicalMappingCollectionAsset, \
@@ -8,7 +9,61 @@ from mapping_suite_sdk.core.models.collection_asset import TestDataCollectionAss
 from mapping_suite_sdk.core.models.file_asset import RMLMappingFileAsset, VocabularyMappingFileAsset, TestDataFileAsset, \
     SPARQLQueryFileAsset, SHACLShapesFileAsset, ReportFileAsset, TestDataResultFileAsset, ConceptualMappingFileAsset, \
     SHACLShapesResultQueryFileAsset
-from mapping_suite_sdk.utils import load_file_by_extensions
+from mapping_suite_sdk.core.models.mapping_package import MappingPackage
+
+
+def load_file_by_extensions(file_path: Path,
+                            str_extensions: Tuple = mssdk_config.MSSDK_SUPPORTED_TEXT_FILE_EXTENSIONS,
+                            bytes_extensions: Tuple = mssdk_config.MSSDK_SUPPORTED_BYTES_FILE_EXTENSIONS) -> str | bytes | None:
+    """
+    Load content from a file based on its extension.
+
+    Args:
+        file_path: Path to the file
+        str_extensions: List of extensions to read as string (text mode)
+        bytes_extensions: List of extensions to read as bytes (binary mode)
+
+    Returns:
+        File content as string or bytes depending on the extension,
+        or None if the extension is not in either list
+    """
+    if not file_path.exists():
+        return None
+
+    if not file_path.is_file():
+        return None
+
+    extension = file_path.suffix.lower()
+
+    if extension in str_extensions:
+        return file_path.read_text()
+    elif extension in bytes_extensions:
+        with open(file_path, 'rb') as file:
+            return file.read()
+    else:
+        return None
+
+
+class MappingPackageLoader(Protocol):
+    """Protocol defining the interface for mapping package loaders.
+
+    This protocol ensures that all loaders implement a consistent interface
+    for loading different components of a mapping package.
+    """
+
+    def load(self, package_folder_path: Path) -> MappingPackage:
+        """Load the mapping package from the specified package folder path.
+
+        Args:
+            package_folder_path (Path): Path to the mapping package folder.
+
+        Returns:
+            MappingPackage: The loaded package.
+
+        Raises:
+            NotImplementedError: When the method is not implemented by a concrete class.
+        """
+        raise NotImplementedError
 
 
 class MappingPackageAssetLoader(Protocol):
@@ -18,11 +73,12 @@ class MappingPackageAssetLoader(Protocol):
     for loading different components of a mapping package.
     """
 
-    def load(self, package_folder_path: Path) -> Any:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> Any:
         """Load an asset from the specified package folder path.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             Any: The loaded asset.
@@ -39,22 +95,22 @@ class TechnicalMappingSuiteLoader(MappingPackageAssetLoader):
     Handles loading of RML and YARRRML mapping files from the technical mapping suite directory.
     """
 
-    def load(self, package_folder_path: Path) -> TechnicalMappingCollectionAsset:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> TechnicalMappingCollectionAsset:
         """Load technical mapping files from the package.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             TechnicalMappingSuiteAsset: Collection of loaded RML and YARRRML mapping files.
         """
-        relative_technical_mapping_suite_path = Path("transformation/mappings")
 
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_technical_mapping_suite_path
+        asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
-            asset_path = root_folder / relative_technical_mapping_suite_path
+            asset_path = root_folder / relative_asset_path
 
         tm_files: List[RMLMappingFileAsset] = []
 
@@ -72,22 +128,22 @@ class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
     Loads vocabulary mapping files that define term mappings and transformations.
     """
 
-    def load(self, package_folder_path: Path) -> VocabularyMappingCollectionAsset:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> VocabularyMappingCollectionAsset:
         """Load vocabulary mapping files from the package.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             VocabularyMappingSuiteAsset: Collection of loaded vocabulary mapping files.
         """
-        relative_vocabulary_mapping_suite_path = Path("transformation/resources")
 
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_vocabulary_mapping_suite_path
+        asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
-            asset_path = root_folder / relative_vocabulary_mapping_suite_path
+            asset_path = root_folder / relative_asset_path
 
         files: List[VocabularyMappingFileAsset] = []
 
@@ -105,22 +161,22 @@ class TestDataSuitesLoader(MappingPackageAssetLoader):
     Handles loading of test data files organized in test suites.
     """
 
-    def load(self, package_folder_path: Path) -> List[TestDataCollectionAsset]:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> List[TestDataCollectionAsset]:
         """Load test data suites from the package.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             List[TestDataCollectionAsset]: List of test data suites, each containing test files.
         """
-        relative_test_data_path = Path("test_data")
 
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_test_data_path
+        asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
-            asset_path = root_folder / relative_test_data_path
+            asset_path = root_folder / relative_asset_path
 
         test_data_suites: List[TestDataCollectionAsset] = []
         for ts_suite in asset_path.iterdir():
@@ -140,22 +196,22 @@ class SPARQLTestSuitesLoader(MappingPackageAssetLoader):
     Handles loading of SPARQL query files organized in validation suites.
     """
 
-    def load(self, package_folder_path: Path) -> List[SAPRQLTestCollectionAsset]:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> List[SAPRQLTestCollectionAsset]:
         """Load SPARQL validation suites from the package.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             List[SAPRQLTestCollectionAsset]: List of SPARQL validation suites.
         """
-        relative_sparql_suite_path = Path("validation/sparql")
 
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_sparql_suite_path
+        asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
-            asset_path = root_folder / relative_sparql_suite_path
+            asset_path = root_folder / relative_asset_path
 
         sparql_validation_suites: List[SAPRQLTestCollectionAsset] = []
         for sparql_suite in asset_path.iterdir():
@@ -176,22 +232,22 @@ class SHACLTestSuitesLoader(MappingPackageAssetLoader):
     Handles loading of SHACL shape files organized in validation suites.
     """
 
-    def load(self, package_folder_path: Path) -> SHACLTestCollectionAsset:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> SHACLTestCollectionAsset:
         """Load SHACL validation suites from the package.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             List[SHACLTestCollectionAsset]: List of SHACL validation suites.
         """
-        relative_sparql_suite_path = Path("validation/shacl")
 
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_sparql_suite_path
+        asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
-            asset_path = root_folder / relative_sparql_suite_path
+            asset_path = root_folder / relative_asset_path
 
         shacl_validation_suites: List[SHACLShapesCollectionAsset] = []
         for shacl_suite in asset_path.iterdir():
@@ -205,8 +261,11 @@ class SHACLTestSuitesLoader(MappingPackageAssetLoader):
                                                    shacl_suite.iterdir() if ts_file.is_file()]))
 
         return SHACLTestCollectionAsset(
+            path=relative_asset_path,
             shacl_result_query=SHACLShapesResultQueryFileAsset(
-                content=(asset_path / "shacl_result_query.rq").read_text()),
+                path=mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH,
+                content=(root_folder / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH).read_text()
+            ),
             shacl_collections=shacl_validation_suites
         )
 
@@ -217,8 +276,8 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
     Handles loading of test execution results.
     """
 
-    def load(self, package_folder_path: Path) -> TestResultCollectionAsset:
-        test_result_collection_asset = TestResultCollectionAsset()
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> TestResultCollectionAsset:
+        test_result_collection_asset = TestResultCollectionAsset(path=relative_asset_path)
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
         asset_path: Path = package_folder_path / test_result_collection_asset.path
@@ -259,21 +318,21 @@ class ConceptualMappingFileLoader(MappingPackageAssetLoader):
     Handles loading of conceptual mapping Excel files.
     """
 
-    def load(self, package_folder_path: Path) -> ConceptualMappingFileAsset:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> ConceptualMappingFileAsset:
         """Load the conceptual mapping Excel file.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
+            relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
             ConceptualMappingFileAsset: The loaded conceptual mapping file.
         """
-        relative_cm_path = Path("transformation/conceptual_mappings.xlsx")
         # If the root folder persists
         root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_cm_path
+        asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
-            asset_path = root_folder / relative_cm_path
+            asset_path = root_folder / relative_asset_path
 
         return ConceptualMappingFileAsset(
             path=asset_path.relative_to(package_folder_path),

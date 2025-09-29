@@ -39,8 +39,7 @@ class ConceptualMappingFileAsset(FileAsset):
     typically describe the logical connections between different data elements without
     implementation details.
     """
-    path: Path = Field(default=Path("transformation/conceptual_mappings.xlsx"),
-                       description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")
 
     content: bytes = Field(..., description="xlsx file content in bytes")
 
@@ -83,8 +82,7 @@ class SHACLShapesResultQueryFileAsset(SPARQLQueryFileAsset):
 
     """
     content: str = Field(..., description="Content of the file")
-    path: Path = Field(default=Path("validation/shacl/shacl_result_query.rq"),
-                       description="Path within a mapping package")
+    path: Path = Field(..., description="Path within a mapping package")
 
 
 class TestDataFileAsset(FileAsset):

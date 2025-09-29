@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 import pytest
 
-from mapping_suite_sdk import MappingPackageV2, MPV2StructuralValidationStep
 from mapping_suite_sdk.core.models.collection_asset import (
     TestDataCollectionAsset,
     SAPRQLTestCollectionAsset,
@@ -16,7 +15,8 @@ from mapping_suite_sdk.core.models.file_asset import (
     SHACLShapesFileAsset, ReportFileAsset, SHACLShapesResultQueryFileAsset,
 )
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_validator import MPStructuralValidationException, \
-    MPV2HashValidationStep, MPHashValidationException, MappingPackageV2Validator
+    MPV2HashValidationStep, MPHashValidationException, MappingPackageV2Validator, MPV2StructuralValidationStep
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 
 
 def test_mp_v2_structural_validation_step_valid_package(dummy_mapping_package_v2_model):
@@ -47,7 +47,7 @@ def test_mp_v2_structural_validation_step_empty_test_data_suite():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
-        )
+            path=Path("validation/shacl/epo"))
     )
     mock_package.test_suites_sparql = [
         SAPRQLTestCollectionAsset(
@@ -62,8 +62,8 @@ def test_mp_v2_structural_validation_step_empty_test_data_suite():
                 path=Path("output/test_suite"),
                 files=[ReportFileAsset(path=Path("report.html"), content="test")]
             )
-        ]
-    )
+        ],
+        path=Path("output/test_suite"))
 
     validator = MPV2StructuralValidationStep()
 
@@ -94,6 +94,7 @@ def test_mp_v2_structural_validation_step_empty_shacl_collection():
         shacl_collections=[empty_shacl_collection],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("validation/shacl/epo"),
         )
     )
 
@@ -103,7 +104,7 @@ def test_mp_v2_structural_validation_step_empty_shacl_collection():
             files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
         )
     ]
-    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[])
+    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[], path=Path("output/test_suite"))
 
     validator = MPV2StructuralValidationStep()
 
@@ -131,6 +132,7 @@ def test_mp_v2_structural_validation_step_empty_sparql_suite():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("validation/shacl/epo"),
         )
     )
 
@@ -141,7 +143,7 @@ def test_mp_v2_structural_validation_step_empty_sparql_suite():
     )
 
     mock_package.test_suites_sparql = [empty_sparql_suite]
-    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[])
+    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[], path=Path("output/test_suite"))
 
     validator = MPV2StructuralValidationStep()
 
@@ -169,6 +171,7 @@ def test_mp_v2_structural_validation_step_empty_test_results_suite():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("validation/shacl/epo"),
         )
     )
 
@@ -187,7 +190,8 @@ def test_mp_v2_structural_validation_step_empty_test_results_suite():
 
     mock_package.test_results = TestResultCollectionAsset(
         files=[],
-        result_suites=[empty_result_suite]
+        result_suites=[empty_result_suite],
+        path=Path("output/test_suite")
     )
 
     validator = MPV2StructuralValidationStep()
@@ -211,6 +215,7 @@ def test_mp_v2_structural_validation_step_none_test_data_suites():
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
+            path=Path("validation/shacl/epo"),
         )
     )
 
@@ -221,7 +226,7 @@ def test_mp_v2_structural_validation_step_none_test_data_suites():
         )
     ]
 
-    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[])
+    mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[], path=Path("output/test_suite"))
 
     validator = MPV2StructuralValidationStep()
 

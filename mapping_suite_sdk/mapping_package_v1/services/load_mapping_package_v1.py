@@ -4,13 +4,12 @@ from typing import Optional, List
 
 from pydantic import ValidationError
 
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
-from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
-from mapping_suite_sdk.vars import MSSDK_LOGGING_MESSAGE_FORMAT
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 @traced_routine
 def load_mapping_package_v1_from_folder(
         mapping_package_folder_path: Path,
-        mapping_package_loader: Optional[MappingPackageAssetLoader] = None
+        mapping_package_loader: Optional[MappingPackageV1Loader] = None
 ) -> MappingPackageV1:
     """
     Load a mapping package from a folder path.
@@ -56,7 +55,7 @@ def load_mapping_package_v1_from_folder(
 @traced_routine
 def load_mapping_package_v1_from_archive(
         mapping_package_archive_path: Path,
-        mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
+        mapping_package_loader: Optional[MappingPackageV1Loader] = None,
         archive_unpacker: Optional[ArchivePackageExtractor] = None
 ) -> MappingPackageV1:
     """Load a mapping package from an archive file.
@@ -102,7 +101,7 @@ def load_mapping_packages_v1_from_github(
         packages_path_pattern: str,
         branch_or_tag_name: Optional[str] = None,
         github_package_extractor: Optional[GithubPackageExtractor] = None,
-        mapping_package_loader: Optional[MappingPackageAssetLoader] = None,
+        mapping_package_loader: Optional[MappingPackageV1Loader] = None,
 ) -> List[MappingPackageV1]:
     """Load mapping packages from a GitHub repository.
 
@@ -152,25 +151,6 @@ def load_mapping_packages_v1_from_github(
         Exception: Any additional exceptions that might be raised during package
             loading or processing
 
-    Example:
-        >>> # Load all packages from a specific branch
-        >>> packages = load_mapping_packages_from_github(
-        ...     repository_url="https://github.com/org/repo",
-        ...     packages_path_pattern="mappings/package*",
-        ...     branch_or_tag_name="main"
-        ... )
-        >>> for package in packages:
-        ...     print(f"Loaded package: {package.metadata.name}")
-
-        >>> # Load packages with custom loader and specific version
-        >>> custom_loader = CustomMappingPackageLoader()
-        >>> packages = load_mapping_packages_from_github(
-        ...     repository_url="https://github.com/org/repo",
-        ...     packages_path_pattern="mappings/*_can_*",
-        ...     branch_or_tag_name="v1.0.0",
-        ...     mapping_package_loader=custom_loader
-        ... )
-
     Note:
         - The function uses shallow cloning (depth=1) to minimize download size
           and time.
@@ -208,8 +188,8 @@ def load_mapping_packages_v1_from_github(
                 )
                 mapping_packages.append(package)
             except (ValidationError, Exception) as pydantic_validation_error:
-                logger.warning(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=package_path,
-                                                                   message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}"))
+                logger.warning(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=package_path,
+                                                                                message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}"))
         return mapping_packages
 
 

@@ -1,12 +1,11 @@
 import filecmp
-import shutil
 import tempfile
 from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk import MappingPackageV1, serialise_mapping_package_v1
-from tests.conftest import _compare_directories
+from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+from mapping_suite_sdk.mapping_package_v1.services.serialise_mapping_package_v1 import serialise_mapping_package_v1
 
 
 # def test_serialise_mapping_package_successful_serialisation(dummy_mapping_package_v1_model: MappingPackageV1,

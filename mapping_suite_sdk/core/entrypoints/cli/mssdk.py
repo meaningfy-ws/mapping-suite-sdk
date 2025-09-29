@@ -2,9 +2,8 @@ import logging
 
 import typer
 
-from mapping_suite_sdk import __version__
+from mapping_suite_sdk import __version__, mssdk_config
 from mapping_suite_sdk.core.entrypoints.cli import validate
-from mapping_suite_sdk.vars import MSSDK_TYPER_DEFAULT_ARGS, MSSDK_LOGGING_MESSAGE_FORMAT
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +15,7 @@ def typer_version_callback(show_version: bool) -> None:
 
 
 mssdk_cli_command = typer.Typer(
-    **MSSDK_TYPER_DEFAULT_ARGS,
+    **mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
     name="mssdk",
     help="Mapping suite SDK CLI"
 )
@@ -29,8 +28,8 @@ def common(
         version: bool = typer.Option(None, "--version", is_eager=True, callback=typer_version_callback,
                                      help="Mapping Suite SDK version"),
 ):
-    logger.debug(MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=None,
-                                                     message=f"Running MSSDK CLI with version: {__version__}"))
+    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=None,
+                                                                  message=f"Running MSSDK CLI with version: {__version__}"))
 
 
 if __name__ == "__main__":

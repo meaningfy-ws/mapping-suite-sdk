@@ -1,11 +1,39 @@
 from pathlib import Path
-from typing import Protocol, Any, List
+from typing import Protocol, Any, List, Union, Optional, NoReturn
 
 from mapping_suite_sdk.core.models.collection_asset import TechnicalMappingCollectionAsset, \
     VocabularyMappingCollectionAsset, TestDataCollectionAsset, SAPRQLTestCollectionAsset, SHACLTestCollectionAsset, \
     TestResultCollectionAsset
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
-from mapping_suite_sdk.utils import write_file_by_content_type
+
+
+def write_file_by_content_type(file_path: Path, content: Union[str, bytes]) -> Optional[NoReturn]:
+    """
+    Write content to a file based on its content type (str or bytes).
+    Raises exceptions if any errors occur during the process.
+
+    Args:
+        file_path: Path to the file
+        content: Content to write, either string or bytes
+
+    Returns:
+        None if successful
+
+    Raises:
+        TypeError: If content is neither string nor bytes
+        OSError: If file operations fail (permission issues, disk full, etc.)
+        Exception: For any other unexpected errors
+    """
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if isinstance(content, str):
+        file_path.write_text(content)
+    elif isinstance(content, bytes):
+        file_path.write_bytes(content)
+    else:
+        raise TypeError(f"Content must be str or bytes, got {type(content).__name__}")
+
+    return None
 
 
 class MappingPackageAssetSerialiser(Protocol):

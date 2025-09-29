@@ -13,7 +13,7 @@ from git import Repo
 from pydantic import TypeAdapter
 from typer.testing import CliRunner
 
-from mapping_suite_sdk import MappingPackageV1, MappingPackageV2
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.models.collection_asset import (
@@ -28,10 +28,12 @@ from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 from mapping_suite_sdk.core.models.mapping_package_metadata import MappingPackageMetadata
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_validator import MappingPackageV1Validator
+from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1_metadata import (
     MappingPackageV1Metadata
 )
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_validator import MappingPackageV2Validator
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import (
     MappingPackageV2Metadata
 )
@@ -285,13 +287,33 @@ def dummy_corrupted_mapping_package_path() -> Path:
         pytest.param(
             ((MappingPackageV2Metadata, TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH),
              TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH,
-             TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH),
+             TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH,
+
+             mssdk_config.MPV2_METADATA_FILE_ASSET_PATH,
+             mssdk_config.MPV2_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
+             mssdk_config.MPV2_VOCABULARY_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV2_TECHNICAL_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV2_TEST_DATA_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV2_SPARQL_TEST_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV2_SHACL_TEST_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV2_TEST_RESULT_COLLECTION_ASSET_PATH,
+             ),
             id="eForms_V2"
         ),
         pytest.param(
             ((MappingPackageV1Metadata, TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH),
              TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
-             TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH),
+             TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH,
+
+             mssdk_config.MPV1_METADATA_FILE_ASSET_PATH,
+             mssdk_config.MPV1_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
+             mssdk_config.MPV1_VOCABULARY_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV1_TECHNICAL_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV1_TEST_DATA_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV1_SPARQL_TEST_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV1_SHACL_TEST_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV1_TEST_RESULT_COLLECTION_ASSET_PATH,
+             ),
             id="SF_V2"
         )
     ]
@@ -302,9 +324,49 @@ def dummy_mapping_package_params(request):
 
 
 @pytest.fixture
+def dummy_mapping_package_metadata_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[3]
+
+
+@pytest.fixture
+def dummy_mapping_package_conceptual_mapping_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[4]
+
+
+@pytest.fixture
+def dummy_mapping_package_vocabulary_collection_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[5]
+
+
+@pytest.fixture
+def dummy_mapping_package_technical_collection_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[6]
+
+
+@pytest.fixture
+def dummy_mapping_package_test_data_collection_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[7]
+
+
+@pytest.fixture
+def dummy_mapping_package_shacl_collection_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[8]
+
+
+@pytest.fixture
+def dummy_mapping_package_sparql_collection_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[9]
+
+
+@pytest.fixture
+def dummy_mapping_test_result_collection_path(dummy_mapping_package_params):
+    return dummy_mapping_package_params[10]
+
+
+@pytest.fixture
 def dummy_mapping_package_model(dummy_mapping_package_params):
     """Returns the model from the parameter tuple."""
-    model_info, _, _ = dummy_mapping_package_params
+    model_info = dummy_mapping_package_params[0]
     metadata_type, model_path = model_info
 
     # Load as generic MappingPackage first, then update metadata
@@ -332,14 +394,14 @@ def dummy_mapping_package_v2_model():
 @pytest.fixture
 def dummy_mapping_package_extracted_path(dummy_mapping_package_params):
     """Returns the folder path from the parameter tuple."""
-    _, folder_path, _ = dummy_mapping_package_params
+    folder_path = dummy_mapping_package_params[1]
     return folder_path
 
 
 @pytest.fixture
 def dummy_mapping_package_path(dummy_mapping_package_params):
     """Returns the archive path from the parameter tuple."""
-    _, _, archive_path = dummy_mapping_package_params
+    archive_path = dummy_mapping_package_params[2]
     return archive_path
 
 

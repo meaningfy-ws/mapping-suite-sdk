@@ -2,9 +2,9 @@ from typing import Optional
 
 from pydantic import Field
 
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.models.mapping_package_metadata import MappingPackageMetadata
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
-from mapping_suite_sdk.vars import MSSDK_STR_MIN_LENGTH, MSSDK_STR_MAX_LENGTH
 
 
 class MappingPackageV2EligibilityConstraints(PydanticModel):
@@ -22,13 +22,16 @@ class MappingPackageV2Metadata(MappingPackageMetadata):
     """
         A class representing the metadata of eForms specific mapping package.
     """
-    identifier: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
-    title: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH)
-    issue_date: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="created_at")
+    identifier: str = Field(..., min_length=mssdk_config.MSSDK_MIN_STR_LENGTH,
+                            max_length=mssdk_config.MSSDK_MAX_STR_LENGTH)
+    title: str = Field(..., min_length=mssdk_config.MSSDK_MIN_STR_LENGTH, max_length=mssdk_config.MSSDK_MAX_STR_LENGTH)
+    issue_date: str = Field(..., min_length=mssdk_config.MSSDK_MIN_STR_LENGTH,
+                            max_length=mssdk_config.MSSDK_MAX_STR_LENGTH, alias="created_at")
     description: str = Field(..., description="Metadata description")
     mapping_version: str = Field(..., description="Version of source data that will be mapped")
     ontology_version: str = Field(..., description="Version of target ontology")
-    type: str = Field(..., min_length=MSSDK_STR_MIN_LENGTH, max_length=MSSDK_STR_MAX_LENGTH, alias="mapping_type")
+    type: str = Field(..., min_length=mssdk_config.MSSDK_MIN_STR_LENGTH, max_length=mssdk_config.MSSDK_MAX_STR_LENGTH,
+                      alias="mapping_type")
 
     eligibility_constraints: MappingPackageV2EligibilityConstraints = Field(...,
                                                                             description="Constraints defining package applicability",

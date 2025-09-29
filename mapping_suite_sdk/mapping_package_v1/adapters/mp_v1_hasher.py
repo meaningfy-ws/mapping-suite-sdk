@@ -1,8 +1,7 @@
 from typing import Optional
 
-from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher
+from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
-from mapping_suite_sdk.utils import normalize_content
 
 
 class MappingPackageV1Hasher(MappingPackageHasher):

@@ -111,6 +111,7 @@ class TechnicalMappingSuiteLoader(MappingPackageAssetLoader):
         asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
             asset_path = root_folder / relative_asset_path
+            package_folder_path = root_folder
 
         tm_files: List[RMLMappingFileAsset] = []
 
@@ -144,6 +145,7 @@ class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
         asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
             asset_path = root_folder / relative_asset_path
+            package_folder_path = root_folder
 
         files: List[VocabularyMappingFileAsset] = []
 
@@ -177,6 +179,7 @@ class TestDataSuitesLoader(MappingPackageAssetLoader):
         asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
             asset_path = root_folder / relative_asset_path
+            package_folder_path = root_folder
 
         test_data_suites: List[TestDataCollectionAsset] = []
         for ts_suite in asset_path.iterdir():
@@ -212,6 +215,7 @@ class SPARQLTestSuitesLoader(MappingPackageAssetLoader):
         asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
             asset_path = root_folder / relative_asset_path
+            package_folder_path = root_folder
 
         sparql_validation_suites: List[SAPRQLTestCollectionAsset] = []
         for sparql_suite in asset_path.iterdir():
@@ -248,6 +252,7 @@ class SHACLTestSuitesLoader(MappingPackageAssetLoader):
         asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
             asset_path = root_folder / relative_asset_path
+            package_folder_path = root_folder
 
         shacl_validation_suites: List[SHACLShapesCollectionAsset] = []
         for shacl_suite in asset_path.iterdir():
@@ -264,7 +269,7 @@ class SHACLTestSuitesLoader(MappingPackageAssetLoader):
             path=relative_asset_path,
             shacl_result_query=SHACLShapesResultQueryFileAsset(
                 path=mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH,
-                content=(root_folder / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH).read_text()
+                content=(package_folder_path / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH).read_text()
             ),
             shacl_collections=shacl_validation_suites
         )
@@ -283,6 +288,7 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
         asset_path: Path = package_folder_path / test_result_collection_asset.path
         if root_folder.exists():
             asset_path = root_folder / test_result_collection_asset.path
+            package_folder_path = root_folder
 
         test_result_collection_asset.files = [ReportFileAsset(
             path=report_path.relative_to(package_folder_path),
@@ -333,6 +339,7 @@ class ConceptualMappingFileLoader(MappingPackageAssetLoader):
         asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
             asset_path = root_folder / relative_asset_path
+            package_folder_path = root_folder
 
         return ConceptualMappingFileAsset(
             path=asset_path.relative_to(package_folder_path),

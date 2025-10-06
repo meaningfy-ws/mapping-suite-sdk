@@ -1,0 +1,142 @@
+import logging
+from pathlib import Path
+
+import typer
+
+from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.core.entrypoints.cli import typer_verbose_callback
+from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
+from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import \
+    validate_mapping_package_v1_from_archive, validate_bulk_mapping_packages_v1_from_github, \
+    validate_bulk_mapping_packages_v1_from_folder
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import \
+    validate_mapping_package_v2_from_archive, validate_bulk_mapping_packages_v2_from_github, \
+    validate_bulk_mapping_packages_v2_from_folder
+
+logger = logging.getLogger(__name__)
+
+mssdk_cli_validate_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
+                                            name="validate",
+                                            help="Mapping Package Validation commands.")
+
+
+@mssdk_cli_validate_subcommand.callback()
+def validate_common(
+        ctx: typer.Context,
+        version: str = typer.Option(..., "--version", help="Package version (v1, v2)")
+):
+    """Set validation version context."""
+    if version not in ["v1", "v2"]:
+        raise typer.BadParameter(f"Version must be v1 or v2, got: {version}")
+
+    ctx.ensure_object(dict)
+    ctx.obj['version'] = version
+
+
+@mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+                                       name="from-archive",
+                                       help="Validate archive.")
+def mssdk_cli_validate_mapping_package_from_archive(
+        ctx: typer.Context,
+        mapping_package_archive_path: Path = typer.Argument(..., exists=True),
+        include_test_data: bool = typer.Option(False, "--include-test-data"),
+        include_output: bool = typer.Option(False, "--include-output"),
+        verbose: bool = typer.Option(False, "--verbose", "-v",
+                                     is_eager=True,
+                                     callback=typer_verbose_callback),
+) -> None:
+    """Validate archive."""
+    version = ctx.obj['version']
+
+    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=mapping_package_archive_path,
+        message=f"Validating {version} package from archive"))
+
+    if version == "v1":
+        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        all_valid = validate_mapping_package_v1_from_archive(
+            mapping_package_archive_path=mapping_package_archive_path,
+            mapping_package_loader=loader)
+    elif version == "v2":
+        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        all_valid = validate_mapping_package_v2_from_archive(
+            mapping_package_archive_path=mapping_package_archive_path,
+            mapping_package_loader=loader)
+
+    status = "✅ Valid" if all_valid else "❌ Invalid"
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=mapping_package_archive_path,
+        message=f"{status} {version} package"))
+
+
+@mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+                                       name="from-github",
+                                       help="Validate packages from GitHub.")
+def mssdk_cli_validate_mapping_packages_from_github(
+        ctx: typer.Context,
+        github_repository_url: str = typer.Argument(...),
+        packages_path_pattern: str = typer.Argument(...),
+        include_test_data: bool = typer.Option(False, "--include-test-data"),
+        include_output: bool = typer.Option(False, "--include-output"),
+        branch_or_tag_name: str = typer.Option(None, "--branch", "-b"),
+        verbose: bool = typer.Option(False, "--verbose", "-v",
+                                     is_eager=True,
+                                     callback=typer_verbose_callback),
+) -> None:
+    """Validate packages from GitHub."""
+    version = ctx.obj['version']
+
+    if version == "v1":
+        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        validate_bulk_mapping_packages_v1_from_github(
+            github_repository_url=github_repository_url,
+            packages_path_pattern=packages_path_pattern,
+            branch_or_tag_name=branch_or_tag_name,
+            mapping_package_loader=loader)
+    elif version == "v2":
+        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        validate_bulk_mapping_packages_v2_from_github(
+            github_repository_url=github_repository_url,
+            packages_path_pattern=packages_path_pattern,
+            branch_or_tag_name=branch_or_tag_name,
+            mapping_package_loader=loader)
+
+
+@mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+                                       name="from-folder",
+                                       help="Validate packages from folder.")
+def mssdk_cli_validate_mapping_packages_from_folder(
+        ctx: typer.Context,
+        folder_path: Path = typer.Argument(...),
+        update_hash: bool = typer.Option(False, "--update-hash", "-u"),
+        include_test_data: bool = typer.Option(False, "--include-test-data"),
+        include_output: bool = typer.Option(False, "--include-output"),
+        verbose: bool = typer.Option(False, "--verbose", "-v",
+                                     is_eager=True,
+                                     callback=typer_verbose_callback),
+) -> None:
+    """Validate packages from folder."""
+    version = ctx.obj['version']
+
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=folder_path,
+        message=f"Validating {version} packages from folder"))
+
+    if version == "v1":
+        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        all_valid = validate_bulk_mapping_packages_v1_from_folder(
+            mapping_packages_folder_path=folder_path,
+            update_hash=update_hash,
+            mapping_package_loader=loader)
+    elif version == "v2":
+        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        all_valid = validate_bulk_mapping_packages_v2_from_folder(
+            mapping_packages_folder_path=folder_path,
+            update_hash=update_hash,
+            mapping_package_loader=loader)
+
+    status = "✅ All valid" if all_valid else "❌ Invalid packages found"
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=folder_path,
+        message=f"{status} {version} packages"))

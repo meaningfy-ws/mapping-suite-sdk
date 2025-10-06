@@ -75,6 +75,7 @@ def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path,
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        temp_mp_path = temp_mp_path / dummy_mapping_package_path.stem
 
         loader = TechnicalMappingSuiteLoader()
         mapping_suite = loader.load(temp_mp_path, dummy_mapping_package_technical_collection_path)
@@ -124,6 +125,7 @@ def test_vocabulary_mapping_suite_loader(dummy_mapping_package_path: Path,
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        temp_mp_path = temp_mp_path / dummy_mapping_package_path.stem
 
         loader = VocabularyMappingSuiteLoader()
         mapping_suite = loader.load(package_folder_path=temp_mp_path,
@@ -151,6 +153,7 @@ def test_test_data_suites_loader(dummy_mapping_package_path: Path,
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        temp_mp_path = temp_mp_path / dummy_mapping_package_path.stem
 
         loader = TestDataSuitesLoader()
         test_data_suites = loader.load(package_folder_path=temp_mp_path,
@@ -181,6 +184,7 @@ def test_sparql_test_suites_loader(dummy_mapping_package_path: Path,
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        temp_mp_path = temp_mp_path / dummy_mapping_package_path.stem
 
         loader = SPARQLTestSuitesLoader()
         sparql_suites = loader.load(package_folder_path=temp_mp_path,
@@ -238,10 +242,10 @@ def test_conceptual_mapping_file_loader(dummy_mapping_package_path: Path,
         temp_dir_path = Path(temp_dir)
         temp_mp_archive_path = temp_dir_path / dummy_mapping_package_path.name
         shutil.copy(dummy_mapping_package_path, temp_mp_archive_path)
-
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        temp_mp_path = temp_mp_path / dummy_mapping_package_path.stem
 
         loader = ConceptualMappingFileLoader()
         cm_file = loader.load(package_folder_path=temp_mp_path,

@@ -162,7 +162,7 @@ def validate_bulk_mapping_packages_v1_from_github(
         branch_or_tag_name: Optional[str] = None,
         github_package_extractor: Optional[GithubPackageExtractor] = None,
         mapping_package_loader: MappingPackageV1Loader = None,
-        mp_validator: Optional[MappingPackageV1Validator] = None) -> None | NoReturn:
+        mp_validator: Optional[MappingPackageV1Validator] = None) -> bool | NoReturn:
     if not github_repository_url:
         message: str = "Cannot validate packages from github. Repository URL is empty"
         logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source="github", message=message))
@@ -184,14 +184,24 @@ def validate_bulk_mapping_packages_v1_from_github(
         github_package_extractor=github_package_extractor,
         mapping_package_loader=mapping_package_loader)
 
+    all_valid: bool = True
     for mapping_package in mapping_packages:
         try:
             validate_mapping_package_v1(mapping_package=mapping_package, mp_validator=mp_validator)
         except MPValidationException as validation_exception:
-            logger.warning(
+            logger.error(
                 mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.identifier,
                                                                  message=f"Mapping package is not valid: {validation_exception}"))
+            all_valid = False
+            continue
+        except Exception as unexpected_exception:
+            logger.error(
+                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.identifier,
+                                                                 message=f"Unexpected exception raised: {unexpected_exception}"))
+            all_valid = False
+            continue
         else:
             logger.info(
                 mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.identifier,
                                                                  message=f"✅ The package is valid!"))
+    return all_valid

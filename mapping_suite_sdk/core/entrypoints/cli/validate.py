@@ -58,7 +58,7 @@ def mssdk_cli_validate_mapping_package_from_archive(
         all_valid = validate_mapping_package_v1_from_archive(
             mapping_package_archive_path=mapping_package_archive_path,
             mapping_package_loader=loader)
-    elif version == "v2":
+    else: #elif version == "v2":
         loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_mapping_package_v2_from_archive(
             mapping_package_archive_path=mapping_package_archive_path,
@@ -68,6 +68,9 @@ def mssdk_cli_validate_mapping_package_from_archive(
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=mapping_package_archive_path,
         message=f"{status} {version} package"))
+
+    if not all_valid:
+        raise typer.Exit(code=1)
 
 
 @mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
@@ -89,18 +92,21 @@ def mssdk_cli_validate_mapping_packages_from_github(
 
     if version == "v1":
         loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
-        validate_bulk_mapping_packages_v1_from_github(
+        all_valid = validate_bulk_mapping_packages_v1_from_github(
             github_repository_url=github_repository_url,
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
             mapping_package_loader=loader)
-    elif version == "v2":
+    else: #elif version == "v2":
         loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
-        validate_bulk_mapping_packages_v2_from_github(
+        all_valid = validate_bulk_mapping_packages_v2_from_github(
             github_repository_url=github_repository_url,
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
             mapping_package_loader=loader)
+
+    if not all_valid:
+        raise typer.Exit(code=1)
 
 
 @mssdk_cli_validate_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
@@ -129,7 +135,7 @@ def mssdk_cli_validate_mapping_packages_from_folder(
             mapping_packages_folder_path=folder_path,
             update_hash=update_hash,
             mapping_package_loader=loader)
-    elif version == "v2":
+    else: #elif version == "v2":
         loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v2_from_folder(
             mapping_packages_folder_path=folder_path,
@@ -140,3 +146,6 @@ def mssdk_cli_validate_mapping_packages_from_folder(
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
         message=f"{status} {version} packages"))
+
+    if not all_valid:
+        raise typer.Exit(code=1)

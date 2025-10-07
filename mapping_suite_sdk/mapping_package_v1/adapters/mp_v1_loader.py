@@ -38,7 +38,6 @@ class MappingPackageV1MetadataLoader(MappingPackageAssetLoader):
         model_dict: dict = json.loads(asset_path.read_text())
         model_dict['path'] = asset_path.relative_to(package_folder_path)
         mp_metadata = TypeAdapter(MappingPackageV1Metadata).validate_python(model_dict)
-        mp_metadata.path = asset_path
         return mp_metadata
 
 

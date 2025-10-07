@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List
 
 from pydantic import Field
 
@@ -7,16 +7,27 @@ from mapping_suite_sdk.core.models.mapping_package_metadata import MappingPackag
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
 
+class MappingPackageV1Constraints(PydanticModel):
+    """
+
+    """
+
+    eforms_subtype: List[int] = Field(..., description="")
+
+    start_date: List[str] = Field(..., description="")
+
+    end_date: List[str] = Field(..., description="")
+
+    min_xsd_version: List[str] = Field(..., description="")
+
+    max_xsd_version: List[str] = Field(..., description="")
+
+
 class MappingPackageV1EligibilityConstraints(PydanticModel):
     """
-        This shall be a generic dict-like structure as the constraints
-        in the V2 (used in eForms mappings) are different from the
-        constraints in the V1 (used in Standard Forms mappings).
-    """
-    # TODO: For the moment, no concrete structure is provided
-    constraints: dict = Field(default_factory=dict)
 
-    description: Optional[str] = Field(default=None, exclude=True)
+    """
+    constraints: MappingPackageV1Constraints = Field(..., description="")
 
 
 class MappingPackageV1Metadata(MappingPackageMetadata):
@@ -31,6 +42,7 @@ class MappingPackageV1Metadata(MappingPackageMetadata):
     mapping_version: str = Field(..., description="Version of source data that will be mapped", alias="version")
     ontology_version: str = Field(..., description="Version of target ontology")
     description: str = Field(..., description="Metadata description")
+
     eligibility_constraints: MappingPackageV1EligibilityConstraints = Field(...,
                                                                             description="Constraints defining package applicability",
                                                                             alias="metadata_constraints")

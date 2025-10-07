@@ -9,7 +9,7 @@ from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
 class MappingPackageV2Constraints(PydanticModel):
     """
-
+        A class that defines specific fields of the mapping packages version specific constraints.
     """
 
     eforms_subtype: List[str] = Field(..., description="")
@@ -23,9 +23,9 @@ class MappingPackageV2Constraints(PydanticModel):
 
 class MappingPackageV2EligibilityConstraints(PydanticModel):
     """
-
+        A class that defines constraints field used in metadata.json
     """
-    constraints: MappingPackageV2Constraints = Field(..., description="")
+    constraints: MappingPackageV2Constraints = Field(..., description="Fields with mapping package version specific constraints")
 
 
 class MappingPackageV2Metadata(MappingPackageMetadata):

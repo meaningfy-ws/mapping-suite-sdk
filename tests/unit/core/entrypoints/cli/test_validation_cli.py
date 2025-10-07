@@ -371,7 +371,7 @@ def test_validate_from_folder_v1_failure_output(mock_validate,
         ["--version", "v1", "from-folder", str(folder_path)]
     )
 
-    assert result.exit_code == 0
+    assert result.exit_code == 1
     assert "❌ Invalid packages found v1 packages" in caplog.text
 
 
@@ -390,7 +390,7 @@ def test_validate_from_folder_v2_failure_output(mock_validate,
         ["--version", "v2", "from-folder", str(folder_path)]
     )
 
-    assert result.exit_code == 0
+    assert result.exit_code == 1
     assert "❌ Invalid packages found v2 packages" in caplog.text
 
 
@@ -438,7 +438,7 @@ def test_validate_from_archive_v1_invalid_package_output(mock_validate,
         ["--version", "v1", "from-archive", str(dummy_mapping_package_path)]
     )
 
-    assert result.exit_code == 0
+    assert result.exit_code == 1
     assert "❌ Invalid v1 package" in caplog.text
 
 
@@ -454,7 +454,7 @@ def test_validate_from_archive_v2_invalid_package_output(mock_validate,
         ["--version", "v2", "from-archive", str(dummy_mapping_package_path)]
     )
 
-    assert result.exit_code == 0
+    assert result.exit_code == 1
     assert "❌ Invalid v2 package" in caplog.text
 
 

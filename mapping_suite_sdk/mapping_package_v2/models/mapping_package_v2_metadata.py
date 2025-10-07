@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import Field
 
@@ -7,15 +7,25 @@ from mapping_suite_sdk.core.models.mapping_package_metadata import MappingPackag
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
 
+class MappingPackageV2Constraints(PydanticModel):
+    """
+
+    """
+
+    eforms_subtype: List[str] = Field(..., description="")
+
+    start_date: Optional[List[str]] = Field(..., description="")
+
+    end_date: Optional[List[str]] = Field(..., description="")
+
+    eforms_sdk_versions: List[str] = Field(..., description="")
+
+
 class MappingPackageV2EligibilityConstraints(PydanticModel):
     """
-        This shall be a generic dict-like structure as the constraints
-        in the V2 (eForms) are different from the constraints in the V1 (Standard Forms).
-    """
-    # TODO: For the moment, no concrete structure is provided
-    constraints: dict = Field(default_factory=dict)
 
-    description: Optional[str] = Field(default=None, exclude=True)
+    """
+    constraints: MappingPackageV2Constraints = Field(..., description="")
 
 
 class MappingPackageV2Metadata(MappingPackageMetadata):

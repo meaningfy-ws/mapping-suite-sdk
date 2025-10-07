@@ -18,7 +18,6 @@ class MappingPackageV2MetadataSerialiser(MappingPackageAssetSerialiser):
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
         metadata_path.write_text(asset.model_dump_json(by_alias=True,
                                                        exclude={fields(MappingPackageV2Metadata).path},
-                                                       exclude_none=True,
                                                        # For V2 (eForms)
                                                        indent=4))
 

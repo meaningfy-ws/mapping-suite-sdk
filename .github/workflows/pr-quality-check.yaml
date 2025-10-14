@@ -29,9 +29,6 @@ jobs:
           sudo apt-get install -y python3-dev libsqlite3-dev
           make install
 
-      - name: Run unit tests with coverage
-        run: make test-unit
-
       - name: Verify generated code is up to date
         id: verify_generated_code
         run: |
@@ -68,6 +65,9 @@ jobs:
 
             Please regenerate the models locally and push the changes to update this PR.`
             })
+
+      - name: Run unit tests with coverage
+        run: make test-unit
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5

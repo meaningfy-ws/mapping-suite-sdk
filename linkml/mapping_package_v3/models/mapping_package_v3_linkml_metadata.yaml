@@ -13,7 +13,7 @@ classes:
   MappingPackageV3LinkMLMetadata:
     description: Metadata for a data transformation rules package
     slots:
-      - identifier
+      - id
       - title
       - project_identifier
       - created_at
@@ -44,7 +44,7 @@ classes:
       - end
 
 slots:
-  identifier:
+  id:
     required: true
     identifier: true
     description: Unique identifier of the package

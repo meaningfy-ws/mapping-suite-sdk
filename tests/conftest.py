@@ -37,6 +37,8 @@ from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import Mappi
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import (
     MappingPackageV2Metadata
 )
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3Metadata
 from tests import (
     TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH,
@@ -45,7 +47,8 @@ from tests import (
     TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH,
     TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH,
-    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH
+    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH,
+    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH, TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH
 )
 
 
@@ -314,7 +317,23 @@ def dummy_corrupted_mapping_package_path() -> Path:
              mssdk_config.MPV1_SHACL_TEST_COLLECTION_ASSET_PATH,
              mssdk_config.MPV1_TEST_RESULT_COLLECTION_ASSET_PATH,
              ),
-            id="SF_V2"
+            id="SF_V1"
+        ),
+        pytest.param(
+            ((MappingPackageV3Metadata, None),
+             TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
+             TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
+
+             mssdk_config.MPV3_METADATA_FILE_ASSET_PATH,
+             mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
+             mssdk_config.MPV3_VOCABULARY_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV3_TECHNICAL_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV3_TEST_DATA_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV3_SPARQL_TEST_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV3_SHACL_TEST_COLLECTION_ASSET_PATH,
+             mssdk_config.MPV3_TEST_RESULT_COLLECTION_ASSET_PATH,
+             ),
+            id="Unified_V3"
         )
     ]
 )
@@ -391,6 +410,14 @@ def dummy_mapping_package_v2_model():
     return model
 
 
+# @pytest.fixture
+# def dummy_mapping_package_v3_model():
+#     # Load as generic MappingPackage first, then update metadata
+#     model = TypeAdapter(MappingPackageV3).validate_json(TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH.read_text())
+#     model.metadata = MappingPackageV3Metadata(**model.metadata.model_dump())
+#     return model
+
+
 @pytest.fixture
 def dummy_mapping_package_extracted_path(dummy_mapping_package_params):
     """Returns the folder path from the parameter tuple."""
@@ -407,14 +434,20 @@ def dummy_mapping_package_path(dummy_mapping_package_params):
 
 @pytest.fixture
 def dummy_mapping_package_v1_path():
-    """Returns the archive path from the parameter tuple."""
+    """Returns the path from the parameter tuple."""
     return TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH
 
 
 @pytest.fixture
 def dummy_mapping_package_v2_path():
-    """Returns the archive path from the parameter tuple."""
+    """Returns the path from the parameter tuple."""
     return TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH
+
+
+@pytest.fixture
+def dummy_mapping_package_v3_path():
+    """Returns the path from the parameter tuple."""
+    return TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH
 
 
 @pytest.fixture
@@ -427,6 +460,12 @@ def dummy_mapping_package_v1_archive_path():
 def dummy_mapping_package_v2_archive_path():
     """Returns the archive path from the parameter tuple."""
     return TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH
+
+
+@pytest.fixture
+def dummy_mapping_package_v3_archive_path():
+    """Returns the archive path from the parameter tuple."""
+    return TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH
 
 
 @pytest.fixture

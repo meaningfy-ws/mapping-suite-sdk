@@ -48,7 +48,8 @@ from tests import (
     TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH,
-    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH, TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH
+    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH, TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
+    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH
 )
 
 
@@ -407,6 +408,13 @@ def dummy_mapping_package_v2_model():
     # Load as generic MappingPackage first, then update metadata
     model = TypeAdapter(MappingPackageV2).validate_json(TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH.read_text())
     model.metadata = MappingPackageV2Metadata(**model.metadata.model_dump())
+    return model
+
+
+@pytest.fixture
+def fixture_mapping_package_v3_model() -> MappingPackageV3:
+    model = MappingPackageV3.model_validate_json(TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH.read_text())
+    model.metadata = MappingPackageV3Metadata(**model.metadata.model_dump())
     return model
 
 

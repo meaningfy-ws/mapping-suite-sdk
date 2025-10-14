@@ -34,7 +34,7 @@ install-poetry:
 	@ pip install "poetry==2.0.1"
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Poetry for MSSDK is installed$(END_BUILD_PRINT)"
 
-test-unit:
+test-unit: generate-models
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Running unit tests for MSSDK$(END_BUILD_PRINT)"
 	@ poetry run tox
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Running unit tests for MSSDK done$(END_BUILD_PRINT)"

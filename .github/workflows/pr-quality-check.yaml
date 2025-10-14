@@ -29,6 +29,9 @@ jobs:
           sudo apt-get install -y python3-dev libsqlite3-dev
           make install
 
+      - name: Run unit tests with coverage
+        run: make test-unit
+
       - name: Verify generated code is up to date
         id: verify_generated_code
         run: |
@@ -44,30 +47,33 @@ jobs:
 
       - name: Comment on PR about out-of-sync code
         if: failure() && steps.verify_generated_code.outputs.has_changes == 'true'
-        uses: actions/github-script@v7
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `## ⚠️ Generated Code Out of Sync with LinkML schemas
+          message: |
+            ## ⚠️ Generated Code Out of Sync with LinkML schemas
 
-            The Python models in \`mapping_suite_sdk/\` are out of sync with the LinkML schemas in \`linkml/\`.
+            The Python models in `mapping_suite_sdk/` are out of sync with the LinkML schemas in `linkml/`.
 
             **To fix this locally:**
-            \`\`\`bash
+            ```bash
             make test-unit
             git add mapping_suite_sdk/
             git commit -m "chore: regenerate models from LinkML schemas"
             git push
-            \`\`\`
+            ```
 
-            Please regenerate the models locally and push the changes to update this PR.`
-            })
+            Please regenerate the models locally and push the changes to update this PR.
+          comment_tag: generated_code_check
 
-      - name: Run unit tests with coverage
-        run: make test-unit
+      - name: Comment on PR that generated code is in sync
+        if: success() && steps.verify_generated_code.outputs.has_changes == 'false'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ## ✅ Generated Code is in Sync with LinkML schemas
+
+            The Python models in `mapping_suite_sdk/` are up to date with the LinkML schemas in `linkml/`.
+          comment_tag: generated_code_check
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5

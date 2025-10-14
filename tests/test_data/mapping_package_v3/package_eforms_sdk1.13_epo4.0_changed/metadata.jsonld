@@ -1,0 +1,140 @@
+{
+  "@context": {
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "linkml": "https://w3id.org/linkml/",
+    "mnfy": "https://meaningfy.ws/mapping/",
+    "@vocab": "https://meaningfy.ws/mapping/",
+    "applicability_constraints": {
+      "@type": "mnfy:ApplicabilityConstraints",
+      "@id": "applicability_constraints"
+    },
+    "created_at": {
+      "@type": "xsd:dateTime",
+      "@id": "created_at"
+    },
+    "description": {
+      "@id": "description"
+    },
+    "document_time_interval": {
+      "@type": "mnfy:DateTimeInterval",
+      "@id": "document_time_interval"
+    },
+    "document_type_list": {
+      "@id": "document_type_list"
+    },
+    "document_version_list": {
+      "@id": "document_version_list"
+    },
+    "document_version_range": {
+      "@type": "mnfy:VersionRange",
+      "@id": "document_version_range"
+    },
+    "end": {
+      "@type": "xsd:dateTime",
+      "@id": "end"
+    },
+    "id": "@id",
+    "mapping_suite_hash_digest": {
+      "@id": "mapping_suite_hash_digest"
+    },
+    "mapping_version": {
+      "@id": "mapping_version"
+    },
+    "max": {
+      "@id": "max"
+    },
+    "min": {
+      "@id": "min"
+    },
+    "model_version": {
+      "@id": "model_version"
+    },
+    "project_identifier": {
+      "@id": "project_identifier"
+    },
+    "start": {
+      "@type": "xsd:dateTime",
+      "@id": "start"
+    },
+    "title": {
+      "@id": "title"
+    },
+    "ApplicabilityConstraints": {
+      "@id": "ApplicabilityConstraints"
+    },
+    "DataMappingPackage": {
+      "@id": "DataMappingPackage"
+    },
+    "DateTimeInterval": {
+      "@id": "DateTimeInterval"
+    },
+    "VersionRange": {
+      "@id": "VersionRange"
+    }
+  },
+  "@type": "MappingPackage",
+  "id": "package_eforms_sdk1.13_epo4.0",
+  "title": "Package eForms all subtypes, SDK v1.13, ePO 4.0.0",
+  "project_identifier": "eforms",
+  "created_at": "2025-07-17T21:41:45.655425+00:00",
+  "mapping_version": "1.1.0",
+  "model_version": "4.0.0",
+  "description": "This is the mapping suite for all eForm subtypes except X01 and X02, SDK version 1.13, ePO version 4.0.0",
+  "applicability_constraints": {
+    "document_type_list": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "CEI",
+      "T01",
+      "T02",
+      "E1",
+      "E2",
+      "E3",
+      "E4",
+      "E5",
+      "E6"
+    ],
+    "document_version_list": [
+      "1.10"
+    ]
+  },
+  "mapping_suite_hash_digest": "2b5405d68baa835e9936649719093867a9db0ab17f2cf6ed4fde1b64a928bca5"
+}

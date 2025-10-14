@@ -1,5 +1,5 @@
-id: MappingPackageV3Metadata
-name: MappingPackageV3Metadata
+id: MappingPackageV3LinkMLMetadata
+name: MappingPackageV3LinkMLMetadata
 description: Schema for a data transformation rules package metadata
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -10,7 +10,7 @@ imports:
   - linkml:types
 
 classes:
-  MappingPackageV3Metadata:
+  MappingPackageV3LinkMLMetadata:
     description: Metadata for a data transformation rules package
     slots:
       - id

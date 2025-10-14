@@ -8,6 +8,9 @@ jobs:
   test:
     name: Pylint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # Required for commenting on PRs
 
     steps:
       - uses: actions/checkout@v4
@@ -27,10 +30,31 @@ jobs:
           make install
 
       - name: Run Pylint with report
-        run: make lint-report
+        id: pylint
+        continue-on-error: true
+        run: |
+          make lint-report
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Check if report exists
+        id: check_report
+        run: |
+          if [ -f pylint_report.txt ]; then
+            echo "report_exists=true" >> $GITHUB_OUTPUT
+            cat pylint_report.txt
+          else
+            echo "report_exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Publish Pylint Comment
+        if: always() && steps.check_report.outputs.report_exists == 'true'
         uses: thollander/actions-comment-pull-request@v2
         with:
           filePath: pylint_report.txt
           comment_tag: pylint
+
+      - name: Fail if Pylint score is too low
+        if: steps.pylint.outputs.exit_code != '0'
+        run: |
+          echo "::error::Pylint found issues. Please fix them."
+          exit 1

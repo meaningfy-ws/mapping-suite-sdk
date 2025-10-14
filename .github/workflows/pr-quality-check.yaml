@@ -29,8 +29,8 @@ jobs:
           sudo apt-get install -y python3-dev libsqlite3-dev
           make install
 
-      - name: Run unit tests with coverage
-        run: make test-unit
+      - name: Run generate LinkML models
+        run: make generate-models
 
       - name: Verify generated code is up to date
         id: verify_generated_code
@@ -64,6 +64,9 @@ jobs:
 
             Please regenerate the models locally and push the changes to update this PR.
           comment_tag: generated_code_check
+
+      - name: Run unit tests with coverage
+        run: make test-unit
 
       - name: Comment on PR that generated code is in sync
         if: success() && steps.verify_generated_code.outputs.has_changes == 'false'

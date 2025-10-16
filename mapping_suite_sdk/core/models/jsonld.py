@@ -12,8 +12,8 @@ class JSONLDModel(PydanticModel):
     """
 
     context: Optional[Union[Dict[str, Any], str]] = Field(default=None, alias='@context')
-    id: Optional[str] = Field(default=None, alias='@id')
     type: Optional[str] = Field(default=None, alias='@type')
+    id: Optional[str] = Field(default=None, alias='@id')
 
     model_config = ConfigDict(
         populate_by_name=True,

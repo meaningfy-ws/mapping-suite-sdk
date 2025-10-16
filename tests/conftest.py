@@ -10,7 +10,7 @@ from typing import Set, Optional
 import mongomock
 import pytest
 from git import Repo
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, Field
 from typer.testing import CliRunner
 
 from mapping_suite_sdk import mssdk_config
@@ -55,6 +55,8 @@ from tests import (
 
 class TestModel(PydanticModel):
     """Test model for repository and general testing purposes."""
+    id: str = Field(default="dummy_id", alias="_id")
+
     name: str
     description: Optional[str] = None
     count: int = 0

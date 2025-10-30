@@ -42,7 +42,7 @@ class MappingPackageV3LinkMLMetadata(ConfiguredBaseModel):
     Metadata for a data transformation rules package
     """
 
-    id: str = Field(default=..., description="""Unique identifier of the package""")
+    identifier: str = Field(default=..., description="""Unique identifier of the package""")
     title: str = Field(
         default=..., description="""Human-readable name of the package"""
     )

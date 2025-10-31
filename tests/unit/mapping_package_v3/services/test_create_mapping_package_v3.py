@@ -94,3 +94,151 @@ def test_create_mpv3_from_mpv2_fails_with_invalid_input() -> None:
     with pytest.raises((TypeError, AttributeError, ValueError)):
         create_mpv3_from_mpv2(None)  # type: ignore
 
+
+def test_create_mpv3_from_mpv2_with_different_datetime_formats(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
+    """Test datetime parsing with various formats and edge cases."""
+    from copy import deepcopy
+    from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
+    
+    # Test with ISO format string (already covered, but explicit)
+    mpv2_iso = deepcopy(dummy_mapping_package_v2_model)
+    mpv2_iso.metadata = MappingPackageV2Metadata(**{**mpv2_iso.metadata.model_dump(), "issue_date": "2023-06-13T19:31:37.496360+00:00"})
+    result = create_mpv3_from_mpv2(mpv2_iso)
+    assert isinstance(result.metadata.created_at, datetime)
+    
+    # Test with format: "%Y-%m-%d %H:%M:%S.%f%z"
+    mpv2_strptime1 = deepcopy(dummy_mapping_package_v2_model)
+    mpv2_strptime1.metadata = MappingPackageV2Metadata(**{**mpv2_strptime1.metadata.model_dump(), "issue_date": "2023-06-13 19:31:37.496360+00:00"})
+    result = create_mpv3_from_mpv2(mpv2_strptime1)
+    assert isinstance(result.metadata.created_at, datetime)
+    
+    # Test with format: "%Y-%m-%d %H:%M:%S%z" (without microseconds)
+    mpv2_strptime2 = deepcopy(dummy_mapping_package_v2_model)
+    mpv2_strptime2.metadata = MappingPackageV2Metadata(**{**mpv2_strptime2.metadata.model_dump(), "issue_date": "2023-06-13 19:31:37+00:00"})
+    result = create_mpv3_from_mpv2(mpv2_strptime2)
+    assert isinstance(result.metadata.created_at, datetime)
+    
+    # Test with invalid format that should fallback to datetime.now()
+    mpv2_invalid = deepcopy(dummy_mapping_package_v2_model)
+    mpv2_invalid.metadata = MappingPackageV2Metadata(**{**mpv2_invalid.metadata.model_dump(), "issue_date": "invalid-date-format"})
+    result = create_mpv3_from_mpv2(mpv2_invalid)
+    assert isinstance(result.metadata.created_at, datetime)  # Should fallback to now()
+    
+    # Test with Z suffix (UTC) - should be handled by replace("Z", "+00:00")
+    mpv2_z_suffix = deepcopy(dummy_mapping_package_v2_model)
+    mpv2_z_suffix.metadata = MappingPackageV2Metadata(**{**mpv2_z_suffix.metadata.model_dump(), "issue_date": "2023-06-13T19:31:37.496360Z"})
+    result = create_mpv3_from_mpv2(mpv2_z_suffix)
+    assert isinstance(result.metadata.created_at, datetime)
+
+
+def test_create_mpv3_from_mpv2_with_date_intervals(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
+    """Test date interval conversion with various edge cases."""
+    from copy import deepcopy
+    from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import (
+        MappingPackageV2Metadata,
+        MappingPackageV2EligibilityConstraints,
+        MappingPackageV2Constraints,
+    )
+    
+    # Test with start_date and end_date as lists
+    mpv2_with_dates = deepcopy(dummy_mapping_package_v2_model)
+    constraints = MappingPackageV2Constraints(
+        eforms_subtype=["29"],
+        start_date=["2023-01-01T00:00:00+00:00"],
+        end_date=["2024-12-31T23:59:59+00:00"],
+        eforms_sdk_versions=["1.9"]
+    )
+    mpv2_with_dates.metadata = MappingPackageV2Metadata(**{
+        **mpv2_with_dates.metadata.model_dump(),
+        "eligibility_constraints": MappingPackageV2EligibilityConstraints(constraints=constraints)
+    })
+    result = create_mpv3_from_mpv2(mpv2_with_dates)
+    assert result.metadata.applicability_constraints is not None
+    assert result.metadata.applicability_constraints.document_time_interval is not None
+    assert result.metadata.applicability_constraints.document_time_interval.start is not None
+    assert result.metadata.applicability_constraints.document_time_interval.end is not None
+    
+    # Test with only start_date
+    mpv2_start_only = deepcopy(dummy_mapping_package_v2_model)
+    constraints_start = MappingPackageV2Constraints(
+        eforms_subtype=["29"],
+        start_date=["2023-01-01T00:00:00+00:00"],
+        end_date=None,
+        eforms_sdk_versions=["1.9"]
+    )
+    mpv2_start_only.metadata = MappingPackageV2Metadata(**{
+        **mpv2_start_only.metadata.model_dump(),
+        "eligibility_constraints": MappingPackageV2EligibilityConstraints(constraints=constraints_start)
+    })
+    result = create_mpv3_from_mpv2(mpv2_start_only)
+    assert result.metadata.applicability_constraints is not None
+    assert result.metadata.applicability_constraints.document_time_interval is not None
+    assert result.metadata.applicability_constraints.document_time_interval.start is not None
+    
+    # Test with only end_date
+    mpv2_end_only = deepcopy(dummy_mapping_package_v2_model)
+    constraints_end = MappingPackageV2Constraints(
+        eforms_subtype=["29"],
+        start_date=None,
+        end_date=["2024-12-31T23:59:59+00:00"],
+        eforms_sdk_versions=["1.9"]
+    )
+    mpv2_end_only.metadata = MappingPackageV2Metadata(**{
+        **mpv2_end_only.metadata.model_dump(),
+        "eligibility_constraints": MappingPackageV2EligibilityConstraints(constraints=constraints_end)
+    })
+    result = create_mpv3_from_mpv2(mpv2_end_only)
+    assert result.metadata.applicability_constraints is not None
+    assert result.metadata.applicability_constraints.document_time_interval is not None
+    assert result.metadata.applicability_constraints.document_time_interval.end is not None
+    
+    # Test with empty lists (should not create interval)
+    mpv2_empty_dates = deepcopy(dummy_mapping_package_v2_model)
+    constraints_empty = MappingPackageV2Constraints(
+        eforms_subtype=["29"],
+        start_date=[],
+        end_date=[],
+        eforms_sdk_versions=["1.9"]
+    )
+    mpv2_empty_dates.metadata = MappingPackageV2Metadata(**{
+        **mpv2_empty_dates.metadata.model_dump(),
+        "eligibility_constraints": MappingPackageV2EligibilityConstraints(constraints=constraints_empty)
+    })
+    result = create_mpv3_from_mpv2(mpv2_empty_dates)
+    assert result.metadata.applicability_constraints is not None
+    # document_time_interval should be None when both dates are empty
+    assert result.metadata.applicability_constraints.document_time_interval is None
+    
+    # Test with invalid date strings (should gracefully handle parsing errors)
+    mpv2_invalid_dates = deepcopy(dummy_mapping_package_v2_model)
+    constraints_invalid = MappingPackageV2Constraints(
+        eforms_subtype=["29"],
+        start_date=["invalid-date"],
+        end_date=["also-invalid"],
+        eforms_sdk_versions=["1.9"]
+    )
+    mpv2_invalid_dates.metadata = MappingPackageV2Metadata(**{
+        **mpv2_invalid_dates.metadata.model_dump(),
+        "eligibility_constraints": MappingPackageV2EligibilityConstraints(constraints=constraints_invalid)
+    })
+    result = create_mpv3_from_mpv2(mpv2_invalid_dates)
+    assert result.metadata.applicability_constraints is not None
+    # Should not crash, interval should be None if parsing fails for both
+    # (The logic creates interval only if at least one date parses successfully)
+    
+    # Test with empty string in list
+    mpv2_empty_str = deepcopy(dummy_mapping_package_v2_model)
+    constraints_empty_str = MappingPackageV2Constraints(
+        eforms_subtype=["29"],
+        start_date=[""],
+        end_date=[""],
+        eforms_sdk_versions=["1.9"]
+    )
+    mpv2_empty_str.metadata = MappingPackageV2Metadata(**{
+        **mpv2_empty_str.metadata.model_dump(),
+        "eligibility_constraints": MappingPackageV2EligibilityConstraints(constraints=constraints_empty_str)
+    })
+    result = create_mpv3_from_mpv2(mpv2_empty_str)
+    assert result.metadata.applicability_constraints is not None
+    # Should handle empty strings gracefully
+

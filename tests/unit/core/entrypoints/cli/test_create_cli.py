@@ -3,35 +3,35 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from mapping_suite_sdk.core.entrypoints.cli.create import mssdk_cli_create_subcommand
+from mapping_suite_sdk.core.entrypoints.cli.create import mssdk_cli_convert_subcommand
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 
 
 def test_create_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
-    result = typer_cli_runner.invoke(mssdk_cli_create_subcommand, ["--help"])
+    result = typer_cli_runner.invoke(mssdk_cli_convert_subcommand, ["--help"])
 
     assert result.exit_code == 0
-    assert "create" in result.stdout
+    assert "convert" in result.stdout
     assert "New mapping package version (v3)" in result.stdout
 
 
-def test_create_cli_command_invalid_new_version(typer_cli_runner: CliRunner) -> None:
-    result = typer_cli_runner.invoke(mssdk_cli_create_subcommand, ["--version", "v2"])
+def test_create_cli_command_invalid_new_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
+    result = typer_cli_runner.invoke(mssdk_cli_convert_subcommand, ["--version", "v2", "--from-version", "v2", "--input", str(tmp_path), "--output", str(tmp_path / "out")])
 
     assert result.exit_code != 0
 
 
 def test_create_cli_command_valid_version_shows_from_command(typer_cli_runner: CliRunner) -> None:
-    result = typer_cli_runner.invoke(mssdk_cli_create_subcommand, ["--version", "v3", "--help"])
+    result = typer_cli_runner.invoke(mssdk_cli_convert_subcommand, ["--help"])
 
     assert result.exit_code == 0
-    assert "from" in result.stdout
+    assert "--from-version" in result.stdout
 
 
 def test_create_cli_command_invalid_base_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     result = typer_cli_runner.invoke(
-        mssdk_cli_create_subcommand,
-        ["--version", "v3", "from", "--version", "v1", "--input", str(tmp_path), "--output", str(tmp_path / "out")]
+        mssdk_cli_convert_subcommand,
+        ["--version", "v3", "--from-version", "v1", "--input", str(tmp_path), "--output", str(tmp_path / "out")]
     )
 
     assert result.exit_code != 0
@@ -40,8 +40,8 @@ def test_create_cli_command_invalid_base_version(typer_cli_runner: CliRunner, tm
 def test_create_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     invalid_path = tmp_path / "nonexistent"
     result = typer_cli_runner.invoke(
-        mssdk_cli_create_subcommand,
-        ["--version", "v3", "from", "--version", "v2", "--input", str(invalid_path), "--output", str(tmp_path / "out")]
+        mssdk_cli_convert_subcommand,
+        ["--version", "v3", "--from-version", "v2", "--input", str(invalid_path), "--output", str(tmp_path / "out")]
     )
 
     assert result.exit_code != 0
@@ -64,8 +64,8 @@ def test_create_from_command_success(mock_serialiser,
 
     output_path = tmp_path / "output"
     result = typer_cli_runner.invoke(
-        mssdk_cli_create_subcommand,
-        ["--version", "v3", "from", "--version", "v2", "--input", str(dummy_mapping_package_v2_path), "--output", str(output_path)]
+        mssdk_cli_convert_subcommand,
+        ["--version", "v3", "--from-version", "v2", "--input", str(dummy_mapping_package_v2_path), "--output", str(output_path)]
     )
 
     assert result.exit_code == 0
@@ -95,13 +95,13 @@ def test_create_from_command_creates_output_directory(mock_serialiser,
 
     output_path = tmp_path / "new" / "output" / "directory"
     result = typer_cli_runner.invoke(
-        mssdk_cli_create_subcommand,
-        ["--version", "v3", "from", "--version", "v2", "--input", str(dummy_mapping_package_v2_path), "--output", str(output_path)]
+        mssdk_cli_convert_subcommand,
+        ["--version", "v3", "--from-version", "v2", "--input", str(dummy_mapping_package_v2_path), "--output", str(output_path)]
     )
 
     assert result.exit_code == 0
     assert output_path.exists()
-    assert "✅ Created v3 package" in caplog.text
+    assert "✅ Converted v2 package to v3 package" in caplog.text
 
 
 def test_create_verbose_option(typer_cli_runner: CliRunner,
@@ -111,8 +111,8 @@ def test_create_verbose_option(typer_cli_runner: CliRunner,
          patch("mapping_suite_sdk.core.entrypoints.cli.create.load_mapping_package_v2_from_folder"), \
          patch("mapping_suite_sdk.core.entrypoints.cli.create.MappingPackageV3Serialiser"):
         result = typer_cli_runner.invoke(
-            mssdk_cli_create_subcommand,
-            ["--version", "v3", "from", "--version", "v2", "--input", str(dummy_mapping_package_v2_path), "--output", str(tmp_path), "--verbose"]
+            mssdk_cli_convert_subcommand,
+            ["--version", "v3", "--from-version", "v2", "--input", str(dummy_mapping_package_v2_path), "--output", str(tmp_path), "--verbose"]
         )
 
         assert result.exit_code == 0

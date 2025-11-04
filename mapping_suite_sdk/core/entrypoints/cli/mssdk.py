@@ -20,7 +20,7 @@ mssdk_cli_command = typer.Typer(
     help="Mapping suite SDK CLI"
 )
 mssdk_cli_command.add_typer(validate.mssdk_cli_validate_subcommand)
-mssdk_cli_command.add_typer(create.mssdk_cli_create_subcommand)
+mssdk_cli_command.add_typer(create.mssdk_cli_convert_subcommand)
 
 
 @mssdk_cli_command.callback()

@@ -30,49 +30,59 @@ NEW_VERSION_DEFAULT = NewVersion.V3
 
 mssdk_cli_convert_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
                                           name="convert",
-                                          help="Mapping Package Conversion commands.",
-                                          invoke_without_command=True)
+                                          help="Mapping Package Conversion commands.")
 
 
-@mssdk_cli_convert_subcommand.callback(invoke_without_command=True)
-def mssdk_cli_convert_mapping_package(
-        version: str = typer.Option(..., "--version", help=f"New mapping package version ({NEW_VERSION_DEFAULT.value})"),
-        from_version: str = typer.Option(..., "--from-version", help=f"Base mapping package version ({BASE_VERSION_DEFAULT.value})"),
-        input_path: Path = typer.Option(..., "--input", help="Path to input mapping package directory"),
-        output_path: Path = typer.Option(..., "--output", help="Path to output directory for new mapping package"),
+@mssdk_cli_convert_subcommand.callback()
+def convert_common(
+        ctx: typer.Context,
+        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({NEW_VERSION_DEFAULT.value})"),
+        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({BASE_VERSION_DEFAULT.value})"),
         verbose: bool = typer.Option(False, "--verbose", "-v",
                                      is_eager=True,
                                      callback=typer_verbose_callback),
 ) -> None:
-    """Convert mapping package from base version to new version."""
-    if version not in NEW_VERSIONS:
-        raise typer.BadParameter(f"New version must be one of {[v.value for v in NEW_VERSIONS]}, got: {version}")
+    """Set conversion version context."""
+    if to_version not in NEW_VERSIONS:
+        raise typer.BadParameter(f"Target version must be one of {[v.value for v in NEW_VERSIONS]}, got: {to_version}")
 
     if from_version not in BASE_VERSIONS:
-        raise typer.BadParameter(f"Base version must be one of {[v.value for v in BASE_VERSIONS]}, got: {from_version}")
+        raise typer.BadParameter(f"Source version must be one of {[v.value for v in BASE_VERSIONS]}, got: {from_version}")
+
+    ctx.ensure_object(dict)
+    ctx.obj['to_version'] = to_version
+    ctx.obj['from_version'] = from_version
+
+
+@mssdk_cli_convert_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+                                     name="from-package",
+                                     help="Convert mapping package from package directory.")
+def mssdk_cli_convert_mapping_package_from_package(
+        ctx: typer.Context,
+        mapping_package_path: Path = typer.Argument(..., exists=True),
+) -> None:
+    """Convert mapping package from package directory."""
+    to_version = ctx.obj['to_version']
+    from_version = ctx.obj['from_version']
 
     logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-        package_source=input_path,
-        message=f"Converting {from_version} package to {version} package"))
+        package_source=mapping_package_path,
+        message=f"Converting {from_version} package to {to_version} package"))
 
-    if not input_path.exists():
-        raise typer.BadParameter(f"Input path does not exist: {input_path}")
-    if not input_path.is_dir():
-        raise typer.BadParameter(f"Input path is not a directory: {input_path}")
-
-    output_path.mkdir(parents=True, exist_ok=True)
+    if not mapping_package_path.is_dir():
+        raise typer.BadParameter(f"Package path is not a directory: {mapping_package_path}")
 
     loader = MappingPackageV2Loader()
     mpv2 = load_mapping_package_v2_from_folder(
-        mapping_package_folder_path=input_path,
+        mapping_package_folder_path=mapping_package_path,
         mapping_package_loader=loader
     )
 
     mpv3 = create_mpv3_from_mpv2(mpv2)
 
-    MappingPackageV3Serialiser().serialise(output_path, mpv3)
+    MappingPackageV3Serialiser().serialise(mapping_package_path, mpv3)
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-        package_source=output_path,
-        message=f"✅ Converted {from_version} package to {version} package"))
+        package_source=mapping_package_path,
+        message=f"✅ Converted {from_version} package to {to_version} package"))
 

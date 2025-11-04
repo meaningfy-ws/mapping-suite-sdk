@@ -86,3 +86,62 @@ def mssdk_cli_convert_mapping_package_from_package(
         package_source=mapping_package_path,
         message=f"✅ Converted {from_version} package to {to_version} package"))
 
+
+@mssdk_cli_convert_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
+                                     name="from-folder",
+                                     help="Convert mapping packages from folder.")
+def mssdk_cli_convert_mapping_packages_from_folder(
+        ctx: typer.Context,
+        folder_path: Path = typer.Argument(...),
+) -> None:
+    """Convert mapping packages from folder."""
+    to_version = ctx.obj['to_version']
+    from_version = ctx.obj['from_version']
+
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=folder_path,
+        message=f"Converting {from_version} packages to {to_version} packages from folder"))
+
+    if not folder_path.exists():
+        raise typer.BadParameter(f"Folder path does not exist: {folder_path}")
+    if not folder_path.is_dir():
+        raise typer.BadParameter(f"Folder path is not a directory: {folder_path}")
+
+    loader = MappingPackageV2Loader()
+    all_converted = True
+    converted_count = 0
+    failed_count = 0
+
+    for mp_folder in folder_path.iterdir():
+        if not mp_folder.is_dir():
+            continue
+
+        try:
+            mpv2 = load_mapping_package_v2_from_folder(
+                mapping_package_folder_path=mp_folder,
+                mapping_package_loader=loader
+            )
+
+            mpv3 = create_mpv3_from_mpv2(mpv2)
+
+            MappingPackageV3Serialiser().serialise(mp_folder, mpv3)
+
+            converted_count += 1
+            logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                package_source=mp_folder,
+                message=f"✅ Converted {from_version} package to {to_version} package"))
+        except Exception as conversion_exception:
+            failed_count += 1
+            all_converted = False
+            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                package_source=mp_folder,
+                message=f"Cannot convert mapping package: {conversion_exception}"))
+
+    status = "✅ All converted" if all_converted else "❌ Some packages failed to convert"
+    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=folder_path,
+        message=f"{status} ({converted_count} converted, {failed_count} failed)"))
+
+    if not all_converted:
+        raise typer.Exit(code=1)
+

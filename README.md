@@ -130,6 +130,39 @@ packages = mssdk.load_mapping_packages_from_github(
 package_dict = mssdk.serialise_mapping_package(mapping_package)
 ```
 
+### Converting Mapping Packages
+
+The SDK provides a CLI command to convert mapping packages between versions:
+
+#### Convert Single Package
+
+Convert a single mapping package from one version to another (in-place conversion):
+
+```bash
+mssdk convert --to-version v3 --from-version v2 \
+    from-package /path/to/mapping/package
+```
+
+#### Convert Multiple Packages from Folder
+
+Convert all mapping packages in a folder (in-place conversion):
+
+```bash
+mssdk convert --to-version v3 --from-version v2 \
+    from-folder /path/to/mappings/folder
+```
+
+The `from-folder` command will:
+- Iterate through all subdirectories in the specified folder
+- Convert each valid mapping package in-place
+- Skip packages that cannot be converted (e.g., already in target version)
+- Report a summary with counts of successful and failed conversions
+
+**Options:**
+- `--to-version`: Target mapping package version (e.g., `v3`)
+- `--from-version`: Source mapping package version (e.g., `v2`)
+- `--verbose, -v`: Show detailed debug logs
+
 ## Extractors
 
 The SDK provides flexible extractors for working with mapping packages from different sources.

@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from pathlib import Path
 
 import typer
@@ -12,6 +13,21 @@ from mapping_suite_sdk.mapping_package_v3.services.create_mapping_package_v3 imp
 
 logger = logging.getLogger(__name__)
 
+
+class BaseVersion(str, Enum):
+    V2 = "v2"
+
+
+class NewVersion(str, Enum):
+    V3 = "v3"
+
+
+BASE_VERSIONS = [BaseVersion.V2]
+NEW_VERSIONS = [NewVersion.V3]
+
+BASE_VERSION_DEFAULT = BaseVersion.V2
+NEW_VERSION_DEFAULT = NewVersion.V3
+
 mssdk_cli_create_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
                                           name="create",
                                           help="Mapping Package Creation commands.")
@@ -20,11 +36,11 @@ mssdk_cli_create_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARG
 @mssdk_cli_create_subcommand.callback()
 def create_common(
         ctx: typer.Context,
-        version: str = typer.Option(..., "--version", help="New mapping package version (v3)")
+        version: str = typer.Option(..., "--version", help=f"New mapping package version ({NEW_VERSION_DEFAULT.value})")
 ):
     """Set creation version context."""
-    if version != "v3":
-        raise typer.BadParameter(f"New version must be v3, got: {version}")
+    if version not in NEW_VERSIONS:
+        raise typer.BadParameter(f"New version must be one of {[v.value for v in NEW_VERSIONS]}, got: {version}")
 
     ctx.ensure_object(dict)
     ctx.obj['new_version'] = version
@@ -35,7 +51,7 @@ def create_common(
                                      help="Create new package from base version.")
 def mssdk_cli_create_mapping_package_from(
         ctx: typer.Context,
-        base_version: str = typer.Option(..., "--version", help="Base mapping package version (v2)"),
+        base_version: str = typer.Option(..., "--version", help=f"Base mapping package version ({BASE_VERSION_DEFAULT.value})"),
         input_path: Path = typer.Option(..., "--input", help="Path to input mapping package directory"),
         output_path: Path = typer.Option(..., "--output", help="Path to output directory for new mapping package"),
         verbose: bool = typer.Option(False, "--verbose", "-v",
@@ -45,8 +61,8 @@ def mssdk_cli_create_mapping_package_from(
     """Create new mapping package from base version."""
     new_version = ctx.obj['new_version']
 
-    if base_version != "v2":
-        raise typer.BadParameter(f"Base version must be v2, got: {base_version}")
+    if base_version not in BASE_VERSIONS:
+        raise typer.BadParameter(f"Base version must be one of {[v.value for v in BASE_VERSIONS]}, got: {base_version}")
 
     logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=input_path,

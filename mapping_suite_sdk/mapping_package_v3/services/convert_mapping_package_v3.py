@@ -11,7 +11,7 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_linkml_metad
 )
 
 
-def create_mpv3_from_mpv2(mpv2: MappingPackageV2) -> MappingPackageV3:
+def convert_mpv3_from_mpv2(mpv2: MappingPackageV2) -> MappingPackageV3:
     """
     Convert a MappingPackageV2 to MappingPackageV3.
     """
@@ -59,7 +59,6 @@ def create_mpv3_from_mpv2(mpv2: MappingPackageV2) -> MappingPackageV3:
     
     return MappingPackageV3(
 
-        #TODO: Fulfill remaining fields
         metadata=MappingPackageV3Metadata(
             path=mpv2_metadata.path,
 
@@ -74,7 +73,6 @@ def create_mpv3_from_mpv2(mpv2: MappingPackageV2) -> MappingPackageV3:
             mapping_suite_hash_digest=mpv2_metadata.signature,
         ),
 
-        #TODO: Look if the structure of this assets are the same
         conceptual_mapping_asset=mpv2.conceptual_mapping_asset.model_copy(),
         technical_mapping_suite=mpv2.technical_mapping_suite.model_copy(),
         vocabulary_mapping_suite=mpv2.vocabulary_mapping_suite.model_copy(),

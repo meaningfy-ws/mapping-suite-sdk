@@ -6,7 +6,7 @@ import typer
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.entrypoints.cli import typer_verbose_callback
-from mapping_suite_sdk.mapping_package_v3.services.create_mapping_package_v3 import create_mpv3_from_mpv2
+from mapping_suite_sdk.mapping_package_v3.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_
 def _convert_mapping_package(from_version: str, to_version: str, source_package):
     """Convert mapping package using service layer."""
     if from_version == BaseVersion.V2.value and to_version == NewVersion.V3.value:
-        return create_mpv3_from_mpv2(source_package)
+        return convert_mpv3_from_mpv2(source_package)
     else:
         raise typer.BadParameter(f"Unsupported conversion: {from_version} -> {to_version}")
 

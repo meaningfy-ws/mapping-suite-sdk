@@ -1,6 +1,6 @@
 # mapping-suite-sdk
 
-![pylint](https://img.shields.io/badge/PyLint-8.62-yellow?logo=python&logoColor=white)
+![pylint](https://img.shields.io/badge/PyLint-8.56-yellow?logo=python&logoColor=white)
 [![PyPI version](https://img.shields.io/pypi/v/mapping-suite-sdk.svg)](https://pypi.org/project/mapping-suite-sdk/)
 [![PyPI Downloads](https://static.pepy.tech/badge/mapping-suite-sdk)](https://pepy.tech/projects/mapping-suite-sdk)
 

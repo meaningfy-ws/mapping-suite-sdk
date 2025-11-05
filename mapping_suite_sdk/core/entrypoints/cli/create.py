@@ -6,9 +6,6 @@ import typer
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.entrypoints.cli import typer_verbose_callback
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
-from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
-from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
 from mapping_suite_sdk.mapping_package_v3.services.create_mapping_package_v3 import create_mpv3_from_mpv2
 
 logger = logging.getLogger(__name__)
@@ -27,6 +24,47 @@ NEW_VERSIONS = [NewVersion.V3]
 
 BASE_VERSION_DEFAULT = BaseVersion.V2
 NEW_VERSION_DEFAULT = NewVersion.V3
+
+
+def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
+    """Dynamically load a mapping package based on version."""
+    if from_version == BaseVersion.V2.value:
+        from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+        from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
+        
+        loader = MappingPackageV2Loader()
+        return load_mapping_package_v2_from_folder(
+            mapping_package_folder_path=mapping_package_folder_path,
+            mapping_package_loader=loader
+        )
+    else:
+        raise typer.BadParameter(f"Unsupported source version: {from_version}")
+
+
+def _convert_mapping_package(from_version: str, to_version: str, source_package):
+    """Convert mapping package using service layer."""
+    if from_version == BaseVersion.V2.value and to_version == NewVersion.V3.value:
+        return create_mpv3_from_mpv2(source_package)
+    else:
+        raise typer.BadParameter(f"Unsupported conversion: {from_version} -> {to_version}")
+
+
+def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package):
+    """Dynamically serialize a mapping package based on version."""
+    if to_version == NewVersion.V3.value:
+        from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+        
+        serialiser = MappingPackageV3Serialiser()
+        serialiser.serialise(mapping_package_folder_path, converted_package)
+    else:
+        raise typer.BadParameter(f"Unsupported target version: {to_version}")
+
+
+def _convert_package_from_folder(from_version: str, to_version: str, mapping_package_folder_path: Path):
+    """Convert a mapping package using service layer functions."""
+    source_package = _load_mapping_package_from_folder(from_version, mapping_package_folder_path)
+    converted_package = _convert_mapping_package(from_version, to_version, source_package)
+    _serialise_mapping_package(to_version, mapping_package_folder_path, converted_package)
 
 mssdk_cli_convert_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
                                           name="convert",
@@ -72,15 +110,7 @@ def mssdk_cli_convert_mapping_package_from_package(
     if not mapping_package_path.is_dir():
         raise typer.BadParameter(f"Package path is not a directory: {mapping_package_path}")
 
-    loader = MappingPackageV2Loader()
-    mpv2 = load_mapping_package_v2_from_folder(
-        mapping_package_folder_path=mapping_package_path,
-        mapping_package_loader=loader
-    )
-
-    mpv3 = create_mpv3_from_mpv2(mpv2)
-
-    MappingPackageV3Serialiser().serialise(mapping_package_path, mpv3)
+    _convert_package_from_folder(from_version, to_version, mapping_package_path)
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=mapping_package_path,
@@ -107,7 +137,6 @@ def mssdk_cli_convert_mapping_packages_from_folder(
     if not folder_path.is_dir():
         raise typer.BadParameter(f"Folder path is not a directory: {folder_path}")
 
-    loader = MappingPackageV2Loader()
     all_converted = True
     converted_count = 0
     failed_count = 0
@@ -117,14 +146,7 @@ def mssdk_cli_convert_mapping_packages_from_folder(
             continue
 
         try:
-            mpv2 = load_mapping_package_v2_from_folder(
-                mapping_package_folder_path=mp_folder,
-                mapping_package_loader=loader
-            )
-
-            mpv3 = create_mpv3_from_mpv2(mpv2)
-
-            MappingPackageV3Serialiser().serialise(mp_folder, mpv3)
+            _convert_package_from_folder(from_version, to_version, mp_folder)
 
             converted_count += 1
             logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(

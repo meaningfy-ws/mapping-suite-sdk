@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, patch
 from typer.testing import CliRunner
 
 from mapping_suite_sdk.core.entrypoints.cli.create import mssdk_cli_convert_subcommand
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 
 
 def test_create_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
@@ -51,19 +50,18 @@ def test_create_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp_
     assert result.exit_code != 0
 
 
+@patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
 @patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.load_mapping_package_v2_from_folder")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.MappingPackageV3Serialiser")
-def test_create_from_command_success(mock_serialiser,
-                                     mock_load,
+@patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
+def test_create_from_command_success(mock_load,
                                      mock_create,
+                                     mock_serialiser,
                                      typer_cli_runner: CliRunner,
                                      dummy_mapping_package_v2_path: Path,
+                                     dummy_mapping_package_v2_model,
                                      tmp_path: Path) -> None:
-    mock_mpv2 = MagicMock()
     mock_mpv3 = MagicMock()
-
-    mock_load.return_value = mock_mpv2
+    mock_load.return_value = dummy_mapping_package_v2_model
     mock_create.return_value = mock_mpv3
 
     result = typer_cli_runner.invoke(
@@ -72,28 +70,26 @@ def test_create_from_command_success(mock_serialiser,
     )
 
     assert result.exit_code == 0
-    mock_load.assert_called_once_with(
-        mapping_package_folder_path=dummy_mapping_package_v2_path,
-        mapping_package_loader=MappingPackageV2Loader()
-    )
-    mock_create.assert_called_once_with(mock_mpv2)
+    mock_load.assert_called_once()
+    # Check that the path is passed as keyword argument
+    assert mock_load.call_args[1]['mapping_package_folder_path'] == dummy_mapping_package_v2_path
+    mock_create.assert_called_once_with(dummy_mapping_package_v2_model)
     mock_serialiser.return_value.serialise.assert_called_once_with(dummy_mapping_package_v2_path, mock_mpv3)
 
 
+@patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
 @patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.load_mapping_package_v2_from_folder")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.MappingPackageV3Serialiser")
-def test_create_from_command_converts_in_place(mock_serialiser,
-                                                mock_load,
-                                                mock_create,
-                                                typer_cli_runner: CliRunner,
-                                                dummy_mapping_package_v2_path: Path,
-                                                tmp_path: Path,
-                                                caplog) -> None:
-    mock_mpv2 = MagicMock()
+@patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
+def test_create_from_command_converts_in_place(mock_load,
+                                               mock_create,
+                                               mock_serialiser,
+                                               typer_cli_runner: CliRunner,
+                                               dummy_mapping_package_v2_path: Path,
+                                               dummy_mapping_package_v2_model,
+                                               tmp_path: Path,
+                                               caplog) -> None:
     mock_mpv3 = MagicMock()
-
-    mock_load.return_value = mock_mpv2
+    mock_load.return_value = dummy_mapping_package_v2_model
     mock_create.return_value = mock_mpv3
 
     result = typer_cli_runner.invoke(
@@ -108,9 +104,9 @@ def test_create_from_command_converts_in_place(mock_serialiser,
 def test_create_verbose_option(typer_cli_runner: CliRunner,
                                dummy_mapping_package_v2_path: Path,
                                tmp_path: Path) -> None:
-    with patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.create.load_mapping_package_v2_from_folder"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.create.MappingPackageV3Serialiser"):
+    with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
+         patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2"), \
+         patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder"):
         result = typer_cli_runner.invoke(
             mssdk_cli_convert_subcommand,
             ["--to-version", "v3", "--from-version", "v2", "--verbose", "from-package", str(dummy_mapping_package_v2_path)]
@@ -119,19 +115,18 @@ def test_create_verbose_option(typer_cli_runner: CliRunner,
         assert result.exit_code == 0
 
 
+@patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
 @patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.load_mapping_package_v2_from_folder")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.MappingPackageV3Serialiser")
-def test_convert_from_folder_success(mock_serialiser,
-                                     mock_load,
+@patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
+def test_convert_from_folder_success(mock_load,
                                      mock_create,
+                                     mock_serialiser,
                                      typer_cli_runner: CliRunner,
+                                     dummy_mapping_package_v2_model,
                                      tmp_path: Path,
                                      caplog) -> None:
-    mock_mpv2 = MagicMock()
     mock_mpv3 = MagicMock()
-
-    mock_load.return_value = mock_mpv2
+    mock_load.return_value = dummy_mapping_package_v2_model
     mock_create.return_value = mock_mpv3
 
     folder_path = tmp_path / "packages"
@@ -154,28 +149,27 @@ def test_convert_from_folder_success(mock_serialiser,
     assert "(2 converted, 0 failed)" in caplog.text
 
 
+@patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
 @patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.load_mapping_package_v2_from_folder")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.MappingPackageV3Serialiser")
-def test_convert_from_folder_with_failures(mock_serialiser,
-                                           mock_load,
+@patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
+def test_convert_from_folder_with_failures(mock_load,
                                            mock_create,
+                                           mock_serialiser,
                                            typer_cli_runner: CliRunner,
+                                           dummy_mapping_package_v2_model,
                                            tmp_path: Path,
                                            caplog) -> None:
-    mock_mpv2 = MagicMock()
     mock_mpv3 = MagicMock()
-
     folder_path = tmp_path / "packages"
     folder_path.mkdir()
     package1 = folder_path / "package1"
     package2 = folder_path / "package2"
     package1.mkdir()
     package2.mkdir()
-
+    
     def load_side_effect(mapping_package_folder_path, **kwargs):
         if mapping_package_folder_path == package1:
-            return mock_mpv2
+            return dummy_mapping_package_v2_model
         else:
             raise ValueError("Failed to load package")
 
@@ -212,9 +206,9 @@ def test_convert_from_folder_skips_files(typer_cli_runner: CliRunner, tmp_path: 
     file_path = folder_path / "file.txt"
     file_path.write_text("not a package")
 
-    with patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.create.load_mapping_package_v2_from_folder"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.create.MappingPackageV3Serialiser"):
+    with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
+         patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2"), \
+         patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder"):
         result = typer_cli_runner.invoke(
             mssdk_cli_convert_subcommand,
             ["--to-version", "v3", "--from-version", "v2", "from-folder", str(folder_path)]

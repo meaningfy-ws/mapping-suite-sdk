@@ -3,10 +3,10 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from mapping_suite_sdk.core.entrypoints.cli.create import mssdk_cli_convert_subcommand
+from mapping_suite_sdk.core.entrypoints.cli.convert import mssdk_cli_convert_subcommand
 
 
-def test_create_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
+def test_convert_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
     result = typer_cli_runner.invoke(mssdk_cli_convert_subcommand, ["--help"])
 
     assert result.exit_code == 0
@@ -16,13 +16,13 @@ def test_create_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
     assert "from-folder" in result.stdout
 
 
-def test_create_cli_command_invalid_new_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
+def test_convert_cli_command_invalid_new_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     result = typer_cli_runner.invoke(mssdk_cli_convert_subcommand, ["--to-version", "v2", "--from-version", "v2", "from-package", str(tmp_path)])
 
     assert result.exit_code != 0
 
 
-def test_create_cli_command_valid_version_shows_from_command(typer_cli_runner: CliRunner) -> None:
+def test_convert_cli_command_valid_version_shows_from_command(typer_cli_runner: CliRunner) -> None:
     result = typer_cli_runner.invoke(mssdk_cli_convert_subcommand, ["--help"])
 
     assert result.exit_code == 0
@@ -31,7 +31,7 @@ def test_create_cli_command_valid_version_shows_from_command(typer_cli_runner: C
     assert "from-folder" in result.stdout
 
 
-def test_create_cli_command_invalid_base_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
+def test_convert_cli_command_invalid_base_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
         ["--to-version", "v3", "--from-version", "v1", "from-package", str(tmp_path)]
@@ -40,7 +40,7 @@ def test_create_cli_command_invalid_base_version(typer_cli_runner: CliRunner, tm
     assert result.exit_code != 0
 
 
-def test_create_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
+def test_convert_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     invalid_path = tmp_path / "nonexistent"
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
@@ -51,7 +51,7 @@ def test_create_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp_
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.core.entrypoints.cli.convert.create_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_create_from_command_success(mock_load,
                                      mock_create,
@@ -78,7 +78,7 @@ def test_create_from_command_success(mock_load,
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.core.entrypoints.cli.convert.create_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_create_from_command_converts_in_place(mock_load,
                                                mock_create,
@@ -105,7 +105,7 @@ def test_create_verbose_option(typer_cli_runner: CliRunner,
                                dummy_mapping_package_v2_path: Path,
                                tmp_path: Path) -> None:
     with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2"), \
+         patch("mapping_suite_sdk.core.entrypoints.cli.convert.create_mpv3_from_mpv2"), \
          patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder"):
         result = typer_cli_runner.invoke(
             mssdk_cli_convert_subcommand,
@@ -116,7 +116,7 @@ def test_create_verbose_option(typer_cli_runner: CliRunner,
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.core.entrypoints.cli.convert.create_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_convert_from_folder_success(mock_load,
                                      mock_create,
@@ -150,7 +150,7 @@ def test_convert_from_folder_success(mock_load,
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.core.entrypoints.cli.convert.create_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_convert_from_folder_with_failures(mock_load,
                                            mock_create,
@@ -207,7 +207,7 @@ def test_convert_from_folder_skips_files(typer_cli_runner: CliRunner, tmp_path: 
     file_path.write_text("not a package")
 
     with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.create.create_mpv3_from_mpv2"), \
+         patch("mapping_suite_sdk.core.entrypoints.cli.convert.create_mpv3_from_mpv2"), \
          patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder"):
         result = typer_cli_runner.invoke(
             mssdk_cli_convert_subcommand,

@@ -17,12 +17,12 @@ def create_mpv3_from_mpv2(mpv2: MappingPackageV2) -> MappingPackageV3:
 
             id=mpv2_metadata.identifier,
             title=mpv2_metadata.title,
-            project_identifier=,
+            project_identifier=mpv2_metadata.mapping_type,
             created_at=mpv2_metadata.issue_date,
             mapping_version=mpv2_metadata.mapping_version,
-            #model_version=,
+            model_version=mpv2_metadata.ontology_version,
             description=mpv2_metadata.description,
-            applicability_constraints=,
+            applicability_constraints=mpv2_metadata.metadata_constraints.constraints,
             mapping_suite_hash_digest=mpv2_metadata.signature,
         ),
 

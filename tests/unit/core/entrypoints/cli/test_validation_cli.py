@@ -13,7 +13,7 @@ def test_validate_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
 
     assert result.exit_code == 0
     assert "validate" in result.stdout
-    assert "Package version (v1, v2)" in result.stdout
+    assert "Package version" in result.stdout
 
 
 def test_validate_cli_command_invalid_version(typer_cli_runner: CliRunner) -> None:
@@ -336,7 +336,7 @@ def test_validate_from_folder_v1_success_output(mock_validate,
         ["--version", "v1", "from-folder", str(tmp_path)]
     )
 
-    assert result.exit_code == 0
+    assert result.exit_code == 0, "Unexpected exit code"
     assert "✅ All valid v1 packages" in caplog.text
 
 

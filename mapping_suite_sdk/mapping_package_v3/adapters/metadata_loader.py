@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3Metadata
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3MetadataJSONLD
 
 
 class MappingPackageV3MetadataLoader(MappingPackageAssetLoader):
@@ -11,7 +11,7 @@ class MappingPackageV3MetadataLoader(MappingPackageAssetLoader):
     Handles loading and parsing of the package metadata JSON file.
     """
 
-    def load(self, package_folder_path: Path, relative_asset_path: Path) -> MappingPackageV3Metadata:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> MappingPackageV3MetadataJSONLD:
         """Load metadata from the package's metadata.json file.
 
         Args:
@@ -32,5 +32,5 @@ class MappingPackageV3MetadataLoader(MappingPackageAssetLoader):
         model_dict: dict = json.loads(asset_path.read_text())
         model_dict['path'] = asset_path.relative_to(package_folder_path)
 
-        # return TypeAdapter(MappingPackageV3Metadata).validate_python(model_dict)
-        return MappingPackageV3Metadata.model_validate(model_dict)
+        # return TypeAdapter(MappingPackageV3MetadataJSONLD).validate_python(model_dict)
+        return MappingPackageV3MetadataJSONLD.model_validate(model_dict)

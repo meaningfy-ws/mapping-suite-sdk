@@ -38,7 +38,7 @@ from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata imp
     MappingPackageV2Metadata
 )
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3Metadata
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3MetadataJSONLD
 from tests import (
     TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH,
@@ -323,7 +323,7 @@ def dummy_corrupted_mapping_package_path() -> Path:
             id="SF_V1"
         ),
         pytest.param(
-            ((MappingPackageV3Metadata, None),
+            ((MappingPackageV3MetadataJSONLD, None),
              TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
              TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
 
@@ -416,7 +416,7 @@ def dummy_mapping_package_v2_model():
 @pytest.fixture
 def fixture_mapping_package_v3_model() -> MappingPackageV3:
     model = MappingPackageV3.model_validate_json(TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH.read_text())
-    model.metadata = MappingPackageV3Metadata(**model.metadata.model_dump())
+    model.metadata = MappingPackageV3MetadataJSONLD(**model.metadata.model_dump())
     return model
 
 
@@ -424,7 +424,7 @@ def fixture_mapping_package_v3_model() -> MappingPackageV3:
 # def dummy_mapping_package_v3_model():
 #     # Load as generic MappingPackage first, then update metadata
 #     model = TypeAdapter(MappingPackageV3).validate_json(TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH.read_text())
-#     model.metadata = MappingPackageV3Metadata(**model.metadata.model_dump())
+#     model.metadata = MappingPackageV3MetadataJSONLD(**model.metadata.model_dump())
 #     return model
 
 

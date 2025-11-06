@@ -53,7 +53,7 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
     if to_version == NewVersion.V3.value:
         # Try to validate as V3 - if it works, it's already converted
         try:
-            from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
+            from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import MappingPackageV3MetadataJSONLD
             import json
             metadata_dict = json.loads(metadata_file.read_text())
             # Add path field if missing (serialiser excludes it, but model requires it)
@@ -63,7 +63,7 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
                 relative_path = metadata_file.relative_to(mapping_package_folder_path)
                 metadata_dict['path'] = relative_path.as_posix()
             # Validate by attempting to create the model
-            MappingPackageV3Metadata.model_validate(metadata_dict)
+            MappingPackageV3MetadataJSONLD.model_validate(metadata_dict)
             return True
         except Exception:
             return False

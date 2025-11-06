@@ -3,7 +3,7 @@ import logging
 import typer
 
 from mapping_suite_sdk import __version__, mssdk_config
-from mapping_suite_sdk.core.entrypoints.cli import validate
+from mapping_suite_sdk.core.entrypoints.cli import convert, validate
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +20,7 @@ mssdk_cli_command = typer.Typer(
     help="Mapping suite SDK CLI"
 )
 mssdk_cli_command.add_typer(validate.mssdk_cli_validate_subcommand)
+mssdk_cli_command.add_typer(convert.mssdk_cli_convert_subcommand)
 
 
 @mssdk_cli_command.callback()

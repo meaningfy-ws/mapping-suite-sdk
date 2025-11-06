@@ -64,7 +64,7 @@ class MPV3HashValidationStep(MPValidationStepABC):
         except AssertionError:
             raise MPV3HashValidationException(
                 f"Mapping Package validation error: Package with identifier {mapping_package.metadata.id} has different signature:\n"
-                f"Expected  signature for {mapping_package.metadata.id}: {mapping_package.metadata.id}\n"
+                f"Expected  signature for {mapping_package.metadata.id}: {mapping_package.metadata.mapping_suite_hash_digest}\n"
                 f"Generated signature for {mapping_package.metadata.id}: {generated_hash}")
 
         return True

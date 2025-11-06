@@ -80,7 +80,7 @@ class MappingPackageV2Validator:
         validation_chain (MPValidationStepABC): The chain of validation steps to be executed.
 
     Methods:
-        validate(mapping_package: MappingPackageV1) -> Literal[True] | NoReturn:
+        validate(mapping_package: MappingPackageV2) -> Literal[True] | NoReturn:
             Executes the validation chain to validate the given Mapping Package.
     """
 

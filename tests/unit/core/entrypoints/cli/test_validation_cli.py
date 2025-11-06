@@ -747,3 +747,306 @@ def test_validate_from_github_handles_exception(mock_validate,
     )
 
     assert result.exit_code != 0
+
+
+def test_validate_common_callback_invalid_version_raises_bad_parameter(typer_cli_runner: CliRunner) -> None:
+    result = typer_cli_runner.invoke(
+        mssdk_cli_validate_subcommand,
+        ["--version", "v99", "from-folder", "/tmp"]
+    )
+
+    assert result.exit_code != 0
+    assert "Version must be" in result.stdout or "Invalid value" in result.stdout
+
+
+def test_validate_from_folder_exits_with_code_1_on_validation_failure(
+        typer_cli_runner: CliRunner,
+        tmp_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v1_from_folder") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v1", "from-folder", str(tmp_path)]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_folder_exits_with_code_1_on_validation_failure_v2(
+        typer_cli_runner: CliRunner,
+        tmp_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v2_from_folder") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v2", "from-folder", str(tmp_path)]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_folder_exits_with_code_1_on_validation_failure_v3(
+        typer_cli_runner: CliRunner,
+        tmp_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_from_folder") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v3", "from-folder", str(tmp_path)]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_archive_exits_with_code_1_on_validation_failure_v1(
+        typer_cli_runner: CliRunner,
+        dummy_mapping_package_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_mapping_package_v1_from_archive") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v1", "from-archive", str(dummy_mapping_package_path)]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_archive_exits_with_code_1_on_validation_failure_v2(
+        typer_cli_runner: CliRunner,
+        dummy_mapping_package_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_mapping_package_v2_from_archive") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v2", "from-archive", str(dummy_mapping_package_path)]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_archive_exits_with_code_1_on_validation_failure_v3(
+        typer_cli_runner: CliRunner,
+        dummy_mapping_package_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_mapping_package_v3_from_archive") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v3", "from-archive", str(dummy_mapping_package_path)]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_github_exits_with_code_1_on_validation_failure_v1(
+        typer_cli_runner: CliRunner,
+        dummy_invalid_github_repo_url: str,
+        dummy_get_all_packages_pattern: str) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v1_from_github") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v1", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_github_exits_with_code_1_on_validation_failure_v2(
+        typer_cli_runner: CliRunner,
+        dummy_invalid_github_repo_url: str,
+        dummy_get_all_packages_pattern: str) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v2_from_github") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v2", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_from_github_exits_with_code_1_on_validation_failure_v3(
+        typer_cli_runner: CliRunner,
+        dummy_invalid_github_repo_url: str,
+        dummy_get_all_packages_pattern: str) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_from_github") as mock_validate:
+        mock_validate.return_value = False
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v3", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+        )
+
+        assert result.exit_code == 1
+
+
+def test_validate_common_callback_with_invalid_version_in_context(typer_cli_runner: CliRunner) -> None:
+    result = typer_cli_runner.invoke(
+        mssdk_cli_validate_subcommand,
+        ["--version", "invalid_version"]
+    )
+
+    assert result.exit_code != 0
+
+
+def test_validate_cli_help_shows_all_commands(typer_cli_runner: CliRunner) -> None:
+    result = typer_cli_runner.invoke(mssdk_cli_validate_subcommand, ["--help"])
+
+    assert result.exit_code == 0
+    assert "validate" in result.stdout.lower()
+    assert "version" in result.stdout.lower()
+
+
+def test_validate_from_folder_success_exits_with_code_0_v1(
+        typer_cli_runner: CliRunner,
+        tmp_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v1_from_folder") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v1", "from-folder", str(tmp_path)]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_folder_success_exits_with_code_0_v2(
+        typer_cli_runner: CliRunner,
+        tmp_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v2_from_folder") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v2", "from-folder", str(tmp_path)]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_folder_success_exits_with_code_0_v3(
+        typer_cli_runner: CliRunner,
+        tmp_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_from_folder") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v3", "from-folder", str(tmp_path)]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_archive_success_exits_with_code_0_v1(
+        typer_cli_runner: CliRunner,
+        dummy_mapping_package_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_mapping_package_v1_from_archive") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v1", "from-archive", str(dummy_mapping_package_path)]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_archive_success_exits_with_code_0_v2(
+        typer_cli_runner: CliRunner,
+        dummy_mapping_package_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_mapping_package_v2_from_archive") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v2", "from-archive", str(dummy_mapping_package_path)]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_archive_success_exits_with_code_0_v3(
+        typer_cli_runner: CliRunner,
+        dummy_mapping_package_path: Path) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_mapping_package_v3_from_archive") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v3", "from-archive", str(dummy_mapping_package_path)]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_github_success_exits_with_code_0_v1(
+        typer_cli_runner: CliRunner,
+        dummy_invalid_github_repo_url: str,
+        dummy_get_all_packages_pattern: str) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v1_from_github") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v1", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_github_success_exits_with_code_0_v2(
+        typer_cli_runner: CliRunner,
+        dummy_invalid_github_repo_url: str,
+        dummy_get_all_packages_pattern: str) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v2_from_github") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v2", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+        )
+
+        assert result.exit_code == 0
+
+
+def test_validate_from_github_success_exits_with_code_0_v3(
+        typer_cli_runner: CliRunner,
+        dummy_invalid_github_repo_url: str,
+        dummy_get_all_packages_pattern: str) -> None:
+    with patch(
+            "mapping_suite_sdk.core.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_from_github") as mock_validate:
+        mock_validate.return_value = True
+
+        result = typer_cli_runner.invoke(
+            mssdk_cli_validate_subcommand,
+            ["--version", "v3", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+        )
+
+        assert result.exit_code == 0

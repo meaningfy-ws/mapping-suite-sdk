@@ -49,7 +49,7 @@ from tests import (
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH, TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
-    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH
+    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH, TEST_DATA_MAPPING_PACKAGES_V3_REPO_PATH
 )
 
 
@@ -483,6 +483,10 @@ def dummy_github_project_path() -> Path:
     """Path to dummy GitHub project for testing."""
     return TEST_DATA_MAPPING_PACKAGES_REPO_PATH
 
+@pytest.fixture
+def fixture_mapping_package_v3_github_project_path() -> Path:
+    """Path to dummy GitHub project for testing."""
+    return TEST_DATA_MAPPING_PACKAGES_V3_REPO_PATH
 
 @pytest.fixture
 def dummy_github_branch_name() -> str:

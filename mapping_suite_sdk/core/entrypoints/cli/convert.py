@@ -26,6 +26,50 @@ BASE_VERSION_DEFAULT = BaseVersion.V2
 NEW_VERSION_DEFAULT = NewVersion.V3
 
 
+def _is_already_converted(mapping_package_folder_path: Path, to_version: str) -> bool:
+    """Check if package is already in the target version by attempting to validate metadata."""
+    # Handle nested package structure (folder_name/folder_name/metadata.json)
+    # Check both direct path and nested path
+    root_folder = mapping_package_folder_path / mapping_package_folder_path.name
+    possible_paths = [mapping_package_folder_path]
+    if root_folder.exists():
+        possible_paths.append(root_folder)
+    
+    metadata_file = None
+    for path in possible_paths:
+        # Check for metadata.json or metadata.jsonld
+        test_file = path / "metadata.json"
+        if test_file.exists():
+            metadata_file = test_file
+            break
+        test_file = path / "metadata.jsonld"
+        if test_file.exists():
+            metadata_file = test_file
+            break
+    
+    if not metadata_file:
+        return False
+    
+    if to_version == NewVersion.V3.value:
+        # Try to validate as V3 - if it works, it's already converted
+        try:
+            from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
+            import json
+            metadata_dict = json.loads(metadata_file.read_text())
+            # Add path field if missing (serialiser excludes it, but model requires it)
+            if 'path' not in metadata_dict:
+                # Calculate relative path from the package folder to the metadata file
+                # Handle both direct and nested structures
+                relative_path = metadata_file.relative_to(mapping_package_folder_path)
+                metadata_dict['path'] = relative_path.as_posix()
+            # Validate by attempting to create the model
+            MappingPackageV3Metadata.model_validate(metadata_dict)
+            return True
+        except Exception:
+            return False
+    return False
+
+
 def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
     """Dynamically load a mapping package based on version."""
     if from_version == BaseVersion.V2.value:
@@ -110,6 +154,13 @@ def mssdk_cli_convert_mapping_package_from_package(
     if not mapping_package_path.is_dir():
         raise typer.BadParameter(f"Package path is not a directory: {mapping_package_path}")
 
+    # Check if already converted
+    if _is_already_converted(mapping_package_path, to_version):
+        logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_path,
+            message=f"Package is already {to_version}, skipping conversion"))
+        return
+
     _convert_package_from_folder(from_version, to_version, mapping_package_path)
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
@@ -143,6 +194,13 @@ def mssdk_cli_convert_mapping_packages_from_folder(
 
     for mp_folder in folder_path.iterdir():
         if not mp_folder.is_dir():
+            continue
+
+        # Check if already converted
+        if _is_already_converted(mp_folder, to_version):
+            logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                package_source=mp_folder,
+                message=f"Package is already {to_version}, skipping conversion"))
             continue
 
         try:

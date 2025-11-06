@@ -216,3 +216,146 @@ def test_convert_from_folder_skips_files(typer_cli_runner: CliRunner, tmp_path: 
 
         assert result.exit_code == 0
 
+
+def test_convert_from_package_skips_already_converted(
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    caplog
+) -> None:
+    """Test that from-package command skips already converted V3 packages."""
+    import json
+    from datetime import datetime
+    
+    # Create a V3 package structure
+    package_path = tmp_path / "already_v3_package"
+    package_path.mkdir()
+    metadata_path = package_path / "metadata.json"
+    
+    # Create valid V3 metadata (with path field required by MappingPackageMetadata base class)
+    v3_metadata = {
+        "path": "metadata.json",
+        "id": "test_package",
+        "title": "Test Package",
+        "project_identifier": "test:project",
+        "created_at": datetime.now().isoformat(),
+        "mapping_version": "1.0.0",
+        "model_version": "1.0.0",
+        "description": "Test description",
+        "mapping_suite_hash_digest": "test_hash"
+    }
+    metadata_path.write_text(json.dumps(v3_metadata, indent=2))
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-package", str(package_path)]
+    )
+    
+    assert result.exit_code == 0
+    assert "Package is already v3, skipping conversion" in caplog.text
+
+
+def test_convert_from_folder_skips_already_converted(
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    caplog
+) -> None:
+    """Test that from-folder command skips already converted V3 packages."""
+    import json
+    from datetime import datetime
+    
+    folder_path = tmp_path / "packages"
+    folder_path.mkdir()
+    
+    # Create one V2 package (should convert)
+    v2_package = folder_path / "v2_package"
+    v2_package.mkdir()
+    v2_metadata_path = v2_package / "metadata.json"
+    v2_metadata = {
+        "identifier": "v2_package",
+        "title": "V2 Package",
+        "created_at": "2024-01-01T00:00:00",
+        "mapping_version": "1.0.0",
+        "ontology_version": "1.0.0",
+        "description": "V2 package",
+        "type": "test",
+        "metadata_constraints": {"constraints": {}},
+        "mapping_suite_hash_digest": "test_hash"
+    }
+    v2_metadata_path.write_text(json.dumps(v2_metadata, indent=2))
+    
+    # Create one V3 package (should skip)
+    v3_package = folder_path / "v3_package"
+    v3_package.mkdir()
+    v3_metadata_path = v3_package / "metadata.json"
+    v3_metadata = {
+        "path": "metadata.json",
+        "id": "v3_package",
+        "title": "V3 Package",
+        "project_identifier": "test:project",
+        "created_at": datetime.now().isoformat(),
+        "mapping_version": "1.0.0",
+        "model_version": "1.0.0",
+        "description": "V3 package",
+        "mapping_suite_hash_digest": "test_hash"
+    }
+    v3_metadata_path.write_text(json.dumps(v3_metadata, indent=2))
+    
+    with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
+         patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2") as mock_convert, \
+         patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder") as mock_load:
+        from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+        mock_mpv2 = MagicMock(spec=MappingPackageV2)
+        mock_load.return_value = mock_mpv2
+        
+        result = typer_cli_runner.invoke(
+            mssdk_cli_convert_subcommand,
+            ["--to-version", "v3", "--from-version", "v2", "from-folder", str(folder_path)]
+        )
+    
+    assert result.exit_code == 0
+    assert "Package is already v3, skipping conversion" in caplog.text
+    # Should only convert the V2 package, not the V3 one
+    assert mock_load.call_count == 1
+    assert mock_convert.call_count == 1
+
+
+def test_convert_from_folder_handles_nested_package_structure(
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    caplog
+) -> None:
+    """Test that detection works with nested package structure (folder_name/folder_name/metadata.json)."""
+    import json
+    from datetime import datetime
+    
+    folder_path = tmp_path / "packages"
+    folder_path.mkdir()
+    
+    # Create nested V3 package structure
+    nested_package = folder_path / "nested_package"
+    nested_package.mkdir()
+    inner_package = nested_package / "nested_package"
+    inner_package.mkdir()
+    metadata_path = inner_package / "metadata.json"
+    
+    v3_metadata = {
+        "path": "metadata.json",
+        "id": "nested_package",
+        "title": "Nested Package",
+        "project_identifier": "test:project",
+        "created_at": datetime.now().isoformat(),
+        "mapping_version": "1.0.0",
+        "model_version": "1.0.0",
+        "description": "Nested package",
+        "mapping_suite_hash_digest": "test_hash"
+    }
+    metadata_path.write_text(json.dumps(v3_metadata, indent=2))
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-folder", str(folder_path)]
+    )
+    
+    assert result.exit_code == 0
+    assert "Package is already v3, skipping conversion" in caplog.text
+

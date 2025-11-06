@@ -13,39 +13,6 @@ class MPV3StructuralValidationException(MPValidationException): pass
 class MPV3HashValidationException(MPValidationException): pass
 
 
-# class MPV2StructuralValidationStep(MPValidationStepABC):
-#     """
-#     Validates the structural integrity of a Mapping Package, such as ensuring non-empty test suites.
-#     """
-#
-#     @validate_next
-#     def validate(self, mapping_package: MappingPackageV2) -> Literal[True] | NoReturn:
-#         # Most of structural validation where done by model itself (using Pydantic)
-#
-#         try:
-#             if mapping_package.test_data_suites:
-#                 for suite in mapping_package.test_data_suites:
-#                     assert suite.files
-#
-#             assert mapping_package.test_suites_shacl
-#             for suite in mapping_package.test_suites_shacl.shacl_collections:
-#                 assert suite.files
-#
-#             assert mapping_package.test_suites_sparql
-#             for suite in mapping_package.test_suites_sparql:
-#                 assert suite.files
-#
-#             if mapping_package.test_results:
-#                 for suite in mapping_package.test_results.result_suites:
-#                     assert suite.files
-#
-#         # TODO: structural validation also must check relation between test data and results
-#
-#         except AssertionError:
-#             raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites")
-#         return True
-
-
 class MPV3HashValidationStep(MPValidationStepABC):
     """
     Validates the hash-based signature of a Mapping Package V3 to ensure its integrity.

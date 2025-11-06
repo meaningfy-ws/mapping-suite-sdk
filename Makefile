@@ -4,8 +4,9 @@ BUILD_PRINT = \e[1;34m
 END_BUILD_PRINT = \e[0m
 
 PROJECT_PATH = $(shell pwd)
-LINKML_PATH ?= ${PROJECT_PATH}/linkml
-TEMPLATES_PATH ?= ${PROJECT_PATH}/templates
+RESOURCES_PATH = ${PROJECT_PATH}/resources
+SCHEMA_PATH ?= ${RESOURCES_PATH}/schema
+TEMPLATES_PATH ?= ${RESOURCES_PATH}/templates
 PYTHON_PATH ?= ${PROJECT_PATH}/mapping_suite_sdk
 
 ICON_DONE = [✔]
@@ -26,6 +27,7 @@ build:
 
 install: install-poetry
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Installing MSSDK requirements$(END_BUILD_PRINT)"
+	@ poetry lock
 	@ poetry install --all-groups
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) MSSDK requirements are installed$(END_BUILD_PRINT)"
 
@@ -115,12 +117,12 @@ generate-models:
 
 optimize-models-imports:
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Optimizing imports in generated models$(END_BUILD_PRINT)"
-	@ find $(LINKML_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
-		relative_path=$$(echo "$$yaml_file" | sed "s|^$(LINKML_PATH)/||"); \
+	@ find $(SCHEMA_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
+		relative_path=$$(echo "$$yaml_file" | sed "s|^$(SCHEMA_PATH)/||"); \
 		py_file="$(PYTHON_PATH)/$$(echo "$$relative_path" | sed 's|\.yaml$$|.py|')"; \
 		if [ -f "$$py_file" ]; then \
 			echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Optimizing imports in $$py_file$(END_BUILD_PRINT)"; \
-			poetry run ruff check --select F401 --fix "$$py_file" && \
+			poetry run ruff check --select F401 --select I --fix "$$py_file" && \
 			poetry run ruff format "$$py_file" || { \
 				echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to optimize $$py_file$(END_BUILD_PRINT)"; \
 			}; \
@@ -128,11 +130,10 @@ optimize-models-imports:
 	done
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Import optimization completed$(END_BUILD_PRINT)"
 
-
 generate-models-recursive:
-	@ find $(LINKML_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
+	@ find $(SCHEMA_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Processing $$yaml_file$(END_BUILD_PRINT)"; \
-		relative_path=$$(echo "$$yaml_file" | sed "s|^$(LINKML_PATH)/||"); \
+		relative_path=$$(echo "$$yaml_file" | sed "s|^$(SCHEMA_PATH)/||"); \
 		output_dir="$(PYTHON_PATH)/$$(dirname "$$relative_path")"; \
 		output_file="$(PYTHON_PATH)/$$(echo "$$relative_path" | sed 's|\.yaml$$|.py|')"; \
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Creating output directory: $$output_dir$(END_BUILD_PRINT)"; \

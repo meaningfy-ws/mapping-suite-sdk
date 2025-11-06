@@ -4,8 +4,9 @@ from typing import Optional
 from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_linkml_metadata import \
-    MappingPackageV3LinkMLMetadata
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import \
+    MappingPackageV3MetadataJSONLD
 
 
 class MappingPackageV3Hasher(MappingPackageHasher):
@@ -62,11 +63,11 @@ class MappingPackageV3Hasher(MappingPackageHasher):
         signatures = [signature[1] for signature in file_hashes]
 
         # Step 3: Add metadata (only package specific metadata, without Linked Data part
-        only_metadata = MappingPackageV3LinkMLMetadata.model_construct(**self.mapping_package.metadata.model_dump())
+        only_metadata = MappingPackageV3Metadata.model_construct(**self.mapping_package.metadata.model_dump())
 
         model_str = only_metadata.model_dump_json(
             by_alias=True,
-            exclude={fields(MappingPackageV3LinkMLMetadata).mapping_suite_hash_digest}
+            exclude={fields(MappingPackageV3Metadata).mapping_suite_hash_digest}
         )
         metadata_hash = self.hasher.hash(json.dumps(model_str).encode('utf-8'))
         signatures.append(metadata_hash)

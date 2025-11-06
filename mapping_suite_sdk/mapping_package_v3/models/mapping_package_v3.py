@@ -7,7 +7,8 @@ from mapping_suite_sdk.core.models.collection_asset import TechnicalMappingColle
     TestResultCollectionAsset
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import \
+    MappingPackageV3MetadataJSONLD
 
 
 class MappingPackageV3(MappingPackage):
@@ -21,7 +22,7 @@ class MappingPackageV3(MappingPackage):
     """
 
     # Metadata
-    metadata: MappingPackageV3Metadata = Field(..., description="Package metadata containing general information")
+    metadata: MappingPackageV3MetadataJSONLD = Field(..., description="Package metadata containing general information")
 
     # Package elements (folders and files)
     conceptual_mapping_asset: ConceptualMappingFileAsset = Field(..., description="The CMs in Excel Spreadsheet")

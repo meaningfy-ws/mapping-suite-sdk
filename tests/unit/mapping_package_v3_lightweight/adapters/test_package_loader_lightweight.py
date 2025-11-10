@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.mp_v3_lightweight.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
-from mapping_suite_sdk.mp_v3_lightweight.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 
 def test_mp_v3_loader_loads_with_success(dummy_mapping_package_v3_path: Path) -> None:

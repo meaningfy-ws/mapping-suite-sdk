@@ -346,3 +346,4 @@ class ConceptualMappingFileLoader(MappingPackageAssetLoader):
             path=asset_path.relative_to(package_folder_path),
             content=asset_path.read_bytes()
         )
+

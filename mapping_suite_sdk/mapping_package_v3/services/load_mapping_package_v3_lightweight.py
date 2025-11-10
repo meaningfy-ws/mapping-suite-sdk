@@ -8,8 +8,8 @@ from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
-from mapping_suite_sdk.mp_v3_lightweight.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
-from mapping_suite_sdk.mp_v3_lightweight.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +57,6 @@ def load_mapping_packages_v3_from_github(
         github_package_extractor: Optional[GithubPackageExtractor] = None,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
 ) -> List[MappingPackageV3Lightweight]:
-    if not github_repository_url:
-        raise ValueError("Repository URL is required")
-
-    if not packages_path_pattern:
-        raise ValueError("Packages path pattern is required")
-
     github_extractor = github_package_extractor or GithubPackageExtractor()
 
     with github_extractor.extract_temporary(repository_url=github_repository_url,
@@ -82,7 +76,7 @@ def load_mapping_packages_v3_from_github(
                     mapping_package_loader=mapping_package_loader
                 )
                 mapping_packages.append(package)
-            except (ValidationError, Exception) as pydantic_validation_error:
+            except (ValidationError) as pydantic_validation_error:
                 logger.warning(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=package_path,
                                                                                 message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}"))
         return mapping_packages

@@ -52,7 +52,7 @@ jobs:
           fi
 
       - name: Comment on PR about out-of-sync code
-        if: failure() && steps.verify_generated_code.outputs.has_changes == 'true'
+        if: github.event_name == 'pull_request' && failure() && steps.verify_generated_code.outputs.has_changes == 'true'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
@@ -75,7 +75,7 @@ jobs:
         run: make test-unit
 
       - name: Comment on PR that generated code is in sync
-        if: success() && steps.verify_generated_code.outputs.has_changes == 'false'
+        if: github.event_name == 'pull_request' && success() && steps.verify_generated_code.outputs.has_changes == 'false'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |

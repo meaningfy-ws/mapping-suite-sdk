@@ -3,8 +3,8 @@ from pathlib import Path
 from mapping_suite_sdk.core.adapters.serialiser import MappingPackageAssetSerialiser, \
     TechnicalMappingCollectionAssetSerialiser, VocabularyMappingCollectionAssetSerialiser
 from mapping_suite_sdk.core.adapters.tracer import traced_class
-from mapping_suite_sdk.mp_v3_lightweight.adapters.mp_v3_serialiser_lightweight import MappingPackageV3LightweightMetadataSerialiser
-from mapping_suite_sdk.mp_v3_lightweight.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+from mapping_suite_sdk.mapping_package_v3.adapters.metadata_serialiser import MappingPackageV3MetadataSerialiser
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 
 @traced_class
@@ -25,6 +25,6 @@ class MappingPackageV3LightweightSerialiser(MappingPackageAssetSerialiser):
         """
 
         # Serialize each component
-        MappingPackageV3LightweightMetadataSerialiser().serialise(package_folder_path, asset.metadata)
+        MappingPackageV3MetadataSerialiser().serialise(package_folder_path, asset.metadata)
         TechnicalMappingCollectionAssetSerialiser().serialise(package_folder_path, asset.technical_mapping_suite)
         VocabularyMappingCollectionAssetSerialiser().serialise(package_folder_path, asset.vocabulary_mapping_suite)

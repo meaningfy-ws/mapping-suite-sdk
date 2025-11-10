@@ -7,7 +7,7 @@ from mapping_suite_sdk.core.entrypoints.cli.validate import mssdk_cli_validate_s
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
-from mapping_suite_sdk.mp_v3_lightweight.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
+from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
 
 
 def test_validate_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:

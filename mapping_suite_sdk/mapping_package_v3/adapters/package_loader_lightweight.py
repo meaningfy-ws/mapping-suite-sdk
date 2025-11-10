@@ -4,8 +4,8 @@ from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.loader import MappingPackageLoader, TechnicalMappingSuiteLoader, \
     VocabularyMappingSuiteLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
-from mapping_suite_sdk.mp_v3_lightweight.adapters.mp_v3_lightweight_loader import MappingPackageV3LightweightMetadataLoader
-from mapping_suite_sdk.mp_v3_lightweight.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+from mapping_suite_sdk.mapping_package_v3.adapters.metadata_loader import MappingPackageV3MetadataLoader
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 
 @traced_class
@@ -29,7 +29,7 @@ class MappingPackageV3LightweightLoader(MappingPackageLoader):
         return False
 
     def load(self, package_folder_path: Path) -> MappingPackageV3Lightweight:
-        """Load all components of a mapping package v3 lightweight (used in eForms).
+        """Load all components of a mapping package v3 lightweight.
 
         This method orchestrates the loading of:
         - Package metadata
@@ -43,7 +43,7 @@ class MappingPackageV3LightweightLoader(MappingPackageLoader):
             MappingPackageABC: Complete mapping package with all loaded components.
         """
 
-        metadata = MappingPackageV3LightweightMetadataLoader().load(package_folder_path=package_folder_path,
+        metadata = MappingPackageV3MetadataLoader().load(package_folder_path=package_folder_path,
                                                          relative_asset_path=mssdk_config.MPV3_METADATA_FILE_ASSET_PATH)
 
 

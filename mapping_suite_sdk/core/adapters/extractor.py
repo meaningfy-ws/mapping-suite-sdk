@@ -336,6 +336,14 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
             ...         print(f"Found package at: {path}")
             ...     # Temporary files are automatically cleaned up after the with block
         """
+        if not repository_url:
+            raise ValueError("Repository URL is required. Example: https://github.com/org/repo")
+
+        if not packages_path_pattern:
+            raise ValueError("Packages path pattern is required. Example: /mappings/package*")
+
+        if branch_or_tag_name:
+            raise ValueError("Branch name is not supported yet. Use tag or commit name instead.")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir_path = Path(temp_dir)

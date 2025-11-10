@@ -17,11 +17,7 @@ from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import Mapping
 from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import \
     validate_mapping_package_v3_from_archive, validate_bulk_mapping_packages_v3_from_github, \
     validate_bulk_mapping_packages_v3_from_folder
-from mapping_suite_sdk.mp_v3_lightweight.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
-from mapping_suite_sdk.mp_v3_lightweight.services.validate_mapping_package_v3_lightweight import \
-    validate_mapping_package_v3_from_archive as validate_mapping_package_v3_lightweight_from_archive, \
-    validate_bulk_mapping_packages_v3_from_github as validate_bulk_mapping_packages_v3_lightweight_from_github, \
-    validate_bulk_mapping_packages_v3_from_folder as validate_bulk_mapping_packages_v3_lightweight_from_folder
+from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
 
 logger = logging.getLogger(__name__)
 
@@ -78,11 +74,7 @@ def mssdk_cli_validate_mapping_package_from_archive(
         all_valid = validate_mapping_package_v3_from_archive(
             mapping_package_archive_path=mapping_package_archive_path,
             mapping_package_loader=loader)
-    elif version == MappingPackageVersion.V3_LIGHTWEIGHT:
-        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
-        all_valid = validate_mapping_package_v3_lightweight_from_archive(
-            mapping_package_archive_path=mapping_package_archive_path,
-            mapping_package_loader=loader)
+
     else:
         raise typer.BadParameter("Something went wrong package version checking callback.")
 
@@ -133,13 +125,7 @@ def mssdk_cli_validate_mapping_packages_from_github(
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
             mapping_package_loader=loader)
-    elif version == MappingPackageVersion.V3_LIGHTWEIGHT:
-        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
-        all_valid = validate_bulk_mapping_packages_v3_lightweight_from_github(
-            github_repository_url=github_repository_url,
-            packages_path_pattern=packages_path_pattern,
-            branch_or_tag_name=branch_or_tag_name,
-            mapping_package_loader=loader)
+
     else:
         raise typer.BadParameter("Something went wrong package version checking callback.")
 
@@ -185,12 +171,7 @@ def mssdk_cli_validate_mapping_packages_from_folder(
             mapping_packages_folder_path=folder_path,
             update_hash=update_hash,
             mapping_package_loader=loader)
-    elif version == MappingPackageVersion.V3_LIGHTWEIGHT:
-        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
-        all_valid = validate_bulk_mapping_packages_v3_lightweight_from_folder(
-            mapping_packages_folder_path=folder_path,
-            update_hash=update_hash,
-            mapping_package_loader=loader)
+
     else:
         raise typer.BadParameter("Something went wrong package version checking callback.")
 

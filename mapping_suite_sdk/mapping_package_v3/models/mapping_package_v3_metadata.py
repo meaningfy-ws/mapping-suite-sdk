@@ -6,7 +6,7 @@ from typing import Any, Optional
 from pydantic import ConfigDict, Field, RootModel
 
 metamodel_version = "None"
-version = "None"
+version = "0.1.0"
 
 
 from mapping_suite_sdk.core.models.pydantic import PydanticModel

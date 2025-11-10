@@ -1,0 +1,80 @@
+[importlinter]
+root_package = mapping_suite_sdk
+
+# Contract 1: Core Models Independence (but allow config imports)
+[importlinter:contract:core-models-independence]
+name = Core models must not depend on adapters or entrypoints
+type = forbidden
+source_modules =
+    mapping_suite_sdk.core.models
+forbidden_modules =
+    mapping_suite_sdk.core.adapters
+    mapping_suite_sdk.core.entrypoints
+ignore_imports =
+    mapping_suite_sdk.core.models.* -> mapping_suite_sdk
+
+# Contract 2: Domain Models Independence (V1, V2, V3)
+[importlinter:contract:domain-independence-v1]
+name = V1 domain models must not depend on services or adapters
+type = forbidden
+source_modules =
+    mapping_suite_sdk.mapping_package_v1.models
+forbidden_modules =
+    mapping_suite_sdk.mapping_package_v1.services
+    mapping_suite_sdk.mapping_package_v1.adapters
+
+[importlinter:contract:domain-independence-v2]
+name = V2 domain models must not depend on services or adapters
+type = forbidden
+source_modules =
+    mapping_suite_sdk.mapping_package_v2.models
+forbidden_modules =
+    mapping_suite_sdk.mapping_package_v2.services
+    mapping_suite_sdk.mapping_package_v2.adapters
+
+[importlinter:contract:domain-independence-v3]
+name = V3 domain models must not depend on services or adapters
+type = forbidden
+source_modules =
+    mapping_suite_sdk.mapping_package_v3.models
+forbidden_modules =
+    mapping_suite_sdk.mapping_package_v3.services
+    mapping_suite_sdk.mapping_package_v3.adapters
+
+# Contract 3: Adapters don't depend on Services
+[importlinter:contract:adapters-use-models-v1]
+name = V1 adapters should only depend on models, not services
+type = forbidden
+source_modules =
+    mapping_suite_sdk.mapping_package_v1.adapters
+forbidden_modules =
+    mapping_suite_sdk.mapping_package_v1.services
+
+[importlinter:contract:adapters-use-models-v2]
+name = V2 adapters should only depend on models, not services
+type = forbidden
+source_modules =
+    mapping_suite_sdk.mapping_package_v2.adapters
+forbidden_modules =
+    mapping_suite_sdk.mapping_package_v2.services
+
+[importlinter:contract:adapters-use-models-v3]
+name = V3 adapters should only depend on models, not services
+type = forbidden
+source_modules =
+    mapping_suite_sdk.mapping_package_v3.adapters
+forbidden_modules =
+    mapping_suite_sdk.mapping_package_v3.services
+
+# Contract 4: Version Independence (TEMPORARILY DISABLED - TODO: Fix root __init__.py)
+# Contract 4: Version Independence - Single contract for all versions
+# [importlinter:contract:version-independence]
+# name = Package versions should be independent from each other
+# type = independence
+# modules =
+#     mapping_suite_sdk.mapping_package_v1
+#     mapping_suite_sdk.mapping_package_v2
+#     mapping_suite_sdk.mapping_package_v3
+# ignore_imports =
+#     mapping_suite_sdk.core.models.* -> mapping_suite_sdk
+# unmatched_ignore_imports_alerting = warn

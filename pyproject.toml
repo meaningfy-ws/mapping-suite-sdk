@@ -41,3 +41,14 @@ pylint = "^3.3.4"
 mongomock = "^4.3.0"
 linkml = ">=1.9.2,<2.0.0"
 ruff = "^0.14.0"
+import-linter = "^2.6"
+radon = "^6.0.1"
+xenon = "^0.9.3"
+
+[tool.radon]
+exclude = "tests/*,docs/*,.tox/*,.venv/*"
+# CC thresholds
+cc_min = "A"  # Minimum acceptable grade
+cc_max = "C"  # Maximum acceptable grade
+# MI thresholds
+mi_min = 20  # Minimum maintainability index

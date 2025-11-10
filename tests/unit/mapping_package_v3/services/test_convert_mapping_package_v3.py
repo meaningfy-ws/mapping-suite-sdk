@@ -1,10 +1,8 @@
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-from mapping_suite_sdk.mapping_package_v3.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
+from mapping_suite_sdk.tools.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
 
 
 def test_convert_mpv3_from_mpv2_creates_successfully(dummy_mapping_package_v2_model: MappingPackageV2) -> None:

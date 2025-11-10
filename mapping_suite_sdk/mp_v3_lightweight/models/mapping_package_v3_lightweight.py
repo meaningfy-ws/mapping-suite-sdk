@@ -11,12 +11,12 @@ from mapping_suite_sdk.mp_v3_lightweight.models.mapping_package_v3_lightweight_m
 
 class MappingPackageV3Lightweight(MappingPackage):
     """
-        A class representing a lightweight V3 (Unified) mapping package configuration.
+       A class representing a lightweight V3 (Unified) mapping package configuration.
 
-        This class serves as the root container for all components of a mapping package,
-        including metadata and mapping configurations. It provides
-        a lightweight structure for organizing and managing all aspects of a data
-        mapping project.
+        This class serves as the root container for all components of a "lightweight" mapping package,
+        including metadata and mapping configurations. As compared to the full, fat or heavyweight
+        package, it provides a structure that facilitates the bare minimum necessary for data transformation,
+        namely the technical mapping rules and associated vocabulary resources only.
     """
 
     # Metadata

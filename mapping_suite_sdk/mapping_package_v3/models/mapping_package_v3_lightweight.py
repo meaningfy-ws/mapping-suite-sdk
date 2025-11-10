@@ -11,11 +11,11 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jso
 
 class MappingPackageV3Lightweight(MappingPackage):
     """
-        A class representing a complete V3 (Unified) mapping package configuration.
+        A class representing a lightweight V3 (Unified) mapping package configuration.
 
         This class serves as the root container for all components of a mapping package,
-        including metadata, mapping configurations, and various test suites. It provides
-        a comprehensive structure for organizing and managing all aspects of a data
+        including metadata and mapping configurations. It provides
+        a lightweight structure for organizing and managing all aspects of a data
         mapping project.
     """
 

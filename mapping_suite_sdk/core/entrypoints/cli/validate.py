@@ -17,7 +17,6 @@ from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import Mapping
 from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import \
     validate_mapping_package_v3_from_archive, validate_bulk_mapping_packages_v3_from_github, \
     validate_bulk_mapping_packages_v3_from_folder
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
 
 logger = logging.getLogger(__name__)
 

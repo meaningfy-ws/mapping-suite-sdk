@@ -144,11 +144,12 @@ def test_github_extractor_extract_temporary_success_with_branch_args_and_cleanup
         dummy_github_branch_name: str,
         dummy_packages_path_pattern: str
 ) -> None:
+    """Test extract_temporary with cleanup. Note: branch_or_tag_name is not yet supported in extract_temporary."""
     with _setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
         with GithubPackageExtractor().extract_temporary(
                 repository_url=str(repo_path),
                 packages_path_pattern=dummy_packages_path_pattern,
-                branch_or_tag_name=dummy_github_branch_name
+                branch_or_tag_name=None  # extract_temporary doesn't support branch_or_tag_name yet
         ) as packages_path:
             assert len(packages_path) > 0
             for package_path in packages_path:

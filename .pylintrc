@@ -1,5 +1,5 @@
 [MASTER]
-ignore=CVS
+ignore=CVS, tests
 persistent=yes
 load-plugins=
 

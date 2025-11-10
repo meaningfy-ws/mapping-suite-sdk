@@ -110,7 +110,6 @@ class SHACLTestCollectionAssetSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for SHACL test suites."""
 
     def serialise(self, package_folder_path: Path, asset: SHACLTestCollectionAsset) -> None:
-        asset.path.mkdir(parents=True, exist_ok=True)
         for suite in asset.shacl_collections:
             suite_path = package_folder_path / suite.path
             suite_path.mkdir(parents=True, exist_ok=True)

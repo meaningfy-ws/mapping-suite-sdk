@@ -1,0 +1,141 @@
+id: MappingPackageV3Metadata
+name: MappingPackageV3Metadata
+description: Schema for a data transformation rules package metadata
+prefixes:
+  linkml: https://w3id.org/linkml/
+  mnfy: https://meaningfy.ws/mapping/
+default_prefix: mnfy
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+  MappingPackageV3Metadata:
+    description: Metadata for a data transformation rules package
+    slots:
+      - id
+      - title
+      - project_identifier
+      - created_at
+      - mapping_version
+      - model_version
+      - description
+      - applicability_constraints
+      - mapping_suite_hash_digest
+
+  ApplicabilityConstraints:
+    description: Container for constraint types
+    slots:
+      - document_type_list
+      - document_time_interval
+      - document_version_list
+      - document_version_range
+
+  VersionRange:
+    description: Container for minimum and maximum version values
+    slots:
+      - min
+      - max
+
+  DateTimeInterval:
+    description: Container for starting and ending datetime values
+    slots:
+      - start
+      - end
+
+slots:
+  id:
+    required: true
+    identifier: true
+    description: Unique identifier of the package
+    examples:
+      - value: "package_F03"
+
+  title:
+    required: true
+    description: Human-readable name of the package
+    examples:
+      - value: "Package F03"
+
+  project_identifier:
+    required: true
+    description: Name or identifier of the data transformation project
+    examples:
+      - value: "github:OP-TED/ted-rdf-mapping"
+
+  created_at:
+    required: true
+    description: Timestamp of when the package/metadata was created
+    range: datetime
+    examples:
+      - value: "2023-06-13T19:30:11.026749"
+
+  mapping_version:
+    required: true
+    description: Version of the transformation rules in the package
+    examples:
+      - value: "2.1.1"
+
+  model_version:
+    required: true
+    description: Version of the ontology this mapping aligns with
+    examples:
+      - value: "3.1.0"
+
+  description:
+    description: A brief summary of what the package represents or maps.
+    examples:
+      - value: "This is the RML mapping package for eForms SDK v1.13."
+
+  applicability_constraints:
+    description: Applicability constraints for when and where mapping rules of the package are valid
+    range: ApplicabilityConstraints
+
+  document_type_list:
+    required: true
+    description: List of applicable document type identifiers
+    multivalued: true
+    examples:
+      - value: [ "1", "24", "E1" ]
+
+  document_version_list:
+    description: List of supported document versions
+    multivalued: true
+    examples:
+      - value: [ "1.3", "1.7", "1.11" ]
+
+  document_version_range:
+    description: Range of (minimum and maximum) supported document versions
+    range: VersionRange
+
+  document_time_interval:
+    description: Interval of starting and ending document datetime
+    range: DateTimeInterval
+
+  start:
+    description: Earliest applicable datetime for the mapping
+    range: datetime
+    examples:
+      - value: [ "2014-01-01:T00:00:00Z" ]
+
+  end:
+    description: Latest applicable datetime for the mapping
+    range: datetime
+    examples:
+      - value: [ "2014-01-30:T23:59:59Z" ]
+
+  min:
+    description: Minimum supported document version
+    examples:
+      - value: [ "R2.0.9.S01.E01" ]
+
+  max:
+    description: Maximum supported document version
+    examples:
+      - value: [ "R2.0.9.S05.E01" ]
+
+  mapping_suite_hash_digest:
+    required: true
+    description: Cryptographic hash of the mapping package for integrity verification
+    examples:
+      - value: "3aa94076ff0d7068e65624ab0d6841c1c8caa1ae2f2d9bf58d87ab205c5959a9"

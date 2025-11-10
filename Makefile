@@ -3,6 +3,12 @@ SHELL=/bin/bash -o pipefail
 BUILD_PRINT = \e[1;34m
 END_BUILD_PRINT = \e[0m
 
+PROJECT_PATH = $(shell pwd)
+RESOURCES_PATH = ${PROJECT_PATH}/resources
+SCHEMA_PATH ?= ${RESOURCES_PATH}/schema
+TEMPLATES_PATH ?= ${RESOURCES_PATH}/templates
+PYTHON_PATH ?= ${PROJECT_PATH}/mapping_suite_sdk
+
 ICON_DONE = [✔]
 ICON_ERROR = [x]
 ICON_WARNING = [!]
@@ -21,6 +27,7 @@ build:
 
 install: install-poetry
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Installing MSSDK requirements$(END_BUILD_PRINT)"
+	@ poetry lock
 	@ poetry install --all-groups
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) MSSDK requirements are installed$(END_BUILD_PRINT)"
 
@@ -29,7 +36,7 @@ install-poetry:
 	@ pip install "poetry==2.0.1"
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Poetry for MSSDK is installed$(END_BUILD_PRINT)"
 
-test-unit:
+test-unit: generate-models
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Running unit tests for MSSDK$(END_BUILD_PRINT)"
 	@ poetry run tox
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Running unit tests for MSSDK done$(END_BUILD_PRINT)"
@@ -96,3 +103,46 @@ run-antora: init-antora
 	@echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Running Antora...$(END_BUILD_PRINT)"
 	npx antora $(ANTORA_PLAYBOOK)
 	@echo -e "$(BUILD_PRINT)$(ICON_DONE) Antora executed successfully!$(END_BUILD_PRINT)"
+
+
+#-----------------------------------------------------------------------------
+# LinkML Model Generation Commands
+#-----------------------------------------------------------------------------
+
+generate-models:
+	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating Python models from LinkML schemas$(END_BUILD_PRINT)"
+	@ $(MAKE) generate-models-recursive
+	@ $(MAKE) optimize-models-imports
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Python models generated successfully$(END_BUILD_PRINT)"
+
+optimize-models-imports:
+	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Optimizing imports in generated models$(END_BUILD_PRINT)"
+	@ find $(SCHEMA_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
+		relative_path=$$(echo "$$yaml_file" | sed "s|^$(SCHEMA_PATH)/||"); \
+		py_file="$(PYTHON_PATH)/$$(echo "$$relative_path" | sed 's|\.yaml$$|.py|')"; \
+		if [ -f "$$py_file" ]; then \
+			echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Optimizing imports in $$py_file$(END_BUILD_PRINT)"; \
+			poetry run ruff check --select F401 --select I --fix "$$py_file" && \
+			poetry run ruff format "$$py_file" || { \
+				echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to optimize $$py_file$(END_BUILD_PRINT)"; \
+			}; \
+		fi; \
+	done
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Import optimization completed$(END_BUILD_PRINT)"
+
+generate-models-recursive:
+	@ find $(SCHEMA_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Processing $$yaml_file$(END_BUILD_PRINT)"; \
+		relative_path=$$(echo "$$yaml_file" | sed "s|^$(SCHEMA_PATH)/||"); \
+		output_dir="$(PYTHON_PATH)/$$(dirname "$$relative_path")"; \
+		output_file="$(PYTHON_PATH)/$$(echo "$$relative_path" | sed 's|\.yaml$$|.py|')"; \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Creating output directory: $$output_dir$(END_BUILD_PRINT)"; \
+		mkdir -p "$$output_dir"; \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating: $$output_file$(END_BUILD_PRINT)"; \
+		poetry run gen-pydantic --meta None --template-dir $(TEMPLATES_PATH)/ "$$yaml_file" > "$$output_file.tmp" && mv "$$output_file.tmp" "$$output_file" || { \
+			echo -e "$(BUILD_PRINT)$(ICON_ERROR) Failed to generate $$output_file$(END_BUILD_PRINT)"; \
+			rm -f "$$output_file.tmp"; \
+			exit 1; \
+		}; \
+		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated: $$output_file$(END_BUILD_PRINT)"; \
+	done

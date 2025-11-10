@@ -14,12 +14,13 @@ class PydanticModel(BaseModel):
         A base model class providing core configurations for all project-related models.
     """
 
-    id: Optional[str] = Field(
-        default=None,
-        alias="_id",
-        exclude=True,
-        description="Unique identifier for the model instance, automatically generated."
-    )
+    # TODO: No need. Will be removed.
+    # id: Optional[str] = Field(
+    #     default=None,
+    #     alias="_id",
+    #     exclude=True,
+    #     description="Unique identifier for the model instance, automatically generated."
+    # )
 
     object_description: Optional[str] = Field(
         default=None,
@@ -27,15 +28,15 @@ class PydanticModel(BaseModel):
         description="Optional descriptive text providing additional information about the model instance."
     )
 
-    @model_validator(mode='after')
-    def generate_id(self) -> 'PydanticModel':
-        """Generate a unique ID based on the model data, excluding validation info."""
-        if self.id is None:
-            model_data = self.model_dump(exclude={'id'}, exclude_none=False, exclude_unset=False, mode='json')
-            data_string = json.dumps(model_data, sort_keys=True)
-            hash_value = hashlib.sha256(data_string.encode(mssdk_config.MSSDK_DEFAULT_STR_ENCODE)).hexdigest()
-            object.__setattr__(self, 'id', hash_value)
-        return self
+    # @model_validator(mode='after')
+    # def generate_id(self) -> 'PydanticModel':
+    #     """Generate a unique ID based on the model data, excluding validation info."""
+    #     if self.id is None:
+    #         model_data = self.model_dump(exclude={'id'}, exclude_none=False, exclude_unset=False, mode='json')
+    #         data_string = json.dumps(model_data, sort_keys=True)
+    #         hash_value = hashlib.sha256(data_string.encode(mssdk_config.MSSDK_DEFAULT_STR_ENCODE)).hexdigest()
+    #         object.__setattr__(self, 'id', hash_value)
+    #     return self
 
     class Config:
         validate_assignment = True

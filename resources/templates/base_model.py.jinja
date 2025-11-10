@@ -1,0 +1,11 @@
+{# from site-packages/linkml/generators/pydanticgen/templates/base_model.py.jinja python 3.12 linkml 1.8.6 #}
+from mapping_suite_sdk.core.models.pydantic import PydanticModel
+
+class {{ name }}(PydanticModel):
+{% if fields is not none %}
+    {% for field in fields %}
+    {{ field }}
+    {% endfor %}
+{% else %}
+    {{ "pass" }}
+{% endif %}

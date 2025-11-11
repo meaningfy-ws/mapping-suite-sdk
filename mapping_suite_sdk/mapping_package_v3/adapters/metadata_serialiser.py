@@ -10,6 +10,14 @@ class MappingPackageV3MetadataSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for mapping package metadata."""
 
     def serialise(self, package_folder_path: Path, asset: MappingPackageV3MetadataJSONLD) -> None:
+        # Validate that asset is a proper model instance, not a mock
+        if not isinstance(asset, MappingPackageV3MetadataJSONLD):
+            raise TypeError(f"Expected MappingPackageV3MetadataJSONLD, got {type(asset).__name__}")
+        
+        # Validate that path is a string/Path, not a mock
+        if not isinstance(asset.path, (str, Path)):
+            raise TypeError(f"Expected path to be str or Path, got {type(asset.path).__name__}")
+        
         metadata_path = package_folder_path / asset.path
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
         metadata = MappingPackageV3Metadata.model_construct(**asset.model_dump())

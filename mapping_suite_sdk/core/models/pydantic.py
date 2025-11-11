@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Any, TypeVar, cast
 
-from pydantic import BaseModel, Field, model_validator, ConfigDict
+from pydantic import BaseModel, Field, model_validator, ConfigDict, field_serializer
 
 from mapping_suite_sdk import mssdk_config
 
@@ -47,10 +47,7 @@ class PydanticModel(BaseModel):
         str_strip_whitespace=False,
         validate_default=True,
         populate_by_name=True,
-        ser_json_bytes='base64',
-        json_encoders={
-            Path: str
-        }
+        ser_json_bytes='base64'
     )
 
 

@@ -425,3 +425,61 @@ def test_convert_from_folder_v3_to_v3_lightweight(
     assert mock_convert.called
     assert "Converted v3 package to v3-lightweight package" in caplog.text
 
+
+def test_is_already_converted_v3_lightweight_returns_false_when_conceptual_mapping_exists(
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _is_already_converted returns False for lightweight when conceptual mapping exists."""
+    from mapping_suite_sdk import mssdk_config
+    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    
+    # Serialise a full V3 package (with conceptual mapping)
+    serialiser = MappingPackageV3Serialiser()
+    serialiser.serialise(tmp_path, fixture_mapping_package_v3_model)
+    
+    # Check if it's detected as NOT lightweight (should return False since it has conceptual mapping)
+    result = _is_already_converted(tmp_path, "v3-lightweight")
+    
+    assert result is False
+    # Verify conceptual mapping file exists
+    conceptual_mapping_path = tmp_path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+    assert conceptual_mapping_path.exists()
+
+
+def test_convert_from_package_raises_error_when_path_is_not_directory(
+    typer_cli_runner: CliRunner,
+    tmp_path: Path
+) -> None:
+    """Test that from-package command raises BadParameter when path is not a directory."""
+    # Create a file instead of a directory
+    file_path = tmp_path / "not_a_directory.txt"
+    file_path.write_text("test")
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-package", str(file_path)]
+    )
+    
+    assert result.exit_code != 0
+    assert "Package path is not a directory" in result.stdout or "Package path is not a directory" in str(result.exception)
+
+
+def test_convert_from_folder_raises_error_when_path_is_not_directory(
+    typer_cli_runner: CliRunner,
+    tmp_path: Path
+) -> None:
+    """Test that from-folder command raises BadParameter when path is not a directory."""
+    # Create a file instead of a directory
+    file_path = tmp_path / "not_a_directory.txt"
+    file_path.write_text("test")
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-folder", str(file_path)]
+    )
+    
+    assert result.exit_code != 0
+    assert "Folder path is not a directory" in result.stdout or "Folder path is not a directory" in str(result.exception)
+

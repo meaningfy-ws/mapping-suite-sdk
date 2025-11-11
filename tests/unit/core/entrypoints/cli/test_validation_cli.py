@@ -1379,3 +1379,4 @@ def test_validate_from_github_success_exits_with_code_0_v3_lightweight(
         )
 
         assert result.exit_code == 0
+

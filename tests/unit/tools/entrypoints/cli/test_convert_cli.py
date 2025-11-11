@@ -1,9 +1,16 @@
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 from typer.testing import CliRunner
 
-from mapping_suite_sdk.tools.entrypoints.cli.convert import mssdk_cli_convert_subcommand
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+from mapping_suite_sdk.tools.entrypoints.cli.convert import (
+    _convert_mapping_package,
+    _load_mapping_package_from_folder,
+    _serialise_mapping_package,
+    mssdk_cli_convert_subcommand
+)
 
 
 def test_convert_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
@@ -249,4 +256,172 @@ def test_convert_from_folder_handles_nested_package_structure(
     assert "Package is already v3, skipping conversion" in caplog.text
     # Should be called for the nested package
     assert mock_is_already_converted.called
+
+
+def test_load_mapping_package_from_folder_v3(dummy_mapping_package_v3_path: Path) -> None:
+    """Test that _load_mapping_package_from_folder works with V3 as from_version."""
+    result = _load_mapping_package_from_folder("v3", dummy_mapping_package_v3_path)
+    
+    assert isinstance(result, MappingPackageV3)
+    assert result.metadata is not None
+    assert result.conceptual_mapping_asset is not None
+
+
+def test_convert_mapping_package_v3_to_v3_lightweight(
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _convert_mapping_package works for V3 to V3-lightweight conversion."""
+    result = _convert_mapping_package("v3", "v3-lightweight", fixture_mapping_package_v3_model)
+    
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+    assert isinstance(result, MappingPackageV3Lightweight)
+    assert result.metadata == fixture_mapping_package_v3_model.metadata
+    assert result.technical_mapping_suite == fixture_mapping_package_v3_model.technical_mapping_suite
+    assert result.vocabulary_mapping_suite == fixture_mapping_package_v3_model.vocabulary_mapping_suite
+
+
+def test_serialise_mapping_package_v3_lightweight(
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _serialise_mapping_package works for V3-lightweight."""
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+    
+    # Convert to lightweight first
+    lightweight_package = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    
+    # Serialise it
+    _serialise_mapping_package("v3-lightweight", tmp_path, lightweight_package)
+    
+    # Verify files were created
+    assert (tmp_path / lightweight_package.metadata.path).exists()
+    assert (tmp_path / lightweight_package.technical_mapping_suite.path).exists()
+    assert (tmp_path / lightweight_package.vocabulary_mapping_suite.path).exists()
+
+
+def test_is_already_converted_v3_with_conceptual_mapping(dummy_mapping_package_v3_path: Path) -> None:
+    """Test that _is_already_converted correctly detects V3 packages with conceptual mapping."""
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    
+    result = _is_already_converted(dummy_mapping_package_v3_path, "v3")
+    
+    assert result is True
+
+
+def test_is_already_converted_v3_metadata_without_path_field(
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _is_already_converted handles metadata without path field."""
+    import json
+    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    
+    # Serialise a V3 package
+    serialiser = MappingPackageV3Serialiser()
+    serialiser.serialise(tmp_path, fixture_mapping_package_v3_model)
+    
+    # Read metadata and remove path field (simulating serialiser behavior)
+    metadata_path = tmp_path / fixture_mapping_package_v3_model.metadata.path
+    metadata_dict = json.loads(metadata_path.read_text())
+    if 'path' in metadata_dict:
+        del metadata_dict['path']
+    metadata_path.write_text(json.dumps(metadata_dict, indent=2))
+    
+    # Check if it's detected as already converted (should add path field automatically)
+    result = _is_already_converted(tmp_path, "v3")
+    
+    assert result is True
+
+
+def test_is_already_converted_v3_lightweight_loads_successfully(
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _is_already_converted correctly detects V3-lightweight packages."""
+    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+    
+    # Create a lightweight package
+    lightweight_package = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    serialiser = MappingPackageV3LightweightSerialiser()
+    serialiser.serialise(tmp_path, lightweight_package)
+    
+    # Check if it's detected as already converted
+    result = _is_already_converted(tmp_path, "v3-lightweight")
+    
+    assert result is True
+
+
+def test_is_already_converted_v3_hard_fails_for_lightweight_package(
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _is_already_converted hard fails when trying to load lightweight package as V3."""
+    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+    
+    # Create a lightweight package (no conceptual mapping)
+    lightweight_package = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    serialiser = MappingPackageV3LightweightSerialiser()
+    serialiser.serialise(tmp_path, lightweight_package)
+    
+    # Check if it hard fails when trying to load as V3 (should raise FileNotFoundError)
+    # This tests the hard fail behavior - exceptions other than ValidationError propagate
+    with pytest.raises(FileNotFoundError):
+        _is_already_converted(tmp_path, "v3")
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._is_already_converted", return_value=False)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_package_from_folder")
+def test_convert_from_folder_actually_converts(
+    mock_convert,
+    mock_is_already_converted,
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    caplog
+) -> None:
+    """Test that from-folder command actually calls conversion when package is not already converted."""
+    folder_path = tmp_path / "packages"
+    folder_path.mkdir()
+    package_folder = folder_path / "test_package"
+    package_folder.mkdir()
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-folder", str(folder_path)]
+    )
+    
+    assert result.exit_code == 0
+    assert mock_is_already_converted.called
+    assert mock_convert.called
+    assert "Converted v2 package to v3 package" in caplog.text
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._is_already_converted", return_value=False)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_package_from_folder")
+def test_convert_from_folder_v3_to_v3_lightweight(
+    mock_convert,
+    mock_is_already_converted,
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    caplog
+) -> None:
+    """Test that from-folder command works for V3 to V3-lightweight conversion."""
+    folder_path = tmp_path / "packages"
+    folder_path.mkdir()
+    package_folder = folder_path / "test_package"
+    package_folder.mkdir()
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3-lightweight", "--from-version", "v3", "from-folder", str(folder_path)]
+    )
+    
+    assert result.exit_code == 0
+    assert mock_is_already_converted.called
+    assert mock_convert.called
+    assert "Converted v3 package to v3-lightweight package" in caplog.text
 

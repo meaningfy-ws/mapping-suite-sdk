@@ -48,17 +48,12 @@ def validate_mapping_package_v3_lightweight_from_archive(
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
         archive_unpacker: Optional[ArchivePackageExtractor] = None
 ) -> Literal[True] | NoReturn:
-    if not mapping_package_archive_path.exists():
-        message: str = f"Cannot validate package from archive. Archive path does not exist: {mapping_package_archive_path}"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_archive_path,
-                                                                      message=message))
-        raise FileNotFoundError(message)
+    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
 
-    if not mapping_package_archive_path.is_file():
-        message: str = f"Cannot validate package from archive. Path is not a file: {mapping_package_archive_path}"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_archive_path,
-                                                                      message=message))
-        raise FileNotFoundError(message)
+    MPValidationStepABC.validate_archive_path(
+        path=mapping_package_archive_path,
+        context="validate package from archive"
+    )
 
     mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_from_archive(
         mapping_package_archive_path=mapping_package_archive_path,
@@ -72,17 +67,12 @@ def validate_mapping_package_v3_lightweight_from_archive(
 def validate_mapping_package_v3_lightweight_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None) -> Literal[True] | NoReturn:
-    if not mapping_package_folder_path.exists():
-        message: str = f"Cannot validate package from folder. Folder path does not exist: {mapping_package_folder_path}"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_folder_path,
-                                                                      message=message))
-        raise FileNotFoundError(message)
+    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
 
-    if not mapping_package_folder_path.is_dir():
-        message: str = f"Cannot validate package from folder. Path is not a directory: {mapping_package_folder_path}"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_folder_path,
-                                                                      message=message))
-        raise NotADirectoryError(message)
+    MPValidationStepABC.validate_folder_path(
+        path=mapping_package_folder_path,
+        context="validate package from folder"
+    )
 
     mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_from_folder(
         mapping_package_folder_path=mapping_package_folder_path,
@@ -98,17 +88,12 @@ def validate_bulk_mapping_packages_v3_lightweight_from_folder(
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
         update_hash: bool = False,
 ) -> bool | NoReturn:
-    if not mapping_packages_folder_path.exists():
-        message: str = f"Cannot bulk validate packages from folder. Folder path does not exist: {mapping_packages_folder_path}"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_packages_folder_path,
-                                                                      message=message))
-        raise FileNotFoundError(message)
+    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
 
-    if not mapping_packages_folder_path.is_dir():
-        message: str = f"Cannot bulk validate packages from folder. Path is not a directory: {mapping_packages_folder_path}"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_packages_folder_path,
-                                                                      message=message))
-        raise NotADirectoryError(message)
+    MPValidationStepABC.validate_folder_path(
+        path=mapping_packages_folder_path,
+        context="bulk validate packages from folder"
+    )
 
     all_valid: bool = True
     for mp_folder in mapping_packages_folder_path.iterdir():
@@ -157,15 +142,19 @@ def validate_bulk_mapping_packages_v3_lightweight_from_github(
         github_package_extractor: Optional[GithubPackageExtractor] = None,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
 ) -> bool | NoReturn:
-    if not github_repository_url:
-        message: str = "Cannot validate packages from github. Repository URL is empty"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source="github", message=message))
-        raise ValueError(message)
+    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
 
-    if not packages_path_pattern:
-        message: str = "Cannot validate packages from github. Packages path pattern is empty"
-        logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source="github", message=message))
-        raise ValueError(message)
+    MPValidationStepABC.validate_string_parameter(
+        value=github_repository_url,
+        param_name="Repository URL",
+        context="validate packages from github"
+    )
+
+    MPValidationStepABC.validate_string_parameter(
+        value=packages_path_pattern,
+        param_name="Packages path pattern",
+        context="validate packages from github"
+    )
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=f"URL: {github_repository_url} | branch_or_tag_name: {branch_or_tag_name} | pattern: {packages_path_pattern}",

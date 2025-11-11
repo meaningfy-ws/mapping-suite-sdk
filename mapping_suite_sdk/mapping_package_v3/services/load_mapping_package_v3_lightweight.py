@@ -19,10 +19,12 @@ def load_mapping_package_v3_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None
 ) -> MappingPackageV3Lightweight:
-    if not mapping_package_folder_path.exists():
-        raise FileNotFoundError(f"Mapping package folder not found: {mapping_package_folder_path}")
-    if not mapping_package_folder_path.is_dir():
-        raise NotADirectoryError(f"Specified path is not a directory: {mapping_package_folder_path}")
+    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
+
+    MPValidationStepABC.validate_folder_path(
+        path=mapping_package_folder_path,
+        context="load package from folder"
+    )
 
     mapping_package_loader = mapping_package_loader or MappingPackageV3LightweightLoader()
 
@@ -35,11 +37,12 @@ def load_mapping_package_v3_from_archive(
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
         archive_unpacker: Optional[ArchivePackageExtractor] = None
 ) -> MappingPackageV3Lightweight:
-    if not mapping_package_archive_path.exists():
-        raise FileNotFoundError(f"Mapping package archive not found: {mapping_package_archive_path}")
+    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
 
-    if not mapping_package_archive_path.is_file():
-        raise ValueError(f"Specified path is not a file: {mapping_package_archive_path}")
+    MPValidationStepABC.validate_archive_path(
+        path=mapping_package_archive_path,
+        context="load package from archive"
+    )
 
     archive_unpacker: ArchivePackageExtractor = archive_unpacker or ArchivePackageExtractor()
 

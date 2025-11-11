@@ -69,47 +69,35 @@ def test_convert_mpv3_from_mpv2_with_date_intervals(dummy_mapping_package_v2_mod
 
 
 def test_convert_mpv3_from_mpv2_handles_invalid_issue_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
-    """Test that conversion handles invalid issue_date format gracefully."""
+    """Test that conversion fails hard with invalid issue_date format."""
     # Set an invalid date format
     dummy_mapping_package_v2_model.metadata.issue_date = "invalid-date-format"
     
-    result = convert_mpv3_from_mpv2(dummy_mapping_package_v2_model)
-    
-    # Should fallback to datetime.now() and still succeed
-    assert isinstance(result, MappingPackageV3)
-    assert result.metadata.created_at is not None
+    # Should raise an exception (hard fail) - Pydantic will fail to convert invalid date string
+    with pytest.raises((ValueError, TypeError)):
+        convert_mpv3_from_mpv2(dummy_mapping_package_v2_model)
 
 
 def test_convert_mpv3_from_mpv2_handles_invalid_start_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
-    """Test that conversion handles invalid start_date format gracefully."""
+    """Test that conversion fails hard with invalid start_date format."""
     # Set an invalid date format
     if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
         dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = ["invalid-date-format"]
     
-    result = convert_mpv3_from_mpv2(dummy_mapping_package_v2_model)
-    
-    # Should skip invalid date and still succeed
-    assert isinstance(result, MappingPackageV3)
-    if result.metadata.applicability_constraints:
-        # If only start_date was invalid, end_date might still be valid
-        # So document_time_interval might exist or not
-        pass
+    # Should raise an exception (hard fail) - Pydantic will fail to convert invalid date string
+    with pytest.raises((ValueError, TypeError)):
+        convert_mpv3_from_mpv2(dummy_mapping_package_v2_model)
 
 
 def test_convert_mpv3_from_mpv2_handles_invalid_end_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
-    """Test that conversion handles invalid end_date format gracefully."""
+    """Test that conversion fails hard with invalid end_date format."""
     # Set an invalid date format
     if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
         dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = ["invalid-date-format"]
     
-    result = convert_mpv3_from_mpv2(dummy_mapping_package_v2_model)
-    
-    # Should skip invalid date and still succeed
-    assert isinstance(result, MappingPackageV3)
-    if result.metadata.applicability_constraints:
-        # If only end_date was invalid, start_date might still be valid
-        # So document_time_interval might exist or not
-        pass
+    # Should raise an exception (hard fail) - Pydantic will fail to convert invalid date string
+    with pytest.raises((ValueError, TypeError)):
+        convert_mpv3_from_mpv2(dummy_mapping_package_v2_model)
 
 
 

@@ -178,3 +178,4 @@ package.json
 package-lock.json
 /yes
 /yes.pub
+/.claude/

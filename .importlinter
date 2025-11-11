@@ -78,3 +78,15 @@ forbidden_modules =
 # ignore_imports =
 #     mapping_suite_sdk.core.models.* -> mapping_suite_sdk
 # unmatched_ignore_imports_alerting = warn
+
+# Contract 5: Tools Module Isolation
+[importlinter:contract:tools-isolation]
+name = Tools module is isolated - nothing can import from it
+type = forbidden
+source_modules =
+    mapping_suite_sdk.core
+    mapping_suite_sdk.mapping_package_v1
+    mapping_suite_sdk.mapping_package_v2
+    mapping_suite_sdk.mapping_package_v3
+forbidden_modules =
+    mapping_suite_sdk.tools

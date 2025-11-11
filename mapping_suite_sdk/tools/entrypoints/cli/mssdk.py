@@ -3,7 +3,7 @@ import logging
 import typer
 
 from mapping_suite_sdk import __version__, mssdk_config
-from mapping_suite_sdk.core.entrypoints.cli import convert, validate
+from mapping_suite_sdk.tools.entrypoints.cli import convert, validate
 
 logger = logging.getLogger(__name__)
 

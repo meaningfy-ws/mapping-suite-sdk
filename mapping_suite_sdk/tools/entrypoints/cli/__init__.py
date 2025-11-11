@@ -7,6 +7,7 @@ class MappingPackageVersion(str, Enum):
     V1 = "v1"
     V2 = "v2"
     V3 = "v3"
+    V3_LIGHTWEIGHT = "v3-lightweight"
 
     @classmethod
     def list(cls):

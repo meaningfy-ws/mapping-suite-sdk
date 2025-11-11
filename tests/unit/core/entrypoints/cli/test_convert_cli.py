@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from mapping_suite_sdk.core.entrypoints.cli.convert import mssdk_cli_convert_subcommand
+from mapping_suite_sdk.tools.entrypoints.cli.convert import mssdk_cli_convert_subcommand
 
 
 def test_convert_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
@@ -51,7 +51,7 @@ def test_convert_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_create_from_command_success(mock_load,
                                      mock_create,
@@ -78,7 +78,7 @@ def test_create_from_command_success(mock_load,
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_create_from_command_converts_in_place(mock_load,
                                                mock_create,
@@ -105,7 +105,7 @@ def test_create_verbose_option(typer_cli_runner: CliRunner,
                                dummy_mapping_package_v2_path: Path,
                                tmp_path: Path) -> None:
     with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2"), \
+         patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mpv3_from_mpv2"), \
          patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder"):
         result = typer_cli_runner.invoke(
             mssdk_cli_convert_subcommand,
@@ -116,7 +116,7 @@ def test_create_verbose_option(typer_cli_runner: CliRunner,
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_convert_from_folder_success(mock_load,
                                      mock_create,
@@ -150,7 +150,7 @@ def test_convert_from_folder_success(mock_load,
 
 
 @patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser")
-@patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mpv3_from_mpv2")
 @patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder")
 def test_convert_from_folder_with_failures(mock_load,
                                            mock_create,
@@ -207,7 +207,7 @@ def test_convert_from_folder_skips_files(typer_cli_runner: CliRunner, tmp_path: 
     file_path.write_text("not a package")
 
     with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2"), \
+         patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mpv3_from_mpv2"), \
          patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder"):
         result = typer_cli_runner.invoke(
             mssdk_cli_convert_subcommand,
@@ -301,7 +301,7 @@ def test_convert_from_folder_skips_already_converted(
     v3_metadata_path.write_text(json.dumps(v3_metadata, indent=2))
     
     with patch("mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3Serialiser"), \
-         patch("mapping_suite_sdk.core.entrypoints.cli.convert.convert_mpv3_from_mpv2") as mock_convert, \
+         patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mpv3_from_mpv2") as mock_convert, \
          patch("mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2.load_mapping_package_v2_from_folder") as mock_load:
         from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
         mock_mpv2 = MagicMock(spec=MappingPackageV2)

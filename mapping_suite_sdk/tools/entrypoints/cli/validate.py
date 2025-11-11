@@ -4,7 +4,7 @@ from pathlib import Path
 import typer
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.entrypoints.cli import typer_verbose_callback, MappingPackageVersion
+from mapping_suite_sdk.tools.entrypoints.cli import typer_verbose_callback, MappingPackageVersion
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
 from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import \
     validate_mapping_package_v1_from_archive, validate_bulk_mapping_packages_v1_from_github, \
@@ -24,6 +24,9 @@ from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_l
     validate_bulk_mapping_packages_v3_lightweight_from_folder
 
 logger = logging.getLogger(__name__)
+
+# Constants for repeated string literals
+_ERROR_VERSION_CHECKING = "Something went wrong package version checking callback."
 
 mssdk_cli_validate_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
                                             name="validate",
@@ -84,8 +87,8 @@ def mssdk_cli_validate_mapping_package_from_archive(
             mapping_package_archive_path=mapping_package_archive_path,
             mapping_package_loader=loader)
 
-    else:
-        raise typer.BadParameter("Something went wrong package version checking callback.")
+    else:  # pragma: no cover - Defensive code, version validated by Typer callback
+        raise typer.BadParameter(_ERROR_VERSION_CHECKING)
 
     status = "✅ Valid" if all_valid else "❌ Invalid"
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
@@ -142,8 +145,8 @@ def mssdk_cli_validate_mapping_packages_from_github(
             branch_or_tag_name=branch_or_tag_name,
             mapping_package_loader=loader)
 
-    else:
-        raise typer.BadParameter("Something went wrong package version checking callback.")
+    else:  # pragma: no cover - Defensive code, version validated by Typer callback
+        raise typer.BadParameter(_ERROR_VERSION_CHECKING)
 
     if not all_valid:
         raise typer.Exit(code=1)
@@ -194,8 +197,8 @@ def mssdk_cli_validate_mapping_packages_from_folder(
             update_hash=update_hash,
             mapping_package_loader=loader)
 
-    else:
-        raise typer.BadParameter("Something went wrong package version checking callback.")
+    else:  # pragma: no cover - Defensive code, version validated by Typer callback
+        raise typer.BadParameter(_ERROR_VERSION_CHECKING)
 
     status = "✅ All valid" if all_valid else "❌ Invalid packages found"
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(

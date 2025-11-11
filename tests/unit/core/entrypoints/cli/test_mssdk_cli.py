@@ -1,7 +1,7 @@
 from typer.testing import CliRunner
 
 from mapping_suite_sdk import __version__
-from mapping_suite_sdk.core.entrypoints.cli.mssdk import mssdk_cli_command
+from mapping_suite_sdk.tools.entrypoints.cli.mssdk import mssdk_cli_command
 
 
 def test_mssdk_cli_validate_command(typer_cli_runner: CliRunner) -> None:

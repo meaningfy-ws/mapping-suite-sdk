@@ -267,6 +267,17 @@ def test_load_mapping_package_from_folder_v3(dummy_mapping_package_v3_path: Path
     assert result.conceptual_mapping_asset is not None
 
 
+def test_load_mapping_package_from_folder_raises_error_for_unsupported_version(tmp_path: Path) -> None:
+    """Test that _load_mapping_package_from_folder raises BadParameter for unsupported source version."""
+    import typer
+    
+    with pytest.raises(typer.BadParameter) as excinfo:
+        _load_mapping_package_from_folder("v1", tmp_path)
+    
+    assert "Unsupported source version" in str(excinfo.value)
+    assert "v1" in str(excinfo.value)
+
+
 def test_convert_mapping_package_v3_to_v3_lightweight(
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
@@ -278,6 +289,20 @@ def test_convert_mapping_package_v3_to_v3_lightweight(
     assert result.metadata == fixture_mapping_package_v3_model.metadata
     assert result.technical_mapping_suite == fixture_mapping_package_v3_model.technical_mapping_suite
     assert result.vocabulary_mapping_suite == fixture_mapping_package_v3_model.vocabulary_mapping_suite
+
+
+def test_convert_mapping_package_raises_error_for_unsupported_conversion(
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _convert_mapping_package raises BadParameter for unsupported conversion."""
+    import typer
+    
+    with pytest.raises(typer.BadParameter) as excinfo:
+        _convert_mapping_package("v2", "v3-lightweight", fixture_mapping_package_v3_model)
+    
+    assert "Unsupported conversion" in str(excinfo.value)
+    assert "v2" in str(excinfo.value)
+    assert "v3-lightweight" in str(excinfo.value)
 
 
 def test_serialise_mapping_package_v3_lightweight(
@@ -297,6 +322,20 @@ def test_serialise_mapping_package_v3_lightweight(
     assert (tmp_path / lightweight_package.metadata.path).exists()
     assert (tmp_path / lightweight_package.technical_mapping_suite.path).exists()
     assert (tmp_path / lightweight_package.vocabulary_mapping_suite.path).exists()
+
+
+def test_serialise_mapping_package_raises_error_for_unsupported_version(
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _serialise_mapping_package raises BadParameter for unsupported target version."""
+    import typer
+    
+    with pytest.raises(typer.BadParameter) as excinfo:
+        _serialise_mapping_package("v2", tmp_path, fixture_mapping_package_v3_model)
+    
+    assert "Unsupported target version" in str(excinfo.value)
+    assert "v2" in str(excinfo.value)
 
 
 def test_is_already_converted_v3_with_conceptual_mapping(dummy_mapping_package_v3_path: Path) -> None:

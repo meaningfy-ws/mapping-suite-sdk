@@ -42,7 +42,8 @@ def test_load_mapping_package_v3_from_folder_nonexistent_path():
     with pytest.raises(FileNotFoundError) as exc_info:
         load_mapping_package_v3_from_folder(nonexistent_path)
 
-    assert "Mapping package folder not found" in str(exc_info.value)
+    assert "Cannot process load package from folder" in str(exc_info.value)
+    assert "Path does not exist" in str(exc_info.value)
     assert str(nonexistent_path) in str(exc_info.value)
 
 
@@ -53,7 +54,8 @@ def test_load_mapping_package_v3_from_folder_not_directory():
         with pytest.raises(NotADirectoryError) as exc_info:
             load_mapping_package_v3_from_folder(file_path)
 
-        assert "Specified path is not a directory" in str(exc_info.value)
+        assert "Cannot process load package from folder" in str(exc_info.value)
+        assert "Path is not a directory" in str(exc_info.value)
 
 
 def test_load_mapping_package_v3_from_archive_success(dummy_mapping_package_v3_archive_path: Path):
@@ -93,7 +95,8 @@ def test_load_mapping_package_v3_from_archive_nonexistent_file():
     with pytest.raises(FileNotFoundError) as exc_info:
         load_mapping_package_v3_from_archive(nonexistent_path)
 
-    assert "Mapping package archive not found" in str(exc_info.value)
+    assert "Cannot process load package from archive" in str(exc_info.value)
+    assert "Path does not exist" in str(exc_info.value)
 
 
 def test_load_mapping_package_v3_from_archive_not_file():
@@ -103,7 +106,8 @@ def test_load_mapping_package_v3_from_archive_not_file():
         with pytest.raises(ValueError) as exc_info:
             load_mapping_package_v3_from_archive(dir_path)
 
-        assert "Specified path is not a file" in str(exc_info.value)
+        assert "Cannot process load package from archive" in str(exc_info.value)
+        assert "Path is not a file" in str(exc_info.value)
 
 
 def test_load_mapping_packages_v3_from_github_empty_repo_url():

@@ -11,6 +11,7 @@ from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
 from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
+from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
 from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import \
@@ -53,6 +54,9 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
     if not metadata_file:
         return False
 
+    # Use the directory where metadata was found (handles nested structures)
+    package_root_path = metadata_file.parent
+
     if to_version == V3:
         # Try to validate as V3 - if it works, it's already converted
         metadata_dict = json.loads(metadata_file.read_text())
@@ -60,7 +64,7 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
         if 'path' not in metadata_dict:
             # Calculate relative path from the package folder to the metadata file
             # Handle both direct and nested structures
-            relative_path = metadata_file.relative_to(mapping_package_folder_path)
+            relative_path = metadata_file.relative_to(package_root_path)
             metadata_dict['path'] = relative_path.as_posix()
         # Validate by attempting to create the model
         # If ValidationError: package is not in target version (not converted) - return False
@@ -68,13 +72,10 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
         try:
             MappingPackageV3MetadataJSONLD.model_validate(metadata_dict)
             # Check if it's full v3 by trying to load it (full v3 has more components)
-            from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
             loader = MappingPackageV3Loader()
-            package = loader.load(mapping_package_folder_path)
+            package = loader.load(package_root_path)
             # If we can load it as full v3 and it has conceptual_mapping, it's full v3
-            if hasattr(package, 'conceptual_mapping_asset') and package.conceptual_mapping_asset:
-                return True
-            return True
+            return hasattr(package, 'conceptual_mapping_asset') and package.conceptual_mapping_asset is not None
         except ValidationError:
             # Package is not in V3 format, so it's not converted
             return False
@@ -90,9 +91,9 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
         
         # Try to load as lightweight - if it succeeds, it's lightweight
         # If loading fails, hard fail (let exception propagate)
-        from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
+        # Use the directory where metadata was found (handles nested structures)
         loader = MappingPackageV3LightweightLoader()
-        loader.load(mapping_package_folder_path)
+        loader.load(package_root_path)
         return True
     return False
 

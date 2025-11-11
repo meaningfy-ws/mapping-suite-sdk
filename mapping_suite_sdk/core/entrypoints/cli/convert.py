@@ -6,7 +6,7 @@ import typer
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.entrypoints.cli import typer_verbose_callback
-from mapping_suite_sdk.mapping_package_v3.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
+from mapping_suite_sdk.tools.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
 
 logger = logging.getLogger(__name__)
 

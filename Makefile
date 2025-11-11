@@ -82,6 +82,15 @@ check-clean-code: _check-complexity _check-maintainability
 	@ poetry run xenon mapping_suite_sdk --max-absolute C --max-modules C --max-average A --exclude "*test*,*__pycache__*"
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Clean Code checks completed$(END_BUILD_PRINT)"
 
+# Generate quality reports in JSON/text format for historical tracking
+quality-report:
+	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating quality reports$(END_BUILD_PRINT)"
+	@ mkdir -p reports
+	@ poetry run radon cc mapping_suite_sdk -a --json > reports/complexity.json
+	@ poetry run radon mi mapping_suite_sdk --json > reports/maintainability.json
+	@ poetry run radon hal mapping_suite_sdk > reports/halstead.txt
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Reports generated in reports/ directory$(END_BUILD_PRINT)"
+
 check-architecture:
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Checking architectural boundaries$(END_BUILD_PRINT)"
 	@ poetry run lint-imports

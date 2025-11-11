@@ -1,26 +1,29 @@
-import json
 import logging
 from enum import Enum
 from pathlib import Path
 
 import typer
-from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.entrypoints.cli import typer_verbose_callback
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
-from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
-from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import MappingPackageV3MetadataJSONLD
-from mapping_suite_sdk.mapping_package_v3.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
+from mapping_suite_sdk.tools.entrypoints.cli import typer_verbose_callback
+from mapping_suite_sdk.tools.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
 
 logger = logging.getLogger(__name__)
 
 
-Version = Enum('Version', [('V2', 'v2'), ('V3', 'v3')])
+class BaseVersion(str, Enum):
+    V2 = "v2"
 
-V2 = Version.V2.value
-V3 = Version.V3.value
+
+class NewVersion(str, Enum):
+    V3 = "v3"
+
+
+BASE_VERSIONS = [BaseVersion.V2]
+NEW_VERSIONS = [NewVersion.V3]
+
+BASE_VERSION_DEFAULT = BaseVersion.V2
+NEW_VERSION_DEFAULT = NewVersion.V3
 
 
 def _is_already_converted(mapping_package_folder_path: Path, to_version: str) -> bool:
@@ -47,30 +50,32 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
     if not metadata_file:
         return False
     
-    if to_version == V3:
+    if to_version == NewVersion.V3.value:
         # Try to validate as V3 - if it works, it's already converted
-        metadata_dict = json.loads(metadata_file.read_text())
-        # Add path field if missing (serialiser excludes it, but model requires it)
-        if 'path' not in metadata_dict:
-            # Calculate relative path from the package folder to the metadata file
-            # Handle both direct and nested structures
-            relative_path = metadata_file.relative_to(mapping_package_folder_path)
-            metadata_dict['path'] = relative_path.as_posix()
-        # Validate by attempting to create the model
-        # If ValidationError: package is not in target version (not converted) - return False
-        # Other hard fail
         try:
+            from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import MappingPackageV3MetadataJSONLD
+            import json
+            metadata_dict = json.loads(metadata_file.read_text())
+            # Add path field if missing (serialiser excludes it, but model requires it)
+            if 'path' not in metadata_dict:
+                # Calculate relative path from the package folder to the metadata file
+                # Handle both direct and nested structures
+                relative_path = metadata_file.relative_to(mapping_package_folder_path)
+                metadata_dict['path'] = relative_path.as_posix()
+            # Validate by attempting to create the model
             MappingPackageV3MetadataJSONLD.model_validate(metadata_dict)
             return True
-        except ValidationError:
-            # Package is not in V3 format, so it's not converted
+        except Exception:
             return False
     return False
 
 
 def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
     """Dynamically load a mapping package based on version."""
-    if from_version == V2:
+    if from_version == BaseVersion.V2.value:
+        from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+        from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
+        
         loader = MappingPackageV2Loader()
         return load_mapping_package_v2_from_folder(
             mapping_package_folder_path=mapping_package_folder_path,
@@ -82,7 +87,7 @@ def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_
 
 def _convert_mapping_package(from_version: str, to_version: str, source_package):
     """Convert mapping package using service layer."""
-    if from_version == V2 and to_version == V3:
+    if from_version == BaseVersion.V2.value and to_version == NewVersion.V3.value:
         return convert_mpv3_from_mpv2(source_package)
     else:
         raise typer.BadParameter(f"Unsupported conversion: {from_version} -> {to_version}")
@@ -90,7 +95,9 @@ def _convert_mapping_package(from_version: str, to_version: str, source_package)
 
 def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package):
     """Dynamically serialize a mapping package based on version."""
-    if to_version == V3:
+    if to_version == NewVersion.V3.value:
+        from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+        
         serialiser = MappingPackageV3Serialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
     else:
@@ -111,18 +118,18 @@ mssdk_cli_convert_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_AR
 @mssdk_cli_convert_subcommand.callback()
 def convert_common(
         ctx: typer.Context,
-        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({V3})"),
-        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({V2})"),
+        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({NEW_VERSION_DEFAULT.value})"),
+        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({BASE_VERSION_DEFAULT.value})"),
         verbose: bool = typer.Option(False, "--verbose", "-v",
                                      is_eager=True,
                                      callback=typer_verbose_callback),
 ) -> None:
     """Set conversion version context."""
-    if to_version != V3:
-        raise typer.BadParameter(f"Target version must be {V3}, got: {to_version}")
+    if to_version not in NEW_VERSIONS:
+        raise typer.BadParameter(f"Target version must be one of {[v.value for v in NEW_VERSIONS]}, got: {to_version}")
 
-    if from_version != V2:
-        raise typer.BadParameter(f"Source version must be {V2}, got: {from_version}")
+    if from_version not in BASE_VERSIONS:
+        raise typer.BadParameter(f"Source version must be one of {[v.value for v in BASE_VERSIONS]}, got: {from_version}")
 
     ctx.ensure_object(dict)
     ctx.obj['to_version'] = to_version
@@ -181,7 +188,9 @@ def mssdk_cli_convert_mapping_packages_from_folder(
     if not folder_path.is_dir():
         raise typer.BadParameter(f"Folder path is not a directory: {folder_path}")
 
+    all_converted = True
     converted_count = 0
+    failed_count = 0
 
     for mp_folder in folder_path.iterdir():
         if not mp_folder.is_dir():
@@ -194,15 +203,25 @@ def mssdk_cli_convert_mapping_packages_from_folder(
                 message=f"Package is already {to_version}, skipping conversion"))
             continue
 
-        # Convert package - hard fail
-        _convert_package_from_folder(from_version, to_version, mp_folder)
+        try:
+            _convert_package_from_folder(from_version, to_version, mp_folder)
 
-        converted_count += 1
-        logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-            package_source=mp_folder,
-            message=f"✅ Converted {from_version} package to {to_version} package"))
+            converted_count += 1
+            logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                package_source=mp_folder,
+                message=f"✅ Converted {from_version} package to {to_version} package"))
+        except Exception as conversion_exception:
+            failed_count += 1
+            all_converted = False
+            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                package_source=mp_folder,
+                message=f"Cannot convert mapping package: {conversion_exception}"))
 
+    status = "✅ All converted" if all_converted else "❌ Some packages failed to convert"
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
-        message=f"✅ All converted ({converted_count} converted)"))
+        message=f"{status} ({converted_count} converted, {failed_count} failed)"))
+
+    if not all_converted:
+        raise typer.Exit(code=1)
 

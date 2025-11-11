@@ -176,3 +176,6 @@ pylint_report.txt
 node_modules
 package.json
 package-lock.json
+/yes
+/yes.pub
+/.claude/

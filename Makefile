@@ -59,6 +59,48 @@ lint-full-report:
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Report generated in pylint-report.txt$(END_BUILD_PRINT)"
 
 #-----------------------------------------------------------------------------
+# Local Quality Checks (for quick developer feedback before pushing)
+# Note: SonarCloud performs comprehensive quality checks in CI/CD
+#-----------------------------------------------------------------------------
+
+# Helper target: check cyclomatic complexity (used by check-clean-code)
+.PHONY: _check-complexity
+_check-complexity:
+	@ echo -e "$(BUILD_PRINT)=== Cyclomatic Complexity ===$(END_BUILD_PRINT)"
+	@ poetry run radon cc mapping_suite_sdk -a --total-average --show-complexity
+
+# Helper target: check maintainability (used by check-clean-code)
+.PHONY: _check-maintainability
+_check-maintainability:
+	@ echo -e "$(BUILD_PRINT)=== Maintainability Index ===$(END_BUILD_PRINT)"
+	@ poetry run radon mi mapping_suite_sdk --show --sort
+
+# Combined clean code check: complexity + maintainability + thresholds
+check-clean-code: _check-complexity _check-maintainability
+	@ echo ""
+	@ echo -e "$(BUILD_PRINT)=== Complexity Threshold Check ===$(END_BUILD_PRINT)"
+	@ poetry run xenon mapping_suite_sdk --max-absolute C --max-modules C --max-average A --exclude "*test*,*__pycache__*"
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Clean Code checks completed$(END_BUILD_PRINT)"
+
+# Generate quality reports in JSON/text format for historical tracking
+quality-report:
+	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating quality reports$(END_BUILD_PRINT)"
+	@ mkdir -p reports
+	@ poetry run radon cc mapping_suite_sdk -a --json > reports/complexity.json
+	@ poetry run radon mi mapping_suite_sdk --json > reports/maintainability.json
+	@ poetry run radon hal mapping_suite_sdk > reports/halstead.txt
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Reports generated in reports/ directory$(END_BUILD_PRINT)"
+
+check-architecture:
+	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Checking architectural boundaries$(END_BUILD_PRINT)"
+	@ poetry run lint-imports
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Architecture check completed$(END_BUILD_PRINT)"
+
+all-quality-checks: lint check-architecture check-clean-code test-unit
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) All quality checks passed!$(END_BUILD_PRINT)"
+
+
+#-----------------------------------------------------------------------------
 # Documentation commands
 #-----------------------------------------------------------------------------
 build-docs: run-antora

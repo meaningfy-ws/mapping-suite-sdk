@@ -72,8 +72,11 @@ def test_validate_mapping_package_v3_lightweight_from_archive_fails_on_bad_archi
 def test_validate_mapping_package_v3_lightweight_from_archive_fails_on_folder_instead_of_archive(
         tmp_path: Path):
     """Test lightweight validation from archive fails when path is a folder."""
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ValueError) as exc_info:
         validate_mapping_package_v3_lightweight_from_archive(tmp_path)
+
+    assert "Cannot process validate package from archive" in str(exc_info.value)
+    assert "Path is not a file" in str(exc_info.value)
 
 
 def test_validate_mapping_package_v3_lightweight_from_folder_runs_with_success(

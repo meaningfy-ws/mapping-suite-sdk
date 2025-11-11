@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Any, TypeVar, cast
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict, field_serializer
 
 from mapping_suite_sdk import mssdk_config
 
@@ -38,21 +38,17 @@ class PydanticModel(BaseModel):
     #         object.__setattr__(self, 'id', hash_value)
     #     return self
 
-    class Config:
-        validate_assignment = True
-        extra = "forbid"
-        frozen = False
-        arbitrary_types_allowed = False
-        use_enum_values = True
-        str_strip_whitespace = False
-        validate_default = True
-        val_json_bytes = 'base64'
-        ser_json_bytes = 'base64'
-        populate_by_name = True
-        serialize_by_alias = True
-        json_encoders = {
-            Path: str
-        }
+    model_config = ConfigDict(
+        validate_assignment=True,
+        extra="forbid",
+        frozen=False,
+        arbitrary_types_allowed=False,
+        use_enum_values=True,
+        str_strip_whitespace=False,
+        validate_default=True,
+        populate_by_name=True,
+        ser_json_bytes='base64'
+    )
 
 
 # Solution to access Pydantic fields as Class properties so that no need to hardcode field names

@@ -30,7 +30,7 @@ name = "mapping-suite-sdk"
 package-mode = true
 
 [tool.poetry.scripts]
-mssdk = "mapping_suite_sdk.core.entrypoints.cli.mssdk:mssdk_cli_command"
+mssdk = "mapping_suite_sdk.tools.entrypoints.cli.mssdk:mssdk_cli_command"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
@@ -41,3 +41,7 @@ pylint = "^3.3.4"
 mongomock = "^4.3.0"
 linkml = ">=1.9.2,<2.0.0"
 ruff = "^0.14.0"
+import-linter = "^2.6"
+radon = "^6.0.1"
+xenon = "^0.9.3"
+

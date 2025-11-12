@@ -1,3 +1,9 @@
+"""
+Conversion service for MappingPackageV2 to MappingPackageV3.
+
+This module provides functionality to convert MappingPackageV2 (V2) to MappingPackageV3 (V3),
+including conversion of metadata structures, constraints, and all package assets.
+"""
 from typing import Optional
 
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
@@ -34,6 +40,10 @@ def _convert_v2_constraints_to_v3_applicability_constraints(
     start_date_str = v2_constraints.start_date[0] if v2_constraints.start_date and len(v2_constraints.start_date) > 0 else None
     end_date_str = v2_constraints.end_date[0] if v2_constraints.end_date and len(v2_constraints.end_date) > 0 else None
     
+    # Create interval if at least one date is provided (open intervals are supported)
+    # - Only start: "from this date onwards" (open-ended future)
+    # - Only end: "until this date" (open-ended past)
+    # - Both: closed interval "[start, end]"
     if start_date_str or end_date_str:
         document_time_interval = DateTimeInterval(
             start=start_date_str,
@@ -47,9 +57,20 @@ def _convert_v2_constraints_to_v3_applicability_constraints(
     )
 
 
-def convert_mpv3_from_mpv2(mpv2: MappingPackageV2) -> MappingPackageV3:
+def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3:
     """
     Convert a MappingPackageV2 to MappingPackageV3.
+    
+    This function converts the entire package structure including:
+    - Metadata (with constraint conversion from V2 eligibility to V3 applicability)
+    - All assets (conceptual mapping, technical mapping suite, vocabulary mapping suite,
+      test data suites, SPARQL test suites, SHACL test suites, test results)
+    
+    Args:
+        mpv2: The V2 mapping package to convert
+        
+    Returns:
+        A V3 mapping package with all components converted
     """
     mpv2_metadata: MappingPackageV2Metadata = mpv2.metadata
     v2_constraints = mpv2_metadata.eligibility_constraints.constraints

@@ -2,12 +2,12 @@ import pytest
 
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
-from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
 
 
-def test_convert_mpv3_lightweight_from_mpv3_creates_successfully(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
+def test_convert_mapping_package_v3_to_v3_lightweight_creates_successfully(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
     """Test that conversion from V3 to V3-lightweight succeeds with valid input."""
-    result = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    result = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     assert isinstance(result, MappingPackageV3Lightweight)
     assert result.metadata == fixture_mapping_package_v3_model.metadata
@@ -15,9 +15,9 @@ def test_convert_mpv3_lightweight_from_mpv3_creates_successfully(fixture_mapping
     assert result.vocabulary_mapping_suite == fixture_mapping_package_v3_model.vocabulary_mapping_suite
 
 
-def test_convert_mpv3_lightweight_from_mpv3_preserves_essential_components(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
+def test_convert_mapping_package_v3_to_v3_lightweight_preserves_essential_components(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
     """Test that essential components are preserved during conversion."""
-    result = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    result = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     assert isinstance(result, MappingPackageV3Lightweight)
     # Essential components should be preserved
@@ -31,9 +31,9 @@ def test_convert_mpv3_lightweight_from_mpv3_preserves_essential_components(fixtu
     assert result.vocabulary_mapping_suite is fixture_mapping_package_v3_model.vocabulary_mapping_suite
 
 
-def test_convert_mpv3_lightweight_from_mpv3_excludes_non_essential_components(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
+def test_convert_mapping_package_v3_to_v3_lightweight_excludes_non_essential_components(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
     """Test that non-essential components are excluded from lightweight version."""
-    result = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    result = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     assert isinstance(result, MappingPackageV3Lightweight)
     # Non-essential components should not be in lightweight version
@@ -51,17 +51,17 @@ def test_convert_mpv3_lightweight_from_mpv3_excludes_non_essential_components(fi
     assert hasattr(fixture_mapping_package_v3_model, 'test_results')
 
 
-def test_convert_mpv3_lightweight_from_mpv3_fails_with_invalid_input() -> None:
+def test_convert_mapping_package_v3_to_v3_lightweight_fails_with_invalid_input() -> None:
     """Test that conversion fails appropriately with invalid input."""
     # Test with None input - should raise an error
     with pytest.raises((TypeError, AttributeError, ValueError)):
-        convert_mpv3_lightweight_from_mpv3(None)  # type: ignore
+        convert_mapping_package_v3_to_v3_lightweight(None)  # type: ignore
 
 
-def test_convert_mpv3_lightweight_from_mpv3_metadata_unchanged(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
+def test_convert_mapping_package_v3_to_v3_lightweight_metadata_unchanged(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
     """Test that metadata is copied as-is without modification."""
     original_metadata = fixture_mapping_package_v3_model.metadata
-    result = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    result = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     # Metadata should be the same object (reference equality)
     assert result.metadata is original_metadata
@@ -72,10 +72,10 @@ def test_convert_mpv3_lightweight_from_mpv3_metadata_unchanged(fixture_mapping_p
     assert result.metadata.model_version == original_metadata.model_version
 
 
-def test_convert_mpv3_lightweight_from_mpv3_technical_mapping_unchanged(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
+def test_convert_mapping_package_v3_to_v3_lightweight_technical_mapping_unchanged(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
     """Test that technical mapping suite is preserved unchanged."""
     original_technical = fixture_mapping_package_v3_model.technical_mapping_suite
-    result = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    result = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     # Technical mapping suite should be the same object
     assert result.technical_mapping_suite is original_technical
@@ -83,10 +83,10 @@ def test_convert_mpv3_lightweight_from_mpv3_technical_mapping_unchanged(fixture_
     assert len(result.technical_mapping_suite.files) == len(original_technical.files)
 
 
-def test_convert_mpv3_lightweight_from_mpv3_vocabulary_mapping_unchanged(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
+def test_convert_mapping_package_v3_to_v3_lightweight_vocabulary_mapping_unchanged(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
     """Test that vocabulary mapping suite is preserved unchanged."""
     original_vocabulary = fixture_mapping_package_v3_model.vocabulary_mapping_suite
-    result = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    result = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     # Vocabulary mapping suite should be the same object
     assert result.vocabulary_mapping_suite is original_vocabulary

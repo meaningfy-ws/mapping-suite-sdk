@@ -310,10 +310,10 @@ def test_serialise_mapping_package_v3_lightweight(
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that _serialise_mapping_package works for V3-lightweight."""
-    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
     # Convert to lightweight first
-    lightweight_package = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     # Serialise it
     _serialise_mapping_package("v3-lightweight", tmp_path, lightweight_package)
@@ -380,10 +380,10 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     """Test that _is_already_converted correctly detects V3-lightweight packages."""
     from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
     from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
-    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
     # Create a lightweight package
-    lightweight_package = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     serialiser = MappingPackageV3LightweightSerialiser()
     serialiser.serialise(tmp_path, lightweight_package)
     
@@ -400,10 +400,10 @@ def test_is_already_converted_v3_hard_fails_for_lightweight_package(
     """Test that _is_already_converted hard fails when trying to load lightweight package as V3."""
     from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
     from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
-    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
     # Create a lightweight package (no conceptual mapping)
-    lightweight_package = convert_mpv3_lightweight_from_mpv3(fixture_mapping_package_v3_model)
+    lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     serialiser = MappingPackageV3LightweightSerialiser()
     serialiser.serialise(tmp_path, lightweight_package)
     
@@ -521,4 +521,29 @@ def test_convert_from_folder_raises_error_when_path_is_not_directory(
     
     assert result.exit_code != 0
     assert "Folder path is not a directory" in result.stdout or "Folder path is not a directory" in str(result.exception)
+
+
+def test_is_already_converted_v3_returns_false_for_invalid_metadata(
+    tmp_path: Path
+) -> None:
+    """Test that _is_already_converted returns False when metadata is invalid (ValidationError)."""
+    import json
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    
+    # Create a package with invalid V3 metadata (missing required fields)
+    package_path = tmp_path / "invalid_package"
+    package_path.mkdir()
+    metadata_path = package_path / "metadata.jsonld"
+    
+    # Create invalid metadata (missing required fields like id, title, etc.)
+    invalid_metadata = {
+        "path": "metadata.jsonld",
+        # Missing required fields: id, title, project_identifier, created_at, etc.
+    }
+    metadata_path.write_text(json.dumps(invalid_metadata, indent=2))
+    
+    # Should return False because ValidationError is caught
+    result = _is_already_converted(package_path, "v3")
+    
+    assert result is False
 

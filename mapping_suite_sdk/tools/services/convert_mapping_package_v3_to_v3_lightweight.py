@@ -1,8 +1,15 @@
+"""
+Conversion service for MappingPackageV3 to MappingPackageV3Lightweight.
+
+This module provides functionality to convert a full MappingPackageV3 (heavyweight)
+to a lightweight version (MappingPackageV3Lightweight) by extracting only the
+essential components needed for data transformation.
+"""
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 
-def convert_mpv3_lightweight_from_mpv3(mpv3: MappingPackageV3) -> MappingPackageV3Lightweight:
+def convert_mapping_package_v3_to_v3_lightweight(mpv3: MappingPackageV3) -> MappingPackageV3Lightweight:
     """
     Convert a MappingPackageV3 (full/heavyweight) to MappingPackageV3Lightweight.
     

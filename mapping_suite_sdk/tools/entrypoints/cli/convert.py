@@ -1,4 +1,3 @@
-import json
 import logging
 from enum import Enum
 from pathlib import Path
@@ -10,24 +9,25 @@ from mapping_suite_sdk import mssdk_config
 
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
+from mapping_suite_sdk.mapping_package_v3.adapters.metadata_loader import MappingPackageV3MetadataLoader
 from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
 from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import \
-    MappingPackageV3MetadataJSONLD
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_folder
 from mapping_suite_sdk.tools.entrypoints.cli import typer_verbose_callback
-from mapping_suite_sdk.tools.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
-from mapping_suite_sdk.tools.services.convert_mapping_package_v3_lightweight import convert_mpv3_lightweight_from_mpv3
+from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import convert_mapping_package_v2_to_v3
+from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
 
 logger = logging.getLogger(__name__)
 
-Version = Enum('Version', [('V2', 'v2'), ('V3', 'v3'), ('V3_LIGHTWEIGHT', 'v3-lightweight')])
 
-V2 = Version.V2.value
-V3 = Version.V3.value
-V3_LIGHTWEIGHT = Version.V3_LIGHTWEIGHT.value
+class Version(str, Enum):
+    """Mapping package versions supported by the SDK."""
+    V1 = "v1"
+    V2 = "v2"
+    V3 = "v3"
+    V3_LIGHTWEIGHT = "v3-lightweight"
 
 
 def _is_already_converted(mapping_package_folder_path: Path, to_version: str) -> bool:
@@ -57,21 +57,20 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
     # Use the directory where metadata was found (handles nested structures)
     package_root_path = metadata_file.parent
 
-    if to_version == V3:
-        # Try to validate as V3 - if it works, it's already converted
-        metadata_dict = json.loads(metadata_file.read_text())
-        # Add path field if missing (serialiser excludes it, but model requires it)
-        if 'path' not in metadata_dict:
-            # Calculate relative path from the package folder to the metadata file
-            # Handle both direct and nested structures
-            relative_path = metadata_file.relative_to(package_root_path)
-            metadata_dict['path'] = relative_path.as_posix()
-        # Validate by attempting to create the model
+    if to_version == Version.V3:
+        # Try to load metadata as V3 model using the adapter - if it works, check if it's full V3
         # If ValidationError: package is not in target version (not converted) - return False
-        # Other exceptions hard fail
+        # Other exceptions hard fail (let them propagate)
         try:
-            MappingPackageV3MetadataJSONLD.model_validate(metadata_dict)
-            # Check if it's full v3 by trying to load it (full v3 has more components)
+            metadata_loader = MappingPackageV3MetadataLoader()
+            # Loader handles nested structures internally, pass just the filename
+            # It will check both direct path and nested path automatically
+            metadata_loader.load(
+                package_folder_path=mapping_package_folder_path,
+                relative_asset_path=Path(metadata_file.name)
+            )
+            # Metadata is valid V3, now check if it's full v3 by trying to load the full package
+            # Full v3 has conceptual_mapping, lightweight doesn't
             loader = MappingPackageV3Loader()
             package = loader.load(package_root_path)
             # If we can load it as full v3 and it has conceptual_mapping, it's full v3
@@ -79,7 +78,7 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
         except ValidationError:
             # Package is not in V3 format, so it's not converted
             return False
-    elif to_version == V3_LIGHTWEIGHT:
+    elif to_version == Version.V3_LIGHTWEIGHT:
         # For lightweight, check if it can be loaded as lightweight
         # First check if it has full v3 components (conceptual mapping file)
         # Check both direct path and nested path
@@ -100,13 +99,13 @@ def _is_already_converted(mapping_package_folder_path: Path, to_version: str) ->
 
 def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
     """Dynamically load a mapping package based on version."""
-    if from_version == V2:
+    if from_version == Version.V2:
         loader = MappingPackageV2Loader()
         return load_mapping_package_v2_from_folder(
             mapping_package_folder_path=mapping_package_folder_path,
             mapping_package_loader=loader
         )
-    elif from_version == V3:
+    elif from_version == Version.V3:
         loader = MappingPackageV3Loader()
         return load_mapping_package_v3_from_folder(
             mapping_package_folder_path=mapping_package_folder_path,
@@ -118,20 +117,20 @@ def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_
 
 def _convert_mapping_package(from_version: str, to_version: str, source_package):
     """Convert mapping package using service layer."""
-    if from_version == V2 and to_version == V3:
-        return convert_mpv3_from_mpv2(source_package)
-    elif from_version == V3 and to_version == V3_LIGHTWEIGHT:
-        return convert_mpv3_lightweight_from_mpv3(source_package)
+    if from_version == Version.V2 and to_version == Version.V3:
+        return convert_mapping_package_v2_to_v3(source_package)
+    elif from_version == Version.V3 and to_version == Version.V3_LIGHTWEIGHT:
+        return convert_mapping_package_v3_to_v3_lightweight(source_package)
     else:
         raise typer.BadParameter(f"Unsupported conversion: {from_version} -> {to_version}")
 
 
 def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package):
     """Dynamically serialize a mapping package based on version."""
-    if to_version == V3:
+    if to_version == Version.V3:
         serialiser = MappingPackageV3Serialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
-    elif to_version == V3_LIGHTWEIGHT:
+    elif to_version == Version.V3_LIGHTWEIGHT:
         serialiser = MappingPackageV3LightweightSerialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
     else:
@@ -153,21 +152,21 @@ mssdk_cli_convert_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_AR
 @mssdk_cli_convert_subcommand.callback()
 def convert_common(
         ctx: typer.Context,
-        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({V3} or {V3_LIGHTWEIGHT})"),
-        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({V2} or {V3})"),
+        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({Version.V3.value} or {Version.V3_LIGHTWEIGHT.value})"),
+        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({Version.V2.value} or {Version.V3.value})"),
         verbose: bool = typer.Option(False, "--verbose", "-v",
                                      is_eager=True,
                                      callback=typer_verbose_callback),
 ) -> None:
     """Set conversion version context."""
-    if to_version not in [V3, V3_LIGHTWEIGHT]:
-        raise typer.BadParameter(f"Target version must be {V3} or {V3_LIGHTWEIGHT}, got: {to_version}")
+    if to_version not in [Version.V3, Version.V3_LIGHTWEIGHT]:
+        raise typer.BadParameter(f"Target version must be {Version.V3} or {Version.V3_LIGHTWEIGHT}, got: {to_version}")
 
-    if to_version == V3 and from_version != V2:
-        raise typer.BadParameter(f"Source version must be {V2} for target {V3}, got: {from_version}")
+    if to_version == Version.V3 and from_version != Version.V2:
+        raise typer.BadParameter(f"Source version must be {Version.V2} for target {Version.V3}, got: {from_version}")
     
-    if to_version == V3_LIGHTWEIGHT and from_version != V3:
-        raise typer.BadParameter(f"Source version must be {V3} for target {V3_LIGHTWEIGHT}, got: {from_version}")
+    if to_version == Version.V3_LIGHTWEIGHT and from_version != Version.V3:
+        raise typer.BadParameter(f"Source version must be {Version.V3} for target {Version.V3_LIGHTWEIGHT}, got: {from_version}")
 
     ctx.ensure_object(dict)
     ctx.obj['to_version'] = to_version

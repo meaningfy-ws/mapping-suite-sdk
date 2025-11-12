@@ -42,19 +42,19 @@ def test_archive_extractor_extract_to_destination(dummy_mapping_package_path: Pa
 def test_archive_extractor_nonexistent_file() -> None:
     with pytest.raises(FileNotFoundError):
         with ArchivePackageExtractor().extract_temporary(Path("nonexistent.zip")):
-            pass
+            ...
 
 
 def test_archive_extractor_invalid_file_path() -> None:
     with pytest.raises(ValueError):
         with ArchivePackageExtractor().extract_temporary(Path(__file__)):
-            pass
+            ...
 
 
 def test_archive_extractor_corrupted_file(dummy_corrupted_mapping_package_path: Path) -> None:
     with pytest.raises(ValueError):
         with ArchivePackageExtractor().extract_temporary(dummy_corrupted_mapping_package_path):
-            pass
+            ...
 
 
 def test_archive_extractor_pack_directory_generates_same_output(
@@ -169,7 +169,7 @@ def test_github_extractor_extract_temporary_fails_on_wrong_project_path(
                 packages_path_pattern=dummy_packages_path_pattern,
                 branch_or_tag_name=dummy_github_branch_name
         ):
-            pass
+            ...
 
 
 def test_github_extractor_extract_temporary_fails_on_bad_pattern(
@@ -182,7 +182,7 @@ def test_github_extractor_extract_temporary_fails_on_bad_pattern(
                 packages_path_pattern="wrong*_pattern",
                 branch_or_tag_name=dummy_github_branch_name
         ):
-            pass
+            ...
 
 
 def test_github_extractor_extract_temporary_fails_on_wrong_tag_name(
@@ -195,7 +195,7 @@ def test_github_extractor_extract_temporary_fails_on_wrong_tag_name(
                 packages_path_pattern=dummy_packages_path_pattern,
                 branch_or_tag_name="wrong_branch"
         ):
-            pass
+            ...
 
 
 def test_github_extractor_extract_temporary_fails_on_none_project_path(
@@ -208,7 +208,7 @@ def test_github_extractor_extract_temporary_fails_on_none_project_path(
                 packages_path_pattern=dummy_packages_path_pattern,
                 branch_or_tag_name=dummy_github_branch_name
         ):
-            pass
+            ...
 
 
 def test_github_extractor_extract_temporary_fails_on_none_pattern(
@@ -221,7 +221,7 @@ def test_github_extractor_extract_temporary_fails_on_none_pattern(
                 packages_path_pattern=None,
                 branch_or_tag_name=dummy_github_branch_name
         ):
-            pass
+            ...
 
 
 def test_github_extractor_extract_fails_on_nonexistent_destination_path(
@@ -286,7 +286,7 @@ def test_github_extractor_extract_temporary_success_get_all_packages_pattern(
 def test_mapping_package_extractor_abc_extract_not_implemented() -> None:
     class TestExtractor(MappingPackageExtractorABC):
         def extract_temporary(self, *args, **kwargs):
-            pass
+            ...
 
     with pytest.raises(TypeError):
         TestExtractor()

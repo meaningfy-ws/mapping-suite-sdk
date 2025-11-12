@@ -78,7 +78,7 @@ def test_write_file_by_content_type(tmp_path):
 def test_mapping_package_asset_serialiser_protocol():
     class TestSerialiser:
         def serialise(self, package_folder_path: Path, asset) -> None:
-            pass
+            ...
 
     serialiser = TestSerialiser()
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -87,7 +87,7 @@ def test_mapping_package_asset_serialiser_protocol():
 
 def test_mapping_package_asset_serialiser_not_implemented():
     class TestSerialiser(MappingPackageAssetSerialiser):
-        pass
+        ...
 
     serialiser = TestSerialiser()
     with tempfile.TemporaryDirectory() as temp_dir:

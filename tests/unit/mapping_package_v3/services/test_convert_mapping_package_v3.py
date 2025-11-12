@@ -91,7 +91,7 @@ def test_convert_mpv3_from_mpv2_handles_invalid_start_date(dummy_mapping_package
     if result.metadata.applicability_constraints:
         # If only start_date was invalid, end_date might still be valid
         # So document_time_interval might exist or not
-        pass
+        ...
 
 
 def test_convert_mpv3_from_mpv2_handles_invalid_end_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
@@ -107,7 +107,7 @@ def test_convert_mpv3_from_mpv2_handles_invalid_end_date(dummy_mapping_package_v
     if result.metadata.applicability_constraints:
         # If only end_date was invalid, start_date might still be valid
         # So document_time_interval might exist or not
-        pass
+        ...
 
 
 

@@ -146,7 +146,7 @@ def validate_bulk_mapping_packages_v2_from_folder(
             continue
         else:
             logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
-                                                                         message=f"Mapping package is valid ✅"))
+                                                                         message="Mapping package is valid ✅"))
     return all_valid
 
 
@@ -170,7 +170,7 @@ def validate_bulk_mapping_packages_v2_from_github(
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=f"URL: {github_repository_url} | branch_or_tag_name: {branch_or_tag_name} | pattern: {packages_path_pattern}",
-        message=f"Validating bulk mapping packages from Github"))
+        message="Validating bulk mapping packages from Github"))
 
     mapping_packages: List[MappingPackageV2] = load_mapping_packages_v2_from_github(
         github_repository_url=github_repository_url,
@@ -198,5 +198,5 @@ def validate_bulk_mapping_packages_v2_from_github(
         else:
             logger.info(
                 mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.identifier,
-                                                                 message=f"✅ The package is valid!"))
+                                                                 message="✅ The package is valid!"))
     return all_valid

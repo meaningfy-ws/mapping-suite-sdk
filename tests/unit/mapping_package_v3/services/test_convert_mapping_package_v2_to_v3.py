@@ -98,4 +98,76 @@ def test_convert_mapping_package_v2_to_v3_handles_invalid_end_date(dummy_mapping
         convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
 
 
+def test_convert_mapping_package_v2_to_v3_handles_empty_date_lists(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
+    """Test that empty date lists result in no interval (empty list is falsy)."""
+    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
+        # Set empty lists for dates
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = []
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = []
+    
+    result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
+    
+    assert isinstance(result, MappingPackageV3)
+    # Empty lists should result in no interval
+    if result.metadata.applicability_constraints:
+        assert result.metadata.applicability_constraints.document_time_interval is None
+
+
+def test_convert_mapping_package_v2_to_v3_handles_none_date_values(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
+    """Test that None date values result in no interval (None is falsy)."""
+    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
+        # Set None for dates (Optional[List[str]] allows None)
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = None
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = None
+    
+    result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
+    
+    assert isinstance(result, MappingPackageV3)
+    # None values should result in no interval
+    if result.metadata.applicability_constraints:
+        assert result.metadata.applicability_constraints.document_time_interval is None
+
+
+def test_convert_mapping_package_v2_to_v3_handles_only_start_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
+    """Test that only start_date creates an open-ended future interval."""
+    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = ["2024-01-01"]
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = []
+    
+    result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
+    
+    assert isinstance(result, MappingPackageV3)
+    if result.metadata.applicability_constraints and result.metadata.applicability_constraints.document_time_interval:
+        assert result.metadata.applicability_constraints.document_time_interval.start is not None
+        assert result.metadata.applicability_constraints.document_time_interval.end is None
+
+
+def test_convert_mapping_package_v2_to_v3_handles_only_end_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
+    """Test that only end_date creates an open-ended past interval."""
+    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = []
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = ["2024-12-31"]
+    
+    result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
+    
+    assert isinstance(result, MappingPackageV3)
+    if result.metadata.applicability_constraints and result.metadata.applicability_constraints.document_time_interval:
+        assert result.metadata.applicability_constraints.document_time_interval.start is None
+        assert result.metadata.applicability_constraints.document_time_interval.end is not None
+
+
+def test_convert_mapping_package_v2_to_v3_handles_both_dates(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
+    """Test that both start_date and end_date create a closed interval."""
+    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = ["2024-01-01"]
+        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = ["2024-12-31"]
+    
+    result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
+    
+    assert isinstance(result, MappingPackageV3)
+    if result.metadata.applicability_constraints and result.metadata.applicability_constraints.document_time_interval:
+        assert result.metadata.applicability_constraints.document_time_interval.start is not None
+        assert result.metadata.applicability_constraints.document_time_interval.end is not None
+
+
 

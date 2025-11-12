@@ -9,14 +9,13 @@ from mapping_suite_sdk import mssdk_config
 
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
-from mapping_suite_sdk.mapping_package_v3.adapters.metadata_loader import MappingPackageV3MetadataLoader
 from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
 from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_folder
 from mapping_suite_sdk.tools.entrypoints.cli import typer_verbose_callback
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import convert_mapping_package_v2_to_v3
+from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
 from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
 
 logger = logging.getLogger(__name__)
@@ -30,71 +29,6 @@ class Version(str, Enum):
     V3_LIGHTWEIGHT = "v3-lightweight"
 
 
-def _is_already_converted(mapping_package_folder_path: Path, to_version: str) -> bool:
-    """Check if package is already in the target version by attempting to validate metadata."""
-    # Handle nested package structure (folder_name/folder_name/metadata.json)
-    # Check both direct path and nested path
-    root_folder = mapping_package_folder_path / mapping_package_folder_path.name
-    possible_paths = [mapping_package_folder_path]
-    if root_folder.exists():
-        possible_paths.append(root_folder)
-
-    metadata_file = None
-    for path in possible_paths:
-        # Check for metadata.json or metadata.jsonld
-        test_file = path / "metadata.json"
-        if test_file.exists():
-            metadata_file = test_file
-            break
-        test_file = path / "metadata.jsonld"
-        if test_file.exists():
-            metadata_file = test_file
-            break
-
-    if not metadata_file:
-        return False
-
-    # Use the directory where metadata was found (handles nested structures)
-    package_root_path = metadata_file.parent
-
-    if to_version == Version.V3:
-        # Try to load metadata as V3 model using the adapter - if it works, check if it's full V3
-        # If ValidationError: package is not in target version (not converted) - return False
-        # Other exceptions hard fail (let them propagate)
-        try:
-            metadata_loader = MappingPackageV3MetadataLoader()
-            # Loader handles nested structures internally, pass just the filename
-            # It will check both direct path and nested path automatically
-            metadata_loader.load(
-                package_folder_path=mapping_package_folder_path,
-                relative_asset_path=Path(metadata_file.name)
-            )
-            # Metadata is valid V3, now check if it's full v3 by trying to load the full package
-            # Full v3 has conceptual_mapping, lightweight doesn't
-            loader = MappingPackageV3Loader()
-            package = loader.load(package_root_path)
-            # If we can load it as full v3 and it has conceptual_mapping, it's full v3
-            return hasattr(package, 'conceptual_mapping_asset') and package.conceptual_mapping_asset is not None
-        except ValidationError:
-            # Package is not in V3 format, so it's not converted
-            return False
-    elif to_version == Version.V3_LIGHTWEIGHT:
-        # For lightweight, check if it can be loaded as lightweight
-        # First check if it has full v3 components (conceptual mapping file)
-        # Check both direct path and nested path
-        for path in possible_paths:
-            conceptual_mapping_path = path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
-            if conceptual_mapping_path.exists():
-                # Has conceptual mapping, so it's full v3, not lightweight
-                return False
-        
-        # Try to load as lightweight - if it succeeds, it's lightweight
-        # If loading fails, hard fail (let exception propagate)
-        # Use the directory where metadata was found (handles nested structures)
-        loader = MappingPackageV3LightweightLoader()
-        loader.load(package_root_path)
-        return True
-    return False
 
 
 def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
@@ -192,7 +126,7 @@ def mssdk_cli_convert_mapping_package_from_package(
         raise typer.BadParameter(f"Package path is not a directory: {mapping_package_path}")
 
     # Check if already converted
-    if _is_already_converted(mapping_package_path, to_version):
+    if is_mapping_package_already_converted(mapping_package_path, to_version):
         logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
             package_source=mapping_package_path,
             message=f"Package is already {to_version}, skipping conversion"))
@@ -225,14 +159,16 @@ def mssdk_cli_convert_mapping_packages_from_folder(
     if not folder_path.is_dir():
         raise typer.BadParameter(f"Folder path is not a directory: {folder_path}")
 
+    # Get list of directories directly
+    mp_folders = [d for d in folder_path.iterdir() if d.is_dir()]
+    total_count = len(mp_folders)
     converted_count = 0
+    skipped_count = 0
 
-    for mp_folder in folder_path.iterdir():
-        if not mp_folder.is_dir():
-            continue
-
+    for mp_folder in mp_folders:
         # Check if already converted
-        if _is_already_converted(mp_folder, to_version):
+        if is_mapping_package_already_converted(mp_folder, to_version):
+            skipped_count += 1
             logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
                 package_source=mp_folder,
                 message=f"Package is already {to_version}, skipping conversion"))
@@ -240,13 +176,13 @@ def mssdk_cli_convert_mapping_packages_from_folder(
 
         # Convert package - hard fail
         _convert_package_from_folder(from_version, to_version, mp_folder)
-
         converted_count += 1
         logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
             package_source=mp_folder,
             message=f"✅ Converted {from_version} package to {to_version} package"))
 
+    # Summary message with counts
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
-        message=f"✅ All converted ({converted_count} converted)"))
+        message=f"✅ Conversion complete: {converted_count} converted, {skipped_count} skipped (out of {total_count} total)"))
 

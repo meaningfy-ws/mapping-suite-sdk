@@ -87,7 +87,7 @@ def test_convert_from_folder_invalid_path(typer_cli_runner: CliRunner, tmp_path:
     assert result.exit_code != 0
 
 
-@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._is_already_converted", return_value=True)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=True)
 def test_convert_from_package_skips_already_converted(
     mock_is_already_converted,
     typer_cli_runner: CliRunner,
@@ -213,7 +213,7 @@ def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
     assert "Package is already v3-lightweight, skipping conversion" in caplog.text
 
 
-@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._is_already_converted", return_value=True)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=True)
 def test_convert_from_folder_handles_nested_package_structure(
     mock_is_already_converted,
     typer_cli_runner: CliRunner,
@@ -339,10 +339,10 @@ def test_serialise_mapping_package_raises_error_for_unsupported_version(
 
 
 def test_is_already_converted_v3_with_conceptual_mapping(dummy_mapping_package_v3_path: Path) -> None:
-    """Test that _is_already_converted correctly detects V3 packages with conceptual mapping."""
-    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    """Test that is_mapping_package_already_converted correctly detects V3 packages with conceptual mapping."""
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     
-    result = _is_already_converted(dummy_mapping_package_v3_path, "v3")
+    result = is_mapping_package_already_converted(dummy_mapping_package_v3_path, "v3")
     
     assert result is True
 
@@ -351,10 +351,10 @@ def test_is_already_converted_v3_metadata_without_path_field(
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that _is_already_converted handles metadata without path field."""
+    """Test that is_mapping_package_already_converted handles metadata without path field."""
     import json
     from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
-    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     
     # Serialise a V3 package
     serialiser = MappingPackageV3Serialiser()
@@ -368,7 +368,7 @@ def test_is_already_converted_v3_metadata_without_path_field(
     metadata_path.write_text(json.dumps(metadata_dict, indent=2))
     
     # Check if it's detected as already converted (should add path field automatically)
-    result = _is_already_converted(tmp_path, "v3")
+    result = is_mapping_package_already_converted(tmp_path, "v3")
     
     assert result is True
 
@@ -377,9 +377,9 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that _is_already_converted correctly detects V3-lightweight packages."""
+    """Test that is_mapping_package_already_converted correctly detects V3-lightweight packages."""
     from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
-    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
     # Create a lightweight package
@@ -388,7 +388,7 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     serialiser.serialise(tmp_path, lightweight_package)
     
     # Check if it's detected as already converted
-    result = _is_already_converted(tmp_path, "v3-lightweight")
+    result = is_mapping_package_already_converted(tmp_path, "v3-lightweight")
     
     assert result is True
 
@@ -397,9 +397,9 @@ def test_is_already_converted_v3_hard_fails_for_lightweight_package(
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that _is_already_converted hard fails when trying to load lightweight package as V3."""
+    """Test that is_mapping_package_already_converted returns False when trying to load lightweight package as V3."""
     from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
-    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
     # Create a lightweight package (no conceptual mapping)
@@ -407,13 +407,14 @@ def test_is_already_converted_v3_hard_fails_for_lightweight_package(
     serialiser = MappingPackageV3LightweightSerialiser()
     serialiser.serialise(tmp_path, lightweight_package)
     
-    # Check if it hard fails when trying to load as V3 (should raise FileNotFoundError)
-    # This tests the hard fail behavior - exceptions other than ValidationError propagate
-    with pytest.raises(FileNotFoundError):
-        _is_already_converted(tmp_path, "v3")
+    # Check if it returns False when trying to load as V3 (lightweight packages don't have conceptual mapping)
+    # The version detection will detect it as v3-lightweight, not v3, so it returns False
+    result = is_mapping_package_already_converted(tmp_path, "v3")
+    
+    assert result is False
 
 
-@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._is_already_converted", return_value=False)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_package_from_folder")
 def test_convert_from_folder_actually_converts(
     mock_convert,
@@ -439,7 +440,7 @@ def test_convert_from_folder_actually_converts(
     assert "Converted v2 package to v3 package" in caplog.text
 
 
-@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._is_already_converted", return_value=False)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_package_from_folder")
 def test_convert_from_folder_v3_to_v3_lightweight(
     mock_convert,
@@ -469,17 +470,17 @@ def test_is_already_converted_v3_lightweight_returns_false_when_conceptual_mappi
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that _is_already_converted returns False for lightweight when conceptual mapping exists."""
+    """Test that is_mapping_package_already_converted returns False for lightweight when conceptual mapping exists."""
     from mapping_suite_sdk import mssdk_config
     from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
-    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     
     # Serialise a full V3 package (with conceptual mapping)
     serialiser = MappingPackageV3Serialiser()
     serialiser.serialise(tmp_path, fixture_mapping_package_v3_model)
     
     # Check if it's detected as NOT lightweight (should return False since it has conceptual mapping)
-    result = _is_already_converted(tmp_path, "v3-lightweight")
+    result = is_mapping_package_already_converted(tmp_path, "v3-lightweight")
     
     assert result is False
     # Verify conceptual mapping file exists
@@ -526,9 +527,9 @@ def test_convert_from_folder_raises_error_when_path_is_not_directory(
 def test_is_already_converted_v3_returns_false_for_invalid_metadata(
     tmp_path: Path
 ) -> None:
-    """Test that _is_already_converted returns False when metadata is invalid (ValidationError)."""
+    """Test that is_mapping_package_already_converted returns False when metadata is invalid (ValidationError)."""
     import json
-    from mapping_suite_sdk.tools.entrypoints.cli.convert import _is_already_converted
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     
     # Create a package with invalid V3 metadata (missing required fields)
     package_path = tmp_path / "invalid_package"
@@ -543,7 +544,7 @@ def test_is_already_converted_v3_returns_false_for_invalid_metadata(
     metadata_path.write_text(json.dumps(invalid_metadata, indent=2))
     
     # Should return False because ValidationError is caught
-    result = _is_already_converted(package_path, "v3")
+    result = is_mapping_package_already_converted(package_path, "v3")
     
     assert result is False
 

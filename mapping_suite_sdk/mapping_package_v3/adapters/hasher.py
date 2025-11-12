@@ -5,8 +5,6 @@ from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherA
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import \
-    MappingPackageV3MetadataJSONLD
 
 
 class MappingPackageV3Hasher(MappingPackageHasher):

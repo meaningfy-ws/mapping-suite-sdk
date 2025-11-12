@@ -12,6 +12,7 @@ forbidden_modules =
     mapping_suite_sdk.core.entrypoints
 ignore_imports =
     mapping_suite_sdk.core.models.* -> mapping_suite_sdk
+unmatched_ignore_imports_alerting = none
 
 # Contract 2: Domain Models Independence (V1, V2, V3)
 [importlinter:contract:domain-independence-v1]

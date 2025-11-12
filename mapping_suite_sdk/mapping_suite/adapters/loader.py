@@ -144,14 +144,14 @@ class MappingSuiteLoader(Loader):
         # Load configuration
         mapping_suite_config = MappingSuiteConfigLoader().load(
             package_folder_path=package_folder_path,
-            relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+            relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
         )
 
         # Load resources collection
         if self.include_resources:
             resources_collection = ResourcesCollectionLoader().load(
                 package_folder_path=package_folder_path,
-                relative_asset_path=mssdk_config.MAPPING_SUITE_RESOURCES_COLLECTION_ASSET_PATH,
+                relative_asset_path=mssdk_config.mapping_suite_resources_collection_asset_path,
             )
         else:
             resources_collection = ResourcesCollection(resource_files=None)

@@ -9,7 +9,7 @@ from mapping_suite_sdk.core.adapters.extractor import (
     ArchivePackageExtractor,
     GithubPackageExtractor
 )
-from tests.conftest import _compare_directories, _setup_temporary_test_git_repository
+from tests.test_helpers import compare_directories, setup_temporary_test_git_repository
 
 
 def test_archive_extractor_extract_temporary_successful(dummy_mapping_package_path: Path) -> None:
@@ -71,7 +71,7 @@ def test_archive_extractor_pack_directory_generates_same_output(
         extracted_path = temp_directory_path / archived_path.stem
         shutil.unpack_archive(archived_path, extracted_path)
 
-        is_equal, error_message = _compare_directories(dummy_mapping_package_extracted_path, extracted_path)
+        is_equal, error_message = compare_directories(dummy_mapping_package_extracted_path, extracted_path)
         assert is_equal, f"Directory comparison failed:\n{error_message}"
 
 
@@ -107,7 +107,7 @@ def test_github_extractor_extract_success_with_default_args(
         dummy_github_branch_name: str,
         dummy_repo_package_path: Path
 ) -> None:
-    with _setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
+    with setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
         dest_path = Path(repo_path) / "test_destination"
         dest_path.mkdir(exist_ok=True)
 
@@ -125,7 +125,7 @@ def test_github_extractor_extract_success_on_none_branch_or_tag_name(
         dummy_github_project_path: Path,
         dummy_repo_package_path: Path
 ) -> None:
-    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+    with setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
         dest_path = Path(repo_path) / "test_destination"
         dest_path.mkdir(exist_ok=True)
 
@@ -145,7 +145,7 @@ def test_github_extractor_extract_temporary_success_with_branch_args_and_cleanup
         dummy_packages_path_pattern: str
 ) -> None:
     """Test extract_temporary with cleanup. Note: branch_or_tag_name is not yet supported in extract_temporary."""
-    with _setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
+    with setup_temporary_test_git_repository(dummy_github_project_path, dummy_github_branch_name) as repo_path:
         with GithubPackageExtractor().extract_temporary(
                 repository_url=str(repo_path),
                 packages_path_pattern=dummy_packages_path_pattern,
@@ -272,7 +272,7 @@ def test_github_extractor_extract_temporary_success_get_all_packages_pattern(
         dummy_github_project_path: Path,
         dummy_get_all_packages_pattern: str
 ) -> None:
-    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+    with setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
         with GithubPackageExtractor().extract_temporary(
                 repository_url=str(repo_path),
                 packages_path_pattern=dummy_get_all_packages_pattern,

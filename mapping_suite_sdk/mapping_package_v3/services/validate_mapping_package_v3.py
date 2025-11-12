@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
-from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader
+from mapping_suite_sdk.core.adapters.loader import AssetLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
 from mapping_suite_sdk.mapping_package_v3.adapters.hasher import MappingPackageV3Hasher
@@ -72,7 +72,7 @@ def validate_mapping_package_v3_from_archive(
 def validate_mapping_package_v3_from_folder(
         mapping_package_folder_path: Path,
         mp_validator: Optional[MappingPackageV3Validator] = None,
-        mapping_package_loader: Optional[MappingPackageAssetLoader] = None) -> Literal[True] | NoReturn:
+        mapping_package_loader: Optional[AssetLoader] = None) -> Literal[True] | NoReturn:
     if not mapping_package_folder_path.exists():
         message: str = f"Cannot validate package from folder. Folder path does not exist: {mapping_package_folder_path}"
         logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_folder_path,

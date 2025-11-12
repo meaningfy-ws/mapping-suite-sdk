@@ -120,6 +120,7 @@ slots:
       Contains metadata, probing rules, extraction specifications, and eligibility mappings.
       Loaded from: mapping_suite_config.json
     range: MappingSuiteConfig
+    inlined: true
 
   resources_collection:
     required: true
@@ -127,6 +128,7 @@ slots:
       Directory containing vocabulary resources, code lists, and other auxiliary files.
       Fixed directory name: resources/
     range: ResourcesCollection
+    inlined: true
 
   # MappingSuiteConfig slots
   metadata_config:
@@ -135,13 +137,16 @@ slots:
       Configuration defining how to extract metadata properties from source documents.
       Loaded from the fixed file: metadata_config.json
     range: DocumentMetadataConfig
+    inlined: true
 
   eligibility_constraint_config:
+    required: true
     description: |
       Configuration mapping metadata properties to package eligibility constraints.
       Loaded from the fixed file: eligibility_constraint_config.json
       Used to select which mapping package applies to a given document.
     range: EligibilityConstraintConfig
+    inlined: true
 
   # MappingSuiteMetadata slots
   mapping_suite_metadata:
@@ -150,6 +155,7 @@ slots:
       Metadata describing the mapping suite itself.
       Loaded from mapping_suite_metadata.json
     range: MappingSuiteMetadata
+    inlined: true
 
   mapping_suite_identifier:
     required: true
@@ -285,8 +291,9 @@ slots:
 
   # EligibilityConstraintConfig slots
   eligibility_mapping:
+    required: true
     multivalued: true
-    description: List of metadata property to package constraint property mappings
+    description: List of metadata property to package constraint property mappings (at least one required)
     range: PropertyEligibilityMapping
     inlined: true
     inlined_as_list: true

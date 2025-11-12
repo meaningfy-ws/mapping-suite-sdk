@@ -202,7 +202,8 @@ generate-model-view:
 			echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate PlantUML for $$yaml_file$(END_BUILD_PRINT)"; \
 		}; \
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) - Generating JSON Schema: temp/schemas/$${relative_path}_schema.json$(END_BUILD_PRINT)"; \
-		poetry run gen-json-schema "$$yaml_file" > "temp/schemas/$${relative_path}_schema.json" || { \
+		base_class=$$(grep "^id:" "$$yaml_file" | head -1 | awk '{print $$2}'); \
+		poetry run gen-json-schema --top-class "$$base_class" "$$yaml_file" > "temp/schemas/$${relative_path}_schema.json" || { \
 			echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate JSON Schema for $$yaml_file$(END_BUILD_PRINT)"; \
 		}; \
 		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated schemas and diagrams for $$base_name$(END_BUILD_PRINT)"; \

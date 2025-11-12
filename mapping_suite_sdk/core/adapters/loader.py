@@ -44,11 +44,11 @@ def load_file_by_extensions(file_path: Path,
         return None
 
 
-class MappingPackageLoader(Protocol):
-    """Protocol defining the interface for mapping package loaders.
+class Loader(Protocol):
+    """Protocol defining the interface for loaders (of mapping packages, mapping suites, etc).
 
     This protocol ensures that all loaders implement a consistent interface
-    for loading different components of a mapping package.
+    for loading different components of a Thing.
     """
 
     def load(self, package_folder_path: Path) -> MappingPackage:
@@ -66,11 +66,11 @@ class MappingPackageLoader(Protocol):
         raise NotImplementedError
 
 
-class MappingPackageAssetLoader(Protocol):
-    """Protocol defining the interface for mapping package asset loaders.
+class AssetLoader(Protocol):
+    """Protocol defining the interface for loaders of assets in mapping packages, or mapping suites
 
     This protocol ensures that all asset loaders implement a consistent interface
-    for loading different components of a mapping package.
+    for loading different components of a whole.
     """
 
     def load(self, package_folder_path: Path, relative_asset_path: Path) -> Any:
@@ -89,7 +89,7 @@ class MappingPackageAssetLoader(Protocol):
         raise NotImplementedError
 
 
-class TechnicalMappingSuiteLoader(MappingPackageAssetLoader):
+class TechnicalMappingSuiteLoader(AssetLoader):
     """Loader for technical mapping suite files.
 
     Handles loading of RML and YARRRML mapping files from the technical mapping suite directory.
@@ -123,7 +123,7 @@ class TechnicalMappingSuiteLoader(MappingPackageAssetLoader):
         return TechnicalMappingCollectionAsset(path=asset_path.relative_to(package_folder_path), files=tm_files)
 
 
-class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
+class VocabularyMappingSuiteLoader(AssetLoader):
     """Loader for vocabulary mapping suite files.
 
     Loads vocabulary mapping files that define term mappings and transformations.
@@ -157,7 +157,7 @@ class VocabularyMappingSuiteLoader(MappingPackageAssetLoader):
         return VocabularyMappingCollectionAsset(path=asset_path.relative_to(package_folder_path), files=files)
 
 
-class TestDataSuitesLoader(MappingPackageAssetLoader):
+class TestDataSuitesLoader(AssetLoader):
     """Loader for test data suites.
 
     Handles loading of test data files organized in test suites.
@@ -193,7 +193,7 @@ class TestDataSuitesLoader(MappingPackageAssetLoader):
         return test_data_suites
 
 
-class SPARQLTestSuitesLoader(MappingPackageAssetLoader):
+class SPARQLTestSuitesLoader(AssetLoader):
     """Loader for SPARQL test suites.
 
     Handles loading of SPARQL query files organized in validation suites.
@@ -230,7 +230,7 @@ class SPARQLTestSuitesLoader(MappingPackageAssetLoader):
         return sparql_validation_suites
 
 
-class SHACLTestSuitesLoader(MappingPackageAssetLoader):
+class SHACLTestSuitesLoader(AssetLoader):
     """Loader for SHACL test suites.
 
     Handles loading of SHACL shape files organized in validation suites.
@@ -276,7 +276,7 @@ class SHACLTestSuitesLoader(MappingPackageAssetLoader):
         )
 
 
-class TestResultSuiteLoader(MappingPackageAssetLoader):
+class TestResultSuiteLoader(AssetLoader):
     """Loader for test result suite.
 
     Handles loading of test execution results.
@@ -319,7 +319,7 @@ class TestResultSuiteLoader(MappingPackageAssetLoader):
         return test_result_collection_asset
 
 
-class ConceptualMappingFileLoader(MappingPackageAssetLoader):
+class ConceptualMappingFileLoader(AssetLoader):
     """Loader for conceptual mapping files.
 
     Handles loading of conceptual mapping Excel files.

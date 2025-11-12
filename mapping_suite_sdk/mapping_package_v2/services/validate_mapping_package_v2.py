@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
-from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader
+from mapping_suite_sdk.core.adapters.loader import AssetLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_hasher import MappingPackageV2Hasher
@@ -72,7 +72,7 @@ def validate_mapping_package_v2_from_archive(
 def validate_mapping_package_v2_from_folder(
         mapping_package_folder_path: Path,
         mp_validator: Optional[MappingPackageV2Validator] = None,
-        mapping_package_loader: Optional[MappingPackageAssetLoader] = None) -> Literal[True] | NoReturn:
+        mapping_package_loader: Optional[AssetLoader] = None) -> Literal[True] | NoReturn:
     if not mapping_package_folder_path.exists():
         message: str = f"Cannot validate package from folder. Folder path does not exist: {mapping_package_folder_path}"
         logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_folder_path,
@@ -146,7 +146,7 @@ def validate_bulk_mapping_packages_v2_from_folder(
             continue
         else:
             logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
-                                                                         message=f"Mapping package is valid ✅"))
+                                                                         message="Mapping package is valid ✅"))
     return all_valid
 
 
@@ -170,7 +170,7 @@ def validate_bulk_mapping_packages_v2_from_github(
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=f"URL: {github_repository_url} | branch_or_tag_name: {branch_or_tag_name} | pattern: {packages_path_pattern}",
-        message=f"Validating bulk mapping packages from Github"))
+        message="Validating bulk mapping packages from Github"))
 
     mapping_packages: List[MappingPackageV2] = load_mapping_packages_v2_from_github(
         github_repository_url=github_repository_url,
@@ -198,5 +198,5 @@ def validate_bulk_mapping_packages_v2_from_github(
         else:
             logger.info(
                 mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.identifier,
-                                                                 message=f"✅ The package is valid!"))
+                                                                 message="✅ The package is valid!"))
     return all_valid

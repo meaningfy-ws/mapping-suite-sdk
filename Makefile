@@ -188,3 +188,24 @@ generate-models-recursive:
 		}; \
 		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated: $$output_file$(END_BUILD_PRINT)"; \
 	done
+
+generate-model-view:
+	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating UML and ER diagrams from LinkML schemas$(END_BUILD_PRINT)"
+	@ mkdir -p temp/diagrams
+	@ find $(SCHEMA_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
+		base_name=$$(basename "$$yaml_file" .yaml); \
+		relative_path=$$(echo "$$yaml_file" | sed "s|^$(SCHEMA_PATH)/||" | sed 's|/|_|g' | sed 's|\.yaml$$||'); \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating diagrams for $$yaml_file$(END_BUILD_PRINT)"; \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) - Generating PlantUML (UML class diagram): temp/diagrams/$${relative_path}.puml$(END_BUILD_PRINT)"; \
+		poetry run gen-plantuml "$$yaml_file" > "temp/diagrams/$${relative_path}.puml" || { \
+			echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate PlantUML for $$yaml_file$(END_BUILD_PRINT)"; \
+		}; \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) - Generating ER diagram (Mermaid): temp/diagrams/$${relative_path}_er.mmd$(END_BUILD_PRINT)"; \
+		poetry run gen-erdiag "$$yaml_file" > "temp/diagrams/$${relative_path}_er.mmd" || { \
+			echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate ER diagram for $$yaml_file$(END_BUILD_PRINT)"; \
+		}; \
+		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated diagrams for $$base_name$(END_BUILD_PRINT)"; \
+	done
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) All diagrams generated in temp/diagrams/$(END_BUILD_PRINT)"
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) - PlantUML files (.puml) can be viewed at: https://www.plantuml.com/plantuml/uml/$(END_BUILD_PRINT)"
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) - Mermaid files (.mmd) can be viewed at: https://mermaid.live/$(END_BUILD_PRINT)"

@@ -4,8 +4,8 @@ description: Schema for a data transformation rules package metadata
 version: 0.1.0
 prefixes:
   linkml: https://w3id.org/linkml/
-  mnfy: https://meaningfy.ws/mapping/
-default_prefix: mnfy
+  mfy: https://meaningfy.ws/mapping/
+default_prefix: mfy
 default_range: string
 imports:
   - linkml:types

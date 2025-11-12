@@ -179,3 +179,7 @@ package-lock.json
 /yes
 /yes.pub
 /.claude/
+/CLAUDE.md
+
+# LinkML diagram generation output
+/temp/

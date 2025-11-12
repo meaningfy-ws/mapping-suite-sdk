@@ -47,6 +47,19 @@ class MappingPackageV3Metadata(PydanticModel):
         default=...,
         description="""Cryptographic hash of the mapping package for integrity verification""",
     )
+    input_mime_types: Optional[list[str]] = Field(
+        default=None,
+        description="""MIME types of input documents supported by this mapping package.
+Defaults to [\"application/xml\"] if not specified.
+Can include: application/xml (for data documents), application/json, text/csv (for vocabulary resources).
+""",
+    )
+    document_schema_version: Optional[str] = Field(
+        default=None,
+        description="""Version of the input document schema (e.g., XSD version for Standard Forms, SDK version for eForms).
+This represents the schema version of the source documents, not the mapping version.
+""",
+    )
 
 
 class ApplicabilityConstraints(PydanticModel):
@@ -61,8 +74,8 @@ class ApplicabilityConstraints(PydanticModel):
         default=None,
         description="""Interval of starting and ending document datetime""",
     )
-    document_version_list: Optional[list[str]] = Field(
-        default=None, description="""List of supported document versions"""
+    document_schema_version_list: Optional[list[str]] = Field(
+        default=None, description="""List of supported document schema versions"""
     )
     document_version_range: Optional[VersionRange] = Field(
         default=None,

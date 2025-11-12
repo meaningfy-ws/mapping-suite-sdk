@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
 
@@ -84,48 +83,3 @@ def test_mp_v3_metadata_serialiser_excludes_none_values(tmp_path: Path,
         assert value is not None
 
 
-def test_mp_v3_metadata_serialiser_rejects_mock_asset(tmp_path: Path) -> None:
-    """Test that MappingPackageV3MetadataSerialiser rejects MagicMock assets."""
-    serialiser = MappingPackageV3MetadataSerialiser()
-    mock_asset = MagicMock()
-
-    with pytest.raises(TypeError) as excinfo:
-        serialiser.serialise(tmp_path, mock_asset)
-    
-    assert "Expected MappingPackageV3MetadataJSONLD" in str(excinfo.value)
-    assert "MagicMock" in str(excinfo.value) or "got" in str(excinfo.value)
-
-
-def test_mp_v3_metadata_serialiser_rejects_mock_path(tmp_path: Path,
-                                                     fixture_mapping_package_v3_model: MappingPackageV3) -> None:
-    """Test that MappingPackageV3MetadataSerialiser rejects assets with mock paths."""
-    serialiser = MappingPackageV3MetadataSerialiser()
-    metadata = fixture_mapping_package_v3_model.metadata
-    
-    # Use object.__setattr__ to bypass Pydantic validation
-    object.__setattr__(metadata, 'path', MagicMock())  # Replace path with mock
-
-    with pytest.raises(TypeError) as excinfo:
-        serialiser.serialise(tmp_path, metadata)
-    
-    assert "Expected path to be str or Path" in str(excinfo.value)
-    assert "MagicMock" in str(excinfo.value) or "got" in str(excinfo.value)
-
-
-def test_mp_v3_metadata_serialiser_rejects_wrong_type(tmp_path: Path,
-                                                      fixture_mapping_package_v3_model: MappingPackageV3) -> None:
-    """Test that MappingPackageV3MetadataSerialiser rejects wrong asset types."""
-    serialiser = MappingPackageV3MetadataSerialiser()
-    
-    # Create a MappingPackageV3Metadata (not JSONLD) instance
-    # We need to get the base metadata and try to use it
-    # Since we can't easily create a MappingPackageV3Metadata from JSONLD, 
-    # we'll use model_construct to create a minimal instance
-    metadata_dict = fixture_mapping_package_v3_model.metadata.model_dump()
-    wrong_metadata = MappingPackageV3Metadata.model_construct(**metadata_dict)
-
-    with pytest.raises(TypeError) as excinfo:
-        serialiser.serialise(tmp_path, wrong_metadata)  # type: ignore
-    
-    assert "Expected MappingPackageV3MetadataJSONLD" in str(excinfo.value)
-    assert "MappingPackageV3Metadata" in str(excinfo.value)

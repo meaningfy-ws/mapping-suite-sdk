@@ -60,14 +60,6 @@ class TechnicalMappingCollectionAssetSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for technical mapping suite files."""
 
     def serialise(self, package_folder_path: Path, asset: TechnicalMappingCollectionAsset) -> None:
-        # Validate that asset is a proper model instance, not a mock
-        if not isinstance(asset, TechnicalMappingCollectionAsset):
-            raise TypeError(f"Expected TechnicalMappingCollectionAsset, got {type(asset).__name__}")
-        
-        # Validate that path is a string/Path, not a mock
-        if not isinstance(asset.path, (str, Path)):
-            raise TypeError(f"Expected path to be str or Path, got {type(asset.path).__name__}")
-        
         suite_path = package_folder_path / asset.path
         suite_path.mkdir(parents=True, exist_ok=True)
 
@@ -80,14 +72,6 @@ class VocabularyMappingCollectionAssetSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for vocabulary mapping suite files."""
 
     def serialise(self, package_folder_path: Path, asset: VocabularyMappingCollectionAsset) -> None:
-        # Validate that asset is a proper model instance, not a mock
-        if not isinstance(asset, VocabularyMappingCollectionAsset):
-            raise TypeError(f"Expected VocabularyMappingCollectionAsset, got {type(asset).__name__}")
-        
-        # Validate that path is a string/Path, not a mock
-        if not isinstance(asset.path, (str, Path)):
-            raise TypeError(f"Expected path to be str or Path, got {type(asset.path).__name__}")
-        
         suite_path = package_folder_path / asset.path
         suite_path.mkdir(parents=True, exist_ok=True)
 
@@ -144,14 +128,6 @@ class ConceptualMappingFileAssetSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for conceptual mapping files."""
 
     def serialise(self, package_folder_path: Path, asset: ConceptualMappingFileAsset) -> None:
-        # Validate that asset is a proper model instance, not a mock
-        if not isinstance(asset, ConceptualMappingFileAsset):
-            raise TypeError(f"Expected ConceptualMappingFileAsset, got {type(asset).__name__}")
-        
-        # Validate that path is a string/Path, not a mock
-        if not isinstance(asset.path, (str, Path)):
-            raise TypeError(f"Expected path to be str or Path, got {type(asset.path).__name__}")
-        
         file_path = package_folder_path / asset.path
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_bytes(asset.content)

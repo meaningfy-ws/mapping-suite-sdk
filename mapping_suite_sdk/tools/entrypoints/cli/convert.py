@@ -29,6 +29,13 @@ class Version(str, Enum):
     V3_LIGHTWEIGHT = "v3-lightweight"
 
 
+# CLI context parameter keys
+class ConvertContextKeys:
+    """Constants for CLI context dictionary keys used in convert commands."""
+    TO_VERSION = "to_version"
+    FROM_VERSION = "from_version"
+
+
 
 
 def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
@@ -103,8 +110,8 @@ def convert_common(
         raise typer.BadParameter(f"Source version must be {Version.V3} for target {Version.V3_LIGHTWEIGHT}, got: {from_version}")
 
     ctx.ensure_object(dict)
-    ctx.obj['to_version'] = to_version
-    ctx.obj['from_version'] = from_version
+    ctx.obj[ConvertContextKeys.TO_VERSION] = to_version
+    ctx.obj[ConvertContextKeys.FROM_VERSION] = from_version
 
 
 @mssdk_cli_convert_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
@@ -115,8 +122,8 @@ def mssdk_cli_convert_mapping_package_from_package(
         mapping_package_path: Path = typer.Argument(..., exists=True),
 ) -> None:
     """Convert mapping package from package directory."""
-    to_version = ctx.obj['to_version']
-    from_version = ctx.obj['from_version']
+    to_version = ctx.obj[ConvertContextKeys.TO_VERSION]
+    from_version = ctx.obj[ConvertContextKeys.FROM_VERSION]
 
     logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=mapping_package_path,
@@ -147,17 +154,17 @@ def mssdk_cli_convert_mapping_packages_from_folder(
         folder_path: Path = typer.Argument(...),
 ) -> None:
     """Convert mapping packages from folder."""
-    to_version = ctx.obj['to_version']
-    from_version = ctx.obj['from_version']
+    to_version = ctx.obj[ConvertContextKeys.TO_VERSION]
+    from_version = ctx.obj[ConvertContextKeys.FROM_VERSION]
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
         message=f"Converting {from_version} packages to {to_version} packages from folder"))
 
     if not folder_path.exists():
-        raise typer.BadParameter(f"Folder path does not exist: {folder_path}")
+        raise typer.BadParameter(f"Path does not exist: {folder_path}")
     if not folder_path.is_dir():
-        raise typer.BadParameter(f"Folder path is not a directory: {folder_path}")
+        raise typer.BadParameter(f"Path is not a directory: {folder_path}")
 
     # Get list of directories directly
     mp_folders = [d for d in folder_path.iterdir() if d.is_dir()]

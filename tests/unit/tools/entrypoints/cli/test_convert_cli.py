@@ -521,7 +521,7 @@ def test_convert_from_folder_raises_error_when_path_is_not_directory(
     )
     
     assert result.exit_code != 0
-    assert "Folder path is not a directory" in result.stdout or "Folder path is not a directory" in str(result.exception)
+    assert "Path is not a directory" in result.stdout or "Path is not a directory" in str(result.exception)
 
 
 def test_is_already_converted_v3_returns_false_for_invalid_metadata(

@@ -1,0 +1,35 @@
+{# Custom LinkML generation: direct PydanticModel inheritance, removes dead code #}
+{% if bases is string %}
+    {% if bases == "ConfiguredBaseModel" %}
+class {{ name }}(PydanticModel):
+    {% else %}
+class {{ name }}({{ bases }}):
+    {% endif %}
+{% else %}
+    {% set resolved_bases = bases | map('replace', 'ConfiguredBaseModel', 'PydanticModel') | list %}
+class {{ name }}({{ resolved_bases | join(', ') }}):
+    {% endif %}
+    {% if description %}
+    """
+    {{ description | indent(width=4) }}
+    """
+    {% endif -%}
+    {% if meta %}
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({{ meta | pprint | indent(width=8) }})
+
+    {% endif %}
+    {%  if attributes or validators %}
+        {% if attributes %}
+            {% for attr in attributes.values() %}
+    {{ attr }}
+            {% endfor -%}
+        {% endif %}
+        {% if validators %}
+            {% for validator in validators.values() %}
+
+    {{ validator }}
+            {% endfor -%}
+        {% endif %}
+    {% else %}
+    pass
+    {% endif %}

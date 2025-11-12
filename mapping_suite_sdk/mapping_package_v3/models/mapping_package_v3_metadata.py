@@ -1,42 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import Field
+
+from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
 metamodel_version = "None"
 version = "0.1.0"
 
 
-from mapping_suite_sdk.core.models.pydantic import PydanticModel
-
-
-class ConfiguredBaseModel(PydanticModel):
-    pass
-
-
-class LinkMLMeta(RootModel):
-    root: dict[str, Any] = {}
-    model_config = ConfigDict(frozen=True)
-
-    def __getattr__(self, key: str):
-        return getattr(self.root, key)
-
-    def __getitem__(self, key: str):
-        return self.root[key]
-
-    def __setitem__(self, key: str, value):
-        self.root[key] = value
-
-    def __contains__(self, key: str) -> bool:
-        return key in self.root
-
-
-linkml_meta = None
-
-
-class MappingPackageV3Metadata(ConfiguredBaseModel):
+class MappingPackageV3Metadata(PydanticModel):
     """
     Metadata for a data transformation rules package
     """
@@ -74,7 +49,7 @@ class MappingPackageV3Metadata(ConfiguredBaseModel):
     )
 
 
-class ApplicabilityConstraints(ConfiguredBaseModel):
+class ApplicabilityConstraints(PydanticModel):
     """
     Container for constraint types
     """
@@ -95,7 +70,7 @@ class ApplicabilityConstraints(ConfiguredBaseModel):
     )
 
 
-class VersionRange(ConfiguredBaseModel):
+class VersionRange(PydanticModel):
     """
     Container for minimum and maximum version values
     """
@@ -108,7 +83,7 @@ class VersionRange(ConfiguredBaseModel):
     )
 
 
-class DateTimeInterval(ConfiguredBaseModel):
+class DateTimeInterval(PydanticModel):
     """
     Container for starting and ending datetime values
     """

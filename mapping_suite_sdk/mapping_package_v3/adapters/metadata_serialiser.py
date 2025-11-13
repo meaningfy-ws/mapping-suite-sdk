@@ -19,7 +19,7 @@ class MappingPackageV3MetadataSerialiser(MappingPackageAssetSerialiser):
 
         # Ensure @context references sibling context.jsonld
         if not asset.context:
-            asset.context = "./context.jsonld"
+            asset.context = "context.jsonld"
 
         # Serialize as JSON-LD (with @context) using the JSONLD model directly
         # Exclude 'path' field as it's internal metadata

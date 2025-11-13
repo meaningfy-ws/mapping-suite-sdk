@@ -27,7 +27,7 @@ class Version(str, Enum):
     V1 = "v1"
     V2 = "v2"
     V3 = "v3"
-    V3_LIGHTWEIGHT = "v3-lightweight"
+    V3L = "v3L"
 
 
 # CLI context parameter keys
@@ -61,7 +61,7 @@ def _convert_mapping_package(from_version: str, to_version: str, source_package)
     """Convert mapping package using service layer."""
     if from_version == Version.V2 and to_version == Version.V3:
         return convert_mapping_package_v2_to_v3(source_package)
-    elif from_version == Version.V3 and to_version == Version.V3_LIGHTWEIGHT:
+    elif from_version == Version.V3 and to_version == Version.V3L:
         return convert_mapping_package_v3_to_v3_lightweight(source_package)
     else:
         raise typer.BadParameter(f"Unsupported conversion: {from_version} -> {to_version}")
@@ -74,7 +74,7 @@ def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Pat
         serialiser.serialise(mapping_package_folder_path, converted_package)
         # Generate context.jsonld for V3 packages
         _generate_context_jsonld_for_v3(mapping_package_folder_path, converted_package)
-    elif to_version == Version.V3_LIGHTWEIGHT:
+    elif to_version == Version.V3L:
         serialiser = MappingPackageV3LightweightSerialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
         # Generate context.jsonld for V3 lightweight packages
@@ -130,21 +130,21 @@ mssdk_cli_convert_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_AR
 @mssdk_cli_convert_subcommand.callback()
 def convert_common(
         ctx: typer.Context,
-        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({Version.V3.value} or {Version.V3_LIGHTWEIGHT.value})"),
+        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({Version.V3.value} or {Version.V3L.value})"),
         from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({Version.V2.value} or {Version.V3.value})"),
         verbose: bool = typer.Option(False, "--verbose", "-v",
                                      is_eager=True,
                                      callback=typer_verbose_callback),
 ) -> None:
     """Set conversion version context."""
-    if to_version not in [Version.V3, Version.V3_LIGHTWEIGHT]:
-        raise typer.BadParameter(f"Target version must be {Version.V3} or {Version.V3_LIGHTWEIGHT}, got: {to_version}")
+    if to_version not in [Version.V3, Version.V3L]:
+        raise typer.BadParameter(f"Target version must be {Version.V3} or {Version.V3L}, got: {to_version}")
 
     if to_version == Version.V3 and from_version != Version.V2:
         raise typer.BadParameter(f"Source version must be {Version.V2} for target {Version.V3}, got: {from_version}")
     
-    if to_version == Version.V3_LIGHTWEIGHT and from_version != Version.V3:
-        raise typer.BadParameter(f"Source version must be {Version.V3} for target {Version.V3_LIGHTWEIGHT}, got: {from_version}")
+    if to_version == Version.V3L and from_version != Version.V3:
+        raise typer.BadParameter(f"Source version must be {Version.V3} for target {Version.V3L}, got: {from_version}")
 
     ctx.ensure_object(dict)
     ctx.obj[ConvertContextKeys.TO_VERSION] = to_version

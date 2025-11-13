@@ -18,7 +18,7 @@ def test_convert_cli_command_shows_help(typer_cli_runner: CliRunner) -> None:
 
     assert result.exit_code == 0
     assert "convert" in result.stdout
-    assert "v3" in result.stdout or "v3-lightweight" in result.stdout
+    assert "v3" in result.stdout or "v3L" in result.stdout
     assert "from-package" in result.stdout
     assert "from-folder" in result.stdout
 
@@ -48,10 +48,10 @@ def test_convert_cli_command_invalid_base_version(typer_cli_runner: CliRunner, t
 
 
 def test_convert_cli_command_invalid_v3_lightweight_source_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
-    """Test that v3-lightweight conversion requires v3 as source version."""
+    """Test that v3L conversion requires v3 as source version."""
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3-lightweight", "--from-version", "v2", "from-package", str(tmp_path)]
+        ["--to-version", "v3L", "--from-version", "v2", "from-package", str(tmp_path)]
     )
 
     assert result.exit_code != 0
@@ -132,11 +132,11 @@ def test_convert_from_package_skips_already_converted_v3_lightweight(
     tmp_path: Path,
     caplog
 ) -> None:
-    """Test that from-package command skips already converted V3-lightweight packages."""
+    """Test that from-package command skips already converted V3L packages."""
     import json
     from datetime import datetime
     
-    # Create a V3-lightweight package structure (no conceptual mapping file)
+    # Create a V3L package structure (no conceptual mapping file)
     package_path = tmp_path / "already_v3_lightweight_package"
     package_path.mkdir()
     metadata_path = package_path / "metadata.jsonld"
@@ -162,11 +162,11 @@ def test_convert_from_package_skips_already_converted_v3_lightweight(
     
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3-lightweight", "--from-version", "v3", "from-package", str(package_path)]
+        ["--to-version", "v3L", "--from-version", "v3", "from-package", str(package_path)]
     )
     
     assert result.exit_code == 0
-    assert "Package is already v3-lightweight, skipping conversion" in caplog.text
+    assert "Package is already v3L, skipping conversion" in caplog.text
 
 
 def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
@@ -174,14 +174,14 @@ def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
     tmp_path: Path,
     caplog
 ) -> None:
-    """Test that detection works with nested V3-lightweight package structure."""
+    """Test that detection works with nested V3L package structure."""
     import json
     from datetime import datetime
     
     folder_path = tmp_path / "packages"
     folder_path.mkdir()
     
-    # Create nested V3-lightweight package structure
+    # Create nested V3L package structure
     nested_package = folder_path / "nested_lightweight_package"
     nested_package.mkdir()
     inner_package = nested_package / "nested_lightweight_package"
@@ -208,11 +208,11 @@ def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
     
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3-lightweight", "--from-version", "v3", "from-folder", str(folder_path)]
+        ["--to-version", "v3L", "--from-version", "v3", "from-folder", str(folder_path)]
     )
     
     assert result.exit_code == 0
-    assert "Package is already v3-lightweight, skipping conversion" in caplog.text
+    assert "Package is already v3L, skipping conversion" in caplog.text
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=True)
@@ -283,8 +283,8 @@ def test_load_mapping_package_from_folder_raises_error_for_unsupported_version(t
 def test_convert_mapping_package_v3_to_v3_lightweight(
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that _convert_mapping_package works for V3 to V3-lightweight conversion."""
-    result = _convert_mapping_package("v3", "v3-lightweight", fixture_mapping_package_v3_model)
+    """Test that _convert_mapping_package works for V3 to V3L conversion."""
+    result = _convert_mapping_package("v3", "v3L", fixture_mapping_package_v3_model)
     
     from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
     assert isinstance(result, MappingPackageV3Lightweight)
@@ -300,25 +300,25 @@ def test_convert_mapping_package_raises_error_for_unsupported_conversion(
     import typer
     
     with pytest.raises(typer.BadParameter) as excinfo:
-        _convert_mapping_package("v2", "v3-lightweight", fixture_mapping_package_v3_model)
+        _convert_mapping_package("v2", "v3L", fixture_mapping_package_v3_model)
     
     assert "Unsupported conversion" in str(excinfo.value)
     assert "v2" in str(excinfo.value)
-    assert "v3-lightweight" in str(excinfo.value)
+    assert "v3L" in str(excinfo.value)
 
 
 def test_serialise_mapping_package_v3_lightweight(
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that _serialise_mapping_package works for V3-lightweight."""
+    """Test that _serialise_mapping_package works for V3L."""
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
     # Convert to lightweight first
     lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
     # Serialise it
-    _serialise_mapping_package("v3-lightweight", tmp_path, lightweight_package)
+    _serialise_mapping_package("v3L", tmp_path, lightweight_package)
     
     # Verify files were created
     assert (tmp_path / lightweight_package.metadata.path).exists()
@@ -379,7 +379,7 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that is_mapping_package_already_converted correctly detects V3-lightweight packages."""
+    """Test that is_mapping_package_already_converted correctly detects V3L packages."""
     from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
@@ -390,7 +390,7 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     serialiser.serialise(tmp_path, lightweight_package)
     
     # Check if it's detected as already converted
-    result = is_mapping_package_already_converted(tmp_path, "v3-lightweight")
+    result = is_mapping_package_already_converted(tmp_path, "v3L")
     
     assert result is True
 
@@ -410,7 +410,7 @@ def test_is_already_converted_v3_hard_fails_for_lightweight_package(
     serialiser.serialise(tmp_path, lightweight_package)
     
     # Check if it returns False when trying to load as V3 (lightweight packages don't have conceptual mapping)
-    # The version detection will detect it as v3-lightweight, not v3, so it returns False
+    # The version detection will detect it as v3L, not v3, so it returns False
     result = is_mapping_package_already_converted(tmp_path, "v3")
     
     assert result is False
@@ -451,7 +451,7 @@ def test_convert_from_folder_v3_to_v3_lightweight(
     tmp_path: Path,
     caplog
 ) -> None:
-    """Test that from-folder command works for V3 to V3-lightweight conversion."""
+    """Test that from-folder command works for V3 to V3L conversion."""
     folder_path = tmp_path / "packages"
     folder_path.mkdir()
     package_folder = folder_path / "test_package"
@@ -459,13 +459,13 @@ def test_convert_from_folder_v3_to_v3_lightweight(
     
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3-lightweight", "--from-version", "v3", "from-folder", str(folder_path)]
+        ["--to-version", "v3L", "--from-version", "v3", "from-folder", str(folder_path)]
     )
     
     assert result.exit_code == 0
     assert mock_is_already_converted.called
     assert mock_convert.called
-    assert "Converted v3 package to v3-lightweight package" in caplog.text
+    assert "Converted v3 package to v3L package" in caplog.text
 
 
 def test_is_already_converted_v3_lightweight_returns_false_when_conceptual_mapping_exists(
@@ -482,7 +482,7 @@ def test_is_already_converted_v3_lightweight_returns_false_when_conceptual_mappi
     serialiser.serialise(tmp_path, fixture_mapping_package_v3_model)
     
     # Check if it's detected as NOT lightweight (should return False since it has conceptual mapping)
-    result = is_mapping_package_already_converted(tmp_path, "v3-lightweight")
+    result = is_mapping_package_already_converted(tmp_path, "v3L")
     
     assert result is False
     # Verify conceptual mapping file exists
@@ -581,7 +581,7 @@ def test_serialise_mapping_package_v3_lightweight_generates_context_jsonld(
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
-    """Test that _serialise_mapping_package generates context.jsonld for V3-lightweight packages."""
+    """Test that _serialise_mapping_package generates context.jsonld for V3L packages."""
     from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
@@ -590,7 +590,7 @@ def test_serialise_mapping_package_v3_lightweight_generates_context_jsonld(
     
     # Convert to lightweight and serialise using enum value
     lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
-    _serialise_mapping_package(Version.V3_LIGHTWEIGHT, tmp_path, lightweight_package)
+    _serialise_mapping_package(Version.V3L, tmp_path, lightweight_package)
     
     # Verify context generation was called
     mock_generate_context.assert_called_once()

@@ -36,7 +36,7 @@ V3_FULL_SPEC = VersionDetectionSpec(
 
 # Declarative V3 Lightweight specification
 V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
-    version_id="v3-lightweight",
+    version_id="v3L",
     priority=1,
 
     path_conditions=[

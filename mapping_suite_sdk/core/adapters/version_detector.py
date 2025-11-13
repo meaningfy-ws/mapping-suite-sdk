@@ -288,7 +288,7 @@ def detect_mapping_package_version(
         rules: Detection rules sorted by priority (defaults to registry)
 
     Returns:
-        Version string (e.g., "v2", "v3", "v3-lightweight") or None if not recognized
+        Version string (e.g., "v2", "v3", "v3L") or None if not recognized
 
     Example:
         >>> from pathlib import Path

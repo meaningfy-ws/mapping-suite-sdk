@@ -54,7 +54,7 @@ class VersionDetectionRegistry:
             >>> for rule in rules:
             ...     print(f"{rule.version_id} will be tried")
             v3 will be tried
-            v3-lightweight will be tried
+            v3L will be tried
             v2 will be tried
         """
         return [

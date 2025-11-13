@@ -88,7 +88,7 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
     return MappingPackageV3(
         metadata=MappingPackageV3MetadataJSONLD(
             path=v3_metadata_path,
-            context="./context.jsonld",  # Set JSON-LD context for proper JSON-LD serialization
+            context="context.jsonld",  # Set JSON-LD context for proper JSON-LD serialization
             id=mpv2_metadata.identifier,
             title=mpv2_metadata.title,
             project_identifier=mpv2_metadata.type,
@@ -118,7 +118,7 @@ def is_mapping_package_already_converted(mapping_package_folder_path: Path, to_v
 
     Args:
         mapping_package_folder_path: Path to the mapping package folder
-        to_version: Target version string (e.g., "v3", "v3-lightweight")
+        to_version: Target version string (e.g., "v3", "v3L")
 
     Returns:
         True if the package is already in the target version, False otherwise

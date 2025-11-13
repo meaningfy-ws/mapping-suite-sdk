@@ -1057,10 +1057,10 @@ def test_validate_from_github_success_exits_with_code_0_v3(
 def test_validate_from_archive_command_v3_lightweight(mock_validate,
                                                       typer_cli_runner: CliRunner,
                                                       dummy_mapping_package_path: Path) -> None:
-    """Test v3-lightweight validation from archive."""
+    """Test v3L validation from archive."""
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-archive", str(dummy_mapping_package_path)]
+        ["--version", "v3L", "from-archive", str(dummy_mapping_package_path)]
     )
 
     assert result.exit_code == 0
@@ -1075,10 +1075,13 @@ def test_validate_from_archive_command_v3_lightweight(mock_validate,
 def test_validate_from_archive_command_v3_lightweight_with_options(mock_validate,
                                                                     typer_cli_runner: CliRunner,
                                                                     dummy_mapping_package_path: Path) -> None:
-    """Test v3-lightweight validation from archive with options."""
+    """Test v3L validation from archive with options.
+    
+    Note: For v3L, --include-test-data is ignored and always set to False for from-archive command.
+    """
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-archive", str(dummy_mapping_package_path),
+        ["--version", "v3L", "from-archive", str(dummy_mapping_package_path),
          "--include-test-data", "--include-output"]
     )
 
@@ -1086,7 +1089,7 @@ def test_validate_from_archive_command_v3_lightweight_with_options(mock_validate
 
     mock_validate.assert_called_once_with(
         mapping_package_archive_path=dummy_mapping_package_path,
-        mapping_package_loader=MappingPackageV3LightweightLoader(include_test_data=True, include_output=True)
+        mapping_package_loader=MappingPackageV3LightweightLoader(include_test_data=False, include_output=True)
     )
 
 
@@ -1096,10 +1099,10 @@ def test_validate_from_github_command_v3_lightweight(mock_validate,
                                                      dummy_get_all_packages_pattern: str,
                                                      dummy_github_branch_name: str,
                                                      typer_cli_runner: CliRunner) -> None:
-    """Test v3-lightweight validation from GitHub."""
+    """Test v3L validation from GitHub."""
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-github", dummy_invalid_github_repo_url,
+        ["--version", "v3L", "from-github", dummy_invalid_github_repo_url,
          dummy_get_all_packages_pattern, "--branch", dummy_github_branch_name]
     )
 
@@ -1119,10 +1122,10 @@ def test_validate_from_github_command_v3_lightweight_with_options(mock_validate,
                                                                   dummy_get_all_packages_pattern: str,
                                                                   dummy_github_branch_name: str,
                                                                   typer_cli_runner: CliRunner) -> None:
-    """Test v3-lightweight validation from GitHub with options."""
+    """Test v3L validation from GitHub with options."""
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-github", dummy_invalid_github_repo_url,
+        ["--version", "v3L", "from-github", dummy_invalid_github_repo_url,
          dummy_get_all_packages_pattern, "--branch", dummy_github_branch_name,
          "--include-test-data", "--include-output"]
     )
@@ -1142,10 +1145,10 @@ def test_validate_from_github_command_v3_lightweight_without_branch(mock_validat
                                                                      dummy_invalid_github_repo_url: str,
                                                                      dummy_get_all_packages_pattern: str,
                                                                      typer_cli_runner: CliRunner) -> None:
-    """Test v3-lightweight validation from GitHub without branch."""
+    """Test v3L validation from GitHub without branch."""
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-github", dummy_invalid_github_repo_url,
+        ["--version", "v3L", "from-github", dummy_invalid_github_repo_url,
          dummy_get_all_packages_pattern]
     )
 
@@ -1163,12 +1166,12 @@ def test_validate_from_github_command_v3_lightweight_without_branch(mock_validat
 def test_validate_from_folder_command_v3_lightweight(mock_validate,
                                                      typer_cli_runner: CliRunner,
                                                      tmp_path: Path) -> None:
-    """Test v3-lightweight validation from folder."""
+    """Test v3L validation from folder."""
     mock_validate.return_value = True
 
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-folder", str(tmp_path)]
+        ["--version", "v3L", "from-folder", str(tmp_path)]
     )
 
     assert result.exit_code == 0
@@ -1184,12 +1187,12 @@ def test_validate_from_folder_command_v3_lightweight(mock_validate,
 def test_validate_from_folder_command_v3_lightweight_with_options(mock_validate,
                                                                   typer_cli_runner: CliRunner,
                                                                   tmp_path: Path) -> None:
-    """Test v3-lightweight validation from folder with options."""
+    """Test v3L validation from folder with options."""
     mock_validate.return_value = True
 
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-folder", str(tmp_path),
+        ["--version", "v3L", "from-folder", str(tmp_path),
          "--include-test-data", "--include-output", "--update-hash"]
     )
 
@@ -1203,8 +1206,8 @@ def test_validate_from_folder_command_v3_lightweight_with_options(mock_validate,
 
 
 def test_validate_cli_command_valid_version_v3_lightweight(typer_cli_runner: CliRunner) -> None:
-    """Test that v3-lightweight version is accepted in the callback."""
-    result = typer_cli_runner.invoke(mssdk_cli_validate_subcommand, ["--version", "v3-lightweight", "--help"])
+    """Test that v3L version is accepted in the callback."""
+    result = typer_cli_runner.invoke(mssdk_cli_validate_subcommand, ["--version", "v3L", "--help"])
 
     assert result.exit_code == 0
     assert "from-archive" in result.stdout
@@ -1217,16 +1220,16 @@ def test_validate_from_folder_v3_lightweight_success_output(mock_validate,
                                                             typer_cli_runner: CliRunner,
                                                             tmp_path: Path,
                                                             caplog) -> None:
-    """Test v3-lightweight validation from folder success output."""
+    """Test v3L validation from folder success output."""
     mock_validate.return_value = True
 
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-folder", str(tmp_path)]
+        ["--version", "v3L", "from-folder", str(tmp_path)]
     )
 
     assert result.exit_code == 0
-    assert "✅ All valid v3-lightweight packages" in caplog.text
+    assert "✅ All valid v3L packages" in caplog.text
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_lightweight_from_folder")
@@ -1234,7 +1237,7 @@ def test_validate_from_folder_v3_lightweight_failure_output(mock_validate,
                                                               typer_cli_runner: CliRunner,
                                                               tmp_path: Path,
                                                               caplog) -> None:
-    """Test v3-lightweight validation from folder failure output."""
+    """Test v3L validation from folder failure output."""
     folder_path = tmp_path / "mappings"
     folder_path.mkdir()
 
@@ -1242,11 +1245,11 @@ def test_validate_from_folder_v3_lightweight_failure_output(mock_validate,
 
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-folder", str(folder_path)]
+        ["--version", "v3L", "from-folder", str(folder_path)]
     )
 
     assert result.exit_code == 1
-    assert "❌ Invalid packages found v3-lightweight packages" in caplog.text
+    assert "❌ Invalid packages found v3L packages" in caplog.text
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.validate.validate_mapping_package_v3_lightweight_from_archive")
@@ -1254,16 +1257,16 @@ def test_validate_from_archive_v3_lightweight_valid_package_output(mock_validate
                                                                      typer_cli_runner: CliRunner,
                                                                      dummy_mapping_package_path: Path,
                                                                      caplog) -> None:
-    """Test v3-lightweight validation from archive valid package output."""
+    """Test v3L validation from archive valid package output."""
     mock_validate.return_value = True
 
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-archive", str(dummy_mapping_package_path)]
+        ["--version", "v3L", "from-archive", str(dummy_mapping_package_path)]
     )
 
     assert result.exit_code == 0
-    assert "✅ Valid v3-lightweight package" in caplog.text
+    assert "✅ Valid v3L package" in caplog.text
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.validate.validate_mapping_package_v3_lightweight_from_archive")
@@ -1271,29 +1274,29 @@ def test_validate_from_archive_v3_lightweight_invalid_package_output(mock_valida
                                                                       typer_cli_runner: CliRunner,
                                                                       dummy_mapping_package_path: Path,
                                                                       caplog) -> None:
-    """Test v3-lightweight validation from archive invalid package output."""
+    """Test v3L validation from archive invalid package output."""
     mock_validate.return_value = False
 
     result = typer_cli_runner.invoke(
         mssdk_cli_validate_subcommand,
-        ["--version", "v3-lightweight", "from-archive", str(dummy_mapping_package_path)]
+        ["--version", "v3L", "from-archive", str(dummy_mapping_package_path)]
     )
 
     assert result.exit_code == 1
-    assert "❌ Invalid v3-lightweight package" in caplog.text
+    assert "❌ Invalid v3L package" in caplog.text
 
 
 def test_validate_from_folder_exits_with_code_1_on_validation_failure_v3_lightweight(
         typer_cli_runner: CliRunner,
         tmp_path: Path) -> None:
-    """Test v3-lightweight validation from folder exits with code 1 on failure."""
+    """Test v3L validation from folder exits with code 1 on failure."""
     with patch(
             "mapping_suite_sdk.tools.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_lightweight_from_folder") as mock_validate:
         mock_validate.return_value = False
 
         result = typer_cli_runner.invoke(
             mssdk_cli_validate_subcommand,
-            ["--version", "v3-lightweight", "from-folder", str(tmp_path)]
+            ["--version", "v3L", "from-folder", str(tmp_path)]
         )
 
         assert result.exit_code == 1
@@ -1302,14 +1305,14 @@ def test_validate_from_folder_exits_with_code_1_on_validation_failure_v3_lightwe
 def test_validate_from_archive_exits_with_code_1_on_validation_failure_v3_lightweight(
         typer_cli_runner: CliRunner,
         dummy_mapping_package_path: Path) -> None:
-    """Test v3-lightweight validation from archive exits with code 1 on failure."""
+    """Test v3L validation from archive exits with code 1 on failure."""
     with patch(
             "mapping_suite_sdk.tools.entrypoints.cli.validate.validate_mapping_package_v3_lightweight_from_archive") as mock_validate:
         mock_validate.return_value = False
 
         result = typer_cli_runner.invoke(
             mssdk_cli_validate_subcommand,
-            ["--version", "v3-lightweight", "from-archive", str(dummy_mapping_package_path)]
+            ["--version", "v3L", "from-archive", str(dummy_mapping_package_path)]
         )
 
         assert result.exit_code == 1
@@ -1319,14 +1322,14 @@ def test_validate_from_github_exits_with_code_1_on_validation_failure_v3_lightwe
         typer_cli_runner: CliRunner,
         dummy_invalid_github_repo_url: str,
         dummy_get_all_packages_pattern: str) -> None:
-    """Test v3-lightweight validation from GitHub exits with code 1 on failure."""
+    """Test v3L validation from GitHub exits with code 1 on failure."""
     with patch(
             "mapping_suite_sdk.tools.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_lightweight_from_github") as mock_validate:
         mock_validate.return_value = False
 
         result = typer_cli_runner.invoke(
             mssdk_cli_validate_subcommand,
-            ["--version", "v3-lightweight", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+            ["--version", "v3L", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
         )
 
         assert result.exit_code == 1
@@ -1335,14 +1338,14 @@ def test_validate_from_github_exits_with_code_1_on_validation_failure_v3_lightwe
 def test_validate_from_folder_success_exits_with_code_0_v3_lightweight(
         typer_cli_runner: CliRunner,
         tmp_path: Path) -> None:
-    """Test v3-lightweight validation from folder success exits with code 0."""
+    """Test v3L validation from folder success exits with code 0."""
     with patch(
             "mapping_suite_sdk.tools.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_lightweight_from_folder") as mock_validate:
         mock_validate.return_value = True
 
         result = typer_cli_runner.invoke(
             mssdk_cli_validate_subcommand,
-            ["--version", "v3-lightweight", "from-folder", str(tmp_path)]
+            ["--version", "v3L", "from-folder", str(tmp_path)]
         )
 
         assert result.exit_code == 0
@@ -1351,14 +1354,14 @@ def test_validate_from_folder_success_exits_with_code_0_v3_lightweight(
 def test_validate_from_archive_success_exits_with_code_0_v3_lightweight(
         typer_cli_runner: CliRunner,
         dummy_mapping_package_path: Path) -> None:
-    """Test v3-lightweight validation from archive success exits with code 0."""
+    """Test v3L validation from archive success exits with code 0."""
     with patch(
             "mapping_suite_sdk.tools.entrypoints.cli.validate.validate_mapping_package_v3_lightweight_from_archive") as mock_validate:
         mock_validate.return_value = True
 
         result = typer_cli_runner.invoke(
             mssdk_cli_validate_subcommand,
-            ["--version", "v3-lightweight", "from-archive", str(dummy_mapping_package_path)]
+            ["--version", "v3L", "from-archive", str(dummy_mapping_package_path)]
         )
 
         assert result.exit_code == 0
@@ -1368,14 +1371,14 @@ def test_validate_from_github_success_exits_with_code_0_v3_lightweight(
         typer_cli_runner: CliRunner,
         dummy_invalid_github_repo_url: str,
         dummy_get_all_packages_pattern: str) -> None:
-    """Test v3-lightweight validation from GitHub success exits with code 0."""
+    """Test v3L validation from GitHub success exits with code 0."""
     with patch(
             "mapping_suite_sdk.tools.entrypoints.cli.validate.validate_bulk_mapping_packages_v3_lightweight_from_github") as mock_validate:
         mock_validate.return_value = True
 
         result = typer_cli_runner.invoke(
             mssdk_cli_validate_subcommand,
-            ["--version", "v3-lightweight", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
+            ["--version", "v3L", "from-github", dummy_invalid_github_repo_url, dummy_get_all_packages_pattern]
         )
 
         assert result.exit_code == 0

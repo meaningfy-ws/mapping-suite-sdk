@@ -35,15 +35,15 @@ def test_all_version_rules_registered():
     """Verify all expected versions are in registry."""
     rules = VersionDetectionRegistry.get_rules()
     versions = {rule.version_id for rule in rules}
-    assert versions == {"v1", "v2", "v3", "v3-lightweight"}
+    assert versions == {"v1", "v2", "v3", "v3L"}
 
 
 def test_registry_returns_rules_sorted_by_priority():
     """Verify registry returns rules in correct priority order."""
     rules = VersionDetectionRegistry.get_rules()
     version_ids = [rule.version_id for rule in rules]
-    # Expected order: v3 (highest), v3-lightweight, v2, v1 (lowest)
-    assert version_ids == ["v3", "v3-lightweight", "v2", "v1"]
+    # Expected order: v3 (highest), v3L, v2, v1 (lowest)
+    assert version_ids == ["v3", "v3L", "v2", "v1"]
 
 
 # Helper utilities tests
@@ -285,7 +285,7 @@ def test_detect_v3_lightweight_package(tmp_path):
     (package_dir / "metadata.jsonld").write_text(json.dumps(v3_metadata))
 
     detected = detect_mapping_package_version(package_dir)
-    assert detected == "v3-lightweight"
+    assert detected == "v3L"
 
 
 def test_detect_unrecognized_package(tmp_path):

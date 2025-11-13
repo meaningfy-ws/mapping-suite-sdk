@@ -1,8 +1,11 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from mapping_suite_sdk.mapping_package_v3.adapters.metadata_serialiser import MappingPackageV3MetadataSerialiser
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
 
 
 def test_mp_v3_metadata_serialiser_creates_metadata_file(tmp_path: Path,
@@ -78,3 +81,5 @@ def test_mp_v3_metadata_serialiser_excludes_none_values(tmp_path: Path,
 
     for value in parsed_json.values():
         assert value is not None
+
+

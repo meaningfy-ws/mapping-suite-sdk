@@ -1,5 +1,5 @@
 {
-  "@context": "https://raw.githubusercontent.com/meaningfy-ws/mapping-workbench-v2/refs/heads/main/models/examples/data_mapping/generalized/context.jsonld",
+  "@context": "context.jsonld",
   "@type": "MappingPackage",
   "id": "https://meaningfy.ws/mapping/package_eforms_sdk1.13_epo4.0",
   "title": "Package eForms all subtypes, SDK v1.13, ePO 4.0.0",

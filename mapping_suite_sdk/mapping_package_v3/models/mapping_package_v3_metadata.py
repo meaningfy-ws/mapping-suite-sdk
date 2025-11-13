@@ -1,42 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import Field
+
+from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
 metamodel_version = "None"
 version = "0.1.0"
 
 
-from mapping_suite_sdk.core.models.pydantic import PydanticModel
-
-
-class ConfiguredBaseModel(PydanticModel):
-    pass
-
-
-class LinkMLMeta(RootModel):
-    root: dict[str, Any] = {}
-    model_config = ConfigDict(frozen=True)
-
-    def __getattr__(self, key: str):
-        return getattr(self.root, key)
-
-    def __getitem__(self, key: str):
-        return self.root[key]
-
-    def __setitem__(self, key: str, value):
-        self.root[key] = value
-
-    def __contains__(self, key: str) -> bool:
-        return key in self.root
-
-
-linkml_meta = None
-
-
-class MappingPackageV3Metadata(ConfiguredBaseModel):
+class MappingPackageV3Metadata(PydanticModel):
     """
     Metadata for a data transformation rules package
     """
@@ -72,9 +47,22 @@ class MappingPackageV3Metadata(ConfiguredBaseModel):
         default=...,
         description="""Cryptographic hash of the mapping package for integrity verification""",
     )
+    input_mime_types: Optional[list[str]] = Field(
+        default=None,
+        description="""MIME types of input documents supported by this mapping package.
+Defaults to [\"application/xml\"] if not specified.
+Can include: application/xml (for data documents), application/json, text/csv (for vocabulary resources).
+""",
+    )
+    document_schema_version: Optional[str] = Field(
+        default=None,
+        description="""Version of the input document schema (e.g., XSD version for Standard Forms, SDK version for eForms).
+This represents the schema version of the source documents, not the mapping version.
+""",
+    )
 
 
-class ApplicabilityConstraints(ConfiguredBaseModel):
+class ApplicabilityConstraints(PydanticModel):
     """
     Container for constraint types
     """
@@ -86,8 +74,8 @@ class ApplicabilityConstraints(ConfiguredBaseModel):
         default=None,
         description="""Interval of starting and ending document datetime""",
     )
-    document_version_list: Optional[list[str]] = Field(
-        default=None, description="""List of supported document versions"""
+    document_schema_version_list: Optional[list[str]] = Field(
+        default=None, description="""List of supported document schema versions"""
     )
     document_version_range: Optional[VersionRange] = Field(
         default=None,
@@ -95,7 +83,7 @@ class ApplicabilityConstraints(ConfiguredBaseModel):
     )
 
 
-class VersionRange(ConfiguredBaseModel):
+class VersionRange(PydanticModel):
     """
     Container for minimum and maximum version values
     """
@@ -108,7 +96,7 @@ class VersionRange(ConfiguredBaseModel):
     )
 
 
-class DateTimeInterval(ConfiguredBaseModel):
+class DateTimeInterval(PydanticModel):
     """
     Container for starting and ending datetime values
     """

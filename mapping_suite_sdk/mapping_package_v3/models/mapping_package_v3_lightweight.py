@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import Field
 
 from mapping_suite_sdk.core.models.collection_asset import TechnicalMappingCollectionAsset, \

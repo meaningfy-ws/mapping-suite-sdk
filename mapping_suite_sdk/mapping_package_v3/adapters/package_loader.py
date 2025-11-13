@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.adapters.loader import MappingPackageLoader, ConceptualMappingFileLoader, \
+from mapping_suite_sdk.core.adapters.loader import Loader, ConceptualMappingFileLoader, \
     TechnicalMappingSuiteLoader, VocabularyMappingSuiteLoader, TestDataSuitesLoader, SPARQLTestSuitesLoader, \
     SHACLTestSuitesLoader, TestResultSuiteLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
@@ -11,7 +11,7 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import Mappi
 
 
 @traced_class
-class MappingPackageV3Loader(MappingPackageLoader):
+class MappingPackageV3Loader(Loader):
     """Main loader for complete mapping packages.
 
     Coordinates the loading of all components of a mapping package using specialized loaders.

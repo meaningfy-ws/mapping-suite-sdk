@@ -10,7 +10,7 @@ from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import Mappi
 from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import validate_mapping_package_v2, \
     validate_mapping_package_v2_from_archive, validate_mapping_package_v2_from_folder, \
     validate_bulk_mapping_packages_v2_from_folder, validate_bulk_mapping_packages_v2_from_github
-from tests.conftest import _get_random_string, _setup_temporary_test_git_repository
+from tests.test_helpers import get_random_string, setup_temporary_test_git_repository
 
 
 def test_validate_mapping_package_v2_runs_with_success(dummy_mapping_package_v2_model: MappingPackageV2):
@@ -25,7 +25,7 @@ def test_validate_mapping_package_v2_runs_with_success(dummy_mapping_package_v2_
 
 
 def test_validate_mapping_package_v2_fails_on_bad_package(dummy_mapping_package_v2_model: MappingPackageV2):
-    random_string: str = _get_random_string()
+    random_string: str = get_random_string()
     assert random_string != dummy_mapping_package_v2_model.metadata.signature
     dummy_mapping_package_v2_model.metadata.signature = random_string
     with pytest.raises(MPHashValidationException):
@@ -45,7 +45,7 @@ def test_validate_mapping_package_v2_from_archive_runs_with_success(dummy_mappin
 
 
 def test_validate_mapping_package_v2_from_archive_fails_on_bad_archive_path():
-    wrong_path: Path = Path(_get_random_string())
+    wrong_path: Path = Path(get_random_string())
     assert not wrong_path.is_file()
     assert not wrong_path.is_dir()
     with pytest.raises(FileNotFoundError):
@@ -59,7 +59,7 @@ def test_validate_mapping_package_v2_from_folder_runs_with_success(dummy_mapping
 
 
 def test_validate_mapping_package_v2_from_folder_fails_on_bad_folder_path():
-    wrong_path: Path = Path(_get_random_string())
+    wrong_path: Path = Path(get_random_string())
     assert not wrong_path.exists()
     with pytest.raises(FileNotFoundError):
         validate_mapping_package_v2_from_folder(wrong_path)
@@ -84,7 +84,7 @@ def test_validate_bulk_mapping_packages_v2_from_folder_runs_with_success(dummy_m
 
 
 def test_validate_bulk_mapping_packages_v2_from_folder_fails_on_bad_folder_path():
-    wrong_path: Path = Path(_get_random_string())
+    wrong_path: Path = Path(get_random_string())
     assert not wrong_path.exists()
     with pytest.raises(FileNotFoundError):
         validate_bulk_mapping_packages_v2_from_folder(wrong_path)
@@ -117,7 +117,7 @@ def test_validate_bulk_mapping_packages_v2_from_folder_continues_on_package_fail
 
 def test_validate_bulk_mapping_packages_v2_from_github_runs_with_success(dummy_github_project_path: Path,
                                                                          dummy_get_all_packages_pattern: str):
-    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+    with setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
         validate_bulk_mapping_packages_v2_from_github(
             github_repository_url=repo_path,
             packages_path_pattern=dummy_get_all_packages_pattern)
@@ -146,7 +146,7 @@ def test_validate_bulk_mapping_packages_v2_from_github_fails_on_empty_pattern():
 
 def test_validate_bulk_mapping_packages_v2_from_github_continues_on_package_failure(dummy_github_project_path: Path,
                                                                                     dummy_get_all_packages_pattern: str):
-    with _setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
+    with setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
         validate_bulk_mapping_packages_v2_from_github(
             github_repository_url=repo_path,
             # Getting bad packages

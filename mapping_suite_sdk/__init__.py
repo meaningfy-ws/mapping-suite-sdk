@@ -8,9 +8,11 @@ from mapping_suite_sdk.mapping_package_v2 import MPV2AssetsPathsConfig
 __version__ = importlib.metadata.version('mapping-suite-sdk')
 
 from mapping_suite_sdk.mapping_package_v3 import MPV3AssetsPathsConfig
+from mapping_suite_sdk.mapping_suite import MappingSuiteAssetsPathsConfig
 
 
-class MSSDKConfigResolver(MSSDKCoreConfig, MPV1AssetsPathsConfig, MPV2AssetsPathsConfig, MPV3AssetsPathsConfig):
+class MSSDKConfigResolver(MSSDKCoreConfig, MPV1AssetsPathsConfig, MPV2AssetsPathsConfig, MPV3AssetsPathsConfig,
+                          MappingSuiteAssetsPathsConfig):
     """
         This class resolve the configs of MSSDK project.
     """

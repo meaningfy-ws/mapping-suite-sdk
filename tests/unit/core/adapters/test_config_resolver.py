@@ -18,7 +18,7 @@ def test_config_resolver_abc_cannot_be_instantiated():
 
 def test_config_resolver_abc_enforces_abstract_method_implementation():
     class IncompleteResolver(ConfigResolverABC):
-        pass
+        ...
 
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         IncompleteResolver()

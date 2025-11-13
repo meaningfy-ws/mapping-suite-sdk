@@ -77,7 +77,7 @@ def test_hasher_abc_cannot_be_instantiated():
 
 def test_hasher_abc_subclass_must_implement_hash():
     class IncompleteHasher(HasherABC):
-        pass
+        ...
 
     with pytest.raises(TypeError):
         IncompleteHasher()
@@ -101,7 +101,7 @@ def test_mapping_package_hasher_abc_cannot_be_instantiated():
 
 def test_mapping_package_hasher_abc_subclass_must_implement_hash():
     class IncompleteMappingPackageHasher(MappingPackageHasher):
-        pass
+        ...
 
     with pytest.raises(TypeError):
         IncompleteMappingPackageHasher()

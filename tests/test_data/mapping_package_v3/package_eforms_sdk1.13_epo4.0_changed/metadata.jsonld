@@ -60,9 +60,9 @@
       "E5",
       "E6"
     ],
-    "document_version_list": [
+    "document_schema_version_list": [
       "1.10"
     ]
   },
-  "mapping_suite_hash_digest": "fd085f322c4230b3250a78bb425d458614b27fda1a0d87dc52d69195ca92da13"
+  "mapping_suite_hash_digest": "f60adfe781ba80d3202a59b6f2b7320c46fbcf8c72e231ca1b621e3055335d15"
 }

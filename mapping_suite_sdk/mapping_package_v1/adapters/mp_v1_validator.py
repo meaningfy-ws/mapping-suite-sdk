@@ -1,6 +1,6 @@
 from typing import final, Optional, NoReturn, Literal
 
-from mapping_suite_sdk.core.adapters.hasher import HasherABC, SHA256Hasher
+from mapping_suite_sdk.core.adapters.hasher import HasherABC
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException, MPValidationStepABC, validate_next
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_hasher import MappingPackageV1Hasher

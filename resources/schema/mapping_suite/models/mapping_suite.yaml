@@ -1,0 +1,371 @@
+id: MappingSuite
+name: MappingSuite
+description: |
+  Schema for a complete mapping suite (project) configuration and resources.
+  Defines how to identify, extract metadata from, and select appropriate mapping packages
+  for documents in a semantic data transformation initiative.
+
+  The mapping suite is stored in a filesystem with fixed components:
+  - mapping_suite_config.json - Core configuration (metadata, probing, extraction, eligibility)
+  - resources/ - Folder with vocabulary resources (JSON/CSV files)
+version: 0.1.0
+prefixes:
+  linkml: https://w3id.org/linkml/
+  mfy: https://meaningfy.ws/mapping/
+default_prefix: mfy
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+  MappingSuite:
+    description: |
+      Root container for a complete mapping suite.
+      Encapsulates the core configuration and resources directory.
+    slots:
+      - mapping_suite_config
+      - resources_collection
+
+  MappingSuiteConfig:
+    description: |
+      Core configuration for a mapping suite (project).
+      Encapsulates the four components of a mapping suite configuration:
+      suite metadata, document probing rules, extraction rules, and eligibility mappings.
+      Serialized to: mapping_suite_config.json
+      Properties are defined within the extraction configuration.
+    slots:
+      - mapping_suite_metadata
+      - metadata_config
+      - eligibility_constraint_config
+
+  DocumentProbingSpec:
+    description: |
+      Specification for probing if a document matches the signature of this mapping suite.
+      Contains conditions that must exist and conditions that must not exist in the document.
+      Used to determine if a document should be processed with this suite's configuration.
+    slots:
+      - must_exist
+      - must_not_exist
+
+  MappingSuiteMetadata:
+    description: |
+      Metadata describing the mapping suite itself.
+      Contains identifier and description for the suite.
+    slots:
+      - mapping_suite_identifier
+      - mapping_suite_description
+
+  DocumentMetadataConfig:
+    description: |
+      Configuration for extracting metadata properties from source documents.
+      Loaded from the fixed file: metadata_config.json
+      Contains an array of property definitions with their XPath/XQuery/JSONPath extraction specifications.
+    slots:
+      - metadata_properties
+      - document_type_probing
+
+  PropertyDefinition:
+    description: |
+      Definition of a single metadata property to extract from source documents.
+      Each property has an identifier and one or more extraction specifications
+      that define how to locate and extract the value from the source.
+    slots:
+      - property
+      - property_extractors
+      - property_description
+
+  PropertyExtractionSpec:
+    description: |
+      Specification for extracting a metadata property value from a source document.
+      Defines a formal expression (XPath, XQuery, or JSONPath), expression type, and extraction method.
+    slots:
+      - formal_expression
+      - formal_expression_type
+      - extraction_method
+      - attribute_name
+
+  EligibilityConstraintConfig:
+    description: |
+      Configuration for mapping extracted metadata properties to package eligibility constraints.
+      Loaded from the fixed file: eligibility_constraint_config.json
+      Defines which metadata properties are used to select the appropriate mapping package
+      for a given document.
+    slots:
+      - eligibility_mapping
+
+  PropertyEligibilityMapping:
+    description: |
+      Maps a metadata property (extracted from the document) to a package constraint property.
+      Specifies the matching method used to determine if a package is applicable.
+    slots:
+      - property
+      - constraint_property
+      - matching_method
+      - description
+
+  ResourcesCollection:
+    description: |
+      Represents the resources directory containing vocabulary resources, code lists,
+      normalization tables, and other auxiliary files needed for processing.
+      Fixed directory name: resources/
+    slots:
+      - resource_files
+
+slots:
+  # MappingSuite slots
+  mapping_suite_config:
+    required: true
+    description: |
+      Core configuration for the mapping suite.
+      Contains metadata, probing rules, extraction specifications, and eligibility mappings.
+      Loaded from: mapping_suite_config.json
+    range: MappingSuiteConfig
+    inlined: true
+
+  resources_collection:
+    required: true
+    description: |
+      Directory containing vocabulary resources, code lists, and other auxiliary files.
+      Fixed directory name: resources/
+    range: ResourcesCollection
+    inlined: true
+
+  # MappingSuiteConfig slots
+  metadata_config:
+    required: true
+    description: |
+      Configuration defining how to extract metadata properties from source documents.
+      Loaded from the fixed file: metadata_config.json
+    range: DocumentMetadataConfig
+    inlined: true
+
+  eligibility_constraint_config:
+    required: true
+    description: |
+      Configuration mapping metadata properties to package eligibility constraints.
+      Loaded from the fixed file: eligibility_constraint_config.json
+      Used to select which mapping package applies to a given document.
+    range: EligibilityConstraintConfig
+    inlined: true
+
+  # MappingSuiteMetadata slots
+  mapping_suite_metadata:
+    required: true
+    description: |
+      Metadata describing the mapping suite itself.
+      Loaded from mapping_suite_metadata.json
+    range: MappingSuiteMetadata
+    inlined: true
+
+  mapping_suite_identifier:
+    required: true
+    identifier: true
+    description: |
+      Unique identifier for the mapping suite.
+      Used to identify and reference this suite in configurations and processing.
+    examples:
+      - value: "ted_notices_suite"
+      - value: "standard_forms_2024"
+
+  mapping_suite_description:
+    description: |
+      Human-readable description of the mapping suite.
+      Explains the purpose and scope of this suite.
+    examples:
+      - value: "Suite for transforming TED public procurement notices"
+      - value: "Extraction and transformation configuration for EU standard forms"
+
+  # DocumentProbingSpec slots
+  document_type_probing:
+    description: |
+      Specification for probing if a document matches the signature of this mapping suite.
+      Used to determine if a document should be processed with this suite's configuration.
+      Optional; if not provided, the suite applies to all documents processed by this system.
+    range: DocumentProbingSpec
+    inlined: true
+
+  must_exist:
+    multivalued: true
+    description: |
+      List of extraction specifications that must successfully match in the document.
+      All must_exist conditions must be satisfied for the document to be eligible for this suite.
+      Examples: presence of eForms specific markers, required XML namespaces, etc.
+    range: PropertyExtractionSpec
+    inlined: true
+    inlined_as_list: true
+
+  must_not_exist:
+    multivalued: true
+    description: |
+      List of extraction specifications that must NOT match in the document.
+      If any must_not_exist condition matches, the document is NOT eligible for this suite.
+      Examples: absence of Standard Forms markers, exclusion of specific XML elements, etc.
+    range: PropertyExtractionSpec
+    inlined: true
+    inlined_as_list: true
+
+  # ResourcesCollection slots
+  resource_files:
+    multivalued: true
+    description: List of resource file paths within the resources folder
+    examples:
+      - value: "code_lists/countries.json"
+      - value: "normalization/sf_normalisation_rules.csv"
+
+  # DocumentMetadataConfig slots
+  metadata_properties:
+    required: true
+    multivalued: true
+    description: List of metadata property definitions to extract from documents
+    range: PropertyDefinition
+    inlined: true
+    inlined_as_list: true
+
+  # PropertyDefinition and PropertyEligibilityMapping shared slot
+  property:
+    required: true
+    identifier: false
+    description: |
+      Unique identifier for a metadata property.
+      In PropertyDefinition: the property being defined.
+      In PropertyEligibilityMapping: reference to the extracted property.
+    examples:
+      - value: "publication_date"
+      - value: "notice_subtype"
+      - value: "title"
+
+  # PropertyDefinition slots
+  property_extractors:
+    required: true
+    multivalued: true
+    description: |
+      One or more extraction specifications for this property.
+      Multiple specifications are tried in order (fallback logic).
+    range: PropertyExtractionSpec
+    inlined: true
+    inlined_as_list: true
+
+  property_description:
+    description: Human-readable description of what this property represents
+    examples:
+      - value: "Date when the notice was published"
+      - value: "Type of notice"
+      - value: "Title of the notice"
+
+  # PropertyExtractionSpec slots
+  formal_expression:
+    required: true
+    description: |
+      Formal expression to locate and extract the value from a source document.
+      Can be an XPath expression (for XML), XQuery expression, or JSONPath expression (for JSON).
+    examples:
+      - value: "manifestation_ns:CODED_DATA_SECTION/manifestation_ns:REF_OJS/manifestation_ns:DATE_PUB"
+      - value: ".//ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/efext:EformsExtension/efac:NoticeSubType/cbc:SubTypeCode[@listName='notice-subtype']"
+      - value: "$.metadata.publicationDate"
+
+  extraction_method:
+    required: true
+    description: |
+      Method used to extract the value from the located element.
+    range: ExtractionMethod
+    examples:
+      - value: "text"
+      - value: "attribute_and_text"
+
+  formal_expression_type:
+    required: true
+    description: |
+      Type of the formal expression: XPath (for XML), XQuery, or JSONPath (for JSON).
+    range: FormalExpressionType
+    examples:
+      - value: "xpath"
+      - value: "jsonpath"
+
+  attribute_name:
+    description: |
+      Name of the XML/JSON attribute to extract when using attribute-based extraction methods.
+      Required when extraction_method is 'attribute' or 'attribute_and_text'.
+    examples:
+      - value: "CODE"
+      - value: "languageID"
+      - value: "LG"
+
+  # EligibilityConstraintConfig slots
+  eligibility_mapping:
+    required: true
+    multivalued: true
+    description: List of metadata property to package constraint property mappings (at least one required)
+    range: PropertyEligibilityMapping
+    inlined: true
+    inlined_as_list: true
+
+  # PropertyEligibilityMapping slots
+  constraint_property:
+    required: true
+    description: |
+      Identifier of the constraint property in the mapping package eligibility_constraints.
+      This is the property in the package metadata that the extracted property will be matched against.
+    examples:
+      - value: "document_type_list"
+      - value: "document_version_range"
+
+  matching_method:
+    required: true
+    description: |
+      Method used to match the extracted property value against the constraint property.
+    range: MatchingMethod
+    examples:
+      - value: "in_list"
+      - value: "range"
+      - value: "table_lookup"
+
+  description:
+    description: Human-readable description of this eligibility mapping
+    examples:
+      - value: "Maps notice subtype to document type constraint"
+
+enums:
+  ExtractionMethod:
+    description: |
+      Enumeration of supported extraction methods for retrieving values from source documents.
+    permissible_values:
+      text:
+        description: Extract the text content of the located element
+      attribute:
+        description: Extract a specific attribute value from the located element
+      attribute_and_text:
+        description: Extract both an attribute value and the text content
+      element:
+        description: Extract the entire element (e.g., for complex nested structures)
+
+  FormalExpressionType:
+    description: |
+      Enumeration of formal expression types supported for property extraction.
+    permissible_values:
+      xpath:
+        description: XPath expression for XML documents
+      xquery:
+        description: XQuery expression for XML documents
+      jsonpath:
+        description: JSONPath expression for JSON documents
+
+  MatchingMethod:
+    description: |
+      Enumeration of methods for matching metadata property values against package constraint properties.
+    permissible_values:
+      in_list:
+        description: |
+          Check if the metadata property value is in a list of allowed values (list membership).
+          Used with document_type_list and similar list-based constraints.
+      equals:
+        description: Check for exact equality between metadata property value and constraint property value
+      range:
+        description: |
+          Check if the metadata property value falls within a range (min/max).
+          Used with version ranges and date intervals.
+      table_lookup:
+        description: |
+          Look up the metadata property value in a normalization/mapping table.
+          Used for Standard Forms where subtypes need to be mapped via a lookup table.
+      regex:
+        description: Match the metadata property value against a regular expression pattern

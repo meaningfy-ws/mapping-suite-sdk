@@ -48,7 +48,7 @@ def convert_mpv3_from_mpv2(mpv2: MappingPackageV2) -> MappingPackageV3:
         applicability_constraints = ApplicabilityConstraints(
             document_type_list=v2_constraints.eforms_subtype,
             document_time_interval=document_time_interval,
-            document_version_list=v2_constraints.eforms_sdk_versions if v2_constraints.eforms_sdk_versions else None
+            document_schema_version_list=v2_constraints.eforms_sdk_versions if v2_constraints.eforms_sdk_versions else None
         )
 
     # Convert issue_date string to datetime

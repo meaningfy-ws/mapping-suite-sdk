@@ -4,15 +4,15 @@ from pathlib import Path
 from pydantic import TypeAdapter
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.adapters.loader import MappingPackageAssetLoader, ConceptualMappingFileLoader, \
+from mapping_suite_sdk.core.adapters.loader import AssetLoader, ConceptualMappingFileLoader, \
     TechnicalMappingSuiteLoader, VocabularyMappingSuiteLoader, TestDataSuitesLoader, SPARQLTestSuitesLoader, \
-    SHACLTestSuitesLoader, TestResultSuiteLoader, MappingPackageLoader
+    SHACLTestSuitesLoader, TestResultSuiteLoader, Loader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.collection_asset import TestResultCollectionAsset
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1Metadata, MappingPackageV1
 
 
-class MappingPackageV1MetadataLoader(MappingPackageAssetLoader):
+class MappingPackageV1MetadataLoader(AssetLoader):
     """Loader for mapping package metadata.
 
     Handles loading and parsing of the package metadata JSON file.
@@ -42,7 +42,7 @@ class MappingPackageV1MetadataLoader(MappingPackageAssetLoader):
 
 
 @traced_class
-class MappingPackageV1Loader(MappingPackageLoader):
+class MappingPackageV1Loader(Loader):
     """Main loader for complete mapping packages.
 
     Coordinates the loading of all components of a mapping package using specialized loaders.

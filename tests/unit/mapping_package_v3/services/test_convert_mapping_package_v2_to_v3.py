@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
@@ -168,6 +170,197 @@ def test_convert_mapping_package_v2_to_v3_handles_both_dates(dummy_mapping_packa
     if result.metadata.applicability_constraints and result.metadata.applicability_constraints.document_time_interval:
         assert result.metadata.applicability_constraints.document_time_interval.start is not None
         assert result.metadata.applicability_constraints.document_time_interval.end is not None
+
+
+def test_generate_jsonld_context_success_with_poetry_run(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context succeeds when poetry run works."""
+    import subprocess
+    from unittest.mock import Mock, patch
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
+    
+    # Create a mock schema file
+    schema_path = tmp_path / "schema.yaml"
+    schema_path.write_text("id: TestSchema\n")
+    
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    # Mock subprocess.run to return success
+    mock_result = Mock()
+    mock_result.stdout = '{"@context": {"test": "value"}}'
+    mock_result.stderr = ""
+    
+    with patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3.subprocess.run") as mock_run, \
+         patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3._find_project_root", return_value=tmp_path):
+        mock_run.return_value = mock_result
+        
+        result_path = generate_jsonld_context(
+            schema_yaml_path=schema_path,
+            output_directory=output_dir,
+            context_filename="context.jsonld"
+        )
+        
+        assert result_path == output_dir / "context.jsonld"
+        assert result_path.exists()
+        assert result_path.read_text() == '{"@context": {"test": "value"}}'
+        # Verify poetry run was called
+        mock_run.assert_called_once()
+        call_args = mock_run.call_args[0][0]
+        assert "poetry" in call_args
+        assert "run" in call_args
+        assert "gen-jsonld-context" in call_args
+
+
+def test_generate_jsonld_context_falls_back_to_direct_command(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context falls back to direct command when poetry run fails."""
+    import subprocess
+    from unittest.mock import Mock, patch
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
+    
+    # Create a mock schema file
+    schema_path = tmp_path / "schema.yaml"
+    schema_path.write_text("id: TestSchema\n")
+    
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    # Mock subprocess.run: first call fails (poetry run), second succeeds (direct command)
+    mock_result = Mock()
+    mock_result.stdout = '{"@context": {"test": "value"}}'
+    mock_result.stderr = ""
+    
+    with patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3.subprocess.run") as mock_run, \
+         patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3._find_project_root", return_value=tmp_path):
+        # First call (poetry run) raises FileNotFoundError, second call (direct) succeeds
+        mock_run.side_effect = [
+            FileNotFoundError("poetry not found"),
+            mock_result
+        ]
+        
+        result_path = generate_jsonld_context(
+            schema_yaml_path=schema_path,
+            output_directory=output_dir,
+            context_filename="context.jsonld"
+        )
+        
+        assert result_path == output_dir / "context.jsonld"
+        assert result_path.exists()
+        # Verify both calls were attempted
+        assert mock_run.call_count == 2
+
+
+def test_generate_jsonld_context_raises_error_when_schema_not_found(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context raises FileNotFoundError when schema file doesn't exist."""
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
+    
+    schema_path = tmp_path / "nonexistent.yaml"
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    with pytest.raises(FileNotFoundError) as excinfo:
+        generate_jsonld_context(
+            schema_yaml_path=schema_path,
+            output_directory=output_dir
+        )
+    
+    assert "Schema YAML file not found" in str(excinfo.value)
+
+
+def test_generate_jsonld_context_raises_error_when_both_commands_fail(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context raises RuntimeError when both poetry run and direct command fail."""
+    import subprocess
+    from unittest.mock import patch
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
+    
+    # Create a mock schema file
+    schema_path = tmp_path / "schema.yaml"
+    schema_path.write_text("id: TestSchema\n")
+    
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    # Mock subprocess.run to fail both times
+    with patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3.subprocess.run") as mock_run, \
+         patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3._find_project_root", return_value=tmp_path):
+        # Both calls fail
+        mock_run.side_effect = [
+            subprocess.CalledProcessError(1, "poetry", stderr="poetry error"),
+            subprocess.CalledProcessError(1, "gen-jsonld-context", stderr="command error")
+        ]
+        
+        with pytest.raises(RuntimeError) as excinfo:
+            generate_jsonld_context(
+                schema_yaml_path=schema_path,
+                output_directory=output_dir
+            )
+        
+        assert "Failed to generate JSON-LD context" in str(excinfo.value)
+        assert mock_run.call_count == 2
+
+
+def test_generate_jsonld_context_creates_output_directory(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context creates output directory if it doesn't exist."""
+    import subprocess
+    from unittest.mock import Mock, patch
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
+    
+    # Create a mock schema file
+    schema_path = tmp_path / "schema.yaml"
+    schema_path.write_text("id: TestSchema\n")
+    
+    # Output directory doesn't exist yet
+    output_dir = tmp_path / "output"
+    
+    # Mock subprocess.run to return success
+    mock_result = Mock()
+    mock_result.stdout = '{"@context": {}}'
+    mock_result.stderr = ""
+    
+    with patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3.subprocess.run") as mock_run, \
+         patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3._find_project_root", return_value=tmp_path):
+        mock_run.return_value = mock_result
+        
+        result_path = generate_jsonld_context(
+            schema_yaml_path=schema_path,
+            output_directory=output_dir
+        )
+        
+        # Verify directory was created
+        assert output_dir.exists()
+        assert output_dir.is_dir()
+        assert result_path.exists()
+
+
+def test_generate_jsonld_context_uses_custom_filename(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context uses custom context filename when provided."""
+    import subprocess
+    from unittest.mock import Mock, patch
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
+    
+    # Create a mock schema file
+    schema_path = tmp_path / "schema.yaml"
+    schema_path.write_text("id: TestSchema\n")
+    
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    # Mock subprocess.run to return success
+    mock_result = Mock()
+    mock_result.stdout = '{"@context": {}}'
+    mock_result.stderr = ""
+    
+    with patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3.subprocess.run") as mock_run, \
+         patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3._find_project_root", return_value=tmp_path):
+        mock_run.return_value = mock_result
+        
+        result_path = generate_jsonld_context(
+            schema_yaml_path=schema_path,
+            output_directory=output_dir,
+            context_filename="custom_context.jsonld"
+        )
+        
+        assert result_path == output_dir / "custom_context.jsonld"
+        assert result_path.exists()
 
 
 

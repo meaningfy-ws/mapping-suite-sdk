@@ -15,6 +15,7 @@ from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweigh
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_folder
 from mapping_suite_sdk.tools.entrypoints.cli import typer_verbose_callback
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import convert_mapping_package_v2_to_v3
+from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
 from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
 
@@ -71,11 +72,47 @@ def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Pat
     if to_version == Version.V3:
         serialiser = MappingPackageV3Serialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
+        # Generate context.jsonld for V3 packages
+        _generate_context_jsonld_for_v3(mapping_package_folder_path, converted_package)
     elif to_version == Version.V3_LIGHTWEIGHT:
         serialiser = MappingPackageV3LightweightSerialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
+        # Generate context.jsonld for V3 lightweight packages
+        _generate_context_jsonld_for_v3(mapping_package_folder_path, converted_package)
     else:
         raise typer.BadParameter(f"Unsupported target version: {to_version}")
+
+
+def _generate_context_jsonld_for_v3(mapping_package_folder_path: Path, converted_package):
+    """
+    Generate context.jsonld file for V3 mapping packages.
+    
+    The context.jsonld file is placed in the same directory as metadata.jsonld.
+    This function is called automatically during conversion for both single packages
+    and bulk folder conversions.
+    """
+    # Determine metadata directory (where metadata.jsonld is located)
+    metadata_path = mapping_package_folder_path / converted_package.metadata.path
+    metadata_directory = metadata_path.parent
+    
+    # Schema path relative to project root
+    schema_path = Path("resources/schema/mapping_package_v3/models/mapping_package_v3_metadata.yaml")
+    
+    try:
+        generate_jsonld_context(
+            schema_yaml_path=schema_path,
+            output_directory=metadata_directory,
+            context_filename="context.jsonld"
+        )
+        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message="Generated context.jsonld file"))
+    except Exception as e:
+        logger.warning(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message=f"Failed to generate context.jsonld: {e}"))
+        # Don't fail the conversion if context generation fails
+        # The context file can be generated manually if needed
 
 
 def _convert_package_from_folder(from_version: str, to_version: str, mapping_package_folder_path: Path):

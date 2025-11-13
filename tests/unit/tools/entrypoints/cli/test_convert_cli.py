@@ -550,3 +550,148 @@ def test_is_already_converted_v3_returns_false_for_invalid_metadata(
     
     assert result is False
 
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+def test_serialise_mapping_package_v3_generates_context_jsonld(
+    mock_generate_context,
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _serialise_mapping_package generates context.jsonld for V3 packages."""
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
+    
+    # Mock the context generation to return a path
+    mock_generate_context.return_value = tmp_path / "metadata.jsonld" / "context.jsonld"
+    
+    # Serialise V3 package using enum value
+    _serialise_mapping_package(Version.V3, tmp_path, fixture_mapping_package_v3_model)
+    
+    # Verify context generation was called
+    mock_generate_context.assert_called_once()
+    call_kwargs = mock_generate_context.call_args[1]
+    assert call_kwargs["context_filename"] == "context.jsonld"
+    # Verify it was called with the metadata directory
+    metadata_dir = (tmp_path / fixture_mapping_package_v3_model.metadata.path).parent
+    assert call_kwargs["output_directory"] == metadata_dir
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+def test_serialise_mapping_package_v3_lightweight_generates_context_jsonld(
+    mock_generate_context,
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _serialise_mapping_package generates context.jsonld for V3-lightweight packages."""
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+    
+    # Mock the context generation
+    mock_generate_context.return_value = tmp_path / "metadata.jsonld" / "context.jsonld"
+    
+    # Convert to lightweight and serialise using enum value
+    lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
+    _serialise_mapping_package(Version.V3_LIGHTWEIGHT, tmp_path, lightweight_package)
+    
+    # Verify context generation was called
+    mock_generate_context.assert_called_once()
+    call_kwargs = mock_generate_context.call_args[1]
+    assert call_kwargs["context_filename"] == "context.jsonld"
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+def test_serialise_mapping_package_v3_continues_on_context_generation_failure(
+    mock_generate_context,
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3,
+    caplog
+) -> None:
+    """Test that _serialise_mapping_package continues even if context generation fails."""
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
+    
+    # Mock context generation to raise an error
+    mock_generate_context.side_effect = RuntimeError("Failed to generate context")
+    
+    # Serialise should still succeed (context generation failure is logged but doesn't fail)
+    _serialise_mapping_package(Version.V3, tmp_path, fixture_mapping_package_v3_model)
+    
+    # Verify metadata file was still created
+    assert (tmp_path / fixture_mapping_package_v3_model.metadata.path).exists()
+    # Verify warning was logged
+    assert "Failed to generate context.jsonld" in caplog.text
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._load_mapping_package_from_folder")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_mapping_package")
+def test_convert_from_package_generates_context_jsonld(
+    mock_convert,
+    mock_load,
+    mock_is_already_converted,
+    mock_generate_context,
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    dummy_mapping_package_v2_model,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that from-package command generates context.jsonld during conversion."""
+    # Setup mocks to allow real serialization to run
+    mock_load.return_value = dummy_mapping_package_v2_model
+    mock_convert.return_value = fixture_mapping_package_v3_model
+    mock_generate_context.return_value = tmp_path / "context.jsonld"
+    
+    package_path = tmp_path / "test_package"
+    package_path.mkdir()
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-package", str(package_path)]
+    )
+    
+    assert result.exit_code == 0
+    # Verify context generation was called during serialisation
+    assert mock_generate_context.called
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._load_mapping_package_from_folder")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_mapping_package")
+def test_convert_from_folder_generates_context_jsonld_for_each_package(
+    mock_convert,
+    mock_load,
+    mock_is_already_converted,
+    mock_generate_context,
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    dummy_mapping_package_v2_model,
+    fixture_mapping_package_v3_model: MappingPackageV3,
+    caplog
+) -> None:
+    """Test that from-folder command generates context.jsonld for each converted package."""
+    folder_path = tmp_path / "packages"
+    folder_path.mkdir()
+    
+    # Create two package folders
+    package1 = folder_path / "package1"
+    package1.mkdir()
+    package2 = folder_path / "package2"
+    package2.mkdir()
+    
+    # Setup mocks to allow real serialization to run
+    mock_load.return_value = dummy_mapping_package_v2_model
+    mock_convert.return_value = fixture_mapping_package_v3_model
+    mock_generate_context.return_value = tmp_path / "context.jsonld"
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-folder", str(folder_path)]
+    )
+    
+    assert result.exit_code == 0
+    # Verify conversion was called for each package
+    assert mock_load.call_count == 2
+    assert mock_convert.call_count == 2
+    # Context generation is called within the conversion process for each package
+    assert mock_generate_context.call_count == 2
+

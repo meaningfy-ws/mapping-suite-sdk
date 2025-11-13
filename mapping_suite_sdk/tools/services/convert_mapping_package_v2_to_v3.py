@@ -4,10 +4,13 @@ Conversion service for MappingPackageV2 to MappingPackageV3.
 This module provides functionality to convert MappingPackageV2 (V2) to MappingPackageV3 (V3),
 including conversion of metadata structures, constraints, and all package assets.
 """
+import logging
+import subprocess
 from pathlib import Path
 from typing import Optional
 
 from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Constraints
@@ -16,6 +19,8 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import Mappi
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import ApplicabilityConstraints
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import DateTimeInterval
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import MappingPackageV3MetadataJSONLD
+
+logger = logging.getLogger(__name__)
 
 
 def _convert_v2_constraints_to_v3_applicability_constraints(
@@ -120,3 +125,114 @@ def is_mapping_package_already_converted(mapping_package_folder_path: Path, to_v
     """
     detected_version = detect_mapping_package_version(mapping_package_folder_path)
     return detected_version == to_version
+
+
+@traced_routine
+def generate_jsonld_context(
+    schema_yaml_path: Path,
+    output_directory: Path,
+    context_filename: str = "context.jsonld"
+) -> Path:
+    """
+    Generate a JSON-LD context file from a LinkML schema YAML.
+    
+    Uses the LinkML gen-jsonld-context command to generate a context.jsonld file
+    that defines the JSON-LD context for mapping package metadata.
+    
+    Args:
+        schema_yaml_path: Path to the LinkML schema YAML file (relative to project root)
+        output_directory: Directory where the context.jsonld file should be written
+            (typically the same directory as metadata.jsonld)
+        context_filename: Name of the output context file (default: "context.jsonld")
+        
+    Returns:
+        Path to the generated context.jsonld file
+        
+    Raises:
+        FileNotFoundError: If the schema YAML file does not exist
+        subprocess.CalledProcessError: If the gen-jsonld-context command fails
+        OSError: If the output directory cannot be created or written to
+    """
+    # Find project root and resolve schema path
+    project_root = _find_project_root(Path.cwd())
+    
+    # Resolve schema path relative to project root
+    if not schema_yaml_path.is_absolute():
+        schema_yaml_path = project_root / schema_yaml_path
+        
+    if not schema_yaml_path.exists():
+        raise FileNotFoundError(f"Schema YAML file not found: {schema_yaml_path}")
+    
+    # Ensure output directory exists
+    output_directory.mkdir(parents=True, exist_ok=True)
+    output_path = output_directory / context_filename
+    
+    logger.debug(f"Generating JSON-LD context from {schema_yaml_path} to {output_path}")
+    
+    # Try with poetry run first (most reliable in development environments)
+    try:
+        result = subprocess.run(
+            ["poetry", "run", "gen-jsonld-context", str(schema_yaml_path)],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=project_root
+        )
+        
+        # Write the output to the context file
+        output_path.write_text(result.stdout, encoding="utf-8")
+        
+        logger.info(f"Generated JSON-LD context file: {output_path}")
+        return output_path
+        
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        # If poetry run fails, try direct command (might work if installed globally)
+        logger.debug("poetry run gen-jsonld-context failed, trying direct command")
+        try:
+            result = subprocess.run(
+                ["gen-jsonld-context", str(schema_yaml_path)],
+                capture_output=True,
+                text=True,
+                check=True,
+                cwd=project_root
+            )
+            
+            output_path.write_text(result.stdout, encoding="utf-8")
+            logger.info(f"Generated JSON-LD context file: {output_path}")
+            return output_path
+            
+        except (subprocess.CalledProcessError, FileNotFoundError) as e2:
+            error_msg = e.stderr if hasattr(e, 'stderr') and e.stderr else str(e)
+            if hasattr(e2, 'stderr') and e2.stderr:
+                error_msg = e2.stderr
+            logger.error(f"Failed to generate JSON-LD context: {error_msg}")
+            raise RuntimeError(f"Failed to generate JSON-LD context. Ensure 'gen-jsonld-context' is available via 'poetry run' or in PATH. Error: {error_msg}")
+
+
+def _find_project_root(start_path: Path) -> Path:
+    """
+    Find the project root by looking for common markers (pyproject.toml, etc.).
+    
+    Args:
+        start_path: Starting directory to search from
+        
+    Returns:
+        Path to project root
+        
+    Raises:
+        FileNotFoundError: If project root cannot be found
+    """
+    current = start_path.resolve()
+    
+    # Look for project markers
+    markers = ["pyproject.toml", "poetry.lock", ".git"]
+    
+    while current != current.parent:
+        for marker in markers:
+            if (current / marker).exists():
+                return current
+        current = current.parent
+    
+    # If we reach here, we couldn't find the root
+    # Fall back to assuming current working directory is project root
+    return Path.cwd()

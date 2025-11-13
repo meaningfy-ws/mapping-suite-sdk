@@ -7,6 +7,7 @@ including conversion of metadata structures, constraints, and all package assets
 from pathlib import Path
 from typing import Optional
 
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Constraints
@@ -76,11 +77,13 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
     # Convert V2 constraints to V3 format
     applicability_constraints = _convert_v2_constraints_to_v3_applicability_constraints(v2_constraints)
 
+    # Convert metadata path from V2 (metadata.json) to V3 (metadata.jsonld)
+    v3_metadata_path = mssdk_config.MPV3_METADATA_FILE_ASSET_PATH
+    
     return MappingPackageV3(
-
         metadata=MappingPackageV3MetadataJSONLD(
-            path=mpv2_metadata.path,
-
+            path=v3_metadata_path,
+            context="./context.jsonld",  # Set JSON-LD context for proper JSON-LD serialization
             id=mpv2_metadata.identifier,
             title=mpv2_metadata.title,
             project_identifier=mpv2_metadata.type,

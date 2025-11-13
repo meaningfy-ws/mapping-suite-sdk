@@ -143,6 +143,7 @@ def test_convert_from_package_skips_already_converted_v3_lightweight(
     
     # Create valid V3 metadata
     v3_metadata = {
+        "@context": "http://example.org/context",
         "path": "metadata.jsonld",
         "id": "test_lightweight_package",
         "title": "Test Lightweight Package",
@@ -188,6 +189,7 @@ def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
     metadata_path = inner_package / "metadata.jsonld"
     
     v3_metadata = {
+        "@context": "http://example.org/context",
         "path": "metadata.jsonld",
         "id": "nested_lightweight_package",
         "title": "Nested Lightweight Package",

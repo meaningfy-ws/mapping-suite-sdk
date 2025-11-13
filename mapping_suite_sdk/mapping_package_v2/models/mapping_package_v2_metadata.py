@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from pydantic import Field
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.models.mapping_package_metadata import MappingPackageMetadata
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 

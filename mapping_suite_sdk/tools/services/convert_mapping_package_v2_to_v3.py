@@ -7,17 +7,10 @@ including conversion of metadata structures, constraints, and all package assets
 from pathlib import Path
 from typing import Optional
 
-from pydantic import ValidationError
-
-from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2MetadataLoader
+from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Constraints
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
-from mapping_suite_sdk.mapping_package_v3.adapters.metadata_loader import MappingPackageV3MetadataLoader
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import ApplicabilityConstraints
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import DateTimeInterval
@@ -109,105 +102,16 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
     )
 
 
-def detect_mapping_package_version(mapping_package_folder_path: Path) -> Optional[str]:
-    """
-    Detect the version of a mapping package by attempting to load it.
-    
-    Tries to load the package with different version loaders to determine its version.
-    Returns the version string if detected, None if the package format is not recognized.
-    
-    Args:
-        mapping_package_folder_path: Path to the mapping package folder
-        
-    Returns:
-        Version string (e.g., "v2", "v3", "v3-lightweight") or None if not recognized
-    """
-    if not mapping_package_folder_path.exists() or not mapping_package_folder_path.is_dir():
-        return None
-    
-    # Handle nested package structure (folder_name/folder_name/metadata.json)
-    root_folder = mapping_package_folder_path / mapping_package_folder_path.name
-    possible_paths = [mapping_package_folder_path]
-    if root_folder.exists():
-        possible_paths.append(root_folder)
-    
-    # Find metadata file
-    metadata_file = None
-    for path in possible_paths:
-        test_file = path / "metadata.json"
-        if test_file.exists():
-            metadata_file = test_file
-            break
-        test_file = path / "metadata.jsonld"
-        if test_file.exists():
-            metadata_file = test_file
-            break
-    
-    if not metadata_file:
-        return None
-    
-    package_root_path = metadata_file.parent
-    
-    # Try V3 lightweight first (check if conceptual mapping exists)
-    has_conceptual_mapping = False
-    for path in possible_paths:
-        conceptual_mapping_path = path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
-        if conceptual_mapping_path.exists():
-            has_conceptual_mapping = True
-            break
-    
-    if not has_conceptual_mapping:
-        # No conceptual mapping found, try loading as lightweight
-        try:
-            loader = MappingPackageV3LightweightLoader()
-            loader.load(package_root_path)
-            return "v3-lightweight"
-        except (ValidationError, FileNotFoundError, ValueError):
-            pass
-    
-    # Try V3 (full)
-    try:
-        metadata_loader = MappingPackageV3MetadataLoader()
-        metadata_loader.load(
-            package_folder_path=mapping_package_folder_path,
-            relative_asset_path=Path(metadata_file.name)
-        )
-        # Metadata is valid V3, check if it's full v3
-        loader = MappingPackageV3Loader()
-        package = loader.load(package_root_path)
-        if hasattr(package, 'conceptual_mapping_asset') and package.conceptual_mapping_asset is not None:
-            return "v3"
-    except (ValidationError, FileNotFoundError, ValueError):
-        pass
-    
-    # Try V2
-    try:
-        metadata_loader = MappingPackageV2MetadataLoader()
-        metadata_loader.load(
-            package_folder_path=mapping_package_folder_path,
-            relative_asset_path=Path(metadata_file.name)
-        )
-        # If metadata loads successfully, try loading full package
-        loader = MappingPackageV2Loader()
-        loader.load(package_root_path)
-        return "v2"
-    except (ValidationError, FileNotFoundError, ValueError):
-        pass
-    
-    # Not recognized
-    return None
-
-
 def is_mapping_package_already_converted(mapping_package_folder_path: Path, to_version: str) -> bool:
     """
     Check if a mapping package is already in the target version.
-    
+
     Uses version detection to determine the current version and compares it to the target version.
-    
+
     Args:
         mapping_package_folder_path: Path to the mapping package folder
         to_version: Target version string (e.g., "v3", "v3-lightweight")
-        
+
     Returns:
         True if the package is already in the target version, False otherwise
     """

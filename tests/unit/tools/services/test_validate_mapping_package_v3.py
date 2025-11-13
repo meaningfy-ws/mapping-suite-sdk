@@ -383,8 +383,8 @@ def test_validate_mapping_package_v3_from_archive_with_custom_loader(
 
 def test_validate_mapping_package_v3_from_archive_with_custom_extractor(
         dummy_mapping_package_v3_archive_path: Path):
-    from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor
-    custom_extractor = ArchivePackageExtractor()
+    from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+    custom_extractor = ArchiveExtractor()
 
     result = validate_mapping_package_v3_from_archive(
         mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
@@ -480,8 +480,8 @@ def test_validate_bulk_mapping_packages_v3_from_github_with_custom_loader(
 def test_validate_bulk_mapping_packages_v3_from_github_with_custom_extractor(
         fixture_mapping_package_v3_github_project_path: Path,
         dummy_get_all_packages_pattern: str):
-    from mapping_suite_sdk.core.adapters.extractor import GithubPackageExtractor
-    custom_extractor = GithubPackageExtractor()
+    from mapping_suite_sdk.core.adapters.extractor import GitHubExtractor
+    custom_extractor = GitHubExtractor()
 
     with setup_temporary_test_git_repository(fixture_mapping_package_v3_github_project_path) as repo_path:
         result = validate_bulk_mapping_packages_v3_from_github(

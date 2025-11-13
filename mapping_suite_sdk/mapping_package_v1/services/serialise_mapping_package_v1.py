@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser import MappingPackageV1Serialiser
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
@@ -11,7 +11,7 @@ from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import Mappi
 @traced_routine
 def serialise_mapping_package_v1(mapping_package: MappingPackageV1,
                                  serialisation_folder_path: Path,
-                                 archive_unpacker: Optional[ArchivePackageExtractor] = None) -> None:
+                                 archive_unpacker: Optional[ArchiveExtractor] = None) -> None:
     """Serializes a MappingPackage object and packages it into an archive.
 
     This function takes a MappingPackage object, serializes its contents to a temporary
@@ -38,7 +38,7 @@ def serialise_mapping_package_v1(mapping_package: MappingPackageV1,
         content before packaging. This directory is automatically cleaned up after the
         function completes, regardless of success or failure.
     """
-    archive_unpacker = archive_unpacker or ArchivePackageExtractor()
+    archive_unpacker = archive_unpacker or ArchiveExtractor()
 
     with tempfile.TemporaryDirectory() as temp_directory:
         temp_directory_path = Path(temp_directory)

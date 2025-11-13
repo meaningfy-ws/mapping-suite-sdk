@@ -58,7 +58,7 @@ def _convert_v2_constraints_to_v3_applicability_constraints(
     return ApplicabilityConstraints(
         document_type_list=v2_constraints.eforms_subtype,
         document_time_interval=document_time_interval,
-        document_version_list=v2_constraints.eforms_sdk_versions if v2_constraints.eforms_sdk_versions else None
+        document_schema_version_list=v2_constraints.eforms_sdk_versions if v2_constraints.eforms_sdk_versions else None
     )
 
 

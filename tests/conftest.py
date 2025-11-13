@@ -40,7 +40,9 @@ from tests import (
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH,
-    TEST_DATA_MAPPING_PACKAGES_V3_REPO_PATH
+    TEST_DATA_MAPPING_PACKAGES_V3_REPO_PATH,
+    TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+    TEST_DATA_EXAMPLE_MAPPING_SUITE_ARCHIVE_PATH,
 )
 
 
@@ -305,6 +307,23 @@ def dummy_mapping_package_v2_validator() -> MappingPackageV2Validator:
 def typer_cli_runner() -> CliRunner:
     """CLI runner for testing command-line interfaces."""
     return CliRunner()
+
+
+# ============================================================================
+# Mapping Suite Fixtures
+# ============================================================================
+
+
+@pytest.fixture
+def dummy_mapping_suite_folder_path() -> Path:
+    """Path to a valid mapping suite folder for testing."""
+    return TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH
+
+
+@pytest.fixture
+def dummy_mapping_suite_archive_path() -> Path:
+    """Path to a valid mapping suite archive for testing."""
+    return TEST_DATA_EXAMPLE_MAPPING_SUITE_ARCHIVE_PATH
 
 
 # ============================================================================

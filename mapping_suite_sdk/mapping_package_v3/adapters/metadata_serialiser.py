@@ -22,7 +22,12 @@ class MappingPackageV3MetadataSerialiser(MappingPackageAssetSerialiser):
             asset.context = "context.jsonld"
 
         # Serialize as JSON-LD (with @context) using the JSONLD model directly
-        # Exclude 'path' field as it's internal metadata
+        # Exclude 'path' field: it's an internal SDK concern for tracking file location
+        # within the package structure, not part of the serialized metadata content.
+        # This is consistent with V1 and V2 serializers.
+        # TODO: Consider refactoring to handle path separately from the domain model
+        # if this pattern becomes problematic (e.g., via a separate metadata wrapper
+        # or computed property approach).
         metadata_path.write_text(asset.model_dump_json(
             by_alias=True,  # Use @context instead of context
             exclude_none=True,

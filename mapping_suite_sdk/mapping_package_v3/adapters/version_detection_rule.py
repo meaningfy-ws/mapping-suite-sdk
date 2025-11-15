@@ -21,8 +21,6 @@ V3_FULL_SPEC = VersionDetectionSpec(
     priority=2,
 
     path_conditions=[
-        # V3 uses metadata.jsonld
-        PathCondition("metadata.jsonld", must_exist=True),
         # V3 Full has conceptual mapping
         PathCondition(_CONCEPTUAL_MAPPING_PATH, must_exist=True),
     ],
@@ -40,8 +38,6 @@ V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
     priority=1,
 
     path_conditions=[
-        # V3 uses metadata.jsonld
-        PathCondition("metadata.jsonld", must_exist=True),
         # V3 Lightweight does NOT have conceptual mapping
         PathCondition(_CONCEPTUAL_MAPPING_PATH, must_exist=False),
     ],

@@ -18,10 +18,9 @@ V1_SPEC = VersionDetectionSpec(
     priority=-1,
 
     path_conditions=[
-        # V1 uses metadata.json
-        PathCondition("metadata.json", must_exist=True),
-        # V1 does NOT use metadata.jsonld (that's V3)
-        PathCondition("metadata.jsonld", must_exist=False),
+        # Ensure at least one metadata file exists (format-agnostic)
+        # metadata.json or metadata.jsonld are both supported - format is cross-cutting
+        PathCondition("metadata.json*", must_exist=True),
     ],
 
     metadata_conditions=[
@@ -36,6 +35,10 @@ V1_SPEC = VersionDetectionSpec(
         # - V1 does NOT have "type" or "mapping_type" fields (V2 may have these)
         MetadataCondition("type", must_exist=False),
         MetadataCondition("mapping_type", must_exist=False),
+
+        # - V1 does NOT have @context (JSON-LD marker used by V3)
+        #   Note: JSON-LD format is cross-cutting, but @context in metadata is V3-specific
+        MetadataCondition("@context", must_exist=False),
     ]
 )
 

@@ -18,16 +18,19 @@ V2_SPEC = VersionDetectionSpec(
     priority=0,
 
     path_conditions=[
-        # V2 uses metadata.json
-        PathCondition("metadata.json", must_exist=True),
-        # V2 does NOT use metadata.jsonld (that's V3)
-        PathCondition("metadata.jsonld", must_exist=False),
+        # Ensure at least one metadata file exists (format-agnostic)
+        # metadata.json or metadata.jsonld are both supported - format is cross-cutting
+        PathCondition("metadata.json*", must_exist=True),
     ],
 
     metadata_conditions=[
         # V2-specific differentiating field:
         # - V2 uses eforms_sdk_versions (V1 uses xsd versions instead)
         MetadataCondition("eligibility_constraints.constraints.eforms_sdk_versions", must_exist=True),
+
+        # - V2 does NOT have @context (JSON-LD marker used by V3)
+        #   Note: JSON-LD format is cross-cutting, but @context in metadata is V3-specific
+        MetadataCondition("@context", must_exist=False),
     ]
 )
 

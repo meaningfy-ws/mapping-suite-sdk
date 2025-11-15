@@ -18,9 +18,8 @@ V2_SPEC = VersionDetectionSpec(
     priority=0,
 
     path_conditions=[
-        # Ensure at least one metadata file exists (format-agnostic)
-        # metadata.json or metadata.jsonld are both supported - format is cross-cutting
-        PathCondition("metadata.json*", must_exist=True),
+        # No path conditions for metadata files - rely on metadata content for detection
+        # (metadata.json or metadata.jsonld are both supported, format is cross-cutting)
     ],
 
     metadata_conditions=[

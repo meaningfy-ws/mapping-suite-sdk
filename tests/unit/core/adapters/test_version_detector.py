@@ -284,6 +284,10 @@ def test_detect_v3_lightweight_package(tmp_path):
     }
     (package_dir / "metadata.jsonld").write_text(json.dumps(v3_metadata))
 
+    # V3L requires technical mapping suite and vocabulary mapping suite
+    (package_dir / "transformation" / "mappings").mkdir(parents=True)
+    (package_dir / "transformation" / "resources").mkdir(parents=True)
+
     detected = detect_mapping_package_version(package_dir)
     assert detected == "v3L"
 

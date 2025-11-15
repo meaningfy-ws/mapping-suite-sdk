@@ -12,8 +12,14 @@ from mapping_suite_sdk.core.adapters.version_detector import (
     MetadataCondition,
 )
 
-# V3 conceptual mapping path (stable configuration constant)
+# V3 path constants (stable configuration constants)
 _CONCEPTUAL_MAPPING_PATH = "transformation/conceptual_mappings.xlsx"
+_TECHNICAL_MAPPING_PATH = "transformation/mappings"
+_VOCABULARY_MAPPING_PATH = "transformation/resources"
+_TEST_DATA_PATH = "test_data"
+_SPARQL_TEST_PATH = "validation/sparql"
+_SHACL_TEST_PATH = "validation/shacl"
+_TEST_RESULTS_PATH = "output"
 
 # Declarative V3 Full specification
 V3_FULL_SPEC = VersionDetectionSpec(
@@ -39,8 +45,11 @@ V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
     priority=1,
 
     path_conditions=[
-        # V3 Lightweight does NOT have conceptual mapping
-        PathCondition(_CONCEPTUAL_MAPPING_PATH, must_exist=False),
+        # V3 Lightweight MUST have (essential for transformation):
+        # - Technical mapping suite (RML files)
+        PathCondition(_TECHNICAL_MAPPING_PATH, must_exist=True),
+        # - Vocabulary mapping suite (resource files)
+        PathCondition(_VOCABULARY_MAPPING_PATH, must_exist=True),
     ],
 
     metadata_conditions=[

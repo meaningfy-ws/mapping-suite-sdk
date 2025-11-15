@@ -19,7 +19,15 @@ def load_mapping_suite_from_folder(
         mapping_suite_folder_path: Path,
         mapping_suite_loader: Optional[MappingSuiteLoader] = None
 ) -> MappingSuite:
-    """Load a mapping suite from a folder.
+    """Load a mapping suite (project-level configuration) from a folder.
+
+    A mapping suite is a project-level configuration that contains:
+    - mapping_suite_config.json: Core configuration with metadata, document probing rules,
+      extraction specifications, and eligibility mappings for selecting mapping packages
+    - resources/: Directory containing vocabulary resources, code lists, and auxiliary files
+
+    This is distinct from a mapping package, which contains transformation rules and artifacts
+    (RML mappings, test data, validation suites) for actual data transformation.
 
     Args:
         mapping_suite_folder_path (Path): Path to the mapping suite folder.
@@ -27,7 +35,7 @@ def load_mapping_suite_from_folder(
             If None, a default loader is created.
 
     Returns:
-        MappingSuite: The loaded mapping suite.
+        MappingSuite: The loaded mapping suite (project configuration).
 
     Raises:
         FileNotFoundError: If the folder does not exist.
@@ -49,7 +57,11 @@ def load_mapping_suite_from_archive(
         mapping_suite_loader: Optional[MappingSuiteLoader] = None,
         archive_unpacker: Optional[ArchiveExtractor] = None
 ) -> MappingSuite:
-    """Load a mapping suite from an archive file.
+    """Load a mapping suite (project-level configuration) from an archive file.
+
+    A mapping suite is a project-level configuration (see load_mapping_suite_from_folder
+    for details). This function extracts the archive and loads the suite from the
+    extracted folder.
 
     Supports common archive formats (zip, tar, tar.gz, etc.).
 
@@ -59,7 +71,7 @@ def load_mapping_suite_from_archive(
         archive_unpacker (Optional[ArchiveExtractor]): Custom archive extractor instance.
 
     Returns:
-        MappingSuite: The loaded mapping suite.
+        MappingSuite: The loaded mapping suite (project configuration).
 
     Raises:
         FileNotFoundError: If the archive file does not exist.
@@ -88,10 +100,16 @@ def load_mapping_suites_from_github(
         github_suite_extractor: Optional[GitHubExtractor] = None,
         mapping_suite_loader: Optional[MappingSuiteLoader] = None,
 ) -> List[MappingSuite]:
-    """Load multiple mapping suites from a GitHub repository.
+    """Load multiple mapping suites (project-level configurations) from a GitHub repository.
+
+    A mapping suite is a project-level configuration (see load_mapping_suite_from_folder
+    for details), distinct from mapping packages which contain transformation rules.
 
     Extracts suites matching the specified path pattern and loads them.
     Logs warnings for individual failures but continues loading others.
+
+    Note: This function loads multiple suites, which may not be the desired pattern.
+    Consider whether loading suites individually is more appropriate for your use case.
 
     Args:
         github_repository_url (str): GitHub repository URL (e.g., https://github.com/owner/repo).
@@ -102,7 +120,7 @@ def load_mapping_suites_from_github(
         mapping_suite_loader (Optional[MappingSuiteLoader]): Custom loader instance.
 
     Returns:
-        List[MappingSuite]: List of successfully loaded mapping suites.
+        List[MappingSuite]: List of successfully loaded mapping suites (project configurations).
             Empty list if no suites are found or all fail to load.
 
     Raises:
@@ -116,9 +134,14 @@ def load_mapping_suites_from_github(
 
     github_extractor = github_suite_extractor or GitHubExtractor()
 
+    # Note: GitHubExtractor.extract_temporary uses 'packages_path_pattern' parameter name,
+    # but we're using it for suites. This is a conceptual conflation - the extractor is
+    # package-oriented but being reused for suites. Consider refactoring to have separate
+    # extractors or a more generic path_pattern parameter to properly distinguish packages
+    # from suites.
     with github_extractor.extract_temporary(
             repository_url=github_repository_url,
-            packages_path_pattern=suites_path_pattern,
+            packages_path_pattern=suites_path_pattern,  # Note: parameter name suggests packages, but used for suites
             branch_or_tag_name=branch_or_tag_name
     ) as suite_paths:
         if len(suite_paths) < 1:

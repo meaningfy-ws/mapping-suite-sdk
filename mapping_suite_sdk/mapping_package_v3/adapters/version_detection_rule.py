@@ -26,8 +26,9 @@ V3_FULL_SPEC = VersionDetectionSpec(
     ],
 
     metadata_conditions=[
-        # V3 JSON-LD markers (at least one must exist)
-        # We check for @context as the primary marker
+        # V3 JSON-LD marker: @context distinguishes V3 (both Full and Lightweight) from V1/V2
+        # Note: This is NOT a differentiator between V3 Full and V3L - both have @context
+        # The differentiation between V3 Full and V3L is via path conditions above
         MetadataCondition("@context", must_exist=True),
     ]
 )
@@ -43,9 +44,9 @@ V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
     ],
 
     metadata_conditions=[
-        # V3 JSON-LD markers (at least one must exist)
-        # We check for @context or id as JSON-LD markers
-        # Actually, we'll be flexible and check for either JSON-LD marker or V3 structure
+        # V3 JSON-LD marker: @context distinguishes V3 (both Full and Lightweight) from V1/V2
+        # Note: This is NOT a differentiator between V3L and V3 Full - both have @context
+        # The differentiation between V3L and V3 Full is via path conditions above
         MetadataCondition("@context", must_exist=True),
     ]
 )

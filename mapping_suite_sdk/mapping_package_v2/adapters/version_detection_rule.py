@@ -25,13 +25,8 @@ V2_SPEC = VersionDetectionSpec(
     ],
 
     metadata_conditions=[
-        # Required base keys
-        MetadataCondition("identifier", must_exist=True),
-        MetadataCondition("eligibility_constraints", must_exist=True),
-        MetadataCondition("mapping_version", must_exist=True),
-        MetadataCondition("ontology_version", must_exist=True),
-
-        # V2-specific nested key: has eforms_sdk_versions (V1 has xsd versions instead)
+        # V2-specific differentiating field:
+        # - V2 uses eforms_sdk_versions (V1 uses xsd versions instead)
         MetadataCondition("eligibility_constraints.constraints.eforms_sdk_versions", must_exist=True),
     ]
 )

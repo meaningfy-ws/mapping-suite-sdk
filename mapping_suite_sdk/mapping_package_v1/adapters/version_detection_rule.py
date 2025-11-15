@@ -25,23 +25,17 @@ V1_SPEC = VersionDetectionSpec(
     ],
 
     metadata_conditions=[
-        # Required base keys (common with V2)
-        MetadataCondition("identifier", must_exist=True),
-        MetadataCondition("eligibility_constraints", must_exist=True),
-        MetadataCondition("mapping_version", must_exist=True),
-        MetadataCondition("ontology_version", must_exist=True),
-
-        # V1 does NOT have "type" field (V2 has this)
-        MetadataCondition("type", must_exist=False),
-        MetadataCondition("mapping_type", must_exist=False),
-
-        # V1-specific: has min_xsd_version or max_xsd_version
-        # Note: We check for at least one of these in a custom way below
-        # For now, we check if the path exists (will match if either exists)
+        # V1-specific differentiating fields:
+        # - V1 uses XSD version constraints (min_xsd_version or max_xsd_version)
+        #   Note: We check for min_xsd_version as the primary indicator
         MetadataCondition("eligibility_constraints.constraints.min_xsd_version", must_exist=True),
 
-        # V1 does NOT have eforms_sdk_versions (that's V2)
+        # - V1 does NOT have eforms_sdk_versions (that's V2)
         MetadataCondition("eligibility_constraints.constraints.eforms_sdk_versions", must_exist=False),
+
+        # - V1 does NOT have "type" or "mapping_type" fields (V2 may have these)
+        MetadataCondition("type", must_exist=False),
+        MetadataCondition("mapping_type", must_exist=False),
     ]
 )
 

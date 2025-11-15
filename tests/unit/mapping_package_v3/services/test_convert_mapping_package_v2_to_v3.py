@@ -172,8 +172,8 @@ def test_convert_mapping_package_v2_to_v3_handles_both_dates(dummy_mapping_packa
         assert result.metadata.applicability_constraints.document_time_interval.end is not None
 
 
-def test_generate_jsonld_context_success_with_poetry_run(tmp_path: Path) -> None:
-    """Test that generate_jsonld_context succeeds when poetry run works."""
+def test_generate_jsonld_context_success(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context succeeds when gen-jsonld-context command works."""
     import subprocess
     from unittest.mock import Mock, patch
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
@@ -203,18 +203,16 @@ def test_generate_jsonld_context_success_with_poetry_run(tmp_path: Path) -> None
         assert result_path == output_dir / "context.jsonld"
         assert result_path.exists()
         assert result_path.read_text() == '{"@context": {"test": "value"}}'
-        # Verify poetry run was called
+        # Verify gen-jsonld-context was called directly (no poetry)
         mock_run.assert_called_once()
         call_args = mock_run.call_args[0][0]
-        assert "poetry" in call_args
-        assert "run" in call_args
-        assert "gen-jsonld-context" in call_args
+        assert call_args == ["gen-jsonld-context", str(schema_path)]
 
 
-def test_generate_jsonld_context_falls_back_to_direct_command(tmp_path: Path) -> None:
-    """Test that generate_jsonld_context falls back to direct command when poetry run fails."""
+def test_generate_jsonld_context_raises_file_not_found_error(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context raises FileNotFoundError when command is not in PATH."""
     import subprocess
-    from unittest.mock import Mock, patch
+    from unittest.mock import patch
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
     
     # Create a mock schema file
@@ -224,29 +222,20 @@ def test_generate_jsonld_context_falls_back_to_direct_command(tmp_path: Path) ->
     output_dir = tmp_path / "output"
     output_dir.mkdir()
     
-    # Mock subprocess.run: first call fails (poetry run), second succeeds (direct command)
-    mock_result = Mock()
-    mock_result.stdout = '{"@context": {"test": "value"}}'
-    mock_result.stderr = ""
-    
     with patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3.subprocess.run") as mock_run, \
          patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3._find_project_root", return_value=tmp_path):
-        # First call (poetry run) raises FileNotFoundError, second call (direct) succeeds
-        mock_run.side_effect = [
-            FileNotFoundError("poetry not found"),
-            mock_result
-        ]
+        # Command not found in PATH
+        mock_run.side_effect = FileNotFoundError("gen-jsonld-context not found")
         
-        result_path = generate_jsonld_context(
-            schema_yaml_path=schema_path,
-            output_directory=output_dir,
-            context_filename="context.jsonld"
-        )
+        with pytest.raises(FileNotFoundError):
+            generate_jsonld_context(
+                schema_yaml_path=schema_path,
+                output_directory=output_dir,
+                context_filename="context.jsonld"
+            )
         
-        assert result_path == output_dir / "context.jsonld"
-        assert result_path.exists()
-        # Verify both calls were attempted
-        assert mock_run.call_count == 2
+        # Verify command was attempted once
+        mock_run.assert_called_once()
 
 
 def test_generate_jsonld_context_raises_error_when_schema_not_found(tmp_path: Path) -> None:
@@ -266,8 +255,8 @@ def test_generate_jsonld_context_raises_error_when_schema_not_found(tmp_path: Pa
     assert "Schema YAML file not found" in str(excinfo.value)
 
 
-def test_generate_jsonld_context_raises_error_when_both_commands_fail(tmp_path: Path) -> None:
-    """Test that generate_jsonld_context raises RuntimeError when both poetry run and direct command fail."""
+def test_generate_jsonld_context_raises_called_process_error(tmp_path: Path) -> None:
+    """Test that generate_jsonld_context raises CalledProcessError when command execution fails."""
     import subprocess
     from unittest.mock import patch
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
@@ -279,23 +268,20 @@ def test_generate_jsonld_context_raises_error_when_both_commands_fail(tmp_path: 
     output_dir = tmp_path / "output"
     output_dir.mkdir()
     
-    # Mock subprocess.run to fail both times
+    # Mock subprocess.run to fail
     with patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3.subprocess.run") as mock_run, \
          patch("mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3._find_project_root", return_value=tmp_path):
-        # Both calls fail
-        mock_run.side_effect = [
-            subprocess.CalledProcessError(1, "poetry", stderr="poetry error"),
-            subprocess.CalledProcessError(1, "gen-jsonld-context", stderr="command error")
-        ]
+        # Command execution fails
+        mock_run.side_effect = subprocess.CalledProcessError(1, "gen-jsonld-context", stderr="command error")
         
-        with pytest.raises(RuntimeError) as excinfo:
+        with pytest.raises(subprocess.CalledProcessError):
             generate_jsonld_context(
                 schema_yaml_path=schema_path,
                 output_directory=output_dir
             )
         
-        assert "Failed to generate JSON-LD context" in str(excinfo.value)
-        assert mock_run.call_count == 2
+        # Verify command was attempted once
+        mock_run.assert_called_once()
 
 
 def test_generate_jsonld_context_creates_output_directory(tmp_path: Path) -> None:

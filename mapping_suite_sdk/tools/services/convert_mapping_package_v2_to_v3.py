@@ -66,7 +66,8 @@ def _execute_gen_jsonld_context_command(schema_path: Path, project_root: Path) -
     """
     Execute gen-jsonld-context command and return the generated context content.
     
-    Tries poetry run first, then falls back to direct command if available.
+    Uses the gen-jsonld-context command directly (must be available in PATH).
+    Does not rely on environment-specific tools like poetry.
     
     Args:
         schema_path: Absolute path to LinkML schema YAML file
@@ -76,42 +77,17 @@ def _execute_gen_jsonld_context_command(schema_path: Path, project_root: Path) -
         Generated JSON-LD context content as string
         
     Raises:
-        RuntimeError: If both poetry run and direct command fail
+        FileNotFoundError: If gen-jsonld-context command is not found in PATH
+        subprocess.CalledProcessError: If the command execution fails
     """
-    # Try with poetry run first (most reliable in development environments)
-    try:
-        result = subprocess.run(
-            ["poetry", "run", "gen-jsonld-context", str(schema_path)],
-            capture_output=True,
-            text=True,
-            check=True,
-            cwd=project_root
-        )
-        return result.stdout
-        
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        # If poetry run fails, try direct command (might work if installed globally)
-        logger.debug("poetry run gen-jsonld-context failed, trying direct command")
-        try:
-            result = subprocess.run(
-                ["gen-jsonld-context", str(schema_path)],
-                capture_output=True,
-                text=True,
-                check=True,
-                cwd=project_root
-            )
-            return result.stdout
-            
-        except (subprocess.CalledProcessError, FileNotFoundError) as e2:
-            error_msg = e.stderr if hasattr(e, 'stderr') and e.stderr else str(e)
-            if hasattr(e2, 'stderr') and e2.stderr:
-                error_msg = e2.stderr
-            logger.error(f"Failed to generate JSON-LD context: {error_msg}")
-            raise RuntimeError(
-                f"Failed to generate JSON-LD context. "
-                f"Ensure 'gen-jsonld-context' is available via 'poetry run' or in PATH. "
-                f"Error: {error_msg}"
-            )
+    result = subprocess.run(
+        ["gen-jsonld-context", str(schema_path)],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=project_root
+    )
+    return result.stdout
 
 
 def _write_context_file(output_path: Path, context_content: str) -> None:

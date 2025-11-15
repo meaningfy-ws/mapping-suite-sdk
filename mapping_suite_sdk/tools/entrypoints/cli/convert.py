@@ -67,6 +67,36 @@ def _convert_mapping_package(from_version: str, to_version: str, source_package)
         raise typer.BadParameter(f"Unsupported conversion: {from_version} -> {to_version}")
 
 
+def _remove_old_metadata_json(mapping_package_folder_path: Path) -> None:
+    """
+    Remove old metadata.json file when converting to V3.
+    
+    V2 uses metadata.json, but V3 uses metadata.jsonld. If both exist after conversion,
+    validation may check the wrong file or emit warnings. This ensures only metadata.jsonld
+    exists after conversion.
+    
+    Handles both flat and nested package structures (e.g., folder_name/folder_name/metadata.json).
+    
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+    """
+    from mapping_suite_sdk.core.adapters.version_detector import _resolve_package_root
+    
+    # Resolve the actual package root (handles nested structures)
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        # If we can't resolve, try the original path
+        package_root = mapping_package_folder_path
+    
+    # Try to remove metadata.json from the resolved root
+    old_metadata_path = package_root / "metadata.json"
+    if old_metadata_path.exists():
+        old_metadata_path.unlink()
+        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message=f"Removed old metadata.json file from {old_metadata_path}"))
+
+
 def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package):
     """Dynamically serialize a mapping package based on version."""
     if to_version == Version.V3:
@@ -74,11 +104,17 @@ def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Pat
         serialiser.serialise(mapping_package_folder_path, converted_package)
         # Generate context.jsonld for V3 packages
         _generate_context_jsonld_for_v3(mapping_package_folder_path, converted_package)
+        # Remove old metadata.json if it exists (V2 uses metadata.json, V3 uses metadata.jsonld)
+        # Do this after serialization to ensure it's not recreated
+        _remove_old_metadata_json(mapping_package_folder_path)
     elif to_version == Version.V3L:
         serialiser = MappingPackageV3LightweightSerialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
         # Generate context.jsonld for V3 lightweight packages
         _generate_context_jsonld_for_v3(mapping_package_folder_path, converted_package)
+        # Remove old metadata.json if it exists (V2 uses metadata.json, V3 uses metadata.jsonld)
+        # Do this after serialization to ensure it's not recreated
+        _remove_old_metadata_json(mapping_package_folder_path)
     else:
         raise typer.BadParameter(f"Unsupported target version: {to_version}")
 

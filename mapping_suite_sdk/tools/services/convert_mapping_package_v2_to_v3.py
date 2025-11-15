@@ -22,6 +22,9 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jso
 
 logger = logging.getLogger(__name__)
 
+# Cache for project root to avoid repeated directory traversal
+_project_root_cache: Optional[Path] = None
+
 
 def _convert_v2_constraints_to_v3_applicability_constraints(
         v2_constraints: Optional[MappingPackageV2Constraints]
@@ -139,6 +142,8 @@ def generate_jsonld_context(
     Uses the LinkML gen-jsonld-context command to generate a context.jsonld file
     that defines the JSON-LD context for mapping package metadata.
     
+    If the context file already exists and is up-to-date, skips generation to improve performance.
+    
     Args:
         schema_yaml_path: Path to the LinkML schema YAML file (relative to project root)
         output_directory: Directory where the context.jsonld file should be written
@@ -153,8 +158,17 @@ def generate_jsonld_context(
         subprocess.CalledProcessError: If the gen-jsonld-context command fails
         OSError: If the output directory cannot be created or written to
     """
-    # Find project root and resolve schema path
-    project_root = _find_project_root(Path.cwd())
+    # Check if context file already exists (skip generation if present to improve performance)
+    output_path = output_directory / context_filename
+    if output_path.exists():
+        logger.debug(f"Context file already exists at {output_path}, skipping generation")
+        return output_path
+    
+    # Find project root and resolve schema path (use cached value if available)
+    global _project_root_cache
+    if _project_root_cache is None:
+        _project_root_cache = _find_project_root(Path.cwd())
+    project_root = _project_root_cache
     
     # Resolve schema path relative to project root
     if not schema_yaml_path.is_absolute():
@@ -165,7 +179,6 @@ def generate_jsonld_context(
     
     # Ensure output directory exists
     output_directory.mkdir(parents=True, exist_ok=True)
-    output_path = output_directory / context_filename
     
     logger.debug(f"Generating JSON-LD context from {schema_yaml_path} to {output_path}")
     

@@ -695,3 +695,97 @@ def test_convert_from_folder_generates_context_jsonld_for_each_package(
     # Context generation is called within the conversion process for each package
     assert mock_generate_context.call_count == 2
 
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+def test_serialise_mapping_package_v3_removes_old_metadata_json(
+    mock_generate_context,
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _serialise_mapping_package removes old metadata.json when converting to V3."""
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
+    
+    # Create old metadata.json file (simulating V2 package)
+    old_metadata_path = tmp_path / "metadata.json"
+    old_metadata_path.write_text('{"identifier": "old_v2_package"}')
+    assert old_metadata_path.exists(), "Old metadata.json should exist before conversion"
+    
+    # Mock context generation
+    mock_generate_context.return_value = tmp_path / "context.jsonld"
+    
+    # Serialise V3 package
+    _serialise_mapping_package(Version.V3, tmp_path, fixture_mapping_package_v3_model)
+    
+    # Verify old metadata.json was removed
+    assert not old_metadata_path.exists(), "Old metadata.json should be removed after V3 conversion"
+    # Verify new metadata.jsonld was created
+    assert (tmp_path / fixture_mapping_package_v3_model.metadata.path).exists(), "New metadata.jsonld should exist"
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+def test_serialise_mapping_package_v3_lightweight_removes_old_metadata_json(
+    mock_generate_context,
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _serialise_mapping_package removes old metadata.json when converting to V3L."""
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+    
+    # Create old metadata.json file (simulating V2 package)
+    old_metadata_path = tmp_path / "metadata.json"
+    old_metadata_path.write_text('{"identifier": "old_v2_package"}')
+    assert old_metadata_path.exists(), "Old metadata.json should exist before conversion"
+    
+    # Mock context generation
+    mock_generate_context.return_value = tmp_path / "context.jsonld"
+    
+    # Convert to lightweight and serialise
+    lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
+    _serialise_mapping_package(Version.V3L, tmp_path, lightweight_package)
+    
+    # Verify old metadata.json was removed
+    assert not old_metadata_path.exists(), "Old metadata.json should be removed after V3L conversion"
+    # Verify new metadata.jsonld was created
+    assert (tmp_path / lightweight_package.metadata.path).exists(), "New metadata.jsonld should exist"
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._load_mapping_package_from_folder")
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_mapping_package")
+def test_convert_from_package_removes_old_metadata_json(
+    mock_convert,
+    mock_load,
+    mock_is_already_converted,
+    mock_generate_context,
+    typer_cli_runner: CliRunner,
+    tmp_path: Path,
+    dummy_mapping_package_v2_model,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that from-package command removes old metadata.json during conversion."""
+    package_path = tmp_path / "test_package"
+    package_path.mkdir()
+    
+    # Create old metadata.json file (simulating V2 package)
+    old_metadata_path = package_path / "metadata.json"
+    old_metadata_path.write_text('{"identifier": "old_v2_package"}')
+    assert old_metadata_path.exists(), "Old metadata.json should exist before conversion"
+    
+    # Setup mocks to allow real serialization to run
+    mock_load.return_value = dummy_mapping_package_v2_model
+    mock_convert.return_value = fixture_mapping_package_v3_model
+    mock_generate_context.return_value = tmp_path / "context.jsonld"
+    
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3", "--from-version", "v2", "from-package", str(package_path)]
+    )
+    
+    assert result.exit_code == 0
+    # Verify old metadata.json was removed
+    assert not old_metadata_path.exists(), "Old metadata.json should be removed after conversion"
+    # Verify new metadata.jsonld was created
+    assert (package_path / fixture_mapping_package_v3_model.metadata.path).exists(), "New metadata.jsonld should exist"
+

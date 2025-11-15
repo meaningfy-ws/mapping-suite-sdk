@@ -6,13 +6,15 @@ based on file structure and metadata content.
 """
 
 import json
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, List, Optional
 
+from pydantic import Field, ConfigDict
 
-@dataclass(frozen=True)
-class VersionDetectionRule:
+from mapping_suite_sdk.core.models.pydantic import PydanticModel
+
+
+class VersionDetectionRule(PydanticModel):
     """
     Immutable rule defining version detection criteria.
 
@@ -24,6 +26,11 @@ class VersionDetectionRule:
     """
     version_id: str
     matcher: Callable[[Path], bool]
+
+    model_config = ConfigDict(
+        frozen=True,
+        arbitrary_types_allowed=True  # Required for Callable field
+    )
 
     def matches(self, package_root: Path) -> bool:
         """
@@ -128,15 +135,18 @@ def _get_nested_value(obj: dict, path: str) -> Optional[Any]:
     return current
 
 
-@dataclass
-class PathCondition:
+class PathCondition(PydanticModel):
     """
     Path pattern that must or must not exist.
 
     Supports both simple file paths and glob patterns.
     """
-    pattern: str  # e.g., "metadata.json", "test_data/*/*.xml"
-    must_exist: bool = True
+    pattern: str = Field(..., description="Path pattern, e.g., 'metadata.json', 'test_data/*/*.xml'")
+    must_exist: bool = Field(default=True, description="Whether the path must exist (True) or must not exist (False)")
+
+    def __init__(self, pattern: str, must_exist: bool = True, **kwargs):
+        """Initialize with positional arguments for backward compatibility with dataclass-style usage."""
+        super().__init__(pattern=pattern, must_exist=must_exist, **kwargs)
 
     def matches(self, package_root: Path) -> bool:
         """
@@ -161,17 +171,20 @@ class PathCondition:
             return exists == self.must_exist
 
 
-@dataclass
-class MetadataCondition:
+class MetadataCondition(PydanticModel):
     """
     JSONPath/dot-notation key that must or must not exist in metadata.
 
     Supports nested paths like "eligibility_constraints.constraints.min_xsd_version"
     and optional value matching.
     """
-    path: str  # e.g., "eligibility_constraints.constraints.min_xsd_version"
-    must_exist: bool = True
-    expected_value: Optional[Any] = None  # Optional value check
+    path: str = Field(..., description="Dot-notation path, e.g., 'eligibility_constraints.constraints.min_xsd_version'")
+    must_exist: bool = Field(default=True, description="Whether the key must exist (True) or must not exist (False)")
+    expected_value: Optional[Any] = Field(default=None, description="Optional value to match if key exists")
+
+    def __init__(self, path: str, must_exist: bool = True, expected_value: Optional[Any] = None, **kwargs):
+        """Initialize with positional arguments for backward compatibility with dataclass-style usage."""
+        super().__init__(path=path, must_exist=must_exist, expected_value=expected_value, **kwargs)
 
     def matches(self, metadata: dict) -> bool:
         """
@@ -200,8 +213,7 @@ class MetadataCondition:
         return True
 
 
-@dataclass
-class VersionDetectionSpec:
+class VersionDetectionSpec(PydanticModel):
     """
     Declarative specification for version detection.
 
@@ -209,10 +221,10 @@ class VersionDetectionSpec:
     - Path patterns (files/folders that must/must not exist)
     - Metadata conditions (keys that must/must not exist, with optional value checks)
     """
-    version_id: str
-    priority: int
-    path_conditions: List[PathCondition] = field(default_factory=list)
-    metadata_conditions: List[MetadataCondition] = field(default_factory=list)
+    version_id: str = Field(..., description="Version identifier, e.g., 'v2', 'v3', 'v3L'")
+    priority: int = Field(..., description="Priority for rule matching (higher priority checked first)")
+    path_conditions: List[PathCondition] = Field(default_factory=list, description="List of path conditions to check")
+    metadata_conditions: List[MetadataCondition] = Field(default_factory=list, description="List of metadata conditions to check")
 
     def build_matcher(self) -> Callable[[Path], bool]:
         """

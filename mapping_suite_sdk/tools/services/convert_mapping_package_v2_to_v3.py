@@ -26,6 +26,106 @@ logger = logging.getLogger(__name__)
 _project_root_cache: Optional[Path] = None
 
 
+def _get_or_find_project_root() -> Path:
+    """
+    Get cached project root or find it if not cached.
+    
+    Returns:
+        Path to project root
+    """
+    global _project_root_cache
+    if _project_root_cache is None:
+        _project_root_cache = _find_project_root(Path.cwd())
+    return _project_root_cache
+
+
+def _resolve_schema_path(schema_yaml_path: Path, project_root: Path) -> Path:
+    """
+    Resolve schema path relative to project root if not absolute.
+    
+    Args:
+        schema_yaml_path: Schema path (may be relative or absolute)
+        project_root: Project root directory
+        
+    Returns:
+        Resolved absolute path to schema file
+        
+    Raises:
+        FileNotFoundError: If schema file doesn't exist
+    """
+    if not schema_yaml_path.is_absolute():
+        schema_yaml_path = project_root / schema_yaml_path
+        
+    if not schema_yaml_path.exists():
+        raise FileNotFoundError(f"Schema YAML file not found: {schema_yaml_path}")
+    
+    return schema_yaml_path
+
+
+def _execute_gen_jsonld_context_command(schema_path: Path, project_root: Path) -> str:
+    """
+    Execute gen-jsonld-context command and return the generated context content.
+    
+    Tries poetry run first, then falls back to direct command if available.
+    
+    Args:
+        schema_path: Absolute path to LinkML schema YAML file
+        project_root: Project root directory (for cwd)
+        
+    Returns:
+        Generated JSON-LD context content as string
+        
+    Raises:
+        RuntimeError: If both poetry run and direct command fail
+    """
+    # Try with poetry run first (most reliable in development environments)
+    try:
+        result = subprocess.run(
+            ["poetry", "run", "gen-jsonld-context", str(schema_path)],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=project_root
+        )
+        return result.stdout
+        
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        # If poetry run fails, try direct command (might work if installed globally)
+        logger.debug("poetry run gen-jsonld-context failed, trying direct command")
+        try:
+            result = subprocess.run(
+                ["gen-jsonld-context", str(schema_path)],
+                capture_output=True,
+                text=True,
+                check=True,
+                cwd=project_root
+            )
+            return result.stdout
+            
+        except (subprocess.CalledProcessError, FileNotFoundError) as e2:
+            error_msg = e.stderr if hasattr(e, 'stderr') and e.stderr else str(e)
+            if hasattr(e2, 'stderr') and e2.stderr:
+                error_msg = e2.stderr
+            logger.error(f"Failed to generate JSON-LD context: {error_msg}")
+            raise RuntimeError(
+                f"Failed to generate JSON-LD context. "
+                f"Ensure 'gen-jsonld-context' is available via 'poetry run' or in PATH. "
+                f"Error: {error_msg}"
+            )
+
+
+def _write_context_file(output_path: Path, context_content: str) -> None:
+    """
+    Write JSON-LD context content to file.
+    
+    Args:
+        output_path: Path where context file should be written
+        context_content: JSON-LD context content to write
+    """
+    output_path.write_text(context_content, encoding="utf-8")
+    logger.info(f"Generated JSON-LD context file: {output_path}")
+
+
 def _convert_v2_constraints_to_v3_applicability_constraints(
         v2_constraints: Optional[MappingPackageV2Constraints]
 ) -> Optional[ApplicabilityConstraints]:
@@ -144,6 +244,11 @@ def generate_jsonld_context(
     
     If the context file already exists and is up-to-date, skips generation to improve performance.
     
+    **Architectural Note:**
+    This function orchestrates JSON-LD context generation by delegating to focused subfunctions.
+    Future refactoring could extract infrastructure concerns (subprocess execution, file I/O,
+    project root resolution) into a dedicated adapter to better align with Clean Architecture.
+    
     Args:
         schema_yaml_path: Path to the LinkML schema YAML file (relative to project root)
         output_directory: Directory where the context.jsonld file should be written
@@ -155,71 +260,32 @@ def generate_jsonld_context(
         
     Raises:
         FileNotFoundError: If the schema YAML file does not exist
-        subprocess.CalledProcessError: If the gen-jsonld-context command fails
+        RuntimeError: If the gen-jsonld-context command fails
         OSError: If the output directory cannot be created or written to
     """
-    # Check if context file already exists (skip generation if present to improve performance)
     output_path = output_directory / context_filename
+    
+    # Early return if context file already exists
     if output_path.exists():
         logger.debug(f"Context file already exists at {output_path}, skipping generation")
         return output_path
     
-    # Find project root and resolve schema path (use cached value if available)
-    global _project_root_cache
-    if _project_root_cache is None:
-        _project_root_cache = _find_project_root(Path.cwd())
-    project_root = _project_root_cache
-    
-    # Resolve schema path relative to project root
-    if not schema_yaml_path.is_absolute():
-        schema_yaml_path = project_root / schema_yaml_path
-        
-    if not schema_yaml_path.exists():
-        raise FileNotFoundError(f"Schema YAML file not found: {schema_yaml_path}")
+    # Resolve paths and validate
+    project_root = _get_or_find_project_root()
+    resolved_schema_path = _resolve_schema_path(schema_yaml_path, project_root)
     
     # Ensure output directory exists
     output_directory.mkdir(parents=True, exist_ok=True)
     
-    logger.debug(f"Generating JSON-LD context from {schema_yaml_path} to {output_path}")
+    logger.debug(f"Generating JSON-LD context from {resolved_schema_path} to {output_path}")
     
-    # Try with poetry run first (most reliable in development environments)
-    try:
-        result = subprocess.run(
-            ["poetry", "run", "gen-jsonld-context", str(schema_yaml_path)],
-            capture_output=True,
-            text=True,
-            check=True,
-            cwd=project_root
-        )
-        
-        # Write the output to the context file
-        output_path.write_text(result.stdout, encoding="utf-8")
-        
-        logger.info(f"Generated JSON-LD context file: {output_path}")
-        return output_path
-        
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        # If poetry run fails, try direct command (might work if installed globally)
-        logger.debug("poetry run gen-jsonld-context failed, trying direct command")
-        try:
-            result = subprocess.run(
-                ["gen-jsonld-context", str(schema_yaml_path)],
-                capture_output=True,
-                text=True,
-                check=True,
-                cwd=project_root
-            )
-            
-            output_path.write_text(result.stdout, encoding="utf-8")
-            logger.info(f"Generated JSON-LD context file: {output_path}")
-            return output_path
-            
-        except (subprocess.CalledProcessError, FileNotFoundError) as e2:
-            error_msg = e.stderr if hasattr(e, 'stderr') and e.stderr else str(e)
-            if hasattr(e2, 'stderr') and e2.stderr:
-                error_msg = e2.stderr
-            logger.error(f"Failed to generate JSON-LD context: {error_msg}")
-            raise RuntimeError(f"Failed to generate JSON-LD context. Ensure 'gen-jsonld-context' is available via 'poetry run' or in PATH. Error: {error_msg}")
+    # Generate context content via subprocess
+    context_content = _execute_gen_jsonld_context_command(resolved_schema_path, project_root)
+    
+    # Write context content to file
+    _write_context_file(output_path, context_content)
+    
+    return output_path
 
 
 def _find_project_root(start_path: Path) -> Path:

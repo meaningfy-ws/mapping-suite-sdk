@@ -37,3 +37,8 @@ class MappingPackageV3(MappingPackage):
     test_suites_shacl: SHACLTestCollectionAsset = Field(...,
                                                         description="Collections of SHACL-based validation test suites")
     test_results: TestResultCollectionAsset = Field(..., description="Collections of test transformation results")
+
+    @property
+    def id(self) -> str:
+        """Return the package identifier from metadata."""
+        return self.metadata.id

@@ -35,7 +35,7 @@ def test_create_with_success_non_existing_element(
     assert stored_result["package_version"] == PACKAGE_VERSION
     assert stored_result["_id"] == dummy_mapping_package_v1_model.id
 
-    # Remove MongoDB-specific fields and validate
+    # Remove MongoDB-specific fields and validate (repository removes them automatically on read)
     stored_result.pop("_id", None)
     stored_result.pop("package_version", None)
     stored_model = MappingPackageV1.model_validate(stored_result)

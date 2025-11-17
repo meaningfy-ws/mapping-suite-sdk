@@ -24,7 +24,7 @@ classes:
       Encapsulates the core configuration and resources directory.
     slots:
       - mapping_suite_config
-      - resources_collection
+      - resource_references
 
   MappingSuiteConfig:
     description: |
@@ -103,13 +103,12 @@ classes:
       - matching_method
       - description
 
-  ResourcesCollection:
+  ResourceReferences:
     description: |
-      Represents the resources directory containing vocabulary resources, code lists,
+      Represents the list of relative path references to files containing vocabulary resources, code lists,
       normalization tables, and other auxiliary files needed for processing.
-      Fixed directory name: resources/
     slots:
-      - resource_files
+      - file_paths
 
 slots:
   # MappingSuite slots
@@ -122,12 +121,11 @@ slots:
     range: MappingSuiteConfig
     inlined: true
 
-  resources_collection:
+  resource_references:
     required: true
     description: |
-      Directory containing vocabulary resources, code lists, and other auxiliary files.
-      Fixed directory name: resources/
-    range: ResourcesCollection
+      A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).      
+    range: ResourceReferences
     inlined: true
 
   # MappingSuiteConfig slots
@@ -204,13 +202,13 @@ slots:
     inlined: true
     inlined_as_list: true
 
-  # ResourcesCollection slots
-  resource_files:
+  # ResourceReferences slots
+  file_paths:
     multivalued: true
-    description: List of resource file paths within the resources folder
+    description: List of relative file paths within the project
     examples:
-      - value: "code_lists/countries.json"
-      - value: "normalization/sf_normalisation_rules.csv"
+      - value: "src/transformation/resources/countries.json"
+      - value: "src/normalization/sf_normalisation_rules.csv"
 
   # DocumentMetadataConfig slots
   metadata_properties:

@@ -27,7 +27,7 @@ class TestLoadMappingSuiteFromFolder:
         assert isinstance(result, MappingSuite)
         assert result.mapping_suite_config is not None
         assert result.mapping_suite_config.mapping_suite_metadata is not None
-        assert result.resources_collection is not None
+        assert result.resource_references is not None
 
     def test_load_mapping_suite_from_folder_with_custom_loader(
             self,
@@ -42,7 +42,7 @@ class TestLoadMappingSuiteFromFolder:
         )
 
         assert isinstance(result, MappingSuite)
-        assert result.resources_collection.resource_files is None
+        assert result.resource_references.file_paths is None
 
     def test_load_mapping_suite_from_folder_nonexistent_path(self):
         """Test error handling for non-existent folder paths."""
@@ -97,7 +97,7 @@ class TestLoadMappingSuiteFromArchive:
         )
 
         assert isinstance(result, MappingSuite)
-        assert result.resources_collection.resource_files is None
+        assert result.resource_references.file_paths is None
 
     def test_load_mapping_suite_from_archive_with_custom_extractor(
             self,
@@ -238,7 +238,7 @@ class TestLoadMappingSuitesFromGitHub:
 
         assert isinstance(result, list)
         assert len(result) == 1
-        assert result[0].resources_collection.resource_files is None
+        assert result[0].resource_references.file_paths is None
 
     def test_load_mapping_suites_from_github_partial_failure(
             self,

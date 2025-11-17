@@ -73,7 +73,7 @@ class ApplicabilityConstraints(PydanticModel):
         default=None,
         description="""Interval of starting and ending document datetime""",
     )
-    mssdk_version_list: Optional[list[str]] = Field(
+    document_schema_version_list: Optional[list[str]] = Field(
         default=None, description="""List of supported document schema versions"""
     )
     document_version_range: Optional[VersionRange] = Field(

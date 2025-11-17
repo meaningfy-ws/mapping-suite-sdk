@@ -7,12 +7,12 @@ import pytest
 from mapping_suite_sdk.mapping_suite.adapters.loader import (
     MappingSuiteLoader,
     MappingSuiteConfigLoader,
-    ResourcesCollectionLoader,
+    ResourceReferencesLoader,
 )
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
     MappingSuite,
     MappingSuiteConfig,
-    ResourcesCollection,
+    ResourceReferences,
     MappingSuiteMetadata,
     DocumentMetadataConfig,
     EligibilityConstraintConfig,
@@ -131,80 +131,80 @@ def test_mapping_suite_config_loader_handles_invalid_schema():
 
 
 # ============================================================================
-# ResourcesCollectionLoader Tests
+# ResourceReferencesLoader Tests
 # ============================================================================
 
 
-def test_resources_collection_loader_loads_successfully():
+def test_resource_references_loader_loads_successfully():
     """Test that resources loader successfully loads resource files."""
-    loader = ResourcesCollectionLoader()
+    loader = ResourceReferencesLoader()
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
         relative_asset_path=Path("resources"),
     )
 
-    assert isinstance(resources, ResourcesCollection)
-    assert resources.resource_files is not None
-    assert len(resources.resource_files) > 0
+    assert isinstance(resources, ResourceReferences)
+    assert resources.file_paths is not None
+    assert len(resources.file_paths) > 0
 
 
-def test_resources_collection_loader_finds_resource_files():
+def test_resource_references_loader_finds_file_paths():
     """Test that resources loader correctly identifies resource file paths."""
-    loader = ResourcesCollectionLoader()
+    loader = ResourceReferencesLoader()
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
         relative_asset_path=Path("resources"),
     )
 
     # Check that winner-selection-status.json is found
-    assert any("winner-selection-status.json" in f for f in resources.resource_files)
+    assert any("winner-selection-status.json" in f for f in resources.file_paths)
 
 
-def test_resources_collection_loader_returns_sorted_files():
+def test_resource_references_loader_returns_sorted_files():
     """Test that resources loader returns files in sorted order."""
-    loader = ResourcesCollectionLoader()
+    loader = ResourceReferencesLoader()
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
         relative_asset_path=Path("resources"),
     )
 
     # Files should be sorted
-    assert resources.resource_files == sorted(resources.resource_files)
+    assert resources.file_paths == sorted(resources.file_paths)
 
 
-def test_resources_collection_loader_handles_missing_directory():
+def test_resource_references_loader_handles_missing_directory():
     """Test that resources loader handles missing resources directory gracefully."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
-        loader = ResourcesCollectionLoader()
+        loader = ResourceReferencesLoader()
 
         resources = loader.load(
             package_folder_path=temp_dir_path,
             relative_asset_path=Path("non_existing_resources"),
         )
 
-        assert isinstance(resources, ResourcesCollection)
-        assert resources.resource_files is None
+        assert isinstance(resources, ResourceReferences)
+        assert resources.file_paths is None
 
 
-def test_resources_collection_loader_handles_empty_directory():
+def test_resource_references_loader_handles_empty_directory():
     """Test that resources loader handles empty resources directory."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
 
-        loader = ResourcesCollectionLoader()
+        loader = ResourceReferencesLoader()
         resources = loader.load(
             package_folder_path=temp_dir_path,
             relative_asset_path=Path("resources"),
         )
 
-        assert isinstance(resources, ResourcesCollection)
-        assert resources.resource_files is None
+        assert isinstance(resources, ResourceReferences)
+        assert resources.file_paths is None
 
 
-def test_resources_collection_loader_ignores_directories():
+def test_resource_references_loader_ignores_directories():
     """Test that resources loader only includes files, not directories."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
@@ -217,15 +217,15 @@ def test_resources_collection_loader_ignores_directories():
         subdir.mkdir()
         (subdir / "file2.json").write_text("{}")
 
-        loader = ResourcesCollectionLoader()
+        loader = ResourceReferencesLoader()
         resources = loader.load(
             package_folder_path=temp_dir_path,
             relative_asset_path=Path("resources"),
         )
 
         # Should have 2 files (not 3 with the directory)
-        assert len(resources.resource_files) == 2
-        assert all(not Path(f).name == "subdir" for f in resources.resource_files)
+        assert len(resources.file_paths) == 2
+        assert all(not Path(f).name == "subdir" for f in resources.file_paths)
 
 
 # ============================================================================
@@ -265,7 +265,7 @@ def test_mapping_suite_loader_loads_successfully():
 
     assert isinstance(mapping_suite, MappingSuite)
     assert isinstance(mapping_suite.mapping_suite_config, MappingSuiteConfig)
-    assert isinstance(mapping_suite.resources_collection, ResourcesCollection)
+    assert isinstance(mapping_suite.resource_references, ResourceReferences)
 
 
 def test_mapping_suite_loader_loads_config_correctly():
@@ -285,9 +285,9 @@ def test_mapping_suite_loader_loads_resources_when_enabled():
     loader = MappingSuiteLoader(include_resources=True)
     mapping_suite = loader.load(TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH)
 
-    assert isinstance(mapping_suite.resources_collection, ResourcesCollection)
-    assert mapping_suite.resources_collection.resource_files is not None
-    assert len(mapping_suite.resources_collection.resource_files) > 0
+    assert isinstance(mapping_suite.resource_references, ResourceReferences)
+    assert mapping_suite.resource_references.file_paths is not None
+    assert len(mapping_suite.resource_references.file_paths) > 0
 
 
 def test_mapping_suite_loader_skips_resources_when_disabled():
@@ -295,8 +295,8 @@ def test_mapping_suite_loader_skips_resources_when_disabled():
     loader = MappingSuiteLoader(include_resources=False)
     mapping_suite = loader.load(TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH)
 
-    assert isinstance(mapping_suite.resources_collection, ResourcesCollection)
-    assert mapping_suite.resources_collection.resource_files is None
+    assert isinstance(mapping_suite.resource_references, ResourceReferences)
+    assert mapping_suite.resource_references.file_paths is None
 
 
 def test_mapping_suite_loader_fails_on_wrong_path():
@@ -325,7 +325,7 @@ def test_mapping_suite_loader_validates_pydantic_models():
     # Verify all models are properly instantiated Pydantic models by calling model_dump
     mapping_suite_dict = mapping_suite.model_dump()
     config_dict = mapping_suite.mapping_suite_config.model_dump()
-    resources_dict = mapping_suite.resources_collection.model_dump()
+    resources_dict = mapping_suite.resource_references.model_dump()
 
     assert isinstance(mapping_suite_dict, dict)
     assert isinstance(config_dict, dict)
@@ -352,5 +352,5 @@ def test_mapping_suite_loader_complete_integration():
     assert config.metadata_config.document_type_probing.must_not_exist is not None
 
     # Verify resources
-    assert mapping_suite.resources_collection.resource_files is not None
-    assert len(mapping_suite.resources_collection.resource_files) > 0
+    assert mapping_suite.resource_references.file_paths is not None
+    assert len(mapping_suite.resource_references.file_paths) > 0

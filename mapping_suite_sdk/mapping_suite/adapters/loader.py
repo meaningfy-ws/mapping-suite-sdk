@@ -7,7 +7,7 @@ from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
     MappingSuite,
     MappingSuiteConfig,
-    ResourcesCollection,
+    ResourceReferences,
 )
 
 
@@ -54,14 +54,14 @@ class MappingSuiteConfigLoader(AssetLoader):
         return MappingSuiteConfig.model_validate(config_dict)
 
 
-class ResourcesCollectionLoader(AssetLoader):
-    """Loader for resources collection.
+class ResourceReferencesLoader(AssetLoader):
+    """Loader for resource references.
 
-    Scans the resources directory and builds a ResourcesCollection model
+    Scans the resources directory and builds a ResourceReferences model
     containing all resource file paths. Follows the same pattern as VocabularyMappingSuiteLoader.
     """
 
-    def load(self, package_folder_path: Path, relative_asset_path: Path) -> ResourcesCollection:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> ResourceReferences:
         """Load resources collection from directory.
 
         Args:
@@ -69,7 +69,7 @@ class ResourcesCollectionLoader(AssetLoader):
             relative_asset_path (Path): Path to the resources folder relative to the package folder.
 
         Returns:
-            ResourcesCollection: Collection model with list of resource file paths.
+            ResourceReferences: Collection model with list of resource file paths.
         """
         # Handle nested folder structure (like v3 does)
         root_folder: Path = package_folder_path / package_folder_path.name
@@ -81,7 +81,7 @@ class ResourcesCollectionLoader(AssetLoader):
 
         # If resources directory doesn't exist, return empty collection
         if not asset_path.exists() or not asset_path.is_dir():
-            return ResourcesCollection(resource_files=None)
+            return ResourceReferences(file_paths=None)
 
         # Collect all file paths relative to the package folder
         resource_files = []
@@ -93,7 +93,7 @@ class ResourcesCollectionLoader(AssetLoader):
         # Sort for consistent ordering
         resource_files.sort()
 
-        return ResourcesCollection(resource_files=resource_files if resource_files else None)
+        return ResourceReferences(file_paths=resource_files if resource_files else None)
 
 
 @traced_class
@@ -147,16 +147,16 @@ class MappingSuiteLoader(Loader):
             relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
         )
 
-        # Load resources collection
+        # Load resource references
         if self.include_resources:
-            resources_collection = ResourcesCollectionLoader().load(
+            resource_references = ResourceReferencesLoader().load(
                 package_folder_path=package_folder_path,
                 relative_asset_path=mssdk_config.mapping_suite_resources_collection_asset_path,
             )
         else:
-            resources_collection = ResourcesCollection(resource_files=None)
+            resource_references = ResourceReferences(file_paths=None)
 
         return MappingSuite(
             mapping_suite_config=mapping_suite_config,
-            resources_collection=resources_collection,
+            resource_references=resource_references,
         )

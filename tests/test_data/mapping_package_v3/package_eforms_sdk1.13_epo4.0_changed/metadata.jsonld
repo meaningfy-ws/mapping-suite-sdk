@@ -8,6 +8,7 @@
     "mapping_version": "1.1.0",
     "model_version": "4.0.0",
     "description": "This is the mapping suite for all eForm subtypes except X01 and X02, SDK version 1.13, ePO version 4.0.0",
+    "mssdk_version": "v3",
     "applicability_constraints": {
         "document_type_list": [
             "1",

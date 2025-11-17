@@ -4,6 +4,7 @@ from pathlib import Path
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.loader import AssetLoader, Loader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
+from mapping_suite_sdk.mapping_suite import MappingSuiteAssetsPathsConfig
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
     MappingSuite,
     MappingSuiteConfig,
@@ -18,12 +19,11 @@ class MappingSuiteConfigLoader(AssetLoader):
     This file contains metadata, extraction rules, probing specs, and eligibility mappings.
     """
 
-    def load(self, package_folder_path: Path, relative_asset_path: Path) -> MappingSuiteConfig:
+    def load(self, package_folder_path: Path) -> MappingSuiteConfig:
         """Load mapping suite configuration from JSON file.
 
         Args:
             package_folder_path (Path): Path to the mapping suite package folder.
-            relative_asset_path (Path): Path to the config file relative to the package folder.
 
         Returns:
             MappingSuiteConfig: Parsed configuration object.
@@ -34,26 +34,19 @@ class MappingSuiteConfigLoader(AssetLoader):
             ValueError: If the config does not match the expected schema.
         """
         # Handle nested folder structure (like v3 does)
-        root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_asset_path
+        root_folder: Path = package_folder_path
+        metadata_asset_path: Path = package_folder_path / MappingSuiteAssetsPathsConfig.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH
 
-        if root_folder.exists():
-            asset_path = root_folder / relative_asset_path
-
-        if not asset_path.exists():
-            raise FileNotFoundError(f"Mapping suite config file not found: {asset_path}")
+        if not metadata_asset_path.exists():
+            raise FileNotFoundError(f"Mapping suite config file not found: {metadata_asset_path}")
 
         # Load and parse JSON
-        config_dict: dict = json.loads(asset_path.read_text())
-
-        # Extract the mapping_suite_config section if it exists (handle full file structure)
-        if "mapping_suite_config" in config_dict:
-            config_dict = config_dict["mapping_suite_config"]
+        config_dict: dict = json.loads(metadata_asset_path.read_text())
 
         # Validate and return Pydantic model
         return MappingSuiteConfig.model_validate(config_dict)
 
-
+#
 class ResourceReferencesLoader(AssetLoader):
     """Loader for resource references.
 
@@ -61,7 +54,7 @@ class ResourceReferencesLoader(AssetLoader):
     containing all resource file paths. Follows the same pattern as VocabularyMappingSuiteLoader.
     """
 
-    def load(self, package_folder_path: Path, relative_asset_path: Path) -> ResourceReferences:
+    def load(self, package_folder_path: Path) -> ResourceReferences:
         """Load resources collection from directory.
 
         Args:
@@ -71,7 +64,6 @@ class ResourceReferencesLoader(AssetLoader):
         Returns:
             ResourceReferences: Collection model with list of resource file paths.
         """
-        # Handle nested folder structure (like v3 does)
         root_folder: Path = package_folder_path / package_folder_path.name
         asset_path: Path = package_folder_path / relative_asset_path
 
@@ -106,8 +98,8 @@ class MappingSuiteLoader(Loader):
     """
 
     def __init__(
-        self,
-        include_resources: bool = True,
+            self,
+            include_resources: bool = True,
     ):
         """Initialize the mapping suite loader.
 

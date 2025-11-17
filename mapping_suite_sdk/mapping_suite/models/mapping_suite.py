@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import Field
 
@@ -107,6 +107,10 @@ Loaded from: mapping_suite_config.json
         default=...,
         description="""A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).      
 """,
+    )
+    resource_file_contents: Optional[list[Any]] = Field(
+        default=None,
+        description="""List of laoded file objects, modelled elsewhere as FileAsset""",
     )
 
 

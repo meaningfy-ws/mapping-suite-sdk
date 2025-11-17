@@ -25,6 +25,7 @@ classes:
     slots:
       - mapping_suite_config
       - resource_references
+      - resource_file_contents
 
   MappingSuiteConfig:
     description: |
@@ -109,6 +110,9 @@ classes:
       normalization tables, and other auxiliary files needed for processing.
     slots:
       - file_paths
+
+  Any:
+    class_uri: linkml:Any
 
 slots:
   # MappingSuite slots
@@ -209,6 +213,11 @@ slots:
     examples:
       - value: "src/transformation/resources/countries.json"
       - value: "src/normalization/sf_normalisation_rules.csv"
+
+  resource_file_contents:
+    multivalued: true
+    description: List of laoded file objects, modelled elsewhere as FileAsset
+    range: Any
 
   # DocumentMetadataConfig slots
   metadata_properties:

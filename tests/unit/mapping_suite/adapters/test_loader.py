@@ -30,7 +30,7 @@ def test_mapping_suite_config_loader_loads_successfully():
     loader = MappingSuiteConfigLoader()
     config = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("mapping_suite_config.json"),
+        relative_asset_path=Path("config/mapping_suite_config.json"),
     )
 
     assert isinstance(config, MappingSuiteConfig)
@@ -44,7 +44,7 @@ def test_mapping_suite_config_loader_parses_metadata():
     loader = MappingSuiteConfigLoader()
     config = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("mapping_suite_config.json"),
+        relative_asset_path=Path("config/mapping_suite_config.json"),
     )
 
     assert isinstance(config.mapping_suite_metadata, MappingSuiteMetadata)

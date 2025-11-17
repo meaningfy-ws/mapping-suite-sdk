@@ -11,13 +11,13 @@ class MappingSuiteAssetsPathsConfig:
     """
 
     @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="mapping_suite_config.json")
-    def mapping_suite_config_file_asset_path(self, config_value: str) -> Path:
+                  default_value="config/mapping_suite_config.json")
+    def MAPPING_SUITE_CONFIG_FILE_ASSET_PATH(self, config_value: str) -> Path:
         """Path to the mapping suite configuration file."""
         return Path(config_value)
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="resources")
-    def mapping_suite_resources_collection_asset_path(self, config_value: str) -> Path:
-        """Path to the resources collection directory."""
-        return Path(config_value)
+    # @env_property(config_resolver_class=DefaultValueConfigResolver,
+    #               default_value="resources")
+    # def MAPPING_SUITE_RESOURCES_COLLECTION_ASSET_PATH(self, config_value: str) -> Path:
+    #     """Path to the resources collection directory."""
+    #     return Path(config_value)

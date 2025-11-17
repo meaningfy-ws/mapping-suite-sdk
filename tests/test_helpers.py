@@ -40,7 +40,7 @@ def get_random_string(length: int = 20) -> str:
     return ''.join(random.choice(characters) for _ in range(length))
 
 
-def test_mapping_package_asset_loader(
+def validate_mapping_package_asset_loader(
         dummy_mapping_package_path: Path,
         loader_class: AssetLoader,
         expected_relative_path: str
@@ -77,7 +77,7 @@ def test_mapping_package_asset_loader(
             assert file.content is not None
 
 
-def test_mapping_suites_asset_loader(
+def validate_mapping_suites_asset_loader(
         dummy_mapping_package_path: Path,
         loader_class: AssetLoader,
         expected_relative_path: str

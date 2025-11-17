@@ -279,12 +279,13 @@
   },
   "resources_collection": {
     "resource_files": [
-      "code_lists/notice_subtypes.json",
-      "code_lists/procurement_types.json",
-      "code_lists/countries.json",
-      "normalization/eforms_normalisation_rules.csv",
-      "value_mappings/directive_mapping.json",
-      "value_mappings/language_codes.json"
+      "/src/transformation/resources/notice_subtypes.json",
+      "/src/transformation/resources/procurement_types.json",
+      "/src/transformation/resources/countries.json",
+      "/src/resources/directive_mapping.json",
+      "/src/transformation/resources/language_codes.json",
+      "/src/normalisation/eforms_mapping.csv",
+      "/src/normalisation/sforms_mapping.csv"
     ]
   }
 }

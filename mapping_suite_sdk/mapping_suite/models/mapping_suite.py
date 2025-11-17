@@ -103,10 +103,9 @@ Contains metadata, probing rules, extraction specifications, and eligibility map
 Loaded from: mapping_suite_config.json
 """,
     )
-    resources_collection: ResourcesCollection = Field(
+    resource_references: ResourceReferences = Field(
         default=...,
-        description="""Directory containing vocabulary resources, code lists, and other auxiliary files.
-Fixed directory name: resources/
+        description="""A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).      
 """,
     )
 
@@ -312,17 +311,15 @@ This is the property in the package metadata that the extracted property will be
     )
 
 
-class ResourcesCollection(PydanticModel):
+class ResourceReferences(PydanticModel):
     """
-    Represents the resources directory containing vocabulary resources, code lists,
+    Represents the list of relative path references to files containing vocabulary resources, code lists,
     normalization tables, and other auxiliary files needed for processing.
-    Fixed directory name: resources/
 
     """
 
-    resource_files: Optional[list[str]] = Field(
-        default=None,
-        description="""List of resource file paths within the resources folder""",
+    file_paths: Optional[list[str]] = Field(
+        default=None, description="""List of relative file paths within the project"""
     )
 
 
@@ -337,4 +334,4 @@ PropertyDefinition.model_rebuild()
 PropertyExtractionSpec.model_rebuild()
 EligibilityConstraintConfig.model_rebuild()
 PropertyEligibilityMapping.model_rebuild()
-ResourcesCollection.model_rebuild()
+ResourceReferences.model_rebuild()

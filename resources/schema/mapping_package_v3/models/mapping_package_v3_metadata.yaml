@@ -25,7 +25,7 @@ classes:
       - applicability_constraints
       - mapping_suite_hash_digest
       - input_mime_types
-      - document_schema_version
+      - mssdk_version
 
   ApplicabilityConstraints:
     class_uri: mfy:ApplicabilityConstraints
@@ -33,7 +33,7 @@ classes:
     slots:
       - document_type_list
       - document_time_interval
-      - document_schema_version_list
+      - mssdk_version_list
       - document_version_range
 
   VersionRange:
@@ -114,8 +114,8 @@ slots:
     examples:
       - value: [ "1", "24", "E1" ]
 
-  document_schema_version_list:
-    slot_uri: mfy:document_schema_version_list
+  mssdk_version_list:
+    slot_uri: mfy:mssdk_version_list
     description: List of supported document schema versions
     multivalued: true
     examples:
@@ -176,12 +176,13 @@ slots:
       - value: ["application/xml"]
       - value: ["application/xml", "application/json", "text/csv"]
 
-  document_schema_version:
-    slot_uri: mfy:document_schema_version
+  mssdk_version:
+    slot_uri: mfy:mssdk_version
     required: false
     description: |
-      Version of the input document schema (e.g., XSD version for Standard Forms, SDK version for eForms).
-      This represents the schema version of the source documents, not the mapping version.
+      Version of the Mapping Suite package structure, both metadata and folder anatomy used to govern and organise the mapping package.
     examples:
-      - value: "1.10"  # eForms SDK version
-      - value: "R2.0.9.S01.E01"  # Standard Forms XSD version
+      - value: "v1"
+      - value: "v3L"
+      - value: "v2"
+      - value: "v3"

@@ -6,7 +6,7 @@ END_BUILD_PRINT = \e[0m
 PROJECT_PATH = $(shell pwd)
 RESOURCES_PATH = ${PROJECT_PATH}/resources
 SCHEMA_PATH ?= ${RESOURCES_PATH}/schema
-TEMPLATES_PATH ?= ${RESOURCES_PATH}/templates
+tempLATES_PATH ?= ${RESOURCES_PATH}/templates
 PYTHON_PATH ?= ${PROJECT_PATH}/mapping_suite_sdk
 
 ICON_DONE = [✔]
@@ -181,9 +181,9 @@ generate-models-recursive:
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Creating output directory: $$output_dir$(END_BUILD_PRINT)"; \
 		mkdir -p "$$output_dir"; \
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating: $$output_file$(END_BUILD_PRINT)"; \
-		poetry run gen-pydantic --meta None --template-dir $(TEMPLATES_PATH)/ "$$yaml_file" > "$$output_file.tmp" && mv "$$output_file.tmp" "$$output_file" || { \
+		poetry run gen-pydantic --meta None --template-dir $(tempLATES_PATH)/ "$$yaml_file" > "$$output_file.temp" && mv "$$output_file.temp" "$$output_file" || { \
 			echo -e "$(BUILD_PRINT)$(ICON_ERROR) Failed to generate $$output_file$(END_BUILD_PRINT)"; \
-			rm -f "$$output_file.tmp"; \
+			rm -f "$$output_file.temp"; \
 			exit 1; \
 		}; \
 		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated: $$output_file$(END_BUILD_PRINT)"; \
@@ -204,24 +204,24 @@ generate-models-recursive:
 
 generate-model-view:
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating schemas and diagrams from LinkML schemas$(END_BUILD_PRINT)"
-	@ mkdir -p temp/diagrams
-	@ mkdir -p temp/schemas
+	@ mkdir -p tmp/diagrams
+	@ mkdir -p tmp/schemas
 	@ find $(SCHEMA_PATH) -name "*.yaml" -type f | while read -r yaml_file; do \
 		base_name=$$(basename "$$yaml_file" .yaml); \
 		relative_path=$$(echo "$$yaml_file" | sed "s|^$(SCHEMA_PATH)/||" | sed 's|/|_|g' | sed 's|\.yaml$$||'); \
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating schemas and diagrams for $$yaml_file$(END_BUILD_PRINT)"; \
-		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) - Generating PlantUML (UML class diagram): temp/diagrams/$${relative_path}.puml$(END_BUILD_PRINT)"; \
-		poetry run gen-plantuml "$$yaml_file" > "temp/diagrams/$${relative_path}.puml" || { \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) - Generating PlantUML (UML class diagram): tmp/diagrams/$${relative_path}.puml$(END_BUILD_PRINT)"; \
+		poetry run gen-plantuml "$$yaml_file" > "tmp/diagrams/$${relative_path}.puml" || { \
 			echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate PlantUML for $$yaml_file$(END_BUILD_PRINT)"; \
 		}; \
-		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) - Generating JSON Schema: temp/schemas/$${relative_path}_schema.json$(END_BUILD_PRINT)"; \
+		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) - Generating JSON Schema: tmp/schemas/$${relative_path}_schema.json$(END_BUILD_PRINT)"; \
 		base_class=$$(grep "^id:" "$$yaml_file" | head -1 | awk '{print $$2}'); \
-		poetry run gen-json-schema --top-class "$$base_class" "$$yaml_file" > "temp/schemas/$${relative_path}_schema.json" || { \
+		poetry run gen-json-schema --closed --top-class "$$base_class" "$$yaml_file" > "tmp/schemas/$${relative_path}_schema.json" || { \
 			echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate JSON Schema for $$yaml_file$(END_BUILD_PRINT)"; \
 		}; \
 		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated schemas and diagrams for $$base_name$(END_BUILD_PRINT)"; \
 	done
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) All diagrams and schemas generated$(END_BUILD_PRINT)"
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) - UML diagrams (PlantUML .puml files) in: temp/diagrams/$(END_BUILD_PRINT)"
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) - JSON Schemas (.json files) in: temp/schemas/$(END_BUILD_PRINT)"
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) - UML diagrams (PlantUML .puml files) in: tmp/diagrams/$(END_BUILD_PRINT)"
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) - JSON Schemas (.json files) in: tmp/schemas/$(END_BUILD_PRINT)"
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) - View PlantUML at: https://www.plantuml.com/plantuml/uml/$(END_BUILD_PRINT)"

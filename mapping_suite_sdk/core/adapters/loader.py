@@ -51,14 +51,14 @@ class Loader(Protocol):
     for loading different components of a Thing.
     """
 
-    def load(self, package_folder_path: Path) -> MappingPackage:
+    def load(self, package_folder_path: Path) -> Any:
         """Load the mapping package from the specified package folder path.
 
         Args:
             package_folder_path (Path): Path to the mapping package folder.
 
         Returns:
-            MappingPackage: The loaded package.
+            Any: The loaded package or mapping suite.
 
         Raises:
             NotImplementedError: When the method is not implemented by a concrete class.

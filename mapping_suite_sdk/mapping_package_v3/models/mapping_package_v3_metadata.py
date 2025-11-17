@@ -54,10 +54,9 @@ Defaults to [\"application/xml\"] if not specified.
 Can include: application/xml (for data documents), application/json, text/csv (for vocabulary resources).
 """,
     )
-    document_schema_version: Optional[str] = Field(
+    mssdk_version: Optional[str] = Field(
         default=None,
-        description="""Version of the input document schema (e.g., XSD version for Standard Forms, SDK version for eForms).
-This represents the schema version of the source documents, not the mapping version.
+        description="""Version of the Mapping Suite package structure, both metadata and folder anatomy used to govern and organise the mapping package.
 """,
     )
 
@@ -74,7 +73,7 @@ class ApplicabilityConstraints(PydanticModel):
         default=None,
         description="""Interval of starting and ending document datetime""",
     )
-    document_schema_version_list: Optional[list[str]] = Field(
+    mssdk_version_list: Optional[list[str]] = Field(
         default=None, description="""List of supported document schema versions"""
     )
     document_version_range: Optional[VersionRange] = Field(

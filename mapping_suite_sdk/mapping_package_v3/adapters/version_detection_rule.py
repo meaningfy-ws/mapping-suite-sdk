@@ -19,12 +19,22 @@ _VOCABULARY_MAPPING_PATH = "transformation/resources"
 _TEST_DATA_PATH = "test_data"
 _SPARQL_TEST_PATH = "validation/sparql"
 _SHACL_TEST_PATH = "validation/shacl"
-_TEST_RESULTS_PATH = "output"
+_OUTPUT_PATH = "output"
 
 # Declarative V3 Full specification
 V3_FULL_SPEC = VersionDetectionSpec(
     version_id="v3",
-    priority=2
+    priority=2,
+    path_conditions=[
+        # V3 Full MUST have conceptual mapping file
+        PathCondition(_CONCEPTUAL_MAPPING_PATH, must_exist=True),
+    ],
+    metadata_conditions=[
+        # V3 JSON-LD marker: @context distinguishes V3 (both Full and Lightweight) from V1/V2
+        # Note: This is NOT a differentiator between V3L and V3 Full - both have @context
+        # The differentiation between V3L and V3 Full is via path conditions above
+        MetadataCondition("@context", must_exist=True),
+    ]
 )
 
 # Declarative V3 Lightweight specification
@@ -38,6 +48,16 @@ V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
         PathCondition(_TECHNICAL_MAPPING_PATH, must_exist=True),
         # - Vocabulary mapping suite (resource files)
         PathCondition(_VOCABULARY_MAPPING_PATH, must_exist=True),
+        # - Contextual mapping for v3L is not needed
+        PathCondition(_CONCEPTUAL_MAPPING_PATH, must_exist=False),
+        # - Test data folder for v3L is not needed
+        PathCondition(_TEST_DATA_PATH, must_exist=False),
+        # - SPARQL for v3L is not needed
+        PathCondition(_SPARQL_TEST_PATH, must_exist=False),
+        # - SHACL for v3L is not needed
+        PathCondition(_SHACL_TEST_PATH, must_exist=False),
+        # - Output path for v3L is not needed
+        PathCondition(_OUTPUT_PATH, must_exist=False),
     ],
 
     metadata_conditions=[

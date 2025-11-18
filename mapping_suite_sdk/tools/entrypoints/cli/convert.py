@@ -97,6 +97,36 @@ def _remove_old_metadata_json(mapping_package_folder_path: Path) -> None:
             message=f"Removed old metadata.json file from {old_metadata_path}"))
 
 
+def _remove_conceptual_mapping_file(mapping_package_folder_path: Path) -> None:
+    """
+    Remove conceptual_mappings.xlsx file when converting to V3L.
+    
+    V3 Full includes conceptual_mappings.xlsx, but V3L does not. If the file exists after
+    conversion to V3L, version detection may incorrectly identify it as V3 Full. This ensures
+    only the lightweight components exist after conversion.
+    
+    Handles both flat and nested package structures.
+    
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+    """
+    from mapping_suite_sdk.core.adapters.version_detector import _resolve_package_root
+    
+    # Resolve the actual package root (handles nested structures)
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        # If we can't resolve, try the original path
+        package_root = mapping_package_folder_path
+    
+    # Try to remove conceptual_mappings.xlsx from the resolved root
+    conceptual_mapping_path = package_root / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+    if conceptual_mapping_path.exists():
+        conceptual_mapping_path.unlink()
+        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message=f"Removed conceptual_mappings.xlsx file from {conceptual_mapping_path}"))
+
+
 def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package):
     """Dynamically serialize a mapping package based on version."""
     if to_version == Version.V3:
@@ -115,6 +145,9 @@ def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Pat
         # Remove old metadata.json if it exists (V2 uses metadata.json, V3 uses metadata.jsonld)
         # Do this after serialization to ensure it's not recreated
         _remove_old_metadata_json(mapping_package_folder_path)
+        # Remove conceptual_mappings.xlsx if it exists (V3 Full has it, V3L does not)
+        # Do this after serialization to ensure it's not recreated
+        _remove_conceptual_mapping_file(mapping_package_folder_path)
     else:
         raise typer.BadParameter(f"Unsupported target version: {to_version}")
 

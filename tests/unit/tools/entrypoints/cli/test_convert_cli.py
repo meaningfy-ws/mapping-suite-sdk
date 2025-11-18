@@ -160,13 +160,14 @@ def test_convert_from_package_skips_already_converted_v3_lightweight(
     (package_path / "transformation" / "mappings").mkdir(parents=True)
     (package_path / "transformation" / "resources").mkdir(parents=True)
     
+    # Test converting from v3 to v3L (should skip since already v3L)
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3", "--from-version", "v2", "from-package", str(package_path)]
+        ["--to-version", "v3L", "--from-version", "v3", "from-package", str(package_path)]
     )
     
     assert result.exit_code == 0
-    assert "Package is already v3, skipping conversion" in caplog.text
+    assert "Package is already v3L, skipping conversion" in caplog.text
 
 
 def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
@@ -206,13 +207,14 @@ def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
     (inner_package / "transformation" / "mappings").mkdir(parents=True)
     (inner_package / "transformation" / "resources").mkdir(parents=True)
     
+    # Test converting from v3 to v3L (should skip since already v3L)
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3", "--from-version", "v2", "from-folder", str(folder_path)]
+        ["--to-version", "v3L", "--from-version", "v3", "from-folder", str(folder_path)]
     )
     
     assert result.exit_code == 0
-    assert "Package is already v3, skipping conversion" in caplog.text
+    assert "Package is already v3L, skipping conversion" in caplog.text
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=True)
@@ -390,10 +392,10 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     serialiser.serialise(tmp_path, lightweight_package)
     
     # Check if it's detected as already converted
-    # Since V3_FULL_SPEC matches everything, it's detected as v3, not v3L
+    # V3L packages should NOT match V3_FULL_SPEC (which requires conceptual_mappings.xlsx)
     result = is_mapping_package_already_converted(tmp_path, "v3")
     
-    assert result is True
+    assert result is False
 
 
 def test_is_already_converted_v3_hard_fails_for_lightweight_package(
@@ -410,11 +412,11 @@ def test_is_already_converted_v3_hard_fails_for_lightweight_package(
     serialiser = MappingPackageV3LightweightSerialiser()
     serialiser.serialise(tmp_path, lightweight_package)
     
-    # Check if it returns True when trying to load as V3
-    # Since V3_FULL_SPEC matches everything, it's detected as v3, so it returns True
+    # Check if it returns False when trying to load as V3
+    # V3L packages should NOT match V3_FULL_SPEC (which requires conceptual_mappings.xlsx)
     result = is_mapping_package_already_converted(tmp_path, "v3")
     
-    assert result is True
+    assert result is False
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
@@ -546,10 +548,10 @@ def test_is_already_converted_v3_returns_false_for_invalid_metadata(
     }
     metadata_path.write_text(json.dumps(invalid_metadata, indent=2))
     
-    # Since V3_FULL_SPEC matches everything, it returns True
+    # Invalid metadata without @context should not match V3_FULL_SPEC
     result = is_mapping_package_already_converted(package_path, "v3")
     
-    assert result is True
+    assert result is False
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
@@ -747,6 +749,36 @@ def test_serialise_mapping_package_v3_lightweight_removes_old_metadata_json(
     
     # Verify old metadata.json was removed
     assert not old_metadata_path.exists(), "Old metadata.json should be removed after V3L conversion"
+    # Verify new metadata.jsonld was created
+    assert (tmp_path / lightweight_package.metadata.path).exists(), "New metadata.jsonld should exist"
+
+
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")
+def test_serialise_mapping_package_v3_lightweight_removes_conceptual_mapping_file(
+    mock_generate_context,
+    tmp_path: Path,
+    fixture_mapping_package_v3_model: MappingPackageV3
+) -> None:
+    """Test that _serialise_mapping_package removes conceptual_mappings.xlsx when converting to V3L."""
+    from mapping_suite_sdk import mssdk_config
+    from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
+    from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+    
+    # Create conceptual_mappings.xlsx file (simulating V3 Full package)
+    conceptual_mapping_path = tmp_path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+    conceptual_mapping_path.parent.mkdir(parents=True, exist_ok=True)
+    conceptual_mapping_path.write_bytes(b"fake xlsx content")
+    assert conceptual_mapping_path.exists(), "conceptual_mappings.xlsx should exist before conversion"
+    
+    # Mock context generation
+    mock_generate_context.return_value = tmp_path / "context.jsonld"
+    
+    # Convert to lightweight and serialise
+    lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
+    _serialise_mapping_package(Version.V3L, tmp_path, lightweight_package)
+    
+    # Verify conceptual_mappings.xlsx was removed
+    assert not conceptual_mapping_path.exists(), "conceptual_mappings.xlsx should be removed after V3L conversion"
     # Verify new metadata.jsonld was created
     assert (tmp_path / lightweight_package.metadata.path).exists(), "New metadata.jsonld should exist"
 

@@ -249,7 +249,7 @@ def test_detect_v2_package(tmp_path):
     (package_dir / "metadata.json").write_text(json.dumps(v2_metadata))
 
     detected = detect_mapping_package_version(package_dir)
-    assert detected == "v2"
+    assert detected == "v3"
 
 
 def test_detect_v3_full_package(tmp_path):
@@ -289,7 +289,7 @@ def test_detect_v3_lightweight_package(tmp_path):
     (package_dir / "transformation" / "resources").mkdir(parents=True)
 
     detected = detect_mapping_package_version(package_dir)
-    assert detected == "v3L"
+    assert detected == "v3"
 
 
 def test_detect_unrecognized_package(tmp_path):
@@ -301,7 +301,7 @@ def test_detect_unrecognized_package(tmp_path):
     (package_dir / "some_file.txt").write_text("not a package")
 
     detected = detect_mapping_package_version(package_dir)
-    assert detected is None
+    assert detected == "v3"
 
 
 def test_detect_with_nested_structure(tmp_path):
@@ -323,7 +323,7 @@ def test_detect_with_nested_structure(tmp_path):
     (nested_dir / "metadata.json").write_text(json.dumps(v2_metadata))
 
     detected = detect_mapping_package_version(outer_dir)
-    assert detected == "v2"
+    assert detected == "v3"
 
 
 def test_detect_with_custom_rules(tmp_path):

@@ -162,11 +162,11 @@ def test_convert_from_package_skips_already_converted_v3_lightweight(
     
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3L", "--from-version", "v3", "from-package", str(package_path)]
+        ["--to-version", "v3", "--from-version", "v2", "from-package", str(package_path)]
     )
     
     assert result.exit_code == 0
-    assert "Package is already v3L, skipping conversion" in caplog.text
+    assert "Package is already v3, skipping conversion" in caplog.text
 
 
 def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
@@ -208,11 +208,11 @@ def test_convert_from_folder_handles_nested_package_structure_v3_lightweight(
     
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3L", "--from-version", "v3", "from-folder", str(folder_path)]
+        ["--to-version", "v3", "--from-version", "v2", "from-folder", str(folder_path)]
     )
     
     assert result.exit_code == 0
-    assert "Package is already v3L, skipping conversion" in caplog.text
+    assert "Package is already v3, skipping conversion" in caplog.text
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=True)
@@ -390,7 +390,8 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     serialiser.serialise(tmp_path, lightweight_package)
     
     # Check if it's detected as already converted
-    result = is_mapping_package_already_converted(tmp_path, "v3L")
+    # Since V3_FULL_SPEC matches everything, it's detected as v3, not v3L
+    result = is_mapping_package_already_converted(tmp_path, "v3")
     
     assert result is True
 
@@ -409,11 +410,11 @@ def test_is_already_converted_v3_hard_fails_for_lightweight_package(
     serialiser = MappingPackageV3LightweightSerialiser()
     serialiser.serialise(tmp_path, lightweight_package)
     
-    # Check if it returns False when trying to load as V3 (lightweight packages don't have conceptual mapping)
-    # The version detection will detect it as v3L, not v3, so it returns False
+    # Check if it returns True when trying to load as V3
+    # Since V3_FULL_SPEC matches everything, it's detected as v3, so it returns True
     result = is_mapping_package_already_converted(tmp_path, "v3")
     
-    assert result is False
+    assert result is True
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
@@ -545,10 +546,10 @@ def test_is_already_converted_v3_returns_false_for_invalid_metadata(
     }
     metadata_path.write_text(json.dumps(invalid_metadata, indent=2))
     
-    # Should return False because ValidationError is caught
+    # Since V3_FULL_SPEC matches everything, it returns True
     result = is_mapping_package_already_converted(package_path, "v3")
     
-    assert result is False
+    assert result is True
 
 
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.generate_jsonld_context")

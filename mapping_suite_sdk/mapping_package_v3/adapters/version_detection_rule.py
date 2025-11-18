@@ -24,19 +24,7 @@ _TEST_RESULTS_PATH = "output"
 # Declarative V3 Full specification
 V3_FULL_SPEC = VersionDetectionSpec(
     version_id="v3",
-    priority=2,
-
-    path_conditions=[
-        # V3 Full has conceptual mapping
-        PathCondition(_CONCEPTUAL_MAPPING_PATH, must_exist=True),
-    ],
-
-    metadata_conditions=[
-        # V3 JSON-LD marker: @context distinguishes V3 (both Full and Lightweight) from V1/V2
-        # Note: This is NOT a differentiator between V3 Full and V3L - both have @context
-        # The differentiation between V3 Full and V3L is via path conditions above
-        MetadataCondition("@context", must_exist=True),
-    ]
+    priority=2
 )
 
 # Declarative V3 Lightweight specification

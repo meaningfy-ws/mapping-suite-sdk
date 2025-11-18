@@ -5,14 +5,13 @@ version: 0.1.0
 prefixes:
   linkml: https://w3id.org/linkml/
   mfy: http://meaningfy.ws/mssdk/ontology#
-default_prefix: linkml
+default_prefix: mfy
 default_range: string
 imports:
   - linkml:types
 
 classes:
   MappingPackageV3Metadata:
-    class_uri: mfy:MappingPackageV3Metadata
     description: Metadata for a data transformation rules package
     slots:
       - id
@@ -28,7 +27,6 @@ classes:
       - document_schema_version
 
   ApplicabilityConstraints:
-    class_uri: mfy:ApplicabilityConstraints
     description: Container for constraint types
     slots:
       - document_type_list
@@ -37,14 +35,12 @@ classes:
       - document_version_range
 
   VersionRange:
-    class_uri: mfy:VersionRange
     description: Container for minimum and maximum version values
     slots:
       - min
       - max
 
   DateTimeInterval:
-    class_uri: mfy:DateTimeInterval
     description: Container for starting and ending datetime values
     slots:
       - start
@@ -52,7 +48,6 @@ classes:
 
 slots:
   id:
-    slot_uri: mfy:id
     required: true
     identifier: true
     description: Unique identifier of the package
@@ -60,21 +55,18 @@ slots:
       - value: "package_F03"
 
   title:
-    slot_uri: mfy:title
     required: true
     description: Human-readable name of the package
     examples:
       - value: "Package F03"
 
   project_identifier:
-    slot_uri: mfy:project_identifier
     required: true
     description: Name or identifier of the data transformation project
     examples:
       - value: "github:OP-TED/ted-rdf-mapping"
 
   created_at:
-    slot_uri: mfy:created_at
     required: true
     description: Timestamp of when the package/metadata was created
     range: datetime
@@ -82,32 +74,27 @@ slots:
       - value: "2023-06-13T19:30:11.026749"
 
   mapping_version:
-    slot_uri: mfy:mapping_version
     required: true
     description: Version of the transformation rules in the package
     examples:
       - value: "2.1.1"
 
   model_version:
-    slot_uri: mfy:mode;_version
     required: true
     description: Version of the ontology this mapping aligns with
     examples:
       - value: "3.1.0"
 
   description:
-    slot_uri: mfy:description
     description: A brief summary of what the package represents or maps.
     examples:
       - value: "This is the RML mapping package for eForms SDK v1.13."
 
   applicability_constraints:
-    slot_uri: mfy:applicability_constraints
     description: Applicability constraints for when and where mapping rules of the package are valid
     range: ApplicabilityConstraints
 
   document_type_list:
-    slot_uri: mfy:document_type_list
     required: true
     description: List of applicable document type identifiers
     multivalued: true
@@ -115,57 +102,48 @@ slots:
       - value: [ "1", "24", "E1" ]
 
   document_schema_version_list:
-    slot_uri: mfy:document_schema_version_list
     description: List of supported document schema versions
     multivalued: true
     examples:
       - value: [ "1.3", "1.7", "1.11" ]
 
   document_version_range:
-    slot_uri: mfy:document_version_range
     description: Range of (minimum and maximum) supported document versions
     range: VersionRange
 
   document_time_interval:
-    slot_uri: mfy:document_time_interval
     description: Interval of starting and ending document datetime
     range: DateTimeInterval
 
   start:
-    slot_uri: mfy:start
     description: Earliest applicable datetime for the mapping
     range: datetime
     examples:
       - value: [ "2014-01-01:T00:00:00Z" ]
 
   end:
-    slot_uri: mfy:end
     description: Latest applicable datetime for the mapping
     range: datetime
     examples:
       - value: [ "2014-01-30:T23:59:59Z" ]
 
   min:
-    slot_uri: mfy:min
     description: Minimum supported document version
     examples:
       - value: [ "R2.0.9.S01.E01" ]
 
   max:
-    slot_uri: mfy:max
     description: Maximum supported document version
     examples:
       - value: [ "R2.0.9.S05.E01" ]
 
   mapping_suite_hash_digest:
-    slot_uri: mfy:mapping_suite_hash_digest
     required: true
     description: Cryptographic hash of the mapping package for integrity verification
     examples:
       - value: "3aa94076ff0d7068e65624ab0d6841c1c8caa1ae2f2d9bf58d87ab205c5959a9"
 
   input_mime_types:
-    slot_uri: mfy:input_mime_types
     required: false
     multivalued: true
     description: |
@@ -177,7 +155,6 @@ slots:
       - value: ["application/xml", "application/json", "text/csv"]
 
   document_schema_version:
-    slot_uri: mfy:document_schema_version
     required: false
     description: |
       Version of the input document schema (e.g., XSD version for Standard Forms, SDK version for eForms).

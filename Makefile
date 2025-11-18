@@ -187,6 +187,19 @@ generate-models-recursive:
 			exit 1; \
 		}; \
 		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated: $$output_file$(END_BUILD_PRINT)"; \
+		\
+		context_output_dir="$$(dirname "$$yaml_file")"; \
+		context_output_file="$$context_output_dir/context.jsonld"; \
+		if [ -f "$$yaml_file" ]; then \
+			echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating JSON-LD context: $$context_output_file$(END_BUILD_PRINT)"; \
+			poetry run gen-jsonld-context "$$yaml_file" > "$$context_output_file.tmp" && mv "$$context_output_file.tmp" "$$context_output_file" || { \
+				echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate context.jsonld for $$yaml_file$(END_BUILD_PRINT)"; \
+				rm -f "$$context_output_file.tmp"; \
+			}; \
+			if [ -f "$$context_output_file" ]; then \
+				echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated: $$context_output_file$(END_BUILD_PRINT)"; \
+			fi; \
+		fi; \
 	done
 
 generate-model-view:

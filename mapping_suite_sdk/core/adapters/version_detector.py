@@ -9,14 +9,14 @@ import json
 from pathlib import Path
 from typing import Any, Callable, List, Optional
 
-from pydantic import Field, ConfigDict
+from pydantic import Field
 
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
 
 class VersionDetectionRule(PydanticModel):
     """
-    Immutable rule defining version detection criteria.
+    Rule defining version detection criteria.
 
     A rule consists of:
     - version_id: The version string to return if matched (e.g., "v2", "v3")
@@ -26,11 +26,6 @@ class VersionDetectionRule(PydanticModel):
     """
     version_id: str
     matcher: Callable[[Path], bool]
-
-    model_config = ConfigDict(
-        frozen=True,
-        arbitrary_types_allowed=True  # Required for Callable field
-    )
 
     def matches(self, package_root: Path) -> bool:
         """

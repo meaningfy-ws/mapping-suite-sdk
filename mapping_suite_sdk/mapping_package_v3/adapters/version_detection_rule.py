@@ -34,6 +34,7 @@ V3_FULL_SPEC = VersionDetectionSpec(
         # Note: This is NOT a differentiator between V3L and V3 Full - both have @context
         # The differentiation between V3L and V3 Full is via path conditions above
         MetadataCondition("@context", must_exist=True),
+        MetadataCondition("project_identifier", must_exist=True)
     ]
 )
 
@@ -65,6 +66,7 @@ V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
         # Note: This is NOT a differentiator between V3L and V3 Full - both have @context
         # The differentiation between V3L and V3 Full is via path conditions above
         MetadataCondition("@context", must_exist=True),
+        MetadataCondition("project_identifier", must_exist=True)
     ]
 )
 

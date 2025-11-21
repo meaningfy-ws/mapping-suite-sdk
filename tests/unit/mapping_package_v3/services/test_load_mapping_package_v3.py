@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
@@ -75,7 +75,7 @@ def test_load_mapping_package_v3_from_archive_with_custom_loader(dummy_mapping_p
 
 
 def test_load_mapping_package_v3_from_archive_with_custom_extractor(dummy_mapping_package_v3_archive_path: Path):
-    custom_extractor = ArchivePackageExtractor()
+    custom_extractor = ArchiveExtractor()
 
     result = load_mapping_package_v3_from_archive(
         dummy_mapping_package_v3_archive_path,

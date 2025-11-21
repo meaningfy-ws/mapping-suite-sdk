@@ -4,7 +4,7 @@ description: Schema for a data transformation rules package metadata
 version: 0.1.0
 prefixes:
   linkml: https://w3id.org/linkml/
-  mfy: https://meaningfy.ws/mapping/
+  mfy: http://meaningfy.ws/mssdk/ontology#
 default_prefix: mfy
 default_range: string
 imports:

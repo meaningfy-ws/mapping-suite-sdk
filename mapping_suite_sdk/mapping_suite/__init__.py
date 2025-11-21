@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from mapping_suite_sdk.core import env_property, DefaultValueConfigResolver
+from mapping_suite_sdk.core.adapters.config_resolver import env_property, DefaultValueConfigResolver
 
 
 class MappingSuiteAssetsPathsConfig:

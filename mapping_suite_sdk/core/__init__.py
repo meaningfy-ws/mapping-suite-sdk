@@ -1,54 +1,66 @@
-import json
-from typing import Tuple, Dict
+from __future__ import annotations
 
-from mapping_suite_sdk.core.adapters.config_resolver import env_property, DefaultValueConfigResolver
+from typing import Dict, TYPE_CHECKING
+
+# Import config for backward compatibility
+from mapping_suite_sdk.core.config import MSSDKCoreConfig
+
+if TYPE_CHECKING:
+    from mapping_suite_sdk.core.adapters.version_detector import VersionDetectionRule
 
 
-class MSSDKCoreConfig:
-    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value="1")
-    def MSSDK_MIN_STR_LENGTH(self, config_value: str) -> int:
-        return int(config_value)
+class VersionDetectionRegistry:
+    """
+    Registry for version detection rules with self-registration support.
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value="256")
-    def MSSDK_MAX_STR_LENGTH(self, config_value: str) -> int:
-        return int(config_value)
+    Version packages self-register their detection rules during initialization.
+    Rules are stored with priorities and retrieved sorted by priority (highest first).
+    """
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value="utf-8")
-    def MSSDK_DEFAULT_STR_ENCODE(self, config_value: str) -> str:
-        return config_value
+    _rules: Dict[str, tuple[VersionDetectionRule, int]] = {}
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="%(asctime)s | %(levelname)s | %(filename)s | Line: %(lineno)d | %(message)s")
-    def MSSDK_LOGGING_STRING_FORMAT(self, config_value: str) -> str:
-        return config_value
+    @classmethod
+    def register(cls, rule: VersionDetectionRule, priority: int) -> None:
+        """
+        Register a version detection rule.
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="%(asctime)s | %(levelname)s | %(name)s | %(filename)s | %(funcName)s | Line: %(lineno)d | %(message)s")
-    def MSSDK_LOGGING_EXTENDED_STRING_FORMAT(self, config_value: str) -> str:
-        return config_value
+        Version packages call this during initialization to self-register their detection rules.
+        Rules with higher priority are tried first during version detection.
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value="[{package_source}] - {message}")
-    def MSSDK_LOGGING_MESSAGE_FORMAT(self, config_value: str) -> str:
-        return config_value
+        Args:
+            rule: The detection rule to register
+            priority: Priority for detection order (higher = tried first)
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value="%Y-%m-%dT%H:%M:%S%z")
-    def MSSDK_DATE_FORMAT(self, config_value: str) -> str:
-        return config_value
+        Example:
+            >>> from mapping_suite_sdk.core import VersionDetectionRegistry
+            >>> from mapping_suite_sdk.mapping_package_v3.adapters.version_detection_rule import v3_full_detection_rule
+            >>> VersionDetectionRegistry.register(v3_full_detection_rule, priority=2)
+        """
+        cls._rules[rule.version_id] = (rule, priority)
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value=".html .json .csv .ttl")
-    def MSSDK_SUPPORTED_TEXT_FILE_EXTENSIONS(self, config_value: str) -> Tuple:
-        return tuple(config_value.split(" "))
+    @classmethod
+    def get_rules(cls) -> list[VersionDetectionRule]:
+        """
+        Get all registered version detection rules, sorted by priority.
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value=".zip")
-    def MSSDK_SUPPORTED_BYTES_FILE_EXTENSIONS(self, config_value: str) -> Tuple:
-        return tuple(config_value.split(" "))
+        Rules are sorted in descending priority order (highest priority first).
+        This ordering determines which version detection is attempted first.
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value='{"no_args_is_help": true, "pretty_exceptions_enable": true, "pretty_exceptions_show_locals": false, "pretty_exceptions_short": true, "add_completion": false}')
-    def MSSDK_TYPER_DEFAULT_ARGS(self, config_value: str) -> Dict:
-        return json.loads(config_value)
+        Returns:
+            List of rules sorted by priority (highest to lowest)
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value='{"no_args_is_help": true}')
-    def MSSDK_TYPER_COMMANDS_DEFAULT_ARGS(self, config_value: str) -> Dict:
-        return json.loads(config_value)
+        Example:
+            >>> rules = VersionDetectionRegistry.get_rules()
+            >>> for rule in rules:
+            ...     print(f"{rule.version_id} will be tried")
+            v3 will be tried
+            v3L will be tried
+            v2 will be tried
+        """
+        return [
+            rule for rule, priority in sorted(
+                cls._rules.values(),
+                key=lambda x: x[1],
+                reverse=True
+            )
+        ]

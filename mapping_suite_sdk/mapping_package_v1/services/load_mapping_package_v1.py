@@ -5,7 +5,7 @@ from typing import Optional, List
 from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
@@ -56,7 +56,7 @@ def load_mapping_package_v1_from_folder(
 def load_mapping_package_v1_from_archive(
         mapping_package_archive_path: Path,
         mapping_package_loader: Optional[MappingPackageV1Loader] = None,
-        archive_unpacker: Optional[ArchivePackageExtractor] = None
+        archive_unpacker: Optional[ArchiveExtractor] = None
 ) -> MappingPackageV1:
     """Load a mapping package from an archive file.
 
@@ -87,7 +87,7 @@ def load_mapping_package_v1_from_archive(
     if not mapping_package_archive_path.is_file():
         raise ValueError(f"Specified path is not a file: {mapping_package_archive_path}")
 
-    archive_unpacker: ArchivePackageExtractor = archive_unpacker or ArchivePackageExtractor()
+    archive_unpacker: ArchiveExtractor = archive_unpacker or ArchiveExtractor()
 
     with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
 
@@ -100,7 +100,7 @@ def load_mapping_packages_v1_from_github(
         github_repository_url: str,
         packages_path_pattern: str,
         branch_or_tag_name: Optional[str] = None,
-        github_package_extractor: Optional[GithubPackageExtractor] = None,
+        github_package_extractor: Optional[GitHubExtractor] = None,
         mapping_package_loader: Optional[MappingPackageV1Loader] = None,
 ) -> List[MappingPackageV1]:
     """Load mapping packages from a GitHub repository.
@@ -168,7 +168,7 @@ def load_mapping_packages_v1_from_github(
     if not packages_path_pattern:
         raise ValueError("Packages path pattern is required")
 
-    github_extractor = github_package_extractor or GithubPackageExtractor()
+    github_extractor = github_package_extractor or GitHubExtractor()
 
     with github_extractor.extract_temporary(repository_url=github_repository_url,
                                             packages_path_pattern=packages_path_pattern,

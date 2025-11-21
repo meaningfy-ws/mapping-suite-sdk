@@ -6,7 +6,7 @@ from typing import Optional, Literal, NoReturn, List
 from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
 from mapping_suite_sdk.mapping_package_v3.adapters.hasher import MappingPackageV3Hasher
@@ -46,7 +46,7 @@ def validate_mapping_package_v3_lightweight(
 def validate_mapping_package_v3_lightweight_from_archive(
         mapping_package_archive_path: Path,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
-        archive_unpacker: Optional[ArchivePackageExtractor] = None
+        archive_unpacker: Optional[ArchiveExtractor] = None
 ) -> Literal[True] | NoReturn:
     from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
 
@@ -139,7 +139,7 @@ def validate_bulk_mapping_packages_v3_lightweight_from_github(
         github_repository_url: str,
         packages_path_pattern: str,
         branch_or_tag_name: Optional[str] = None,
-        github_package_extractor: Optional[GithubPackageExtractor] = None,
+        github_package_extractor: Optional[GitHubExtractor] = None,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
 ) -> bool | NoReturn:
     from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
@@ -188,4 +188,5 @@ def validate_bulk_mapping_packages_v3_lightweight_from_github(
                 mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.id,
                                                                  message="✅ The package is valid!"))
     return all_valid
+
 

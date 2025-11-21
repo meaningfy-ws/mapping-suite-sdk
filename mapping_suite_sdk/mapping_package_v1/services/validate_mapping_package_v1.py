@@ -5,7 +5,7 @@ from typing import Optional, Literal, NoReturn, List
 from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.adapters.extractor import ArchivePackageExtractor, GithubPackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_hasher import MappingPackageV1Hasher
@@ -46,7 +46,7 @@ def validate_mapping_package_v1_from_archive(
         mapping_package_archive_path: Path,
         mp_validator: Optional[MappingPackageV1Validator] = None,
         mapping_package_loader: Optional[MappingPackageV1Loader] = None,
-        archive_unpacker: Optional[ArchivePackageExtractor] = None
+        archive_unpacker: Optional[ArchiveExtractor] = None
 ) -> Literal[True] | NoReturn:
     if not mapping_package_archive_path.exists():
         message: str = f"Cannot validate package from archive. Archive path does not exist: {mapping_package_archive_path}"
@@ -160,7 +160,7 @@ def validate_bulk_mapping_packages_v1_from_github(
         github_repository_url: str,
         packages_path_pattern: str,
         branch_or_tag_name: Optional[str] = None,
-        github_package_extractor: Optional[GithubPackageExtractor] = None,
+        github_package_extractor: Optional[GitHubExtractor] = None,
         mapping_package_loader: MappingPackageV1Loader = None,
         mp_validator: Optional[MappingPackageV1Validator] = None) -> bool | NoReturn:
     if not github_repository_url:

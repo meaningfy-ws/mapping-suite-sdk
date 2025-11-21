@@ -81,8 +81,8 @@ def mssdk_cli_validate_mapping_package_from_archive(
         all_valid = validate_mapping_package_v3_from_archive(
             mapping_package_archive_path=mapping_package_archive_path,
             mapping_package_loader=loader)
-    elif version == MappingPackageVersion.V3_LIGHTWEIGHT:
-        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
+    elif version == MappingPackageVersion.V3L:
+        loader = MappingPackageV3LightweightLoader(include_test_data=False, include_output=include_output)
         all_valid = validate_mapping_package_v3_lightweight_from_archive(
             mapping_package_archive_path=mapping_package_archive_path,
             mapping_package_loader=loader)
@@ -137,7 +137,7 @@ def mssdk_cli_validate_mapping_packages_from_github(
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
             mapping_package_loader=loader)
-    elif version == MappingPackageVersion.V3_LIGHTWEIGHT:
+    elif version == MappingPackageVersion.V3L:
         loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v3_lightweight_from_github(
             github_repository_url=github_repository_url,
@@ -190,7 +190,7 @@ def mssdk_cli_validate_mapping_packages_from_folder(
             mapping_packages_folder_path=folder_path,
             update_hash=update_hash,
             mapping_package_loader=loader)
-    elif version == MappingPackageVersion.V3_LIGHTWEIGHT:
+    elif version == MappingPackageVersion.V3L:
         loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v3_lightweight_from_folder(
             mapping_packages_folder_path=folder_path,

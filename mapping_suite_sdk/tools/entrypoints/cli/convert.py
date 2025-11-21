@@ -1,83 +1,56 @@
+import importlib.resources
 import logging
+import shutil
 from enum import Enum
 from pathlib import Path
 
 import typer
+from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
+
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
+from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
+from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
+from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_folder
 from mapping_suite_sdk.tools.entrypoints.cli import typer_verbose_callback
-from mapping_suite_sdk.tools.services.convert_mapping_package_v3 import convert_mpv3_from_mpv2
+from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import convert_mapping_package_v2_to_v3
+from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
+from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
 
 logger = logging.getLogger(__name__)
 
 
-class BaseVersion(str, Enum):
+class Version(str, Enum):
+    """Mapping package versions supported by the SDK."""
+    V1 = "v1"
     V2 = "v2"
-
-
-class NewVersion(str, Enum):
     V3 = "v3"
+    V3L = "v3L"
 
 
-BASE_VERSIONS = [BaseVersion.V2]
-NEW_VERSIONS = [NewVersion.V3]
+# CLI context parameter keys
+class ConvertContextKeys:
+    """Constants for CLI context dictionary keys used in convert commands."""
+    TO_VERSION = "to_version"
+    FROM_VERSION = "from_version"
 
-BASE_VERSION_DEFAULT = BaseVersion.V2
-NEW_VERSION_DEFAULT = NewVersion.V3
 
-
-def _is_already_converted(mapping_package_folder_path: Path, to_version: str) -> bool:
-    """Check if package is already in the target version by attempting to validate metadata."""
-    # Handle nested package structure (folder_name/folder_name/metadata.json)
-    # Check both direct path and nested path
-    root_folder = mapping_package_folder_path / mapping_package_folder_path.name
-    possible_paths = [mapping_package_folder_path]
-    if root_folder.exists():
-        possible_paths.append(root_folder)
-    
-    metadata_file = None
-    for path in possible_paths:
-        # Check for metadata.json or metadata.jsonld
-        test_file = path / "metadata.json"
-        if test_file.exists():
-            metadata_file = test_file
-            break
-        test_file = path / "metadata.jsonld"
-        if test_file.exists():
-            metadata_file = test_file
-            break
-    
-    if not metadata_file:
-        return False
-    
-    if to_version == NewVersion.V3.value:
-        # Try to validate as V3 - if it works, it's already converted
-        try:
-            from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import MappingPackageV3MetadataJSONLD
-            import json
-            metadata_dict = json.loads(metadata_file.read_text())
-            # Add path field if missing (serialiser excludes it, but model requires it)
-            if 'path' not in metadata_dict:
-                # Calculate relative path from the package folder to the metadata file
-                # Handle both direct and nested structures
-                relative_path = metadata_file.relative_to(mapping_package_folder_path)
-                metadata_dict['path'] = relative_path.as_posix()
-            # Validate by attempting to create the model
-            MappingPackageV3MetadataJSONLD.model_validate(metadata_dict)
-            return True
-        except Exception:
-            return False
-    return False
 
 
 def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
     """Dynamically load a mapping package based on version."""
-    if from_version == BaseVersion.V2.value:
-        from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
-        from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
-        
+    if from_version == Version.V2:
         loader = MappingPackageV2Loader()
         return load_mapping_package_v2_from_folder(
+            mapping_package_folder_path=mapping_package_folder_path,
+            mapping_package_loader=loader
+        )
+    elif from_version == Version.V3:
+        loader = MappingPackageV3Loader()
+        return load_mapping_package_v3_from_folder(
             mapping_package_folder_path=mapping_package_folder_path,
             mapping_package_loader=loader
         )
@@ -87,19 +60,175 @@ def _load_mapping_package_from_folder(from_version: str, mapping_package_folder_
 
 def _convert_mapping_package(from_version: str, to_version: str, source_package):
     """Convert mapping package using service layer."""
-    if from_version == BaseVersion.V2.value and to_version == NewVersion.V3.value:
-        return convert_mpv3_from_mpv2(source_package)
+    if from_version == Version.V2 and to_version == Version.V3:
+        return convert_mapping_package_v2_to_v3(source_package)
+    elif from_version == Version.V3 and to_version == Version.V3L:
+        return convert_mapping_package_v3_to_v3_lightweight(source_package)
     else:
         raise typer.BadParameter(f"Unsupported conversion: {from_version} -> {to_version}")
 
 
+def _remove_old_metadata_json(mapping_package_folder_path: Path) -> None:
+    """
+    Remove old metadata.json file when converting to V3.
+    
+    V2 uses metadata.json, but V3 uses metadata.jsonld. If both exist after conversion,
+    validation may check the wrong file or emit warnings. This ensures only metadata.jsonld
+    exists after conversion.
+    
+    Handles both flat and nested package structures (e.g., folder_name/folder_name/metadata.json).
+    
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+    """
+    from mapping_suite_sdk.core.adapters.version_detector import _resolve_package_root
+    
+    # Resolve the actual package root (handles nested structures)
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        # If we can't resolve, try the original path
+        package_root = mapping_package_folder_path
+    
+    # Try to remove metadata.json from the resolved root
+    old_metadata_path = package_root / "metadata.json"
+    if old_metadata_path.exists():
+        old_metadata_path.unlink()
+        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message=f"Removed old metadata.json file from {old_metadata_path}"))
+
+
+def _remove_conceptual_mapping_file(mapping_package_folder_path: Path) -> None:
+    """
+    Remove conceptual_mappings.xlsx file when converting to V3L.
+    
+    V3 Full includes conceptual_mappings.xlsx, but V3L does not. If the file exists after
+    conversion to V3L, version detection may incorrectly identify it as V3 Full. This ensures
+    only the lightweight components exist after conversion.
+    
+    Handles both flat and nested package structures.
+    
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+    """
+    from mapping_suite_sdk.core.adapters.version_detector import _resolve_package_root
+    
+    # Resolve the actual package root (handles nested structures)
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        # If we can't resolve, try the original path
+        package_root = mapping_package_folder_path
+    
+    # Try to remove conceptual_mappings.xlsx from the resolved root
+    conceptual_mapping_path = package_root / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+    if conceptual_mapping_path.exists():
+        conceptual_mapping_path.unlink()
+        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message=f"Removed conceptual_mappings.xlsx file from {conceptual_mapping_path}"))
+
+
+def _get_context_jsonld_path() -> Path:
+    """
+    Get the path to context.jsonld file using importlib.resources.
+    
+    Works both in installed package (via importlib.resources) and development environment
+    (by finding resources relative to package location).
+    
+    Returns:
+        Path to context.jsonld file
+        
+    Raises:
+        FileNotFoundError: If context.jsonld file cannot be found
+    """
+    # Get the package files reference using importlib.resources
+    package_ref = importlib.resources.files("mapping_suite_sdk")
+    # Get the actual package directory path
+    # In development: this points to mapping_suite_sdk/ directory
+    # When installed: this points to site-packages/mapping_suite_sdk/
+    package_path = Path(package_ref)
+    
+    # In development: resources is at project root, package is in mapping_suite_sdk/
+    # So we go up one level from package_dir to find project root
+    project_root = package_path.parent
+    context_path = project_root / "resources" / "schema" / "mapping_package_v3" / "models" / "context.jsonld"
+    
+    if not context_path.exists():
+        raise FileNotFoundError(
+            f"context.jsonld not found at {context_path}. "
+            f"Run 'make generate-models' to generate it."
+        )
+    
+    return context_path
+
+
+def _copy_context_jsonld_to_package(mapping_package_folder_path: Path, converted_package) -> None:
+    """
+    Copy context.jsonld from schema directory to the package.
+    
+    The context.jsonld file is generated in the schema directory (resources/schema/mapping_package_v3/models/)
+    when models are generated. This function copies it to the same directory as metadata.jsonld in the package.
+    
+    Uses importlib.resources-compatible approach that works both in development and when installed as a package.
+    
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+        converted_package: The converted package (V3 or V3L) containing metadata with path information
+        
+    Raises:
+        FileNotFoundError: If context.jsonld file cannot be found in schema directory
+    """
+    # Get context.jsonld path using resource-aware method (raises FileNotFoundError if not found)
+    schema_context_path = _get_context_jsonld_path()
+    
+    # Determine metadata directory (where metadata.jsonld is located)
+    metadata_path = mapping_package_folder_path / converted_package.metadata.path
+    metadata_directory = metadata_path.parent
+    
+    # Destination for context.jsonld (same directory as metadata.jsonld)
+    package_context_path = metadata_directory / "context.jsonld"
+    
+    # Copy the file
+    shutil.copy2(schema_context_path, package_context_path)
+    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=mapping_package_folder_path,
+        message=f"Copied context.jsonld from {schema_context_path} to {package_context_path}"))
+    
+    # Determine metadata directory (where metadata.jsonld is located)
+    metadata_path = mapping_package_folder_path / converted_package.metadata.path
+    metadata_directory = metadata_path.parent
+    
+    # Destination for context.jsonld (same directory as metadata.jsonld)
+    package_context_path = metadata_directory / "context.jsonld"
+    
+    # Copy the file
+    shutil.copy2(schema_context_path, package_context_path)
+    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=mapping_package_folder_path,
+        message=f"Copied context.jsonld from {schema_context_path} to {package_context_path}"))
+
+
 def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package):
     """Dynamically serialize a mapping package based on version."""
-    if to_version == NewVersion.V3.value:
-        from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
-        
+    if to_version == Version.V3:
         serialiser = MappingPackageV3Serialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
+        # Copy context.jsonld from schema directory to package
+        _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
+        # Remove old metadata.json if it exists (V2 uses metadata.json, V3 uses metadata.jsonld)
+        # Do this after serialization to ensure it's not recreated
+        _remove_old_metadata_json(mapping_package_folder_path)
+    elif to_version == Version.V3L:
+        serialiser = MappingPackageV3LightweightSerialiser()
+        serialiser.serialise(mapping_package_folder_path, converted_package)
+        # Copy context.jsonld from schema directory to package
+        _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
+        # Remove old metadata.json if it exists (V2 uses metadata.json, V3 uses metadata.jsonld)
+        # Do this after serialization to ensure it's not recreated
+        _remove_old_metadata_json(mapping_package_folder_path)
+        # Remove conceptual_mappings.xlsx if it exists (V3 Full has it, V3L does not)
+        # Do this after serialization to ensure it's not recreated
+        _remove_conceptual_mapping_file(mapping_package_folder_path)
     else:
         raise typer.BadParameter(f"Unsupported target version: {to_version}")
 
@@ -110,42 +239,46 @@ def _convert_package_from_folder(from_version: str, to_version: str, mapping_pac
     converted_package = _convert_mapping_package(from_version, to_version, source_package)
     _serialise_mapping_package(to_version, mapping_package_folder_path, converted_package)
 
+
 mssdk_cli_convert_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
-                                          name="convert",
-                                          help="Mapping Package Conversion commands.")
+                                           name="convert",
+                                           help="Mapping Package Conversion commands.")
 
 
 @mssdk_cli_convert_subcommand.callback()
 def convert_common(
         ctx: typer.Context,
-        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({NEW_VERSION_DEFAULT.value})"),
-        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({BASE_VERSION_DEFAULT.value})"),
+        to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({Version.V3.value} or {Version.V3L.value})"),
+        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({Version.V2.value} or {Version.V3.value})"),
         verbose: bool = typer.Option(False, "--verbose", "-v",
                                      is_eager=True,
                                      callback=typer_verbose_callback),
 ) -> None:
     """Set conversion version context."""
-    if to_version not in NEW_VERSIONS:
-        raise typer.BadParameter(f"Target version must be one of {[v.value for v in NEW_VERSIONS]}, got: {to_version}")
+    if to_version not in [Version.V3, Version.V3L]:
+        raise typer.BadParameter(f"Target version must be {Version.V3} or {Version.V3L}, got: {to_version}")
 
-    if from_version not in BASE_VERSIONS:
-        raise typer.BadParameter(f"Source version must be one of {[v.value for v in BASE_VERSIONS]}, got: {from_version}")
+    if to_version == Version.V3 and from_version != Version.V2:
+        raise typer.BadParameter(f"Source version must be {Version.V2} for target {Version.V3}, got: {from_version}")
+    
+    if to_version == Version.V3L and from_version != Version.V3:
+        raise typer.BadParameter(f"Source version must be {Version.V3} for target {Version.V3L}, got: {from_version}")
 
     ctx.ensure_object(dict)
-    ctx.obj['to_version'] = to_version
-    ctx.obj['from_version'] = from_version
+    ctx.obj[ConvertContextKeys.TO_VERSION] = to_version
+    ctx.obj[ConvertContextKeys.FROM_VERSION] = from_version
 
 
 @mssdk_cli_convert_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
-                                     name="from-package",
-                                     help="Convert mapping package from package directory.")
+                                      name="from-package",
+                                      help="Convert mapping package from package directory.")
 def mssdk_cli_convert_mapping_package_from_package(
         ctx: typer.Context,
         mapping_package_path: Path = typer.Argument(..., exists=True),
 ) -> None:
     """Convert mapping package from package directory."""
-    to_version = ctx.obj['to_version']
-    from_version = ctx.obj['from_version']
+    to_version = ctx.obj[ConvertContextKeys.TO_VERSION]
+    from_version = ctx.obj[ConvertContextKeys.FROM_VERSION]
 
     logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=mapping_package_path,
@@ -155,7 +288,7 @@ def mssdk_cli_convert_mapping_package_from_package(
         raise typer.BadParameter(f"Package path is not a directory: {mapping_package_path}")
 
     # Check if already converted
-    if _is_already_converted(mapping_package_path, to_version):
+    if is_mapping_package_already_converted(mapping_package_path, to_version):
         logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
             package_source=mapping_package_path,
             message=f"Package is already {to_version}, skipping conversion"))
@@ -169,59 +302,49 @@ def mssdk_cli_convert_mapping_package_from_package(
 
 
 @mssdk_cli_convert_subcommand.command(**mssdk_config.MSSDK_TYPER_COMMANDS_DEFAULT_ARGS,
-                                     name="from-folder",
-                                     help="Convert mapping packages from folder.")
+                                      name="from-folder",
+                                      help="Convert mapping packages from folder.")
 def mssdk_cli_convert_mapping_packages_from_folder(
         ctx: typer.Context,
         folder_path: Path = typer.Argument(...),
 ) -> None:
     """Convert mapping packages from folder."""
-    to_version = ctx.obj['to_version']
-    from_version = ctx.obj['from_version']
+    to_version = ctx.obj[ConvertContextKeys.TO_VERSION]
+    from_version = ctx.obj[ConvertContextKeys.FROM_VERSION]
 
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
         message=f"Converting {from_version} packages to {to_version} packages from folder"))
 
     if not folder_path.exists():
-        raise typer.BadParameter(f"Folder path does not exist: {folder_path}")
+        raise typer.BadParameter(f"Path does not exist: {folder_path}")
     if not folder_path.is_dir():
-        raise typer.BadParameter(f"Folder path is not a directory: {folder_path}")
+        raise typer.BadParameter(f"Path is not a directory: {folder_path}")
 
-    all_converted = True
+    # Get list of directories directly
+    mp_folders = [d for d in folder_path.iterdir() if d.is_dir()]
+    total_count = len(mp_folders)
     converted_count = 0
-    failed_count = 0
+    skipped_count = 0
 
-    for mp_folder in folder_path.iterdir():
-        if not mp_folder.is_dir():
-            continue
-
+    for mp_folder in mp_folders:
         # Check if already converted
-        if _is_already_converted(mp_folder, to_version):
+        if is_mapping_package_already_converted(mp_folder, to_version):
+            skipped_count += 1
             logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
                 package_source=mp_folder,
                 message=f"Package is already {to_version}, skipping conversion"))
             continue
 
-        try:
-            _convert_package_from_folder(from_version, to_version, mp_folder)
+        # Convert package - hard fail
+        _convert_package_from_folder(from_version, to_version, mp_folder)
+        converted_count += 1
+        logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mp_folder,
+            message=f"✅ Converted {from_version} package to {to_version} package"))
 
-            converted_count += 1
-            logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-                package_source=mp_folder,
-                message=f"✅ Converted {from_version} package to {to_version} package"))
-        except Exception as conversion_exception:
-            failed_count += 1
-            all_converted = False
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-                package_source=mp_folder,
-                message=f"Cannot convert mapping package: {conversion_exception}"))
-
-    status = "✅ All converted" if all_converted else "❌ Some packages failed to convert"
+    # Summary message with counts
     logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
         package_source=folder_path,
-        message=f"{status} ({converted_count} converted, {failed_count} failed)"))
-
-    if not all_converted:
-        raise typer.Exit(code=1)
+        message=f"✅ Conversion complete: {converted_count} converted, {skipped_count} skipped (out of {total_count} total)"))
 

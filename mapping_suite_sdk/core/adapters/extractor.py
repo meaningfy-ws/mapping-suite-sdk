@@ -10,7 +10,7 @@ from git import Repo
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 
 
-class MappingPackageExtractorABC(ABC):
+class ExtractorABC(ABC):
     """Abstract base class defining the interface for mapping package extract operations.
 
     This abstract class establishes a contract for classes that provide file
@@ -64,7 +64,7 @@ class MappingPackageExtractorABC(ABC):
 
 
 @traced_class
-class ArchivePackageExtractor(MappingPackageExtractorABC):
+class ArchiveExtractor(ExtractorABC):
     """Implementation of MappingPackageExtractorABC for ZIP file operations.
 
     This class provides functionality to:
@@ -92,7 +92,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
             >>> from pathlib import Path
             >>> archive_path = Path("example.zip")
             >>> dest_path = Path("output_dir")
-            >>> extracted_path = ArchivePackageExtractor().extract(archive_path, dest_path)
+            >>> extracted_path = ArchiveExtractor().extract(archive_path, dest_path)
         """
         if not source_path.exists():
             raise FileNotFoundError(f"ZIP file not found: {source_path}")
@@ -133,7 +133,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
         Example:
             >>> from pathlib import Path
             >>> archive_path = Path("example.zip")
-            >>> extractor = ArchivePackageExtractor()
+            >>> extractor = ArchiveExtractor()
             >>> with extractor.extract_temporary(archive_path) as temp_path:
             ...     # Work with extracted files in temp_path
             ...     pass  # Cleanup is automatic after the with block
@@ -172,7 +172,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
             >>> from pathlib import Path
             >>> source_dir = Path("folder_to_archive")
             >>> output_path = Path("output/archive")
-            >>> zip_path = ArchivePackageExtractor.pack_directory(source_dir, output_path)
+            >>> zip_path = ArchiveExtractor.pack_directory(source_dir, output_path)
         """
         if not source_dir.exists():
             raise FileNotFoundError(f"Source directory not found: {source_dir}")
@@ -204,7 +204,7 @@ class ArchivePackageExtractor(MappingPackageExtractorABC):
 
 
 @traced_class
-class GithubPackageExtractor(MappingPackageExtractorABC):
+class GitHubExtractor(ExtractorABC):
     """A mapping package extractor for GitHub repositories.
 
     This class provides functionality to clone and extract mapping packages from GitHub
@@ -218,7 +218,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
     The extractor uses shallow cloning (depth=1) to minimize download size and time.
 
     Example:
-        >>> extractor = GithubPackageExtractor()
+        >>> extractor = GitHubExtractor()
         >>> # Extract a specific package
         >>> package_path = extractor.extract(
         ...     repository_url="https://github.com/org/repo",
@@ -269,7 +269,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
                 (e.g., repository not found, invalid branch)
 
         Example:
-            >>> extractor = GithubPackageExtractor()
+            >>> extractor = GitHubExtractor()
             >>> package_path = extractor.extract(
             ...     repository_url="https://github.com/org/repo",
             ...     destination_path=Path("/local/path"),
@@ -325,7 +325,7 @@ class GithubPackageExtractor(MappingPackageExtractorABC):
                 (e.g., repository not found, invalid branch)
 
         Example:
-            >>> extractor = GithubPackageExtractor()
+            >>> extractor = GitHubExtractor()
             >>> with extractor.extract_temporary(
             ...     repository_url="https://github.com/org/repo",
             ...     packages_path_pattern="mappings/package*",

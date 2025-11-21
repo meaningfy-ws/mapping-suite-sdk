@@ -28,6 +28,13 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "mapping-suite-sdk"
 package-mode = true
+packages = [{ include = "mapping_suite_sdk" }]
+
+# Add resources folder
+include = [
+    { path = "resources", format = "sdist" },
+    { path = "resources", format = "wheel" }
+]
 
 [tool.poetry.scripts]
 mssdk = "mapping_suite_sdk.tools.entrypoints.cli.mssdk:mssdk_cli_command"
@@ -44,4 +51,3 @@ ruff = "^0.14.0"
 import-linter = "^2.6"
 radon = "^6.0.1"
 xenon = "^0.9.3"
-

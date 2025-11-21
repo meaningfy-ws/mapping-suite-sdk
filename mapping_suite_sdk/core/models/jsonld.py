@@ -11,7 +11,7 @@ class JSONLDModel(PydanticModel):
     Accepts both JSON-LD keys (@id, @type, @context) and plain keys (id, type, context).
     """
 
-    context: Optional[Union[Dict[str, Any], str]] = Field(default=None, alias='@context')
+    context: Union[Dict[str, Any], str] = Field(default=None, alias='@context')
     type: Optional[str] = Field(default=None, alias='@type')
     id: Optional[str] = Field(default=None, alias='@id')
 

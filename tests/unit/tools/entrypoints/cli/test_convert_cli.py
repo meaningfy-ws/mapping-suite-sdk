@@ -309,12 +309,19 @@ def test_convert_mapping_package_raises_error_for_unsupported_conversion(
     assert "v3L" in str(excinfo.value)
 
 
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._get_context_jsonld_path")
 def test_serialise_mapping_package_v3_lightweight(
+    mock_get_context_path,
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that _serialise_mapping_package works for V3L."""
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+    
+    # Create a mock context.jsonld file
+    mock_context_file = tmp_path / "mock_context.jsonld"
+    mock_context_file.write_text('{"@context": {}}')
+    mock_get_context_path.return_value = mock_context_file
     
     # Convert to lightweight first
     lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
@@ -556,6 +563,7 @@ def test_is_already_converted_v3_returns_false_for_invalid_metadata(
 
 
 
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._get_context_jsonld_path")
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._load_mapping_package_from_folder")
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_mapping_package")
@@ -563,12 +571,18 @@ def test_convert_from_package_serialises_package(
     mock_convert,
     mock_load,
     mock_is_already_converted,
+    mock_get_context_path,
     typer_cli_runner: CliRunner,
     tmp_path: Path,
     dummy_mapping_package_v2_model,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that from-package command serialises the converted package."""
+    # Create a mock context.jsonld file
+    mock_context_file = tmp_path / "mock_context.jsonld"
+    mock_context_file.write_text('{"@context": {}}')
+    mock_get_context_path.return_value = mock_context_file
+    
     # Setup mocks to allow real serialization to run
     mock_load.return_value = dummy_mapping_package_v2_model
     mock_convert.return_value = fixture_mapping_package_v3_model
@@ -586,6 +600,7 @@ def test_convert_from_package_serialises_package(
     assert (package_path / fixture_mapping_package_v3_model.metadata.path).exists()
 
 
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._get_context_jsonld_path")
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._load_mapping_package_from_folder")
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_mapping_package")
@@ -593,12 +608,18 @@ def test_convert_from_folder_serialises_each_package(
     mock_convert,
     mock_load,
     mock_is_already_converted,
+    mock_get_context_path,
     typer_cli_runner: CliRunner,
     tmp_path: Path,
     dummy_mapping_package_v2_model,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that from-folder command serialises each converted package."""
+    # Create a mock context.jsonld file
+    mock_context_file = tmp_path / "mock_context.jsonld"
+    mock_context_file.write_text('{"@context": {}}')
+    mock_get_context_path.return_value = mock_context_file
+    
     folder_path = tmp_path / "packages"
     folder_path.mkdir()
     
@@ -626,12 +647,19 @@ def test_convert_from_folder_serialises_each_package(
     assert (package2 / fixture_mapping_package_v3_model.metadata.path).exists()
 
 
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._get_context_jsonld_path")
 def test_serialise_mapping_package_v3_removes_old_metadata_json(
+    mock_get_context_path,
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that _serialise_mapping_package removes old metadata.json when converting to V3."""
     from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
+    
+    # Create a mock context.jsonld file
+    mock_context_file = tmp_path / "mock_context.jsonld"
+    mock_context_file.write_text('{"@context": {}}')
+    mock_get_context_path.return_value = mock_context_file
     
     # Create old metadata.json file (simulating V2 package)
     old_metadata_path = tmp_path / "metadata.json"
@@ -647,13 +675,20 @@ def test_serialise_mapping_package_v3_removes_old_metadata_json(
     assert (tmp_path / fixture_mapping_package_v3_model.metadata.path).exists(), "New metadata.jsonld should exist"
 
 
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._get_context_jsonld_path")
 def test_serialise_mapping_package_v3_lightweight_removes_old_metadata_json(
+    mock_get_context_path,
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that _serialise_mapping_package removes old metadata.json when converting to V3L."""
     from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+    
+    # Create a mock context.jsonld file
+    mock_context_file = tmp_path / "mock_context.jsonld"
+    mock_context_file.write_text('{"@context": {}}')
+    mock_get_context_path.return_value = mock_context_file
     
     # Create old metadata.json file (simulating V2 package)
     old_metadata_path = tmp_path / "metadata.json"
@@ -670,7 +705,9 @@ def test_serialise_mapping_package_v3_lightweight_removes_old_metadata_json(
     assert (tmp_path / lightweight_package.metadata.path).exists(), "New metadata.jsonld should exist"
 
 
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._get_context_jsonld_path")
 def test_serialise_mapping_package_v3_lightweight_removes_conceptual_mapping_file(
+    mock_get_context_path,
     tmp_path: Path,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
@@ -678,6 +715,11 @@ def test_serialise_mapping_package_v3_lightweight_removes_conceptual_mapping_fil
     from mapping_suite_sdk import mssdk_config
     from mapping_suite_sdk.tools.entrypoints.cli.convert import Version
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+    
+    # Create a mock context.jsonld file
+    mock_context_file = tmp_path / "mock_context.jsonld"
+    mock_context_file.write_text('{"@context": {}}')
+    mock_get_context_path.return_value = mock_context_file
     
     # Create conceptual_mappings.xlsx file (simulating V3 Full package)
     conceptual_mapping_path = tmp_path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
@@ -695,6 +737,7 @@ def test_serialise_mapping_package_v3_lightweight_removes_conceptual_mapping_fil
     assert (tmp_path / lightweight_package.metadata.path).exists(), "New metadata.jsonld should exist"
 
 
+@patch("mapping_suite_sdk.tools.entrypoints.cli.convert._get_context_jsonld_path")
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False)
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._load_mapping_package_from_folder")
 @patch("mapping_suite_sdk.tools.entrypoints.cli.convert._convert_mapping_package")
@@ -702,12 +745,18 @@ def test_convert_from_package_removes_old_metadata_json(
     mock_convert,
     mock_load,
     mock_is_already_converted,
+    mock_get_context_path,
     typer_cli_runner: CliRunner,
     tmp_path: Path,
     dummy_mapping_package_v2_model,
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that from-package command removes old metadata.json during conversion."""
+    # Create a mock context.jsonld file
+    mock_context_file = tmp_path / "mock_context.jsonld"
+    mock_context_file.write_text('{"@context": {}}')
+    mock_get_context_path.return_value = mock_context_file
+    
     package_path = tmp_path / "test_package"
     package_path.mkdir()
     

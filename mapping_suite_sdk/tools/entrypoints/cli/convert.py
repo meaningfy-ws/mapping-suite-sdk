@@ -1,4 +1,6 @@
+import importlib.resources
 import logging
+import shutil
 from enum import Enum
 from pathlib import Path
 
@@ -15,7 +17,6 @@ from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweigh
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_folder
 from mapping_suite_sdk.tools.entrypoints.cli import typer_verbose_callback
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import convert_mapping_package_v2_to_v3
-from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import generate_jsonld_context
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
 from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
 
@@ -97,58 +98,139 @@ def _remove_old_metadata_json(mapping_package_folder_path: Path) -> None:
             message=f"Removed old metadata.json file from {old_metadata_path}"))
 
 
+def _remove_conceptual_mapping_file(mapping_package_folder_path: Path) -> None:
+    """
+    Remove conceptual_mappings.xlsx file when converting to V3L.
+    
+    V3 Full includes conceptual_mappings.xlsx, but V3L does not. If the file exists after
+    conversion to V3L, version detection may incorrectly identify it as V3 Full. This ensures
+    only the lightweight components exist after conversion.
+    
+    Handles both flat and nested package structures.
+    
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+    """
+    from mapping_suite_sdk.core.adapters.version_detector import _resolve_package_root
+    
+    # Resolve the actual package root (handles nested structures)
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        # If we can't resolve, try the original path
+        package_root = mapping_package_folder_path
+    
+    # Try to remove conceptual_mappings.xlsx from the resolved root
+    conceptual_mapping_path = package_root / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+    if conceptual_mapping_path.exists():
+        conceptual_mapping_path.unlink()
+        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message=f"Removed conceptual_mappings.xlsx file from {conceptual_mapping_path}"))
+
+
+def _get_context_jsonld_path() -> Path:
+    """
+    Get the path to context.jsonld file using importlib.resources.
+    
+    Works both in installed package (via importlib.resources) and development environment
+    (by finding resources relative to package location).
+    
+    Returns:
+        Path to context.jsonld file
+        
+    Raises:
+        FileNotFoundError: If context.jsonld file cannot be found
+    """
+    # Get the package files reference using importlib.resources
+    package_ref = importlib.resources.files("mapping_suite_sdk")
+    # Get the actual package directory path
+    # In development: this points to mapping_suite_sdk/ directory
+    # When installed: this points to site-packages/mapping_suite_sdk/
+    package_path = Path(package_ref)
+    
+    # In development: resources is at project root, package is in mapping_suite_sdk/
+    # So we go up one level from package_dir to find project root
+    project_root = package_path.parent
+    context_path = project_root / "resources" / "schema" / "mapping_package_v3" / "models" / "context.jsonld"
+    
+    if not context_path.exists():
+        raise FileNotFoundError(
+            f"context.jsonld not found at {context_path}. "
+            f"Run 'make generate-models' to generate it."
+        )
+    
+    return context_path
+
+
+def _copy_context_jsonld_to_package(mapping_package_folder_path: Path, converted_package) -> None:
+    """
+    Copy context.jsonld from schema directory to the package.
+    
+    The context.jsonld file is generated in the schema directory (resources/schema/mapping_package_v3/models/)
+    when models are generated. This function copies it to the same directory as metadata.jsonld in the package.
+    
+    Uses importlib.resources-compatible approach that works both in development and when installed as a package.
+    
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+        converted_package: The converted package (V3 or V3L) containing metadata with path information
+        
+    Raises:
+        FileNotFoundError: If context.jsonld file cannot be found in schema directory
+    """
+    # Get context.jsonld path using resource-aware method (raises FileNotFoundError if not found)
+    schema_context_path = _get_context_jsonld_path()
+    
+    # Determine metadata directory (where metadata.jsonld is located)
+    metadata_path = mapping_package_folder_path / converted_package.metadata.path
+    metadata_directory = metadata_path.parent
+    
+    # Destination for context.jsonld (same directory as metadata.jsonld)
+    package_context_path = metadata_directory / "context.jsonld"
+    
+    # Copy the file
+    shutil.copy2(schema_context_path, package_context_path)
+    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=mapping_package_folder_path,
+        message=f"Copied context.jsonld from {schema_context_path} to {package_context_path}"))
+    
+    # Determine metadata directory (where metadata.jsonld is located)
+    metadata_path = mapping_package_folder_path / converted_package.metadata.path
+    metadata_directory = metadata_path.parent
+    
+    # Destination for context.jsonld (same directory as metadata.jsonld)
+    package_context_path = metadata_directory / "context.jsonld"
+    
+    # Copy the file
+    shutil.copy2(schema_context_path, package_context_path)
+    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+        package_source=mapping_package_folder_path,
+        message=f"Copied context.jsonld from {schema_context_path} to {package_context_path}"))
+
+
 def _serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package):
     """Dynamically serialize a mapping package based on version."""
     if to_version == Version.V3:
         serialiser = MappingPackageV3Serialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
-        # Generate context.jsonld for V3 packages
-        _generate_context_jsonld_for_v3(mapping_package_folder_path, converted_package)
+        # Copy context.jsonld from schema directory to package
+        _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
         # Remove old metadata.json if it exists (V2 uses metadata.json, V3 uses metadata.jsonld)
         # Do this after serialization to ensure it's not recreated
         _remove_old_metadata_json(mapping_package_folder_path)
     elif to_version == Version.V3L:
         serialiser = MappingPackageV3LightweightSerialiser()
         serialiser.serialise(mapping_package_folder_path, converted_package)
-        # Generate context.jsonld for V3 lightweight packages
-        _generate_context_jsonld_for_v3(mapping_package_folder_path, converted_package)
+        # Copy context.jsonld from schema directory to package
+        _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
         # Remove old metadata.json if it exists (V2 uses metadata.json, V3 uses metadata.jsonld)
         # Do this after serialization to ensure it's not recreated
         _remove_old_metadata_json(mapping_package_folder_path)
+        # Remove conceptual_mappings.xlsx if it exists (V3 Full has it, V3L does not)
+        # Do this after serialization to ensure it's not recreated
+        _remove_conceptual_mapping_file(mapping_package_folder_path)
     else:
         raise typer.BadParameter(f"Unsupported target version: {to_version}")
-
-
-def _generate_context_jsonld_for_v3(mapping_package_folder_path: Path, converted_package):
-    """
-    Generate context.jsonld file for V3 mapping packages.
-    
-    The context.jsonld file is placed in the same directory as metadata.jsonld.
-    This function is called automatically during conversion for both single packages
-    and bulk folder conversions.
-    """
-    # Determine metadata directory (where metadata.jsonld is located)
-    metadata_path = mapping_package_folder_path / converted_package.metadata.path
-    metadata_directory = metadata_path.parent
-    
-    # Schema path relative to project root
-    schema_path = Path("resources/schema/mapping_package_v3/models/mapping_package_v3_metadata.yaml")
-    
-    try:
-        generate_jsonld_context(
-            schema_yaml_path=schema_path,
-            output_directory=metadata_directory,
-            context_filename="context.jsonld"
-        )
-        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-            package_source=mapping_package_folder_path,
-            message="Generated context.jsonld file"))
-    except Exception as e:
-        logger.warning(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-            package_source=mapping_package_folder_path,
-            message=f"Failed to generate context.jsonld: {e}"))
-        # Don't fail the conversion if context generation fails
-        # The context file can be generated manually if needed
 
 
 def _convert_package_from_folder(from_version: str, to_version: str, mapping_package_folder_path: Path):

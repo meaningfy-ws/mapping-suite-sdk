@@ -210,9 +210,7 @@ class TestLoadMappingSuitesFromGitHub:
             github_suite_extractor=mock_extractor
         )
 
-        assert isinstance(result, list)
-        assert len(result) == 1
-        assert isinstance(result[0], MappingSuite)
+        assert isinstance(result, MappingSuite)
 
     def test_load_mapping_suites_from_github_with_custom_loader(
             self,
@@ -236,25 +234,24 @@ class TestLoadMappingSuitesFromGitHub:
             mapping_suite_loader=custom_loader
         )
 
-        assert isinstance(result, list)
-        assert len(result) == 1
-        assert result[0].resources_collection.resource_files is None
+        assert isinstance(result, MappingSuite)
+        assert result.resources_collection.resource_files is None
 
-    def test_load_mapping_suites_from_github_partial_failure(
+    def test_load_mapping_suites_from_github_loads_first_match(
             self,
             dummy_mapping_suite_folder_path: Path
     ):
-        """Test loading from GitHub with some suites failing to load."""
+        """Test loading from GitHub loads only the first matching suite when multiple match."""
         mock_extractor = Mock(spec=GitHubExtractor)
-        invalid_path = Path("/nonexistent/invalid/path")
+        another_path = Path("/another/suite/path")
 
         @contextmanager
         def mock_extract_temporary(*args, **kwargs):
-            yield [dummy_mapping_suite_folder_path, invalid_path]
+            yield [dummy_mapping_suite_folder_path, another_path]
 
         mock_extractor.extract_temporary = mock_extract_temporary
 
-        # Should log warning for invalid path but return successfully loaded suites
+        # Should load only the first matching suite, ignoring others
         result = load_mapping_suites_from_github(
             "https://github.com/test/repo",
             "suites/*",
@@ -262,9 +259,7 @@ class TestLoadMappingSuitesFromGitHub:
             github_suite_extractor=mock_extractor
         )
 
-        assert isinstance(result, list)
-        assert len(result) == 1
-        assert isinstance(result[0], MappingSuite)
+        assert isinstance(result, MappingSuite)
 
     def test_load_mapping_suites_from_github_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""

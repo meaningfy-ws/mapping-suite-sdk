@@ -16,10 +16,9 @@ from mapping_suite_sdk.core.adapters.version_detector import (
 V1_SPEC = VersionDetectionSpec(
     version_id="v1",
     priority=-1,
-
     path_conditions=[
         # No path conditions for metadata files - rely on metadata content for detection
-        # (metadata.json or metadata.jsonld are both supported, format is cross-cutting)
+        # (metadata.jsonld may be supported for v1 in the future; JSON-LD format is cross-cutting)
     ],
 
     metadata_conditions=[
@@ -31,8 +30,7 @@ V1_SPEC = VersionDetectionSpec(
         # - V1 does NOT have eforms_sdk_versions (that's V2)
         MetadataCondition("eligibility_constraints.constraints.eforms_sdk_versions", must_exist=False),
 
-        # - V1 does NOT have "type" or "mapping_type" fields (V2 may have these)
-        MetadataCondition("type", must_exist=False),
+        # - V1 does NOT have "mapping_type" field (V2 may have these)
         MetadataCondition("mapping_type", must_exist=False),
 
         # - V1 does NOT have @context (JSON-LD marker used by V3)

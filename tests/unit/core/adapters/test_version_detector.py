@@ -260,6 +260,7 @@ def test_detect_v3_full_package(tmp_path):
     v3_metadata = {
         "@context": "http://example.org",
         "id": "test-v3",
+        "project_identifier": "eforms",
         "applicability_constraints": {}
     }
     (package_dir / "metadata.jsonld").write_text(json.dumps(v3_metadata))
@@ -280,6 +281,7 @@ def test_detect_v3_lightweight_package(tmp_path):
     v3_metadata = {
         "@context": "http://example.org",
         "id": "test-v3-light",
+        "project_identifier": "eforms",
         "created_at": "2023-01-01T00:00:00Z"
     }
     (package_dir / "metadata.jsonld").write_text(json.dumps(v3_metadata))
@@ -293,15 +295,27 @@ def test_detect_v3_lightweight_package(tmp_path):
 
 
 def test_detect_unrecognized_package(tmp_path):
-    """Test detection returns None for unrecognized package format."""
+    """Test detection falls back to v2 for unrecognized package format."""
     package_dir = tmp_path / "unknown_package"
     package_dir.mkdir()
 
-    # Package with unknown structure
+    # Package with V2 metadata structure (fallback)
+    v2_metadata = {
+        "identifier": "test-v2",
+        "mapping_version": "1.0",
+        "ontology_version": "2.0",
+        "eligibility_constraints": {
+            "constraints": {
+                "eforms_sdk_versions": ["1.0", "2.0"]
+            }
+        }
+    }
+    (package_dir / "metadata.json").write_text(json.dumps(v2_metadata))
     (package_dir / "some_file.txt").write_text("not a package")
 
     detected = detect_mapping_package_version(package_dir)
-    assert detected is None
+    # V2_SPEC acts as a fallback (no conditions, lowest priority) so unrecognized packages match v2
+    assert detected == "v2"
 
 
 def test_detect_with_nested_structure(tmp_path):

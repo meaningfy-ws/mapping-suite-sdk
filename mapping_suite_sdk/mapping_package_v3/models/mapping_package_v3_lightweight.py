@@ -25,8 +25,3 @@ class MappingPackageV3Lightweight(MappingPackage):
                                                                      description="All the RML files, which are RMLFragments")
     vocabulary_mapping_suite: VocabularyMappingCollectionAsset = Field(...,
                                                                        description="The resources JSONs, CSV and XML files")
-
-    @property
-    def id(self) -> str:
-        """Return the package identifier from metadata."""
-        return self.metadata.id

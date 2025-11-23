@@ -5,7 +5,7 @@ from mapping_suite_sdk.core.adapters.serialiser import MappingPackageAssetSerial
     VocabularyMappingCollectionAssetSerialiser, TestDataCollectionAssetSerialiser, SAPRQLTestCollectionAssetSerialiser, \
     SHACLTestCollectionAssetSerialiser, TestResultCollectionAssetSerialiser
 from mapping_suite_sdk.core.adapters.tracer import traced_class
-from mapping_suite_sdk.mapping_package_v3.adapters.metadata_serialiser import MappingPackageV3MetadataSerialiser
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_serialiser import MappingPackageV3MetadataSerialiser
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 
 

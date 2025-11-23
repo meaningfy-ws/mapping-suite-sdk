@@ -6,7 +6,7 @@ from mapping_suite_sdk.core.adapters.loader import Loader, ConceptualMappingFile
     SHACLTestSuitesLoader, TestResultSuiteLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.collection_asset import TestResultCollectionAsset
-from mapping_suite_sdk.mapping_package_v3.adapters.metadata_loader import MappingPackageV3MetadataLoader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_loader import MappingPackageV3MetadataLoader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 
 

@@ -10,9 +10,9 @@ from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubEx
 from mapping_suite_sdk.core.adapters.loader import AssetLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
-from mapping_suite_sdk.mapping_package_v3.adapters.hasher import MappingPackageV3Hasher
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
-from mapping_suite_sdk.mapping_package_v3.adapters.validator import MappingPackageV3Validator, \
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_validator import MappingPackageV3Validator, \
     MPV3HashValidationException
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_archive, \

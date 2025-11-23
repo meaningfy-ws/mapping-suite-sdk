@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser import MappingPackageV3Serialiser
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 
 
@@ -16,14 +16,14 @@ def test_mp_v3_serialiser_creates_all_components(tmp_path: Path,
     assert (tmp_path / fixture_mapping_package_v3_model.vocabulary_mapping_suite.path).exists()
 
 
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.MappingPackageV3MetadataSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.ConceptualMappingFileAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.TechnicalMappingCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.VocabularyMappingCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.TestDataCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.SAPRQLTestCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.SHACLTestCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser.TestResultCollectionAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.MappingPackageV3MetadataSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.ConceptualMappingFileAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.TechnicalMappingCollectionAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.VocabularyMappingCollectionAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.TestDataCollectionAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.SAPRQLTestCollectionAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.SHACLTestCollectionAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser.TestResultCollectionAssetSerialiser')
 def test_mp_v3_serialiser_calls_all_component_serialisers(
         mock_test_result_serialiser,
         mock_shacl_serialiser,

@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from mapping_suite_sdk.core.adapters.hasher import SHA256Hasher, HasherABC
-from mapping_suite_sdk.mapping_package_v3.adapters.hasher import MappingPackageV3Hasher
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 
 

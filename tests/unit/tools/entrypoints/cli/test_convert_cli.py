@@ -364,7 +364,7 @@ def test_is_already_converted_v3_metadata_without_path_field(
 ) -> None:
     """Test that is_mapping_package_already_converted handles metadata without path field."""
     import json
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser import MappingPackageV3Serialiser
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     
     # Serialise a V3 package
@@ -389,7 +389,7 @@ def test_is_already_converted_v3_lightweight_loads_successfully(
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that is_mapping_package_already_converted correctly detects V3L packages."""
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_serialiser import MappingPackageV3LightweightSerialiser
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
@@ -410,7 +410,7 @@ def test_is_already_converted_v3_hard_fails_for_lightweight_package(
     fixture_mapping_package_v3_model: MappingPackageV3
 ) -> None:
     """Test that is_mapping_package_already_converted returns False when trying to load lightweight package as V3."""
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser_lightweight import MappingPackageV3LightweightSerialiser
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_serialiser import MappingPackageV3LightweightSerialiser
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
     
@@ -484,7 +484,7 @@ def test_is_already_converted_v3_lightweight_returns_false_when_conceptual_mappi
 ) -> None:
     """Test that is_mapping_package_already_converted returns False for lightweight when conceptual mapping exists."""
     from mapping_suite_sdk import mssdk_config
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_serialiser import MappingPackageV3Serialiser
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser import MappingPackageV3Serialiser
     from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import is_mapping_package_already_converted
     
     # Serialise a full V3 package (with conceptual mapping)

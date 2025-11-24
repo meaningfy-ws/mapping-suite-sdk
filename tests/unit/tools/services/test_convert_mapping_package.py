@@ -25,6 +25,13 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
     load_mapping_package_from_folder,
     serialise_mapping_package
 )
+# Import private helpers for testing
+from mapping_suite_sdk.tools.services.convert_mapping_package import (
+    _copy_context_jsonld_to_package,
+    _get_context_jsonld_path,
+    _remove_conceptual_mapping_file,
+    _remove_old_metadata_json
+)
 
 
 class TestLoadMappingPackageFromFolder:
@@ -145,6 +152,73 @@ class TestSerialiseMappingPackage:
         mock_copy_context.assert_called_once_with(tmp_path, fixture_mapping_package_v3_model)
         mock_remove_metadata.assert_called_once_with(tmp_path)
 
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser')
+    def test_serialise_v3_package_copies_context_jsonld(
+        self,
+        mock_serialiser_class,
+        mock_get_context,
+        tmp_path: Path,
+        fixture_mapping_package_v3_model: MappingPackageV3
+    ):
+        """Test that serializing V3 package copies context.jsonld."""
+        # Create mock context file
+        schema_context = tmp_path / "schema" / "context.jsonld"
+        schema_context.parent.mkdir(parents=True)
+        schema_context.write_text('{"@context": {}}')
+        mock_get_context.return_value = schema_context
+        
+        mock_serialiser = Mock()
+        mock_serialiser_class.return_value = mock_serialiser
+        
+        # Create package structure
+        metadata_dir = tmp_path / fixture_mapping_package_v3_model.metadata.path.parent
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        
+        serialise_mapping_package(Version.V3, tmp_path, fixture_mapping_package_v3_model)
+        
+        # Verify context.jsonld was copied
+        package_context = metadata_dir / "context.jsonld"
+        assert package_context.exists()
+        assert package_context.read_text() == '{"@context": {}}'
+        mock_get_context.assert_called_once()
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser')
+    def test_serialise_v3_package_removes_old_metadata_json(
+        self,
+        mock_serialiser_class,
+        mock_get_context,
+        mock_resolve,
+        tmp_path: Path,
+        fixture_mapping_package_v3_model: MappingPackageV3
+    ):
+        """Test that serializing V3 package removes old metadata.json."""
+        # Create mock context file
+        schema_context = tmp_path / "schema" / "context.jsonld"
+        schema_context.parent.mkdir(parents=True)
+        schema_context.write_text('{"@context": {}}')
+        mock_get_context.return_value = schema_context
+        
+        mock_serialiser = Mock()
+        mock_serialiser_class.return_value = mock_serialiser
+        mock_resolve.return_value = tmp_path
+        
+        # Create old metadata.json
+        old_metadata = tmp_path / "metadata.json"
+        old_metadata.write_text('{"old": "data"}')
+        assert old_metadata.exists()
+        
+        metadata_dir = tmp_path / fixture_mapping_package_v3_model.metadata.path.parent
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        
+        serialise_mapping_package(Version.V3, tmp_path, fixture_mapping_package_v3_model)
+        
+        # Verify old metadata.json was removed
+        assert not old_metadata.exists()
+        mock_resolve.assert_called_once_with(tmp_path)
+
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_conceptual_mapping_file')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._copy_context_jsonld_to_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_old_metadata_json')
@@ -170,6 +244,48 @@ class TestSerialiseMappingPackage:
         mock_copy_context.assert_called_once_with(tmp_path, mock_v3l_package)
         mock_remove_metadata.assert_called_once_with(tmp_path)
         mock_remove_conceptual.assert_called_once_with(tmp_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser')
+    def test_serialise_v3l_package_removes_conceptual_mapping_file(
+        self,
+        mock_serialiser_class,
+        mock_get_context,
+        mock_resolve,
+        tmp_path: Path,
+        fixture_mapping_package_v3_model: MappingPackageV3
+    ):
+        """Test that serializing V3L package removes conceptual_mappings.xlsx."""
+        from mapping_suite_sdk import mssdk_config
+        from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+        
+        # Create mock context file
+        schema_context = tmp_path / "schema" / "context.jsonld"
+        schema_context.parent.mkdir(parents=True)
+        schema_context.write_text('{"@context": {}}')
+        mock_get_context.return_value = schema_context
+        
+        mock_serialiser = Mock()
+        mock_serialiser_class.return_value = mock_serialiser
+        mock_resolve.return_value = tmp_path
+        
+        # Create conceptual_mappings.xlsx
+        conceptual_path = tmp_path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+        conceptual_path.parent.mkdir(parents=True, exist_ok=True)
+        conceptual_path.write_bytes(b"fake xlsx")
+        assert conceptual_path.exists()
+        
+        # Convert to lightweight
+        lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
+        metadata_dir = tmp_path / lightweight_package.metadata.path.parent
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        
+        serialise_mapping_package(Version.V3L, tmp_path, lightweight_package)
+        
+        # Verify conceptual_mappings.xlsx was removed
+        assert not conceptual_path.exists()
+        mock_resolve.assert_called_with(tmp_path)
 
     def test_serialise_unsupported_version(self, tmp_path: Path):
         """Test that unsupported version raises UnsupportedVersionError."""
@@ -352,4 +468,224 @@ class TestConvertMappingPackagesFromFolder:
         assert result['skipped'] == 2
         assert result['total'] == 2
         mock_convert.assert_not_called()
+
+
+class TestHelperFunctions:
+    """Tests for private helper functions in convert_mapping_package service."""
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    def test_get_context_jsonld_path_called_when_copying(
+        self,
+        mock_get_context,
+        tmp_path: Path,
+        fixture_mapping_package_v3_model: MappingPackageV3
+    ):
+        """Test _get_context_jsonld_path is called when copying context.jsonld."""
+        # Create mock context file
+        schema_context = tmp_path / "schema" / "context.jsonld"
+        schema_context.parent.mkdir(parents=True)
+        schema_context.write_text('{"@context": {}}')
+        mock_get_context.return_value = schema_context
+        
+        package_path = tmp_path / "package"
+        package_path.mkdir(exist_ok=True)
+        metadata_dir = package_path / fixture_mapping_package_v3_model.metadata.path.parent
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        
+        _copy_context_jsonld_to_package(package_path, fixture_mapping_package_v3_model)
+        
+        # Verify _get_context_jsonld_path was called
+        mock_get_context.assert_called_once()
+        # Verify file was copied
+        assert (metadata_dir / "context.jsonld").exists()
+
+    def test_get_context_jsonld_path_file_not_found_error(self, tmp_path: Path):
+        """Test that _get_context_jsonld_path raises FileNotFoundError when context.jsonld missing."""
+        # Create a fake package structure where context.jsonld doesn't exist
+        fake_package_path = tmp_path / "mapping_suite_sdk"
+        fake_package_path.mkdir()
+        
+        # Mock importlib.resources.files to return something that Path() can convert
+        mock_package_ref = Mock()
+        # Use a context manager to patch Path only for the specific call
+        with patch('mapping_suite_sdk.tools.services.convert_mapping_package.importlib.resources.files', return_value=mock_package_ref):
+            # Patch Path constructor to return our fake path
+            original_path = Path
+            def mock_path_constructor(path_arg):
+                if path_arg == mock_package_ref:
+                    return fake_package_path
+                return original_path(path_arg)
+            
+            with patch('mapping_suite_sdk.tools.services.convert_mapping_package.Path', side_effect=mock_path_constructor):
+                with pytest.raises(FileNotFoundError, match="context.jsonld not found"):
+                    _get_context_jsonld_path()
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.importlib.resources.files')
+    def test_get_context_jsonld_path_success_when_file_exists(self, mock_files, tmp_path: Path):
+        """Test that _get_context_jsonld_path returns path when context.jsonld exists."""
+        # Create the expected file structure
+        package_path = tmp_path / "mapping_suite_sdk"
+        package_path.mkdir()
+        project_root = tmp_path
+        context_path = project_root / "resources" / "schema" / "mapping_package_v3" / "models" / "context.jsonld"
+        context_path.parent.mkdir(parents=True, exist_ok=True)
+        context_path.write_text('{"@context": {}}')
+        
+        # Mock importlib.resources.files
+        mock_package_ref = Mock()
+        mock_files.return_value = mock_package_ref
+        
+        # Mock Path() to return our test package path when called with mock_package_ref
+        original_path = Path
+        def mock_path_constructor(path_arg):
+            if path_arg == mock_package_ref:
+                return package_path
+            return original_path(path_arg)
+        
+        with patch('mapping_suite_sdk.tools.services.convert_mapping_package.Path', side_effect=mock_path_constructor):
+            result = _get_context_jsonld_path()
+            
+            assert result == context_path
+            assert result.exists()
+            mock_files.assert_called_once_with("mapping_suite_sdk")
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.shutil.copy2')
+    def test_copy_context_jsonld_to_package_success(
+        self,
+        mock_copy,
+        mock_get_context,
+        tmp_path: Path,
+        fixture_mapping_package_v3_model: MappingPackageV3
+    ):
+        """Test that _copy_context_jsonld_to_package copies context.jsonld correctly."""
+        schema_context = tmp_path / "schema" / "context.jsonld"
+        schema_context.parent.mkdir(parents=True)
+        schema_context.write_text('{"@context": {}}')
+        mock_get_context.return_value = schema_context
+        
+        package_path = tmp_path / "package"
+        package_path.mkdir(exist_ok=True)
+        metadata_dir = package_path / fixture_mapping_package_v3_model.metadata.path.parent
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        
+        _copy_context_jsonld_to_package(package_path, fixture_mapping_package_v3_model)
+        
+        mock_get_context.assert_called_once()
+        mock_copy.assert_called_once()
+        # Verify copy was called with correct paths
+        call_args = mock_copy.call_args[0]
+        assert call_args[0] == schema_context
+        assert call_args[1] == metadata_dir / "context.jsonld"
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    def test_copy_context_jsonld_to_package_hard_fail_on_missing_file(
+        self,
+        mock_get_context,
+        tmp_path: Path,
+        fixture_mapping_package_v3_model: MappingPackageV3
+    ):
+        """Test that _copy_context_jsonld_to_package raises FileNotFoundError when context.jsonld missing."""
+        mock_get_context.side_effect = FileNotFoundError("context.jsonld not found")
+        
+        with pytest.raises(FileNotFoundError, match="context.jsonld not found"):
+            _copy_context_jsonld_to_package(tmp_path, fixture_mapping_package_v3_model)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_old_metadata_json_when_exists(self, mock_resolve, tmp_path: Path):
+        """Test that _remove_old_metadata_json removes metadata.json when it exists."""
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = package_path
+        
+        old_metadata = package_path / "metadata.json"
+        old_metadata.write_text('{"test": "data"}')
+        assert old_metadata.exists()
+        
+        _remove_old_metadata_json(package_path)
+        
+        assert not old_metadata.exists()
+        mock_resolve.assert_called_once_with(package_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_old_metadata_json_when_not_exists(self, mock_resolve, tmp_path: Path):
+        """Test that _remove_old_metadata_json handles missing metadata.json gracefully."""
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = package_path
+        
+        # metadata.json doesn't exist - should not raise error
+        _remove_old_metadata_json(package_path)
+        
+        mock_resolve.assert_called_once_with(package_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_old_metadata_json_uses_original_path_when_resolve_returns_none(
+        self,
+        mock_resolve,
+        tmp_path: Path
+    ):
+        """Test that _remove_old_metadata_json uses original path when _resolve_package_root returns None."""
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = None
+        
+        old_metadata = package_path / "metadata.json"
+        old_metadata.write_text('{"test": "data"}')
+        
+        _remove_old_metadata_json(package_path)
+        
+        assert not old_metadata.exists()
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_conceptual_mapping_file_when_exists(self, mock_resolve, tmp_path: Path):
+        """Test that _remove_conceptual_mapping_file removes conceptual_mappings.xlsx when it exists."""
+        from mapping_suite_sdk import mssdk_config
+        
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = package_path
+        
+        conceptual_path = package_path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+        conceptual_path.parent.mkdir(parents=True, exist_ok=True)
+        conceptual_path.write_bytes(b"fake xlsx")
+        assert conceptual_path.exists()
+        
+        _remove_conceptual_mapping_file(package_path)
+        
+        assert not conceptual_path.exists()
+        mock_resolve.assert_called_once_with(package_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_conceptual_mapping_file_when_not_exists(self, mock_resolve, tmp_path: Path):
+        """Test that _remove_conceptual_mapping_file handles missing file gracefully."""
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = package_path
+        
+        # conceptual_mappings.xlsx doesn't exist - should not raise error
+        _remove_conceptual_mapping_file(package_path)
+        
+        mock_resolve.assert_called_once_with(package_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_conceptual_mapping_file_uses_original_path_when_resolve_returns_none(
+        self,
+        mock_resolve,
+        tmp_path: Path
+    ):
+        """Test that _remove_conceptual_mapping_file uses original path when _resolve_package_root returns None."""
+        from mapping_suite_sdk import mssdk_config
+        
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = None
+        
+        conceptual_path = package_path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
+        conceptual_path.parent.mkdir(parents=True, exist_ok=True)
+        conceptual_path.write_bytes(b"fake xlsx")
+        
+        _remove_conceptual_mapping_file(package_path)
+        
+        assert not conceptual_path.exists()
 

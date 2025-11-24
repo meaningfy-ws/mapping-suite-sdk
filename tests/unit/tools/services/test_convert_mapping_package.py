@@ -30,6 +30,7 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
     _copy_context_jsonld_to_package,
     _get_context_jsonld_path,
     _remove_conceptual_mapping_file,
+    _remove_folder,
     _remove_old_metadata_json
 )
 
@@ -219,6 +220,7 @@ class TestSerialiseMappingPackage:
         assert not old_metadata.exists()
         mock_resolve.assert_called_once_with(tmp_path)
 
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_folder')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_conceptual_mapping_file')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._copy_context_jsonld_to_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_old_metadata_json')
@@ -229,6 +231,7 @@ class TestSerialiseMappingPackage:
         mock_remove_metadata,
         mock_copy_context,
         mock_remove_conceptual,
+        mock_remove_folder,
         tmp_path: Path,
         fixture_mapping_package_v3_model: MappingPackageV3
     ):
@@ -244,6 +247,8 @@ class TestSerialiseMappingPackage:
         mock_copy_context.assert_called_once_with(tmp_path, mock_v3l_package)
         mock_remove_metadata.assert_called_once_with(tmp_path)
         mock_remove_conceptual.assert_called_once_with(tmp_path)
+        # Verify _remove_folder is called 3 times for test_data, output, and validation
+        assert mock_remove_folder.call_count == 3
 
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
@@ -285,6 +290,63 @@ class TestSerialiseMappingPackage:
         
         # Verify conceptual_mappings.xlsx was removed
         assert not conceptual_path.exists()
+        mock_resolve.assert_called_with(tmp_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser')
+    def test_serialise_v3l_package_removes_folders(
+        self,
+        mock_serialiser_class,
+        mock_get_context,
+        mock_resolve,
+        tmp_path: Path,
+        fixture_mapping_package_v3_model: MappingPackageV3
+    ):
+        """Test that serializing V3L package removes test_data, output, and validation folders."""
+        from mapping_suite_sdk import mssdk_config
+        from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+        
+        # Create mock context file
+        schema_context = tmp_path / "schema" / "context.jsonld"
+        schema_context.parent.mkdir(parents=True)
+        schema_context.write_text('{"@context": {}}')
+        mock_get_context.return_value = schema_context
+        
+        mock_serialiser = Mock()
+        mock_serialiser_class.return_value = mock_serialiser
+        mock_resolve.return_value = tmp_path
+        
+        # Create test_data, output, and validation folders with some content
+        test_data_path = tmp_path / mssdk_config.MPV3_TEST_DATA_COLLECTION_ASSET_PATH
+        test_data_path.mkdir(parents=True, exist_ok=True)
+        (test_data_path / "test_file.xml").write_text("test data")
+        
+        output_path = tmp_path / mssdk_config.MPV3_TEST_RESULT_COLLECTION_ASSET_PATH
+        output_path.mkdir(parents=True, exist_ok=True)
+        (output_path / "result.ttl").write_text("result data")
+        
+        validation_path = tmp_path / "validation"
+        validation_path.mkdir(parents=True, exist_ok=True)
+        (validation_path / "sparql").mkdir()
+        (validation_path / "shacl").mkdir()
+        (validation_path / "sparql" / "query.rq").write_text("SELECT *")
+        
+        assert test_data_path.exists()
+        assert output_path.exists()
+        assert validation_path.exists()
+        
+        # Convert to lightweight
+        lightweight_package = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
+        metadata_dir = tmp_path / lightweight_package.metadata.path.parent
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        
+        serialise_mapping_package(Version.V3L, tmp_path, lightweight_package)
+        
+        # Verify folders were removed
+        assert not test_data_path.exists()
+        assert not output_path.exists()
+        assert not validation_path.exists()
         mock_resolve.assert_called_with(tmp_path)
 
     def test_serialise_unsupported_version(self, tmp_path: Path):
@@ -688,4 +750,52 @@ class TestHelperFunctions:
         _remove_conceptual_mapping_file(package_path)
         
         assert not conceptual_path.exists()
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_folder_when_exists(self, mock_resolve, tmp_path: Path):
+        """Test that _remove_folder removes folder when it exists."""
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = package_path
+        
+        test_folder = package_path / "test_folder"
+        test_folder.mkdir()
+        (test_folder / "file.txt").write_text("content")
+        assert test_folder.exists()
+        
+        _remove_folder(package_path, "test_folder", "test_folder")
+        
+        assert not test_folder.exists()
+        mock_resolve.assert_called_once_with(package_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_folder_when_not_exists(self, mock_resolve, tmp_path: Path):
+        """Test that _remove_folder handles missing folder gracefully."""
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = package_path
+        
+        # Folder doesn't exist - should not raise error
+        _remove_folder(package_path, "nonexistent", "nonexistent")
+        
+        mock_resolve.assert_called_once_with(package_path)
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    def test_remove_folder_uses_original_path_when_resolve_returns_none(
+        self,
+        mock_resolve,
+        tmp_path: Path
+    ):
+        """Test that _remove_folder uses original path when _resolve_package_root returns None."""
+        package_path = tmp_path / "package"
+        package_path.mkdir()
+        mock_resolve.return_value = None
+        
+        test_folder = package_path / "test_folder"
+        test_folder.mkdir()
+        (test_folder / "file.txt").write_text("content")
+        
+        _remove_folder(package_path, "test_folder", "test_folder")
+        
+        assert not test_folder.exists()
 

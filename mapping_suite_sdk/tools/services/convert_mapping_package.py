@@ -214,6 +214,30 @@ def _remove_conceptual_mapping_file(mapping_package_folder_path: Path) -> None:
             message=f"Removed conceptual_mappings.xlsx file from {conceptual_mapping_path}"))
 
 
+def _remove_folder(mapping_package_folder_path: Path, relative_folder_path: Union[str, Path], folder_name: str) -> None:
+    """
+    Remove a folder when converting to V3L.
+
+    V3 Full includes various folders (test_data, output, validation) that V3L does not.
+    If these folders exist after conversion to V3L, version detection may incorrectly identify it as V3 Full.
+
+    Args:
+        mapping_package_folder_path: Path to the mapping package folder
+        relative_folder_path: Relative path to the folder to remove (from package root)
+        folder_name: Name of the folder for logging purposes
+    """
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        package_root = mapping_package_folder_path
+
+    folder_path = package_root / relative_folder_path
+    if folder_path.exists() and folder_path.is_dir():
+        shutil.rmtree(folder_path)
+        logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=mapping_package_folder_path,
+            message=f"Removed {folder_name} folder from {folder_path}"))
+
+
 def serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package) -> None:
     """
     Serialize a mapping package to filesystem based on version.
@@ -222,6 +246,7 @@ def serialise_mapping_package(to_version: str, mapping_package_folder_path: Path
     - Copies context.jsonld to package
     - Removes old metadata.json (for V3 conversions)
     - Removes conceptual_mappings.xlsx (for V3L conversions)
+    - Removes test_data, output, and validation folders (for V3L conversions)
 
     Args:
         to_version: Target version (v3 or v3L)
@@ -242,6 +267,9 @@ def serialise_mapping_package(to_version: str, mapping_package_folder_path: Path
         _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
         _remove_old_metadata_json(mapping_package_folder_path)
         _remove_conceptual_mapping_file(mapping_package_folder_path)
+        _remove_folder(mapping_package_folder_path, mssdk_config.MPV3_TEST_DATA_COLLECTION_ASSET_PATH, "test_data")
+        _remove_folder(mapping_package_folder_path, mssdk_config.MPV3_TEST_RESULT_COLLECTION_ASSET_PATH, "output")
+        _remove_folder(mapping_package_folder_path, "validation", "validation")
     else:
         raise UnsupportedVersionError(f"Unsupported target version: {to_version}")
 

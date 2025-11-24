@@ -1,10 +1,36 @@
 import json
-from typing import Optional
+from typing import Optional, List, Tuple
 
-from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
+from mapping_suite_sdk.core.adapters.hasher import (
+    MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
+)
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
+
+
+def _hash_file_assets(file_assets: List, hasher: HasherABC) -> List[Tuple[str, str]]:
+    """
+    Hash a list of file assets and return sorted list of (path, hash) tuples.
+
+    This helper function extracts the common pattern of hashing file assets
+    to reduce code duplication in the hasher implementation.
+
+    Args:
+        file_assets: List of file assets with 'path' and 'content' attributes.
+        hasher: The hasher implementation to use for generating hashes.
+
+    Returns:
+        List[Tuple[str, str]]: Sorted list of (file_path, hash) tuples.
+    """
+    file_hashes = []
+    for asset in file_assets:
+        normalized_content = normalize_content(asset.content)
+        hashed_line = hasher.hash(normalized_content)
+        file_hashes.append((str(asset.path), hashed_line))
+    # Sort by file path for consistent ordering
+    file_hashes.sort(key=lambda x: x[0])
+    return file_hashes
 
 
 class MappingPackageV3Hasher(MappingPackageHasher):
@@ -40,22 +66,12 @@ class MappingPackageV3Hasher(MappingPackageHasher):
             str: The final hash signature for the mapping package.
         """
         # Step 1: Hash all critical files
-        file_hashes = []
-
-        # Hash technical mapping files
-        for asset in self.mapping_package.technical_mapping_suite.files:
-            normalized_content = normalize_content(asset.content)
-            hashed_line = self.hasher.hash(normalized_content)
-            file_hashes.append((str(asset.path), hashed_line))
-
-        # Hash vocabulary mapping files
-        for asset in self.mapping_package.vocabulary_mapping_suite.files:
-            normalized_content = normalize_content(asset.content)
-            hashed_line = self.hasher.hash(normalized_content)
-            file_hashes.append((str(asset.path), hashed_line))
-
-        # Sort by file path for consistent ordering
-        file_hashes.sort(key=lambda x: x[0])
+        # Combine all file assets from technical and vocabulary mapping suites
+        all_file_assets = (
+            list(self.mapping_package.technical_mapping_suite.files) +
+            list(self.mapping_package.vocabulary_mapping_suite.files)
+        )
+        file_hashes = _hash_file_assets(all_file_assets, self.hasher)
 
         # Step 2: Collect all hash signatures
         signatures = [signature[1] for signature in file_hashes]

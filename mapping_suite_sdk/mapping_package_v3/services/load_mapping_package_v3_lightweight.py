@@ -19,7 +19,7 @@ def load_mapping_package_v3_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None
 ) -> MappingPackageV3Lightweight:
-    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
+    from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
     MPValidationStepABC.validate_folder_path(
         path=mapping_package_folder_path,
@@ -37,7 +37,7 @@ def load_mapping_package_v3_from_archive(
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
         archive_unpacker: Optional[ArchiveExtractor] = None
 ) -> MappingPackageV3Lightweight:
-    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
+    from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
     MPValidationStepABC.validate_archive_path(
         path=mapping_package_archive_path,

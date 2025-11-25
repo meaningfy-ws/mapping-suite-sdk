@@ -9,7 +9,7 @@ from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.loader import AssetLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
-from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
+from mapping_suite_sdk.core.adapters.validator import MPValidationException
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_validator import MappingPackageV3Validator, \

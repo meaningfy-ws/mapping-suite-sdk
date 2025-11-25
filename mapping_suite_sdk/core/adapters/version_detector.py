@@ -275,9 +275,9 @@ def _ensure_version_detection_initialized():
         return
 
     # Import version detection rules to trigger self-registration
-    from mapping_suite_sdk.mapping_package_v1.adapters import version_detection_rule as _  # noqa: F401
-    from mapping_suite_sdk.mapping_package_v2.adapters import version_detection_rule as _  # noqa: F401, F811
-    from mapping_suite_sdk.mapping_package_v3.adapters import version_detection_rule as _  # noqa: F401, F811
+    from mapping_suite_sdk.mapping_package_v1.adapters import mp_v1_version_detector as _  # noqa: F401
+    from mapping_suite_sdk.mapping_package_v2.adapters import mp_v2_version_detector as _  # noqa: F401, F811
+    from mapping_suite_sdk.mapping_package_v3.adapters import mp_v3_version_detector as _  # noqa: F401, F811
 
 
 def detect_mapping_package_version(

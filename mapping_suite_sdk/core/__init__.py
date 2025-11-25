@@ -33,7 +33,7 @@ class VersionDetectionRegistry:
 
         Example:
             >>> from mapping_suite_sdk.core import VersionDetectionRegistry
-            >>> from mapping_suite_sdk.mapping_package_v3.adapters.version_detection_rule import v3_full_detection_rule
+            >>> from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_version_detector import v3_full_detection_rule
             >>> VersionDetectionRegistry.register(v3_full_detection_rule, priority=2)
         """
         cls._rules[rule.version_id] = (rule, priority)

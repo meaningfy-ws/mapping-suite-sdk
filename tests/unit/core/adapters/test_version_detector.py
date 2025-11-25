@@ -21,9 +21,9 @@ from mapping_suite_sdk.core.adapters.version_detector import (
     _try_load_json_metadata,
     _get_nested_value
 )
-from mapping_suite_sdk.mapping_package_v1.adapters.version_detection_rule import V1_SPEC
-from mapping_suite_sdk.mapping_package_v2.adapters.version_detection_rule import V2_SPEC
-from mapping_suite_sdk.mapping_package_v3.adapters.version_detection_rule import (
+from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_version_detector import V1_SPEC
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_version_detector import V2_SPEC
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_version_detector import (
     V3_FULL_SPEC,
     V3_LIGHTWEIGHT_SPEC
 )

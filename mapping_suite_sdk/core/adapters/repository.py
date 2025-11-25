@@ -67,14 +67,39 @@ class MongoDBRepository(RepositoryABC[T]):
         if result is None:
             raise ModelNotFoundError(f"Asset with ID {model_id} not found")
 
-        return self.model_class.model_validate(result)
+        # Convert MongoDB document to dict and handle _id appropriately
+        result_dict = dict(result)
+        if "_id" in result_dict:
+            # Check if model has an 'id' field (with or without alias)
+            model_fields = self.model_class.model_fields
+            if "id" in model_fields or any(field.alias == "_id" for field in model_fields.values()):
+                # Model has id field, map _id to id
+                result_dict["id"] = result_dict.pop("_id")
+            else:
+                # Model doesn't have id field (e.g., computed property), just remove _id
+                result_dict.pop("_id")
+        return self.model_class.model_validate(result_dict)
 
     def read_many(self, filters: Optional[Dict[str, Any]] = None) -> List[T]:
         query = filters or {}
         results = self.collection.find(query)
         models = []
+        
+        # Check once if model has an 'id' field (with or without alias)
+        model_fields = self.model_class.model_fields
+        has_id_field = "id" in model_fields or any(field.alias == "_id" for field in model_fields.values())
+        
         for doc in results:
-            models.append(self.model_class.model_validate(doc))
+            # Convert MongoDB document to dict and handle _id appropriately
+            doc_dict = dict(doc)
+            if "_id" in doc_dict:
+                if has_id_field:
+                    # Model has id field, map _id to id
+                    doc_dict["id"] = doc_dict.pop("_id")
+                else:
+                    # Model doesn't have id field (e.g., computed property), just remove _id
+                    doc_dict.pop("_id")
+            models.append(self.model_class.model_validate(doc_dict))
 
         return models
 

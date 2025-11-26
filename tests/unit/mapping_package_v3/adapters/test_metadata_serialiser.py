@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.mapping_package_v3.adapters.metadata_serialiser import MappingPackageV3MetadataSerialiser
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_serialiser import MappingPackageV3MetadataSerialiser
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
 

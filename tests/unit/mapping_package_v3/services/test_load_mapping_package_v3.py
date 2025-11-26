@@ -6,7 +6,7 @@ import pytest
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import (
     load_mapping_package_v3_from_folder,

@@ -13,8 +13,8 @@ from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPa
 from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import \
     validate_mapping_package_v2_from_archive, validate_bulk_mapping_packages_v2_from_github, \
     validate_bulk_mapping_packages_v2_from_folder
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import \
     validate_mapping_package_v3_from_archive, validate_bulk_mapping_packages_v3_from_github, \
     validate_bulk_mapping_packages_v3_from_folder

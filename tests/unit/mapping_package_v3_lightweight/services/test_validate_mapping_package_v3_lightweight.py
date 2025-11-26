@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
-from mapping_suite_sdk.mapping_package_v3.adapters.hasher import MappingPackageV3Hasher
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
+from mapping_suite_sdk.core.adapters.validator import MPValidationException
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_lightweight import (
     validate_mapping_package_v3_lightweight,
     validate_mapping_package_v3_lightweight_from_archive,

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.mapping_package_v3.adapters.metadata_loader import MappingPackageV3MetadataLoader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_loader import MappingPackageV3MetadataLoader
 
 
 def test_mp_v3_metadata_loader_handles_missing_file() -> None:

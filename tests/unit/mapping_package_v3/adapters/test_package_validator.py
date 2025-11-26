@@ -2,8 +2,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from mapping_suite_sdk.mapping_package_v3.adapters.hasher import MappingPackageV3Hasher
-from mapping_suite_sdk.mapping_package_v3.adapters.validator import MappingPackageV3Validator, \
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_validator import MappingPackageV3Validator, \
     MPV3HashValidationException, MPV3StructuralValidationException
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 

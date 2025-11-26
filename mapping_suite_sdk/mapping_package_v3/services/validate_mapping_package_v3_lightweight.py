@@ -8,9 +8,9 @@ from pydantic import ValidationError
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
-from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
-from mapping_suite_sdk.mapping_package_v3.adapters.hasher import MappingPackageV3Hasher
-from mapping_suite_sdk.mapping_package_v3.adapters.package_loader_lightweight import MappingPackageV3LightweightLoader
+from mapping_suite_sdk.core.adapters.validator import MPValidationException
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import \
     load_mapping_package_v3_from_archive, \
@@ -48,7 +48,7 @@ def validate_mapping_package_v3_lightweight_from_archive(
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
         archive_unpacker: Optional[ArchiveExtractor] = None
 ) -> Literal[True] | NoReturn:
-    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
+    from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
     MPValidationStepABC.validate_archive_path(
         path=mapping_package_archive_path,
@@ -67,7 +67,7 @@ def validate_mapping_package_v3_lightweight_from_archive(
 def validate_mapping_package_v3_lightweight_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None) -> Literal[True] | NoReturn:
-    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
+    from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
     MPValidationStepABC.validate_folder_path(
         path=mapping_package_folder_path,
@@ -88,7 +88,7 @@ def validate_bulk_mapping_packages_v3_lightweight_from_folder(
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
         update_hash: bool = False,
 ) -> bool | NoReturn:
-    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
+    from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
     MPValidationStepABC.validate_folder_path(
         path=mapping_packages_folder_path,
@@ -142,7 +142,7 @@ def validate_bulk_mapping_packages_v3_lightweight_from_github(
         github_package_extractor: Optional[GitHubExtractor] = None,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
 ) -> bool | NoReturn:
-    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationStepABC
+    from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
     MPValidationStepABC.validate_string_parameter(
         value=github_repository_url,

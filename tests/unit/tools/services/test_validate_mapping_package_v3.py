@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.mapping_package_v3.adapters.validator import MPV3HashValidationException, \
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_validator import MPV3HashValidationException, \
     MappingPackageV3Validator
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import validate_mapping_package_v3, \
@@ -370,7 +370,7 @@ def test_validate_mapping_package_v3_from_archive_with_custom_validator(
 
 def test_validate_mapping_package_v3_from_archive_with_custom_loader(
         dummy_mapping_package_v3_archive_path: Path):
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
     custom_loader = MappingPackageV3Loader(include_test_data=False, include_output=False)
 
     result = validate_mapping_package_v3_from_archive(
@@ -408,7 +408,7 @@ def test_validate_mapping_package_v3_from_folder_with_custom_validator(
 
 def test_validate_mapping_package_v3_from_folder_with_custom_loader(
         dummy_mapping_package_v3_path: Path):
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
     custom_loader = MappingPackageV3Loader(include_test_data=True, include_output=True)
 
     result = validate_mapping_package_v3_from_folder(
@@ -434,7 +434,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_validator(
 
 def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_loader(
         fixture_mapping_package_v3_github_project_path: Path):
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
     mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
     custom_loader = MappingPackageV3Loader(include_test_data=False, include_output=False)
 
@@ -464,7 +464,7 @@ def test_validate_bulk_mapping_packages_v3_from_github_with_custom_validator(
 def test_validate_bulk_mapping_packages_v3_from_github_with_custom_loader(
         fixture_mapping_package_v3_github_project_path: Path,
         dummy_get_all_packages_pattern: str):
-    from mapping_suite_sdk.mapping_package_v3.adapters.package_loader import MappingPackageV3Loader
+    from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
     custom_loader = MappingPackageV3Loader(include_test_data=True, include_output=True)
 
     with setup_temporary_test_git_repository(fixture_mapping_package_v3_github_project_path) as repo_path:

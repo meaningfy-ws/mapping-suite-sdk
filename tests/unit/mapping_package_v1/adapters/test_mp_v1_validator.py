@@ -413,7 +413,7 @@ def test_mp_validation_exceptions_inheritance():
     hash_exc = MPHashValidationException("hash error")
 
     # Both should be instances of their base exception class
-    from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
+    from mapping_suite_sdk.core.adapters.validator import MPValidationException
 
     assert isinstance(structural_exc, MPValidationException)
     assert isinstance(hash_exc, MPValidationException)

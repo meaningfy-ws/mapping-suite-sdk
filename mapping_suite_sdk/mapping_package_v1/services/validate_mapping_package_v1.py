@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
-from mapping_suite_sdk.core.adapters.validator_abc import MPValidationException
+from mapping_suite_sdk.core.adapters.validator import MPValidationException
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_hasher import MappingPackageV1Hasher
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_validator import MappingPackageV1Validator, \

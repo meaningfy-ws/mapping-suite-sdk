@@ -62,6 +62,20 @@ class MongoDBRepository(RepositoryABC[T]):
 
         return model
 
+    def create_package(self, model: T) -> T:
+        """Create a mapping package in MongoDB.
+
+        This is a convenience method that wraps create() for better domain clarity
+        when working with mapping packages.
+
+        Args:
+            model (T): The mapping package model to save.
+
+        Returns:
+            T: The saved mapping package model.
+        """
+        return self.create(model)
+
     def read(self, model_id: str) -> T:
         result = self.collection.find_one({"_id": model_id})
         if result is None:

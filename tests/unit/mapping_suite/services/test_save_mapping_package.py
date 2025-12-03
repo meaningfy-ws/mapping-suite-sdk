@@ -6,6 +6,7 @@ Tests focus on service layer responsibilities:
 - Exception handling and validation
 - Integration with MongoDBRepository
 """
+import tempfile
 from pathlib import Path
 
 import mongomock
@@ -275,4 +276,66 @@ class TestSaveMappingPackageToMongoDB:
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
         assert stored_doc["_id"] == result.id
+
+    def test_determine_package_version_nested_root_without_metadata(self, tmp_path):
+        """Test _determine_package_version when nested_root exists but has no metadata files.
+        
+        This tests the branch where nested_root exists but metadata files don't exist in it.
+        The function should check the outer package_root instead.
+        """
+        from mapping_suite_sdk.mapping_suite.services.save_mapping_package import _determine_package_version
+        
+        # Create a package root structure
+        package_root = tmp_path / "package_root"
+        package_root.mkdir()
+        
+        # Create nested_root that exists but has no metadata
+        nested_root = package_root / package_root.name
+        nested_root.mkdir()
+        # Add a file to nested_root but no metadata
+        (nested_root / "some_file.txt").write_text("content")
+        
+        # Add metadata.json in package_root (not in nested_root)
+        (package_root / "metadata.json").write_text('{"metadata_constraints": {"constraints": {}}}')
+        
+        # Should detect v1 from package_root (not nested_root)
+        version = _determine_package_version(package_root)
+        assert version == "v1"
+        
+    def test_determine_package_version_nested_root_does_not_exist(self, tmp_path):
+        """Test _determine_package_version when nested_root doesn't exist.
+        
+        This tests the branch where nested_root.exists() is False (line 76 else branch).
+        """
+        from mapping_suite_sdk.mapping_suite.services.save_mapping_package import _determine_package_version
+        
+        # Create a package root without nested structure
+        package_root = tmp_path / "package_root"
+        package_root.mkdir()
+        
+        # Add metadata.json directly in package_root
+        (package_root / "metadata.json").write_text('{"metadata_constraints": {"constraints": {}}}')
+        
+        # nested_root would be package_root / package_root.name, which doesn't exist
+        # So it should use package_root directly
+        version = _determine_package_version(package_root)
+        assert version == "v1"
+
+
+    def test_determine_package_version_without_metadata_json(
+        self, tmp_path
+    ):
+        """Test _determine_package_version when metadata.json doesn't exist (defaults to v1).
+        
+        This tests the branch where metadata_json.exists() is False (line 166).
+        """
+        from mapping_suite_sdk.mapping_suite.services.save_mapping_package import _determine_package_version
+        
+        # Create a package root without metadata.json or metadata.jsonld
+        package_root = tmp_path / "test_package"
+        package_root.mkdir()
+        
+        # No metadata files - should default to v1
+        version = _determine_package_version(package_root)
+        assert version == "v1"
 

@@ -16,6 +16,7 @@ from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 from mapping_suite_sdk.mapping_suite.services.save_mapping_package import (
     save_mapping_package_to_mongo_db
 )
@@ -243,4 +244,35 @@ class TestSaveMappingPackageToMongoDB:
 
         assert isinstance(result, MappingPackageV1)
         assert result.id is not None
+
+    def test_save_mapping_package_to_mongo_db_success_v3L(
+        self, dummy_mapping_package_v3L_archive_path
+    ):
+        """Test successful saving of a v3L (lightweight) mapping package from archive to MongoDB."""
+        import mongomock
+
+        mongo_client = mongomock.MongoClient()
+        database_name = "test_db"
+        collection_name = "mapping_package"
+
+        result = save_mapping_package_to_mongo_db(
+            mapping_package_archive_path=dummy_mapping_package_v3L_archive_path,
+            mongo_client=mongo_client,
+            database_name=database_name,
+            collection_name=collection_name
+        )
+
+        assert isinstance(result, MappingPackageV3Lightweight)
+        assert result.id is not None
+
+        # Verify it was saved to MongoDB
+        repository = MongoDBRepository[MappingPackageV3Lightweight](
+            model_class=MappingPackageV3Lightweight,
+            mongo_client=mongo_client,
+            database_name=database_name,
+            collection_name=collection_name
+        )
+        stored_doc = repository.collection.find_one({"_id": result.id})
+        assert stored_doc is not None
+        assert stored_doc["_id"] == result.id
 

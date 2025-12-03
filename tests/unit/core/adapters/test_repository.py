@@ -155,3 +155,61 @@ def test_create_package_delegates_to_create(dummy_mongo_repository: MongoDBRepos
     # Verify the method exists and is callable
     assert hasattr(dummy_mongo_repository, 'create_package')
     assert callable(dummy_mongo_repository.create_package)
+
+
+def test_read_with_computed_id_property(mongo_client: mongomock.MongoClient, dummy_mapping_package_v1_model):
+    """Test read() with a model that has a computed id property (not in model_fields).
+    
+    This tests the branch where model doesn't have an 'id' field in model_fields,
+    but has a computed property (like MappingPackageV1.id).
+    """
+    from mapping_suite_sdk.mapping_package_v1.models import MappingPackageV1
+    
+    repository = MongoDBRepository[MappingPackageV1](
+        model_class=MappingPackageV1,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="mapping_package"
+    )
+    
+    # Create the package
+    created_package = repository.create(dummy_mapping_package_v1_model)
+    package_id = created_package.id
+    
+    # Read it back - this should test the branch where _id is removed (not mapped to id)
+    read_package = repository.read(package_id)
+    
+    assert read_package.id == package_id
+    assert read_package.metadata.identifier == dummy_mapping_package_v1_model.metadata.identifier
+
+
+def test_read_many_with_computed_id_property(mongo_client: mongomock.MongoClient, dummy_mapping_package_v1_model):
+    """Test read_many() with models that have computed id properties (not in model_fields).
+    
+    This tests the branch where model doesn't have an 'id' field in model_fields,
+    but has a computed property (like MappingPackageV1.id).
+    """
+    from mapping_suite_sdk.mapping_package_v1.models import MappingPackageV1
+    
+    repository = MongoDBRepository[MappingPackageV1](
+        model_class=MappingPackageV1,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="mapping_package"
+    )
+    
+    # Create multiple packages
+    package1 = repository.create(dummy_mapping_package_v1_model)
+    
+    # Create a second package by modifying the identifier
+    package2_data = dummy_mapping_package_v1_model.model_copy(deep=True)
+    package2_data.metadata.identifier = "package_F23"
+    package2 = repository.create(package2_data)
+    
+    # Read all packages - this should test the branch where _id is removed (not mapped to id)
+    all_packages = repository.read_many()
+    
+    assert len(all_packages) >= 2
+    package_ids = {p.id for p in all_packages}
+    assert package1.id in package_ids
+    assert package2.id in package_ids

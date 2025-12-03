@@ -40,6 +40,7 @@ from tests import (
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH,
+    TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_PATH,
     TEST_DATA_MAPPING_PACKAGES_V3_REPO_PATH,
     TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
     TEST_DATA_EXAMPLE_MAPPING_SUITE_ARCHIVE_PATH,
@@ -237,6 +238,12 @@ def dummy_mapping_package_v2_archive_path():
 def dummy_mapping_package_v3_archive_path():
     """Returns the archive path from the parameter tuple."""
     return TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH
+
+
+@pytest.fixture
+def dummy_mapping_package_v3L_archive_path():
+    """Returns the archive path from the parameter tuple."""
+    return TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_PATH
 
 
 @pytest.fixture

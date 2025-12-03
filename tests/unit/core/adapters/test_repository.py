@@ -213,3 +213,61 @@ def test_read_many_with_computed_id_property(mongo_client: mongomock.MongoClient
     package_ids = {p.id for p in all_packages}
     assert package1.id in package_ids
     assert package2.id in package_ids
+
+
+def test_read_without_id_field(mongo_client: mongomock.MongoClient, sample_model: TestModel):
+    """Test read() when document doesn't have _id field (edge case).
+    
+    This tests the defensive code path where _id might not be present.
+    """
+    from unittest.mock import patch
+    
+    repository = MongoDBRepository[TestModel](
+        model_class=TestModel,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="test_collection"
+    )
+    
+    # Mock find_one to return a document without _id
+    doc_without_id = sample_model.model_dump(by_alias=True, mode="json")
+    doc_without_id.pop("_id", None)
+    
+    with patch.object(repository.collection, 'find_one', return_value=doc_without_id):
+        # Read should handle the case where _id is not in the document
+        result = repository.read(sample_model.id)
+        assert result.name == sample_model.name
+        assert result.id == sample_model.id  # Should use the provided id
+
+
+def test_read_many_without_id_field(mongo_client: mongomock.MongoClient, sample_model: TestModel):
+    """Test read_many() when documents don't have _id field (edge case).
+    
+    This tests the defensive code path where _id might not be present in documents.
+    """
+    from unittest.mock import patch
+    
+    repository = MongoDBRepository[TestModel](
+        model_class=TestModel,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="test_collection"
+    )
+    
+    # Create documents without _id
+    doc1 = sample_model.model_dump(by_alias=True, mode="json")
+    doc1.pop("_id", None)
+    doc1["name"] = "Model Without ID 1"
+    
+    doc2 = sample_model.model_dump(by_alias=True, mode="json")
+    doc2.pop("_id", None)
+    doc2["name"] = "Model Without ID 2"
+    
+    # Mock find to return documents without _id
+    with patch.object(repository.collection, 'find', return_value=iter([doc1, doc2])):
+        # Read should handle documents without _id
+        results = repository.read_many()
+        assert len(results) == 2
+        names = {r.name for r in results}
+        assert "Model Without ID 1" in names
+        assert "Model Without ID 2" in names

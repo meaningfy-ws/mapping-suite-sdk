@@ -2,17 +2,13 @@
 Unit tests for the save_mapping_package service.
 
 Tests focus on service layer responsibilities:
-- Orchestration of load and save workflow
-- Exception handling and validation
-- Integration with MongoDBRepository
+- Simple dump-to-mongo functionality
+- Model type detection and repository selection
+- Integration with PackageRepository
 """
-import tempfile
-from pathlib import Path
-
 import mongomock
 import pytest
 
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
@@ -24,20 +20,16 @@ from mapping_suite_sdk.mapping_suite.services.save_mapping_package import (
 
 
 class TestSaveMappingPackageToMongoDB:
-    """Tests for saving mapping packages from zip archives to MongoDB."""
+    """Tests for saving mapping package models to MongoDB."""
 
-    def test_save_mapping_package_to_mongo_db_success_v1(
-        self, dummy_mapping_package_v1_archive_path
-    ):
-        """Test successful saving of a v1 mapping package from archive to MongoDB."""
-        import mongomock
-
+    def test_save_mapping_package_v1_success(self, dummy_mapping_package_v1_model):
+        """Test successful saving of a v1 mapping package model to MongoDB."""
         mongo_client = mongomock.MongoClient()
         database_name = "test_db"
         collection_name = "mapping_package"
 
         result = save_mapping_package_to_mongo_db(
-            mapping_package_archive_path=dummy_mapping_package_v1_archive_path,
+            mapping_package=dummy_mapping_package_v1_model,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=collection_name
@@ -57,18 +49,14 @@ class TestSaveMappingPackageToMongoDB:
         assert stored_doc is not None
         assert stored_doc["_id"] == result.id
 
-    def test_save_mapping_package_to_mongo_db_success_v2(
-        self, dummy_mapping_package_v2_archive_path
-    ):
-        """Test successful saving of a v2 mapping package from archive to MongoDB."""
-        import mongomock
-
+    def test_save_mapping_package_v2_success(self, dummy_mapping_package_v2_model):
+        """Test successful saving of a v2 mapping package model to MongoDB."""
         mongo_client = mongomock.MongoClient()
         database_name = "test_db"
         collection_name = "mapping_package"
 
         result = save_mapping_package_to_mongo_db(
-            mapping_package_archive_path=dummy_mapping_package_v2_archive_path,
+            mapping_package=dummy_mapping_package_v2_model,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=collection_name
@@ -88,18 +76,14 @@ class TestSaveMappingPackageToMongoDB:
         assert stored_doc is not None
         assert stored_doc["_id"] == result.id
 
-    def test_save_mapping_package_to_mongo_db_success_v3(
-        self, dummy_mapping_package_v3_archive_path
-    ):
-        """Test successful saving of a v3 mapping package from archive to MongoDB."""
-        import mongomock
-
+    def test_save_mapping_package_v3_success(self, fixture_mapping_package_v3_model):
+        """Test successful saving of a v3 mapping package model to MongoDB."""
         mongo_client = mongomock.MongoClient()
         database_name = "test_db"
         collection_name = "mapping_package"
 
         result = save_mapping_package_to_mongo_db(
-            mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
+            mapping_package=fixture_mapping_package_v3_model,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=collection_name
@@ -119,145 +103,21 @@ class TestSaveMappingPackageToMongoDB:
         assert stored_doc is not None
         assert stored_doc["_id"] == result.id
 
-    def test_save_mapping_package_to_mongo_db_file_not_found(self):
-        """Test error handling for non-existent archive file."""
-        import mongomock
-
-        mongo_client = mongomock.MongoClient()
-        non_existent_path = Path("/non/existent/package.zip")
-
-        with pytest.raises(FileNotFoundError) as exc_info:
-            save_mapping_package_to_mongo_db(
-                mapping_package_archive_path=non_existent_path,
-                mongo_client=mongo_client,
-                database_name="test_db"
-            )
-
-        assert "Mapping package archive not found" in str(exc_info.value)
-
-    def test_save_mapping_package_to_mongo_db_not_a_file(self, tmp_path):
-        """Test error handling when path is not a file."""
-        import mongomock
-
-        mongo_client = mongomock.MongoClient()
-        directory_path = tmp_path / "not_a_file"
-        directory_path.mkdir()
-
-        with pytest.raises(ValueError) as exc_info:
-            save_mapping_package_to_mongo_db(
-                mapping_package_archive_path=directory_path,
-                mongo_client=mongo_client,
-                database_name="test_db"
-            )
-
-        assert "Specified path is not a file" in str(exc_info.value)
-
-    def test_save_mapping_package_to_mongo_db_none_client(
-        self, dummy_mapping_package_v1_archive_path
-    ):
-        """Test error handling for None MongoDB client."""
-        with pytest.raises(ValueError) as exc_info:
-            save_mapping_package_to_mongo_db(
-                mapping_package_archive_path=dummy_mapping_package_v1_archive_path,
-                mongo_client=None,
-                database_name="test_db"
-            )
-
-        assert "MongoDB client must be provided" in str(exc_info.value)
-
-    def test_save_mapping_package_to_mongo_db_custom_collection_name(
-        self, dummy_mapping_package_v1_archive_path
-    ):
-        """Test that custom collection name is used."""
-        import mongomock
-
-        mongo_client = mongomock.MongoClient()
-        database_name = "test_db"
-        custom_collection_name = "custom_packages"
-
-        result = save_mapping_package_to_mongo_db(
-            mapping_package_archive_path=dummy_mapping_package_v1_archive_path,
-            mongo_client=mongo_client,
-            database_name=database_name,
-            collection_name=custom_collection_name
+    def test_save_mapping_package_v3L_success(self, dummy_mapping_package_v3L_archive_path):
+        """Test successful saving of a v3L mapping package model to MongoDB."""
+        from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import (
+            load_mapping_package_v3_from_archive
         )
-
-        # Verify it was saved to the custom collection
-        repository = MongoDBRepository[MappingPackageV1](
-            model_class=MappingPackageV1,
-            mongo_client=mongo_client,
-            database_name=database_name,
-            collection_name=custom_collection_name
-        )
-        stored_doc = repository.collection.find_one({"_id": result.id})
-        assert stored_doc is not None
-
-    def test_save_mapping_package_to_mongo_db_tracer_decoration(self):
-        """Test that the function is properly decorated with tracer."""
-        assert hasattr(save_mapping_package_to_mongo_db, '__name__')
-        assert save_mapping_package_to_mongo_db.__name__ == 'save_mapping_package_to_mongo_db'
-
-    def test_save_mapping_package_to_mongo_db_uses_package_id(
-        self, dummy_mapping_package_v1_archive_path
-    ):
-        """Test that save uses the package's identifier for MongoDB _id."""
-        import mongomock
-
+        
         mongo_client = mongomock.MongoClient()
         database_name = "test_db"
         collection_name = "mapping_package"
 
+        # Load v3L model from archive
+        v3L_model = load_mapping_package_v3_from_archive(dummy_mapping_package_v3L_archive_path)
+        
         result = save_mapping_package_to_mongo_db(
-            mapping_package_archive_path=dummy_mapping_package_v1_archive_path,
-            mongo_client=mongo_client,
-            database_name=database_name,
-            collection_name=collection_name
-        )
-
-        expected_id = result.id
-
-        # Verify the package was saved with the correct _id
-        repository = MongoDBRepository[MappingPackageV1](
-            model_class=MappingPackageV1,
-            mongo_client=mongo_client,
-            database_name=database_name,
-            collection_name=collection_name
-        )
-        stored_doc = repository.collection.find_one({"_id": expected_id})
-        assert stored_doc is not None
-        assert stored_doc["_id"] == expected_id
-
-    def test_save_mapping_package_to_mongo_db_custom_extractor(
-        self, dummy_mapping_package_v1_archive_path
-    ):
-        """Test that custom archive extractor can be provided."""
-        import mongomock
-
-        mongo_client = mongomock.MongoClient()
-        custom_extractor = ArchiveExtractor()
-
-        result = save_mapping_package_to_mongo_db(
-            mapping_package_archive_path=dummy_mapping_package_v1_archive_path,
-            mongo_client=mongo_client,
-            database_name="test_db",
-            archive_unpacker=custom_extractor
-        )
-
-        assert isinstance(result, MappingPackageV1)
-        assert result.id is not None
-
-    def test_save_mapping_package_to_mongo_db_success_v3L(
-        self, dummy_mapping_package_v3L_archive_path
-    ):
-        """Test successful saving of a v3L (lightweight) mapping package from archive to MongoDB."""
-        import mongomock
-
-        mongo_client = mongomock.MongoClient()
-        database_name = "test_db"
-        collection_name = "mapping_package"
-
-        result = save_mapping_package_to_mongo_db(
-            mapping_package_archive_path=dummy_mapping_package_v3L_archive_path,
+            mapping_package=v3L_model,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=collection_name
@@ -277,65 +137,83 @@ class TestSaveMappingPackageToMongoDB:
         assert stored_doc is not None
         assert stored_doc["_id"] == result.id
 
-    def test_determine_package_version_nested_root_without_metadata(self, tmp_path):
-        """Test _determine_package_version when nested_root exists but has no metadata files.
-        
-        This tests the branch where nested_root exists but metadata files don't exist in it.
-        The function should check the outer package_root instead.
-        """
-        from mapping_suite_sdk.mapping_suite.services.save_mapping_package import _determine_package_version
-        
-        # Create a package root structure
-        package_root = tmp_path / "package_root"
-        package_root.mkdir()
-        
-        # Create nested_root that exists but has no metadata
-        nested_root = package_root / package_root.name
-        nested_root.mkdir()
-        # Add a file to nested_root but no metadata
-        (nested_root / "some_file.txt").write_text("content")
-        
-        # Add metadata.json in package_root (not in nested_root)
-        (package_root / "metadata.json").write_text('{"metadata_constraints": {"constraints": {}}}')
-        
-        # Should detect v1 from package_root (not nested_root)
-        version = _determine_package_version(package_root)
-        assert version == "v1"
-        
-    def test_determine_package_version_nested_root_does_not_exist(self, tmp_path):
-        """Test _determine_package_version when nested_root doesn't exist.
-        
-        This tests the branch where nested_root.exists() is False (line 76 else branch).
-        """
-        from mapping_suite_sdk.mapping_suite.services.save_mapping_package import _determine_package_version
-        
-        # Create a package root without nested structure
-        package_root = tmp_path / "package_root"
-        package_root.mkdir()
-        
-        # Add metadata.json directly in package_root
-        (package_root / "metadata.json").write_text('{"metadata_constraints": {"constraints": {}}}')
-        
-        # nested_root would be package_root / package_root.name, which doesn't exist
-        # So it should use package_root directly
-        version = _determine_package_version(package_root)
-        assert version == "v1"
+    def test_save_mapping_package_none_client(self, dummy_mapping_package_v1_model):
+        """Test error handling for None MongoDB client."""
+        with pytest.raises(ValueError) as exc_info:
+            save_mapping_package_to_mongo_db(
+                mapping_package=dummy_mapping_package_v1_model,
+                mongo_client=None,
+                database_name="test_db"
+            )
 
+        assert "MongoDB client must be provided" in str(exc_info.value)
 
-    def test_determine_package_version_without_metadata_json(
-        self, tmp_path
-    ):
-        """Test _determine_package_version when metadata.json doesn't exist (defaults to v1).
-        
-        This tests the branch where metadata_json.exists() is False (line 166).
-        """
-        from mapping_suite_sdk.mapping_suite.services.save_mapping_package import _determine_package_version
-        
-        # Create a package root without metadata.json or metadata.jsonld
-        package_root = tmp_path / "test_package"
-        package_root.mkdir()
-        
-        # No metadata files - should default to v1
-        version = _determine_package_version(package_root)
-        assert version == "v1"
+    def test_save_mapping_package_custom_collection_name(self, dummy_mapping_package_v1_model):
+        """Test that custom collection name is used."""
+        mongo_client = mongomock.MongoClient()
+        database_name = "test_db"
+        custom_collection_name = "custom_packages"
 
+        result = save_mapping_package_to_mongo_db(
+            mapping_package=dummy_mapping_package_v1_model,
+            mongo_client=mongo_client,
+            database_name=database_name,
+            collection_name=custom_collection_name
+        )
+
+        # Verify it was saved to the custom collection
+        repository = MongoDBRepository[MappingPackageV1](
+            model_class=MappingPackageV1,
+            mongo_client=mongo_client,
+            database_name=database_name,
+            collection_name=custom_collection_name
+        )
+        stored_doc = repository.collection.find_one({"_id": result.id})
+        assert stored_doc is not None
+
+    def test_save_mapping_package_tracer_decoration(self):
+        """Test that the function is properly decorated with tracer."""
+        assert hasattr(save_mapping_package_to_mongo_db, '__name__')
+        assert save_mapping_package_to_mongo_db.__name__ == 'save_mapping_package_to_mongo_db'
+
+    def test_save_mapping_package_uses_package_id(self, dummy_mapping_package_v1_model):
+        """Test that save uses the package's identifier for MongoDB _id."""
+        mongo_client = mongomock.MongoClient()
+        database_name = "test_db"
+        collection_name = "mapping_package"
+
+        result = save_mapping_package_to_mongo_db(
+            mapping_package=dummy_mapping_package_v1_model,
+            mongo_client=mongo_client,
+            database_name=database_name,
+            collection_name=collection_name
+        )
+
+        expected_id = result.id
+
+        # Verify the package was saved with the correct _id
+        repository = MongoDBRepository[MappingPackageV1](
+            model_class=MappingPackageV1,
+            mongo_client=mongo_client,
+            database_name=database_name,
+            collection_name=collection_name
+        )
+        stored_doc = repository.collection.find_one({"_id": expected_id})
+        assert stored_doc is not None
+        assert stored_doc["_id"] == expected_id
+
+    def test_save_mapping_package_unsupported_type(self):
+        """Test error handling for unsupported package type."""
+        mongo_client = mongomock.MongoClient()
+
+        class UnsupportedPackage:
+            pass
+
+        with pytest.raises(ValueError) as exc_info:
+            save_mapping_package_to_mongo_db(
+                mapping_package=UnsupportedPackage(),
+                mongo_client=mongo_client,
+                database_name="test_db"
+            )
+
+        assert "Unsupported mapping package type" in str(exc_info.value)

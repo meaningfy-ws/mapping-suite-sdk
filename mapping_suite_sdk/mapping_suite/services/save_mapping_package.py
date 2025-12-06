@@ -12,7 +12,7 @@ from typing import Optional, Union
 from pymongo import MongoClient
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
-from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.core.adapters.package_repository import PackageRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 # Import from __init__ to ensure id property is patched
 from mapping_suite_sdk.mapping_package_v1.models import MappingPackageV1
@@ -88,7 +88,7 @@ def save_mapping_package_to_mongo_db(
             mapping_package = load_mapping_package_v1_from_folder(
                 mapping_package_folder_path=package_root
             )
-            repository = MongoDBRepository[MappingPackageV1](
+            repository = PackageRepository[MappingPackageV1](
                 model_class=MappingPackageV1,
                 mongo_client=mongo_client,
                 database_name=database_name,
@@ -103,7 +103,7 @@ def save_mapping_package_to_mongo_db(
             mapping_package = load_mapping_package_v2_from_folder(
                 mapping_package_folder_path=package_root
             )
-            repository = MongoDBRepository[MappingPackageV2](
+            repository = PackageRepository[MappingPackageV2](
                 model_class=MappingPackageV2,
                 mongo_client=mongo_client,
                 database_name=database_name,
@@ -118,7 +118,7 @@ def save_mapping_package_to_mongo_db(
             mapping_package = load_mapping_package_v3_from_folder(
                 mapping_package_folder_path=package_root
             )
-            repository = MongoDBRepository[MappingPackageV3](
+            repository = PackageRepository[MappingPackageV3](
                 model_class=MappingPackageV3,
                 mongo_client=mongo_client,
                 database_name=database_name,
@@ -133,7 +133,7 @@ def save_mapping_package_to_mongo_db(
             mapping_package = load_mapping_package_v3_from_folder(
                 mapping_package_folder_path=package_root
             )
-            repository = MongoDBRepository[MappingPackageV3Lightweight](
+            repository = PackageRepository[MappingPackageV3Lightweight](
                 model_class=MappingPackageV3Lightweight,
                 mongo_client=mongo_client,
                 database_name=database_name,

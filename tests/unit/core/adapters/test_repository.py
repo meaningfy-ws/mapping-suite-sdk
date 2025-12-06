@@ -129,34 +129,6 @@ def test_repository_use_custom_collection_name(mongo_client: mongomock.MongoClie
     assert repository.collection_name == dummy_collection_name
 
 
-def test_create_package_with_success(dummy_mongo_repository: MongoDBRepository, sample_model: TestModel):
-    """Test that create_package() successfully creates a model in MongoDB."""
-    result = dummy_mongo_repository.create_package(sample_model)
-    stored_result = dummy_mongo_repository.collection.find_one({"_id": sample_model.id})
-
-    assert result == sample_model
-    assert stored_result is not None
-    stored_model = TestModel.model_validate(stored_result)
-
-    assert stored_model == sample_model
-
-
-def test_create_package_delegates_to_create(dummy_mongo_repository: MongoDBRepository, sample_model: TestModel):
-    """Test that create_package() delegates to create() method."""
-    # Verify create_package behaves the same as create
-    result_create_package = dummy_mongo_repository.create_package(sample_model)
-    stored_result = dummy_mongo_repository.collection.find_one({"_id": sample_model.id})
-
-    assert result_create_package == sample_model
-    assert stored_result is not None
-    stored_model = TestModel.model_validate(stored_result)
-    assert stored_model == sample_model
-
-    # Verify the method exists and is callable
-    assert hasattr(dummy_mongo_repository, 'create_package')
-    assert callable(dummy_mongo_repository.create_package)
-
-
 def test_read_with_computed_id_property(mongo_client: mongomock.MongoClient, dummy_mapping_package_v1_model):
     """Test read() with a model that has a computed id property (not in model_fields).
     

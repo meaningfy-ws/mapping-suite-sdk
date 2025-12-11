@@ -2,17 +2,13 @@
 Unit tests for MappingPackageV3Saver.
 
 Tests focus on adapter responsibilities:
-- Archive extraction
-- Package loading
-- Integration with save_mapping_package service
+- Saving package models to MongoDB
 """
-from pathlib import Path
-
 import mongomock
-import pytest
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_saver import MappingPackageV3Saver
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 
@@ -20,15 +16,28 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import Mappi
 class TestMappingPackageV3Saver:
     """Tests for MappingPackageV3Saver."""
 
-    def test_save_from_archive_success(self, dummy_mapping_package_v3_archive_path):
-        """Test successful saving of a v3 mapping package from archive to MongoDB."""
+    def test_save_success(self, dummy_mapping_package_v3_archive_path):
+        """Test successful saving of a v3 mapping package model to MongoDB."""
         mongo_client = mongomock.MongoClient()
         database_name = "test_db"
         collection_name = "mapping_package"
 
+        # Load package from archive first
+        extractor = ArchiveExtractor()
+        with extractor.extract_temporary(dummy_mapping_package_v3_archive_path) as temp_folder:
+            package_root = temp_folder
+            nested_root = temp_folder / temp_folder.name
+            if nested_root.exists() and nested_root.is_dir():
+                if (nested_root / "metadata.jsonld").exists():
+                    package_root = nested_root
+
+            loader = MappingPackageV3Loader()
+            mapping_package = loader.load(package_root)
+
+        # Save to MongoDB
         saver = MappingPackageV3Saver()
-        result = saver.save_from_archive(
-            mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
+        result = saver.save(
+            mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=collection_name
@@ -48,46 +57,28 @@ class TestMappingPackageV3Saver:
         assert stored_doc is not None
         assert stored_doc["_id"] == result.id
 
-    def test_save_from_archive_file_not_found(self):
-        """Test error handling for non-existent archive file."""
-        mongo_client = mongomock.MongoClient()
-        non_existent_path = Path("/non/existent/package.zip")
-
-        saver = MappingPackageV3Saver()
-        with pytest.raises(FileNotFoundError) as exc_info:
-            saver.save_from_archive(
-                mapping_package_archive_path=non_existent_path,
-                mongo_client=mongo_client,
-                database_name="test_db"
-            )
-
-        assert "Mapping package archive not found" in str(exc_info.value)
-
-    def test_save_from_archive_not_a_file(self, tmp_path):
-        """Test error handling when path is not a file."""
-        mongo_client = mongomock.MongoClient()
-        directory_path = tmp_path / "not_a_file"
-        directory_path.mkdir()
-
-        saver = MappingPackageV3Saver()
-        with pytest.raises(ValueError) as exc_info:
-            saver.save_from_archive(
-                mapping_package_archive_path=directory_path,
-                mongo_client=mongo_client,
-                database_name="test_db"
-            )
-
-        assert "Specified path is not a file" in str(exc_info.value)
-
-    def test_save_from_archive_custom_collection_name(self, dummy_mapping_package_v3_archive_path):
+    def test_save_custom_collection_name(self, dummy_mapping_package_v3_archive_path):
         """Test that custom collection name is used."""
         mongo_client = mongomock.MongoClient()
         database_name = "test_db"
         custom_collection_name = "custom_packages"
 
+        # Load package from archive first
+        extractor = ArchiveExtractor()
+        with extractor.extract_temporary(dummy_mapping_package_v3_archive_path) as temp_folder:
+            package_root = temp_folder
+            nested_root = temp_folder / temp_folder.name
+            if nested_root.exists() and nested_root.is_dir():
+                if (nested_root / "metadata.jsonld").exists():
+                    package_root = nested_root
+
+            loader = MappingPackageV3Loader()
+            mapping_package = loader.load(package_root)
+
+        # Save to MongoDB
         saver = MappingPackageV3Saver()
-        result = saver.save_from_archive(
-            mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
+        result = saver.save(
+            mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=custom_collection_name
@@ -103,36 +94,34 @@ class TestMappingPackageV3Saver:
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
 
-    def test_save_from_archive_custom_extractor(self, dummy_mapping_package_v3_archive_path):
-        """Test that custom archive extractor can be provided."""
-        mongo_client = mongomock.MongoClient()
-        custom_extractor = ArchiveExtractor()
-
-        saver = MappingPackageV3Saver(archive_unpacker=custom_extractor)
-        result = saver.save_from_archive(
-            mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
-            mongo_client=mongo_client,
-            database_name="test_db"
-        )
-
-        assert isinstance(result, MappingPackageV3)
-        assert result.id is not None
-
-    def test_save_from_archive_uses_package_id(self, dummy_mapping_package_v3_archive_path):
+    def test_save_uses_package_id(self, dummy_mapping_package_v3_archive_path):
         """Test that save uses the package's identifier for MongoDB _id."""
         mongo_client = mongomock.MongoClient()
         database_name = "test_db"
         collection_name = "mapping_package"
 
+        # Load package from archive first
+        extractor = ArchiveExtractor()
+        with extractor.extract_temporary(dummy_mapping_package_v3_archive_path) as temp_folder:
+            package_root = temp_folder
+            nested_root = temp_folder / temp_folder.name
+            if nested_root.exists() and nested_root.is_dir():
+                if (nested_root / "metadata.jsonld").exists():
+                    package_root = nested_root
+
+            loader = MappingPackageV3Loader()
+            mapping_package = loader.load(package_root)
+
+        expected_id = mapping_package.id
+
+        # Save to MongoDB
         saver = MappingPackageV3Saver()
-        result = saver.save_from_archive(
-            mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
+        result = saver.save(
+            mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=collection_name
         )
-
-        expected_id = result.id
 
         # Verify the package was saved with the correct _id
         repository = MongoDBRepository[MappingPackageV3](
@@ -144,4 +133,4 @@ class TestMappingPackageV3Saver:
         stored_doc = repository.collection.find_one({"_id": expected_id})
         assert stored_doc is not None
         assert stored_doc["_id"] == expected_id
-
+        assert result.id == expected_id

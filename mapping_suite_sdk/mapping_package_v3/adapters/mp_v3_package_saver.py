@@ -1,18 +1,13 @@
 """
-Adapter for saving MappingPackageV3 from archives to MongoDB.
+Adapter for saving MappingPackageV3 to MongoDB.
 
-This adapter handles extraction and loading of v3 mapping packages,
-then saves them to MongoDB using the save_mapping_package service.
+This adapter saves v3 mapping package models to MongoDB.
 """
 import logging
-from pathlib import Path
-from typing import Optional
 
 from pymongo import MongoClient
 
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_class
-from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_suite.services.save_mapping_package import (
     save_mapping_package_to_mongo_db
@@ -23,65 +18,30 @@ logger = logging.getLogger(__name__)
 
 @traced_class
 class MappingPackageV3Saver:
-    """Saver for MappingPackageV3 from zip archives to MongoDB."""
+    """Saver for MappingPackageV3 to MongoDB."""
 
-    def __init__(self, archive_unpacker: Optional[ArchiveExtractor] = None):
-        """Initialize the saver.
-
-        Args:
-            archive_unpacker: Custom archive extractor instance.
-                If None, a default ArchiveExtractor will be used.
-        """
-        self.archive_unpacker = archive_unpacker or ArchiveExtractor()
-
-    def save_from_archive(
+    def save(
             self,
-            mapping_package_archive_path: Path,
+            mapping_package: MappingPackageV3,
             mongo_client: MongoClient,
             database_name: str,
             collection_name: str = "mapping_package"
     ) -> MappingPackageV3:
-        """Load a v3 mapping package from a zip archive and save it to MongoDB.
+        """Save a v3 mapping package model to MongoDB.
 
         Args:
-            mapping_package_archive_path: Path to the zip archive file.
+            mapping_package: The mapping package model to save.
             mongo_client: MongoDB client instance.
             database_name: Name of the MongoDB database.
             collection_name: Name of the MongoDB collection. Defaults to "mapping_package".
 
         Returns:
-            The loaded and saved mapping package.
-
-        Raises:
-            FileNotFoundError: If the archive file does not exist.
-            ValueError: If the path is not a file, or if the package cannot be loaded.
+            The saved mapping package model.
         """
-        if not mapping_package_archive_path.exists():
-            raise FileNotFoundError(
-                f"Mapping package archive not found: {mapping_package_archive_path}"
-            )
-
-        if not mapping_package_archive_path.is_file():
-            raise ValueError(f"Specified path is not a file: {mapping_package_archive_path}")
-
-        # Extract archive temporarily
-        with self.archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_folder:
-            # Resolve package root (handle nested folder structure)
-            package_root = temp_folder
-            nested_root = temp_folder / temp_folder.name
-            if nested_root.exists() and nested_root.is_dir():
-                if (nested_root / "metadata.jsonld").exists():
-                    package_root = nested_root
-
-            # Load the package using the adapter loader
-            loader = MappingPackageV3Loader()
-            mapping_package = loader.load(package_root)
-
-            # Save to MongoDB
-            return save_mapping_package_to_mongo_db(
-                mapping_package=mapping_package,
-                mongo_client=mongo_client,
-                database_name=database_name,
-                collection_name=collection_name
-            )
+        return save_mapping_package_to_mongo_db(
+            mapping_package=mapping_package,
+            mongo_client=mongo_client,
+            database_name=database_name,
+            collection_name=collection_name
+        )
 

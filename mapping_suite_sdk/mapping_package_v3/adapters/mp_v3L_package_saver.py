@@ -7,12 +7,10 @@ import logging
 
 from pymongo import MongoClient
 
+from mapping_suite_sdk.core.adapters.package_repository import PackageRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import (
     MappingPackageV3Lightweight
-)
-from mapping_suite_sdk.mapping_suite.services.save_mapping_package import (
-    save_mapping_package_to_mongo_db
 )
 
 logger = logging.getLogger(__name__)
@@ -40,10 +38,15 @@ class MappingPackageV3LightweightSaver:
         Returns:
             The saved mapping package model.
         """
-        return save_mapping_package_to_mongo_db(
-            mapping_package=mapping_package,
+        if not mongo_client:
+            raise ValueError("MongoDB client must be provided")
+
+        repository = PackageRepository[MappingPackageV3Lightweight](
+            model_class=MappingPackageV3Lightweight,
             mongo_client=mongo_client,
             database_name=database_name,
             collection_name=collection_name
         )
+
+        return repository.create_package(mapping_package)
 

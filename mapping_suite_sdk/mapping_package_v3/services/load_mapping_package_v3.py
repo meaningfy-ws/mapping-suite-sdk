@@ -89,7 +89,7 @@ def load_mapping_packages_v3_from_github(
 
 
 @traced_routine
-def load_mapping_package_v2_from_mongo_db(
+def load_mapping_package_v3_from_mongo_db(
         mapping_package_id: str,
         mapping_package_repository: MongoDBRepository[MappingPackageV3]
 ) -> MappingPackageV3:

@@ -12,7 +12,7 @@ from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 impor
     load_mapping_package_v3_from_folder,
     load_mapping_package_v3_from_archive,
     load_mapping_packages_v3_from_github,
-    load_mapping_package_v2_from_mongo_db
+    load_mapping_package_v3_from_mongo_db
 )
 
 
@@ -123,7 +123,7 @@ def test_load_mapping_package_v3_from_mongo_db_success():
     mock_package = Mock(spec=MappingPackageV3)
     mock_repository.read.return_value = mock_package
 
-    result = load_mapping_package_v2_from_mongo_db("test_id", mock_repository)
+    result = load_mapping_package_v3_from_mongo_db("test_id", mock_repository)
 
     mock_repository.read.assert_called_once_with("test_id")
     assert result == mock_package
@@ -133,7 +133,7 @@ def test_load_mapping_package_v3_from_mongo_db_empty_id():
     mock_repository = Mock(spec=MongoDBRepository)
 
     with pytest.raises(ValueError) as exc_info:
-        load_mapping_package_v2_from_mongo_db("", mock_repository)
+        load_mapping_package_v3_from_mongo_db("", mock_repository)
 
     assert "Mapping package ID must be provided" in str(exc_info.value)
 
@@ -142,14 +142,14 @@ def test_load_mapping_package_v3_from_mongo_db_none_id():
     mock_repository = Mock(spec=MongoDBRepository)
 
     with pytest.raises(ValueError) as exc_info:
-        load_mapping_package_v2_from_mongo_db(None, mock_repository)
+        load_mapping_package_v3_from_mongo_db(None, mock_repository)
 
     assert "Mapping package ID must be provided" in str(exc_info.value)
 
 
 def test_load_mapping_package_v3_from_mongo_db_none_repository():
     with pytest.raises(ValueError) as exc_info:
-        load_mapping_package_v2_from_mongo_db("test_id", None)
+        load_mapping_package_v3_from_mongo_db("test_id", None)
 
     assert "MongoDB repository must be provided" in str(exc_info.value)
 
@@ -159,7 +159,7 @@ def test_load_mapping_package_v3_from_mongo_db_repository_exception():
     mock_repository.read.side_effect = Exception("Database connection failed")
 
     with pytest.raises(Exception) as exc_info:
-        load_mapping_package_v2_from_mongo_db("test_id", mock_repository)
+        load_mapping_package_v3_from_mongo_db("test_id", mock_repository)
 
     assert "Database connection failed" in str(exc_info.value)
 
@@ -180,5 +180,5 @@ def test_load_mapping_packages_v3_from_github_tracer_decoration():
 
 
 def test_load_mapping_package_v3_from_mongo_db_tracer_decoration():
-    assert hasattr(load_mapping_package_v2_from_mongo_db, '__name__')
-    assert load_mapping_package_v2_from_mongo_db.__name__ == 'load_mapping_package_v2_from_mongo_db'
+    assert hasattr(load_mapping_package_v3_from_mongo_db, '__name__')
+    assert load_mapping_package_v3_from_mongo_db.__name__ == 'load_mapping_package_v3_from_mongo_db'

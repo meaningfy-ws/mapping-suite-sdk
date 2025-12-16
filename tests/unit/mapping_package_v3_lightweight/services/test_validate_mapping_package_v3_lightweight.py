@@ -22,9 +22,9 @@ def test_validate_mapping_package_v3_lightweight_runs_with_success(
         dummy_mapping_package_v3_path: Path):
     """Test that lightweight validation succeeds with correct hash."""
     from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import \
-        load_mapping_package_v3_from_folder
+        load_mapping_package_v3_lightweight_from_folder
 
-    lightweight_package = load_mapping_package_v3_from_folder(dummy_mapping_package_v3_path)
+    lightweight_package = load_mapping_package_v3_lightweight_from_folder(dummy_mapping_package_v3_path)
     # Set correct hash
     hasher = MappingPackageV3Hasher(lightweight_package)  # type: ignore[arg-type]
     lightweight_package.metadata.mapping_suite_hash_digest = hasher.hash()
@@ -37,9 +37,9 @@ def test_validate_mapping_package_v3_lightweight_fails_on_bad_hash(
         dummy_mapping_package_v3_path: Path):
     """Test that lightweight validation fails with incorrect hash."""
     from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import \
-        load_mapping_package_v3_from_folder
+        load_mapping_package_v3_lightweight_from_folder
 
-    lightweight_package = load_mapping_package_v3_from_folder(dummy_mapping_package_v3_path)
+    lightweight_package = load_mapping_package_v3_lightweight_from_folder(dummy_mapping_package_v3_path)
     random_string = get_random_string()
     lightweight_package.metadata.mapping_suite_hash_digest = random_string
 

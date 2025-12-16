@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 @traced_routine
-def load_mapping_package_v3_from_folder(
+def load_mapping_package_v3_lightweight_from_folder(
         mapping_package_folder_path: Path,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None
 ) -> MappingPackageV3Lightweight:
@@ -32,7 +32,7 @@ def load_mapping_package_v3_from_folder(
 
 
 @traced_routine
-def load_mapping_package_v3_from_archive(
+def load_mapping_package_v3_lightweight_from_archive(
         mapping_package_archive_path: Path,
         mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
         archive_unpacker: Optional[ArchiveExtractor] = None
@@ -48,12 +48,12 @@ def load_mapping_package_v3_from_archive(
 
     with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
 
-        return load_mapping_package_v3_from_folder(mapping_package_folder_path=temp_mapping_package_folder_path,
-                                                   mapping_package_loader=mapping_package_loader)
+        return load_mapping_package_v3_lightweight_from_folder(mapping_package_folder_path=temp_mapping_package_folder_path,
+                                                               mapping_package_loader=mapping_package_loader)
 
 
 @traced_routine
-def load_mapping_packages_v3_from_github(
+def load_mapping_packages_v3_lightweight_from_github(
         github_repository_url: str,
         packages_path_pattern: str,
         branch_or_tag_name: Optional[str] = None,
@@ -74,7 +74,7 @@ def load_mapping_packages_v3_from_github(
         mapping_packages: List[MappingPackageV3Lightweight] = []
         for package_path in package_paths:
             try:
-                package = load_mapping_package_v3_from_folder(
+                package = load_mapping_package_v3_lightweight_from_folder(
                     mapping_package_folder_path=package_path,
                     mapping_package_loader=mapping_package_loader
                 )
@@ -86,7 +86,7 @@ def load_mapping_packages_v3_from_github(
 
 
 @traced_routine
-def load_mapping_package_v2_from_mongo_db(
+def load_mapping_package_v3_lightweight_from_mongo_db(
         mapping_package_id: str,
         mapping_package_repository: MongoDBRepository[MappingPackageV3Lightweight]
 ) -> MappingPackageV3Lightweight:

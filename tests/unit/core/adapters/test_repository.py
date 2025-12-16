@@ -127,3 +127,119 @@ def test_repository_use_custom_collection_name(mongo_client: mongomock.MongoClie
     )
 
     assert repository.collection_name == dummy_collection_name
+
+
+def test_read_with_computed_id_property(mongo_client: mongomock.MongoClient, dummy_mapping_package_v1_model):
+    """Test read() with a model that has a computed id property (not in model_fields).
+    
+    This tests the branch where model doesn't have an 'id' field in model_fields,
+    but has a computed property (like MappingPackageV1.id).
+    """
+    from mapping_suite_sdk.mapping_package_v1.models import MappingPackageV1
+    
+    repository = MongoDBRepository[MappingPackageV1](
+        model_class=MappingPackageV1,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="mapping_package"
+    )
+    
+    # Create the package
+    created_package = repository.create(dummy_mapping_package_v1_model)
+    package_id = created_package.id
+    
+    # Read it back - this should test the branch where _id is removed (not mapped to id)
+    read_package = repository.read(package_id)
+    
+    assert read_package.id == package_id
+    assert read_package.metadata.identifier == dummy_mapping_package_v1_model.metadata.identifier
+
+
+def test_read_many_with_computed_id_property(mongo_client: mongomock.MongoClient, dummy_mapping_package_v1_model):
+    """Test read_many() with models that have computed id properties (not in model_fields).
+    
+    This tests the branch where model doesn't have an 'id' field in model_fields,
+    but has a computed property (like MappingPackageV1.id).
+    """
+    from mapping_suite_sdk.mapping_package_v1.models import MappingPackageV1
+    
+    repository = MongoDBRepository[MappingPackageV1](
+        model_class=MappingPackageV1,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="mapping_package"
+    )
+    
+    # Create multiple packages
+    package1 = repository.create(dummy_mapping_package_v1_model)
+    
+    # Create a second package by modifying the identifier
+    package2_data = dummy_mapping_package_v1_model.model_copy(deep=True)
+    package2_data.metadata.identifier = "package_F23"
+    package2 = repository.create(package2_data)
+    
+    # Read all packages - this should test the branch where _id is removed (not mapped to id)
+    all_packages = repository.read_many()
+    
+    assert len(all_packages) >= 2
+    package_ids = {p.id for p in all_packages}
+    assert package1.id in package_ids
+    assert package2.id in package_ids
+
+
+def test_read_without_id_field(mongo_client: mongomock.MongoClient, sample_model: TestModel):
+    """Test read() when document doesn't have _id field (edge case).
+    
+    This tests the defensive code path where _id might not be present.
+    """
+    from unittest.mock import patch
+    
+    repository = MongoDBRepository[TestModel](
+        model_class=TestModel,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="test_collection"
+    )
+    
+    # Mock find_one to return a document without _id
+    doc_without_id = sample_model.model_dump(by_alias=True, mode="json")
+    doc_without_id.pop("_id", None)
+    
+    with patch.object(repository.collection, 'find_one', return_value=doc_without_id):
+        # Read should handle the case where _id is not in the document
+        result = repository.read(sample_model.id)
+        assert result.name == sample_model.name
+        assert result.id == sample_model.id  # Should use the provided id
+
+
+def test_read_many_without_id_field(mongo_client: mongomock.MongoClient, sample_model: TestModel):
+    """Test read_many() when documents don't have _id field (edge case).
+    
+    This tests the defensive code path where _id might not be present in documents.
+    """
+    from unittest.mock import patch
+    
+    repository = MongoDBRepository[TestModel](
+        model_class=TestModel,
+        mongo_client=mongo_client,
+        database_name="test_db",
+        collection_name="test_collection"
+    )
+    
+    # Create documents without _id
+    doc1 = sample_model.model_dump(by_alias=True, mode="json")
+    doc1.pop("_id", None)
+    doc1["name"] = "Model Without ID 1"
+    
+    doc2 = sample_model.model_dump(by_alias=True, mode="json")
+    doc2.pop("_id", None)
+    doc2["name"] = "Model Without ID 2"
+    
+    # Mock find to return documents without _id
+    with patch.object(repository.collection, 'find', return_value=iter([doc1, doc2])):
+        # Read should handle documents without _id
+        results = repository.read_many()
+        assert len(results) == 2
+        names = {r.name for r in results}
+        assert "Model Without ID 1" in names
+        assert "Model Without ID 2" in names

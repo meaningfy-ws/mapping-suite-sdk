@@ -17,10 +17,10 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
 
-      - name: Set up Python 3.12
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.11"
           cache: 'pip'
 
       - name: Install system dependencies

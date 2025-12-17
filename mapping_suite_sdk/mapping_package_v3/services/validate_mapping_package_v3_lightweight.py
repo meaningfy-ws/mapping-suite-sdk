@@ -13,9 +13,9 @@ from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPa
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import \
-    load_mapping_package_v3_from_archive, \
-    load_mapping_package_v3_from_folder, \
-    load_mapping_packages_v3_from_github
+    load_mapping_package_v3_lightweight_from_archive, \
+    load_mapping_package_v3_lightweight_from_folder, \
+    load_mapping_packages_v3_lightweight_from_github
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def validate_mapping_package_v3_lightweight_from_archive(
         context="validate package from archive"
     )
 
-    mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_from_archive(
+    mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_lightweight_from_archive(
         mapping_package_archive_path=mapping_package_archive_path,
         mapping_package_loader=mapping_package_loader,
         archive_unpacker=archive_unpacker)
@@ -74,7 +74,7 @@ def validate_mapping_package_v3_lightweight_from_folder(
         context="validate package from folder"
     )
 
-    mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_from_folder(
+    mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_lightweight_from_folder(
         mapping_package_folder_path=mapping_package_folder_path,
         mapping_package_loader=mapping_package_loader,
     )
@@ -110,7 +110,7 @@ def validate_bulk_mapping_packages_v3_lightweight_from_folder(
                 metadata_file = Path(mp_folder / "metadata.jsonld")
                 if metadata_file.exists():
                     metadata = json.loads(metadata_file.read_text())
-                    lightweight_package = load_mapping_package_v3_from_folder(mp_folder)
+                    lightweight_package = load_mapping_package_v3_lightweight_from_folder(mp_folder)
                     metadata['mapping_suite_hash_digest'] = MappingPackageV3Hasher(lightweight_package).hash()  # type: ignore[arg-type]
                     metadata_file.write_text(json.dumps(metadata, indent=4))
             else:
@@ -160,7 +160,7 @@ def validate_bulk_mapping_packages_v3_lightweight_from_github(
         package_source=f"URL: {github_repository_url} | branch_or_tag_name: {branch_or_tag_name} | pattern: {packages_path_pattern}",
         message="Validating bulk mapping packages from Github"))
 
-    mapping_packages: List[MappingPackageV3Lightweight] = load_mapping_packages_v3_from_github(
+    mapping_packages: List[MappingPackageV3Lightweight] = load_mapping_packages_v3_lightweight_from_github(
         github_repository_url=github_repository_url,
         packages_path_pattern=packages_path_pattern,
         branch_or_tag_name=branch_or_tag_name,

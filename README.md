@@ -323,6 +323,7 @@ make test-unit
 
 - LinkML 1.9.5 onwards introduces breaking changes in our data
 - Click 8.2 onwards introduces breaking changes in our CLI
+- Pandas 2.1.4 and OpenTelemetry 1.29.0 are required due to a downstream consumer which relies on Airflow 2.10.x
 
 ## Get in Touch
 

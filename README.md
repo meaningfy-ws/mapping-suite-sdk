@@ -1,6 +1,6 @@
 # mapping-suite-sdk
 
-![pylint](https://img.shields.io/badge/PyLint-9.12-yellow?logo=python&logoColor=white)
+![pylint](https://img.shields.io/badge/PyLint-8.99-yellow?logo=python&logoColor=white)
 [![PyPI version](https://img.shields.io/pypi/v/mapping-suite-sdk.svg)](https://pypi.org/project/mapping-suite-sdk/)
 [![PyPI Downloads](https://static.pepy.tech/badge/mapping-suite-sdk)](https://pepy.tech/projects/mapping-suite-sdk)
 
@@ -323,6 +323,7 @@ make test-unit
 
 - LinkML 1.9.5 onwards introduces breaking changes in our data
 - Click 8.2 onwards introduces breaking changes in our CLI
+- Pandas 2.1.4 and OpenTelemetry 1.29.0 are required due to a downstream consumer which relies on Airflow 2.10.x
 
 ## Get in Touch
 

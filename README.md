@@ -319,6 +319,11 @@ make install
 make test-unit
 ```
 
+### Dependency Restrictions
+
+- LinkML 1.9.5 onwards introduces breaking changes in our data
+- Click 8.2 onwards introduces breaking changes in our CLI
+
 ## Get in Touch
 
 - **Issues**: Report bugs and feature requests on our [GitHub Issues](https://github.com/meaningfy-ws/mapping-suite-sdk/issues)

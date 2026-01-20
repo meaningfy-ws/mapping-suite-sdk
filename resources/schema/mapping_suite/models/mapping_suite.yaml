@@ -24,7 +24,6 @@ classes:
       Encapsulates the core configuration and resources directory.
     slots:
       - mapping_suite_config
-      - resource_references
       - resource_file_contents
 
   MappingSuiteConfig:
@@ -38,6 +37,7 @@ classes:
       - mapping_suite_metadata
       - metadata_config
       - eligibility_constraint_config
+      - resource_references
 
   DocumentProbingSpec:
     description: |
@@ -125,13 +125,6 @@ slots:
     range: MappingSuiteConfig
     inlined: true
 
-  resource_references:
-    required: true
-    description: |
-      A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).      
-    range: ResourceReferences
-    inlined: true
-
   # MappingSuiteConfig slots
   metadata_config:
     required: true
@@ -148,6 +141,13 @@ slots:
       Loaded from the fixed file: eligibility_constraint_config.json
       Used to select which mapping package applies to a given document.
     range: EligibilityConstraintConfig
+    inlined: true
+
+  resource_references:
+    required: true
+    description: |
+      A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).
+    range: ResourceReferences
     inlined: true
 
   # MappingSuiteMetadata slots
@@ -216,7 +216,7 @@ slots:
 
   resource_file_contents:
     multivalued: true
-    description: List of laoded file objects, modelled elsewhere as FileAsset
+    description: List of loaded file objects, modelled elsewhere as FileAsset
     range: Any
 
   # DocumentMetadataConfig slots

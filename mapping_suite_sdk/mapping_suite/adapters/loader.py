@@ -1,3 +1,4 @@
+import csv
 import json
 from pathlib import Path
 
@@ -19,11 +20,12 @@ class MappingSuiteConfigLoader(AssetLoader):
     This file contains metadata, extraction rules, probing specs, and eligibility mappings.
     """
 
-    def load(self, package_folder_path: Path) -> MappingSuiteConfig:
+    def load(self, project_folder_path: Path, relative_asset_path: Path) -> MappingSuiteConfig:
         """Load mapping suite configuration from JSON file.
 
         Args:
-            package_folder_path (Path): Path to the mapping suite package folder.
+            package_folder_path (Path): Path to the mapping suite folder.
+            relative_asset_path (Path): Path to the asset relative to the mapping suite folder.
 
         Returns:
             MappingSuiteConfig: Parsed configuration object.
@@ -33,9 +35,7 @@ class MappingSuiteConfigLoader(AssetLoader):
             json.JSONDecodeError: If the config file is not valid JSON.
             ValueError: If the config does not match the expected schema.
         """
-        # Handle nested folder structure (like v3 does)
-        root_folder: Path = package_folder_path
-        metadata_asset_path: Path = package_folder_path / MappingSuiteAssetsPathsConfig.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH
+        metadata_asset_path: Path = project_folder_path / relative_asset_path
 
         if not metadata_asset_path.exists():
             raise FileNotFoundError(f"Mapping suite config file not found: {metadata_asset_path}")
@@ -46,46 +46,46 @@ class MappingSuiteConfigLoader(AssetLoader):
         # Validate and return Pydantic model
         return MappingSuiteConfig.model_validate(config_dict)
 
-#
+
 class ResourceReferencesLoader(AssetLoader):
     """Loader for resource references.
 
-    Scans the resources directory and builds a ResourceReferences model
-    containing all resource file paths. Follows the same pattern as VocabularyMappingSuiteLoader.
+    Loads and parses resource files from the mapping suite config object.
     """
 
-    def load(self, package_folder_path: Path) -> ResourceReferences:
-        """Load resources collection from directory.
+    def load(self, package_folder_path: Path, config: MappingSuiteConfig) -> list[dict]:
+        """Load and parse resources from config object.
 
         Args:
             package_folder_path (Path): Path to the mapping suite package folder.
-            relative_asset_path (Path): Path to the resources folder relative to the package folder.
+            config (MappingSuiteConfig): Already loaded mapping suite config.
 
         Returns:
-            ResourceReferences: Collection model with list of resource file paths.
+            list[dict]: List of dicts with file_name and object (parsed content).
         """
-        root_folder: Path = package_folder_path / package_folder_path.name
-        asset_path: Path = package_folder_path / relative_asset_path
+        file_paths = config.resource_references.file_paths if config.resource_references else []
 
-        if root_folder.exists():
-            asset_path = root_folder / relative_asset_path
-            package_folder_path = root_folder
-
-        # If resources directory doesn't exist, return empty collection
-        if not asset_path.exists() or not asset_path.is_dir():
-            return ResourceReferences(file_paths=None)
-
-        # Collect all file paths relative to the package folder
-        resource_files = []
-        for file_path in asset_path.rglob("*"):
-            if file_path.is_file():
-                relative_path = str(file_path.relative_to(package_folder_path))
-                resource_files.append(relative_path)
-
-        # Sort for consistent ordering
-        resource_files.sort()
-
-        return ResourceReferences(file_paths=resource_files if resource_files else None)
+        resource_file_contents = []
+        for rel_path in file_paths:
+            abs_path = package_folder_path / rel_path.lstrip("/")
+            if abs_path.exists():
+                try:
+                    if abs_path.suffix == ".json":
+                        obj = json.loads(abs_path.read_text())
+                    elif abs_path.suffix == ".csv":
+                        with abs_path.open(newline='', encoding='utf-8') as csvfile:
+                            reader = csv.DictReader(csvfile)
+                            obj = list(reader)
+                    else:
+                        obj = abs_path.read_text()
+                    resource_file_contents.append({
+                        "file_name": rel_path,
+                        "object": obj
+                    })
+                except Exception:
+                    continue
+        resource_file_contents.sort(key=lambda x: x["file_name"])
+        return resource_file_contents if resource_file_contents else None
 
 
 @traced_class
@@ -135,20 +135,20 @@ class MappingSuiteLoader(Loader):
         """
         # Load configuration
         mapping_suite_config = MappingSuiteConfigLoader().load(
-            package_folder_path=package_folder_path,
-            relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
+            project_folder_path=package_folder_path,
+            relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
         )
 
-        # Load resource references
+        # Load resource file contents if requested
         if self.include_resources:
-            resource_references = ResourceReferencesLoader().load(
+            resource_file_contents = ResourceReferencesLoader().load(
                 package_folder_path=package_folder_path,
-                relative_asset_path=mssdk_config.mapping_suite_resources_collection_asset_path,
+                config=mapping_suite_config,
             )
         else:
-            resource_references = ResourceReferences(file_paths=None)
+            resource_file_contents = None
 
         return MappingSuite(
             mapping_suite_config=mapping_suite_config,
-            resource_references=resource_references,
+            resource_file_contents=resource_file_contents,
         )

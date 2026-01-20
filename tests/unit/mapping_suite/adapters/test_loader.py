@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.mapping_suite.adapters.loader import (
     MappingSuiteLoader,
     MappingSuiteConfigLoader,
@@ -29,8 +30,8 @@ def test_mapping_suite_config_loader_loads_successfully():
     """Test that config loader successfully loads a valid config file."""
     loader = MappingSuiteConfigLoader()
     config = loader.load(
-        package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("config/mapping_suite_config.json"),
+        project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
     )
 
     assert isinstance(config, MappingSuiteConfig)
@@ -43,8 +44,8 @@ def test_mapping_suite_config_loader_parses_metadata():
     """Test that config loader correctly parses mapping suite metadata."""
     loader = MappingSuiteConfigLoader()
     config = loader.load(
-        package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("config/mapping_suite_config.json"),
+        project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
     )
 
     assert isinstance(config.mapping_suite_metadata, MappingSuiteMetadata)
@@ -56,8 +57,8 @@ def test_mapping_suite_config_loader_parses_metadata_config():
     """Test that config loader correctly parses document metadata configuration."""
     loader = MappingSuiteConfigLoader()
     config = loader.load(
-        package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("mapping_suite_config.json"),
+        project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
     )
 
     assert isinstance(config.metadata_config, DocumentMetadataConfig)
@@ -69,8 +70,8 @@ def test_mapping_suite_config_loader_parses_eligibility_config():
     """Test that config loader correctly parses eligibility constraint configuration."""
     loader = MappingSuiteConfigLoader()
     config = loader.load(
-        package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("mapping_suite_config.json"),
+        project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
     )
 
     assert isinstance(config.eligibility_constraint_config, EligibilityConstraintConfig)
@@ -85,7 +86,7 @@ def test_mapping_suite_config_loader_handles_missing_file():
 
         with pytest.raises(FileNotFoundError):
             loader.load(
-                package_folder_path=temp_dir_path,
+                project_folder_path=temp_dir_path,
                 relative_asset_path=Path("non_existing_config.json"),
             )
 
@@ -101,7 +102,7 @@ def test_mapping_suite_config_loader_handles_invalid_json():
 
         with pytest.raises(json.JSONDecodeError):
             loader.load(
-                package_folder_path=temp_dir_path,
+                project_folder_path=temp_dir_path,
                 relative_asset_path=Path("invalid_config.json"),
             )
 
@@ -125,7 +126,7 @@ def test_mapping_suite_config_loader_handles_invalid_schema():
 
         with pytest.raises(Exception):  # Pydantic ValidationError
             loader.load(
-                package_folder_path=temp_dir_path,
+                project_folder_path=temp_dir_path,
                 relative_asset_path=Path("invalid_schema.json"),
             )
 
@@ -138,94 +139,107 @@ def test_mapping_suite_config_loader_handles_invalid_schema():
 def test_resource_references_loader_loads_successfully():
     """Test that resources loader successfully loads resource files."""
     loader = ResourceReferencesLoader()
+    config = MappingSuiteConfigLoader().load(
+        project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+    )
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("resources"),
+        config=config,
     )
-
-    assert isinstance(resources, ResourceReferences)
-    assert resources.file_paths is not None
-    assert len(resources.file_paths) > 0
+    assert resources is not None
+    assert isinstance(resources, list)
+    assert len(resources) > 0
 
 
 def test_resource_references_loader_finds_file_paths():
     """Test that resources loader correctly identifies resource file paths."""
     loader = ResourceReferencesLoader()
+    config = MappingSuiteConfigLoader().load(
+        project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+    )
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("resources"),
+        config=config,
     )
-
-    # Check that winner-selection-status.json is found
-    assert any("winner-selection-status.json" in f for f in resources.file_paths)
+    assert any("winner-selection-status.json" in r["file_name"] for r in resources)
 
 
 def test_resource_references_loader_returns_sorted_files():
     """Test that resources loader returns files in sorted order."""
     loader = ResourceReferencesLoader()
+    config = MappingSuiteConfigLoader().load(
+        project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+    )
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=Path("resources"),
+        config=config,
     )
-
-    # Files should be sorted
-    assert resources.file_paths == sorted(resources.file_paths)
+    file_names = [r["file_name"] for r in resources]
+    assert file_names == sorted(file_names)
 
 
 def test_resource_references_loader_handles_missing_directory():
-    """Test that resources loader handles missing resources directory gracefully."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         loader = ResourceReferencesLoader()
-
+        config = MappingSuiteConfig(
+            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
+            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+            resource_references=ResourceReferences(file_paths=[])
+        )
         resources = loader.load(
             package_folder_path=temp_dir_path,
-            relative_asset_path=Path("non_existing_resources"),
+            config=config,
         )
-
-        assert isinstance(resources, ResourceReferences)
-        assert resources.file_paths is None
+        assert resources is None
 
 
 def test_resource_references_loader_handles_empty_directory():
-    """Test that resources loader handles empty resources directory."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
-
         loader = ResourceReferencesLoader()
+        config = MappingSuiteConfig(
+            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
+            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+            resource_references=ResourceReferences(file_paths=[])
+        )
         resources = loader.load(
             package_folder_path=temp_dir_path,
-            relative_asset_path=Path("resources"),
+            config=config,
         )
-
-        assert isinstance(resources, ResourceReferences)
-        assert resources.file_paths is None
+        assert resources is None
 
 
 def test_resource_references_loader_ignores_directories():
-    """Test that resources loader only includes files, not directories."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
-
-        # Create a file and a subdirectory
         (resources_dir / "file1.json").write_text("{}")
         subdir = resources_dir / "subdir"
         subdir.mkdir()
-        (subdir / "file2.json").write_text("{}")
-
         loader = ResourceReferencesLoader()
+        config = MappingSuiteConfig(
+            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
+            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+            resource_references=ResourceReferences(file_paths=["resources/file1.json", "resources/subdir"])
+        )
         resources = loader.load(
             package_folder_path=temp_dir_path,
-            relative_asset_path=Path("resources"),
+            config=config,
         )
 
-        # Should have 2 files (not 3 with the directory)
-        assert len(resources.file_paths) == 2
-        assert all(not Path(f).name == "subdir" for f in resources.file_paths)
+        file_names = [r["file_name"] for r in resources]
+        assert "resources/file1.json" in file_names
+        assert "resources/subdir" not in file_names
 
 
 # ============================================================================
@@ -265,7 +279,7 @@ def test_mapping_suite_loader_loads_successfully():
 
     assert isinstance(mapping_suite, MappingSuite)
     assert isinstance(mapping_suite.mapping_suite_config, MappingSuiteConfig)
-    assert isinstance(mapping_suite.resource_references, ResourceReferences)
+    assert mapping_suite.resource_file_contents is not None
 
 
 def test_mapping_suite_loader_loads_config_correctly():
@@ -285,9 +299,9 @@ def test_mapping_suite_loader_loads_resources_when_enabled():
     loader = MappingSuiteLoader(include_resources=True)
     mapping_suite = loader.load(TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH)
 
-    assert isinstance(mapping_suite.resource_references, ResourceReferences)
-    assert mapping_suite.resource_references.file_paths is not None
-    assert len(mapping_suite.resource_references.file_paths) > 0
+    assert mapping_suite.resource_file_contents is not None
+    assert isinstance(mapping_suite.resource_file_contents, list)
+    assert len(mapping_suite.resource_file_contents) > 0
 
 
 def test_mapping_suite_loader_skips_resources_when_disabled():
@@ -295,8 +309,7 @@ def test_mapping_suite_loader_skips_resources_when_disabled():
     loader = MappingSuiteLoader(include_resources=False)
     mapping_suite = loader.load(TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH)
 
-    assert isinstance(mapping_suite.resource_references, ResourceReferences)
-    assert mapping_suite.resource_references.file_paths is None
+    assert mapping_suite.resource_file_contents is None
 
 
 def test_mapping_suite_loader_fails_on_wrong_path():
@@ -325,11 +338,11 @@ def test_mapping_suite_loader_validates_pydantic_models():
     # Verify all models are properly instantiated Pydantic models by calling model_dump
     mapping_suite_dict = mapping_suite.model_dump()
     config_dict = mapping_suite.mapping_suite_config.model_dump()
-    resources_dict = mapping_suite.resource_references.model_dump()
+    resources_list = mapping_suite.resource_file_contents
 
     assert isinstance(mapping_suite_dict, dict)
     assert isinstance(config_dict, dict)
-    assert isinstance(resources_dict, dict)
+    assert isinstance(resources_list, list) or resources_list is None
 
 
 def test_mapping_suite_loader_complete_integration():
@@ -352,5 +365,5 @@ def test_mapping_suite_loader_complete_integration():
     assert config.metadata_config.document_type_probing.must_not_exist is not None
 
     # Verify resources
-    assert mapping_suite.resource_references.file_paths is not None
-    assert len(mapping_suite.resource_references.file_paths) > 0
+    assert mapping_suite.resource_file_contents is not None
+    assert len(mapping_suite.resource_file_contents) > 0

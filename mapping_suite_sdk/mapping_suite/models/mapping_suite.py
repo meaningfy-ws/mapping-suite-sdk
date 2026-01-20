@@ -103,14 +103,9 @@ Contains metadata, probing rules, extraction specifications, and eligibility map
 Loaded from: mapping_suite_config.json
 """,
     )
-    resource_references: ResourceReferences = Field(
-        default=...,
-        description="""A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).      
-""",
-    )
     resource_file_contents: Optional[list[Any]] = Field(
         default=None,
-        description="""List of laoded file objects, modelled elsewhere as FileAsset""",
+        description="""List of loaded file objects, modelled elsewhere as FileAsset""",
     )
 
 
@@ -141,6 +136,11 @@ Loaded from the fixed file: metadata_config.json
         description="""Configuration mapping metadata properties to package eligibility constraints.
 Loaded from the fixed file: eligibility_constraint_config.json
 Used to select which mapping package applies to a given document.
+""",
+    )
+    resource_references: ResourceReferences = Field(
+        default=...,
+        description="""A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).
 """,
     )
 

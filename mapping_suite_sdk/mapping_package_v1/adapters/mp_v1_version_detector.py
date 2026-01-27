@@ -25,10 +25,12 @@ V1_SPEC = VersionDetectionSpec(
         # V1-specific differentiating fields:
         # - V1 uses XSD version constraints (min_xsd_version or max_xsd_version)
         #   Note: We check for min_xsd_version as the primary indicator
-        MetadataCondition("eligibility_constraints.constraints.min_xsd_version", must_exist=True),
+        #   Note: In raw JSON, the field is "metadata_constraints" (not "eligibility_constraints")
+        #   because the Pydantic model uses an alias. The version detector reads raw JSON.
+        MetadataCondition("metadata_constraints.constraints.min_xsd_version", must_exist=True),
 
         # - V1 does NOT have eforms_sdk_versions (that's V2)
-        MetadataCondition("eligibility_constraints.constraints.eforms_sdk_versions", must_exist=False),
+        MetadataCondition("metadata_constraints.constraints.eforms_sdk_versions", must_exist=False),
 
         # - V1 does NOT have "mapping_type" field (V2 may have these)
         MetadataCondition("mapping_type", must_exist=False),

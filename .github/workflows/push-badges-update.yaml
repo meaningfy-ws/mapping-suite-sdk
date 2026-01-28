@@ -1,6 +1,6 @@
 name: Update badges
 
-# This workflow updates the PyLint badge in the repository.
+# This workflow updates the Pylint badge in the repository.
 # It runs on pushes to main and develop branches to keep badges up to date.
 # It requires write access to commit badge updates back to the repository.
 on:

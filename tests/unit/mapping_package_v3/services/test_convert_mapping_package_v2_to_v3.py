@@ -4,6 +4,7 @@ import pytest
 
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import convert_mapping_package_v2_to_v3
 
 
@@ -15,6 +16,7 @@ def test_convert_mapping_package_v2_to_v3_creates_successfully(dummy_mapping_pac
     assert result.metadata.id == dummy_mapping_package_v2_model.metadata.identifier
     assert result.metadata.title == dummy_mapping_package_v2_model.metadata.title
     assert result.metadata.project_identifier == dummy_mapping_package_v2_model.metadata.type
+    assert result.metadata.mapping_suite_hash_digest == MappingPackageV3Hasher(result).hash()
 
 
 def test_convert_mapping_package_v2_to_v3_preserves_all_assets(dummy_mapping_package_v2_model: MappingPackageV2) -> None:

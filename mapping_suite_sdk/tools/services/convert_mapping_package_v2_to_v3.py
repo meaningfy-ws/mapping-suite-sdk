@@ -13,6 +13,7 @@ from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_pack
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Constraints
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import ApplicabilityConstraints
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import DateTimeInterval
@@ -83,7 +84,7 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
     # Convert metadata path from V2 (metadata.json) to V3 (metadata.jsonld)
     v3_metadata_path = mssdk_config.MPV3_METADATA_FILE_ASSET_PATH
     
-    return MappingPackageV3(
+    mpv3 = MappingPackageV3(
         metadata=MappingPackageV3MetadataJSONLD(
             path=v3_metadata_path,
             context="context.jsonld",  # Set JSON-LD context for proper JSON-LD serialization
@@ -95,6 +96,7 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
             model_version=mpv2_metadata.ontology_version,
             description=mpv2_metadata.description,
             applicability_constraints=applicability_constraints,
+            # This will be recomputed below for the converted V3 package.
             mapping_suite_hash_digest=mpv2_metadata.signature,
         ),
 
@@ -106,6 +108,11 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
         test_suites_shacl=mpv2.test_suites_shacl.model_copy(),
         test_results=mpv2.test_results.model_copy()
     )
+
+    # Recompute hash for the converted V3 package so it validates immediately.
+    mpv3.metadata.mapping_suite_hash_digest = MappingPackageV3Hasher(mpv3).hash()
+
+    return mpv3
 
 
 def is_mapping_package_already_converted(mapping_package_folder_path: Path, to_version: str) -> bool:

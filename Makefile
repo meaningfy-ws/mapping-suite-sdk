@@ -6,7 +6,7 @@ END_BUILD_PRINT = \e[0m
 PROJECT_PATH = $(shell pwd)
 RESOURCES_PATH = ${PROJECT_PATH}/resources
 SCHEMA_PATH ?= ${RESOURCES_PATH}/schema
-tempLATES_PATH ?= ${RESOURCES_PATH}/templates
+TEMPLATES_PATH ?= ${RESOURCES_PATH}/templates
 PYTHON_PATH ?= ${PROJECT_PATH}/mapping_suite_sdk
 
 ICON_DONE = [✔]
@@ -181,9 +181,9 @@ generate-models-recursive:
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Creating output directory: $$output_dir$(END_BUILD_PRINT)"; \
 		mkdir -p "$$output_dir"; \
 		echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating: $$output_file$(END_BUILD_PRINT)"; \
-		poetry run gen-pydantic --meta None --template-dir $(tempLATES_PATH)/ "$$yaml_file" > "$$output_file.temp" && mv "$$output_file.temp" "$$output_file" || { \
+		poetry run gen-pydantic --meta None --template-dir $(TEMPLATES_PATH)/ "$$yaml_file" > "$$output_file.tmp" && mv "$$output_file.tmp" "$$output_file" || { \
 			echo -e "$(BUILD_PRINT)$(ICON_ERROR) Failed to generate $$output_file$(END_BUILD_PRINT)"; \
-			rm -f "$$output_file.temp"; \
+			rm -f "$$output_file.tmp"; \
 			exit 1; \
 		}; \
 		echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated: $$output_file$(END_BUILD_PRINT)"; \

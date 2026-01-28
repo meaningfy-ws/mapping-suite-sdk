@@ -26,6 +26,9 @@ from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import (
     convert_mapping_package_v2_to_v3,
     is_mapping_package_already_converted  # Re-export for convenience
 )
+from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3_lightweight import (
+    convert_mapping_package_v2_to_v3_lightweight,
+)
 from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import (
     convert_mapping_package_v3_to_v3_lightweight
 )
@@ -109,6 +112,8 @@ def convert_mapping_package_model(from_version: str, to_version: str, source_pac
     """
     if from_version == Version.V2 and to_version == Version.V3:
         return convert_mapping_package_v2_to_v3(source_package)
+    elif from_version == Version.V2 and to_version == Version.V3L:
+        return convert_mapping_package_v2_to_v3_lightweight(source_package)
     elif from_version == Version.V3 and to_version == Version.V3L:
         return convert_mapping_package_v3_to_v3_lightweight(source_package)
     else:

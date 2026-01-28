@@ -120,6 +120,18 @@ class TestConvertMappingPackageModel:
         assert result is mock_v3l_package
         mock_convert.assert_called_once_with(fixture_mapping_package_v3_model)
 
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v2_to_v3_lightweight')
+    def test_convert_v2_to_v3l_success(self, mock_convert):
+        """Test converting V2 to V3L model successfully."""
+        mock_v2_package = Mock(spec=MappingPackageV2)
+        mock_v3l_package = Mock(spec=MappingPackageV3Lightweight)
+        mock_convert.return_value = mock_v3l_package
+
+        result = convert_mapping_package_model(Version.V2, Version.V3L, mock_v2_package)
+
+        assert result is mock_v3l_package
+        mock_convert.assert_called_once_with(mock_v2_package)
+
     def test_convert_unsupported_conversion(self):
         """Test that unsupported conversion raises UnsupportedVersionError."""
         mock_package = Mock()

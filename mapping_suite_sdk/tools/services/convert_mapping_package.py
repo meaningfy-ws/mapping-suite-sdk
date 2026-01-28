@@ -16,12 +16,15 @@ from typing import Union
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.version_detector import _resolve_package_root
+from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
+from mapping_suite_sdk.mapping_package_v1.services.load_mapping_package_v1 import load_mapping_package_v1_from_folder
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser import MappingPackageV3Serialiser
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_serialiser import MappingPackageV3LightweightSerialiser
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_folder
+from mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3 import convert_mapping_package_v1_to_v3
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import (
     convert_mapping_package_v2_to_v3,
     is_mapping_package_already_converted  # Re-export for convenience
@@ -64,7 +67,7 @@ def load_mapping_package_from_folder(from_version: str, mapping_package_folder_p
     Load a mapping package from filesystem based on version.
 
     Args:
-        from_version: Source version (v2 or v3)
+        from_version: Source version (v1, v2 or v3)
         mapping_package_folder_path: Path to the mapping package folder
 
     Returns:
@@ -79,7 +82,13 @@ def load_mapping_package_from_folder(from_version: str, mapping_package_folder_p
     if not mapping_package_folder_path.is_dir():
         raise InvalidPackagePathError(f"Package path is not a directory: {mapping_package_folder_path}")
 
-    if from_version == Version.V2:
+    if from_version == Version.V1:
+        loader = MappingPackageV1Loader()
+        return load_mapping_package_v1_from_folder(
+            mapping_package_folder_path=mapping_package_folder_path,
+            mapping_package_loader=loader
+        )
+    elif from_version == Version.V2:
         loader = MappingPackageV2Loader()
         return load_mapping_package_v2_from_folder(
             mapping_package_folder_path=mapping_package_folder_path,
@@ -110,7 +119,9 @@ def convert_mapping_package_model(from_version: str, to_version: str, source_pac
     Raises:
         UnsupportedVersionError: If conversion is not supported
     """
-    if from_version == Version.V2 and to_version == Version.V3:
+    if from_version == Version.V1 and to_version == Version.V3:
+        return convert_mapping_package_v1_to_v3(source_package)
+    elif from_version == Version.V2 and to_version == Version.V3:
         return convert_mapping_package_v2_to_v3(source_package)
     elif from_version == Version.V2 and to_version == Version.V3L:
         return convert_mapping_package_v2_to_v3_lightweight(source_package)

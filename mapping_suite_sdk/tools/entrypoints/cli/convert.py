@@ -32,7 +32,7 @@ mssdk_cli_convert_subcommand = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_AR
 def convert_common(
         ctx: typer.Context,
         to_version: str = typer.Option(..., "--to-version", help=f"Target mapping package version ({Version.V3.value} or {Version.V3L.value})"),
-        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({Version.V2.value} or {Version.V3.value})"),
+        from_version: str = typer.Option(..., "--from-version", help=f"Source mapping package version ({Version.V1.value}, {Version.V2.value} or {Version.V3.value})"),
         verbose: bool = typer.Option(False, "--verbose", "-v",
                                      is_eager=True,
                                      callback=typer_verbose_callback),
@@ -41,8 +41,10 @@ def convert_common(
     if to_version not in [Version.V3, Version.V3L]:
         raise typer.BadParameter(f"Target version must be {Version.V3} or {Version.V3L}, got: {to_version}")
 
-    if to_version == Version.V3 and from_version != Version.V2:
-        raise typer.BadParameter(f"Source version must be {Version.V2} for target {Version.V3}, got: {from_version}")
+    if to_version == Version.V3 and from_version not in [Version.V1, Version.V2]:
+        raise typer.BadParameter(
+            f"Source version must be {Version.V1} or {Version.V2} for target {Version.V3}, got: {from_version}"
+        )
     
     if to_version == Version.V3L and from_version not in [Version.V3, Version.V2]:
         raise typer.BadParameter(

@@ -43,13 +43,18 @@ def test_convert_cli_command_invalid_base_version(typer_cli_runner: CliRunner, t
 
 
 def test_convert_cli_command_invalid_v3_lightweight_source_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
-    """Test that v3L conversion requires v3 as source version."""
-    result = typer_cli_runner.invoke(
-        mssdk_cli_convert_subcommand,
-        ["--to-version", "v3L", "--from-version", "v2", "from-package", str(tmp_path)]
-    )
+    """Test that v3L conversion accepts v2 as source version."""
+    with (
+        patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False),
+        patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mapping_package_from_folder") as mock_convert,
+    ):
+        result = typer_cli_runner.invoke(
+            mssdk_cli_convert_subcommand,
+            ["--to-version", "v3L", "--from-version", "v2", "from-package", str(tmp_path)]
+        )
 
-    assert result.exit_code != 0
+        assert result.exit_code == 0
+        mock_convert.assert_called_once_with("v2", "v3L", tmp_path)
 
 
 def test_convert_cli_command_invalid_target_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:

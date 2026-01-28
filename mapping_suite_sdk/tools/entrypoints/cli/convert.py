@@ -44,8 +44,10 @@ def convert_common(
     if to_version == Version.V3 and from_version != Version.V2:
         raise typer.BadParameter(f"Source version must be {Version.V2} for target {Version.V3}, got: {from_version}")
     
-    if to_version == Version.V3L and from_version != Version.V3:
-        raise typer.BadParameter(f"Source version must be {Version.V3} for target {Version.V3L}, got: {from_version}")
+    if to_version == Version.V3L and from_version not in [Version.V3, Version.V2]:
+        raise typer.BadParameter(
+            f"Source version must be {Version.V2} or {Version.V3} for target {Version.V3L}, got: {from_version}"
+        )
 
     ctx.ensure_object(dict)
     ctx.obj[ConvertContextKeys.TO_VERSION] = to_version

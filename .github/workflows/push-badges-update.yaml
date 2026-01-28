@@ -11,7 +11,7 @@ name: Update badges
 
 # DEPRECATED: This workflow has been deprecated to avoid confusion and badge mismatches.
 # 
-# The authoritative source for PyLint checks is: .github/workflows/pr-pylint-check.yaml
+# The authoritative source for Pylint checks is: .github/workflows/pr-pylint-check.yaml
 # That workflow runs on all PRs, generates pylint_report.txt, and posts results as PR comments.
 #
 # This workflow caused issues where the badge score in README differed from actual pylint output

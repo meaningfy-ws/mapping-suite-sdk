@@ -9,17 +9,20 @@
 # - The updated badge is then included in the PR and merged with the other changes
 name: Update badges
 
-on:
-  pull_request:
-    branches:
-      - main
-      - develop
-  workflow_dispatch:
+# DEPRECATED: This workflow has been deprecated to avoid confusion and badge mismatches.
+# 
+# The authoritative source for PyLint checks is: .github/workflows/pr-pylint-check.yaml
+# That workflow runs on all PRs, generates pylint_report.txt, and posts results as PR comments.
+#
+# This workflow caused issues where the badge score in README differed from actual pylint output
+# (e.g., PR #61 showed mismatches). To maintain clarity and consistency, badge updates are no
+# longer automated.
+#
+# If you need to manually update the badge, you can trigger this workflow via workflow_dispatch,
+# but please consider whether a static badge indicator is more appropriate.
 
-# Ensure only one instance runs per PR to avoid conflicts
-concurrency:
-  group: update-badges-pr-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: true
+on:
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   update-pylint-badge:

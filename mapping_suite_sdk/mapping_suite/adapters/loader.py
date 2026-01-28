@@ -24,7 +24,7 @@ class MappingSuiteConfigLoader(AssetLoader):
         """Load mapping suite configuration from JSON file.
 
         Args:
-            package_folder_path (Path): Path to the mapping suite folder.
+            project_folder_path (Path): Path to the mapping suite folder.
             relative_asset_path (Path): Path to the asset relative to the mapping suite folder.
 
         Returns:

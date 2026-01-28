@@ -36,10 +36,25 @@ def test_convert_cli_command_valid_version_shows_from_command(typer_cli_runner: 
 def test_convert_cli_command_invalid_base_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     result = typer_cli_runner.invoke(
         mssdk_cli_convert_subcommand,
-        ["--to-version", "v3", "--from-version", "v1", "from-package", str(tmp_path)]
+        ["--to-version", "v3", "--from-version", "v0", "from-package", str(tmp_path)]
     )
 
     assert result.exit_code != 0
+
+
+def test_convert_cli_command_v1_to_v3_is_accepted(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
+    """Test that v1 -> v3 conversion is accepted by the CLI and calls the service."""
+    with (
+        patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False),
+        patch("mapping_suite_sdk.tools.entrypoints.cli.convert.convert_mapping_package_from_folder") as mock_convert,
+    ):
+        result = typer_cli_runner.invoke(
+            mssdk_cli_convert_subcommand,
+            ["--to-version", "v3", "--from-version", "v1", "from-package", str(tmp_path)]
+        )
+
+        assert result.exit_code == 0
+        mock_convert.assert_called_once_with("v1", "v3", tmp_path)
 
 
 def test_convert_cli_command_v2_to_v3l_source_version_accepted(typer_cli_runner: CliRunner, tmp_path: Path) -> None:

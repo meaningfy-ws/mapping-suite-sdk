@@ -1,5 +1,6 @@
 import csv
 import json
+import logging
 from pathlib import Path
 
 from mapping_suite_sdk import mssdk_config
@@ -10,6 +11,8 @@ from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
     MappingSuiteConfig,
     ResourceReferences,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class MappingSuiteConfigLoader(AssetLoader):
@@ -81,8 +84,14 @@ class ResourceReferencesLoader(AssetLoader):
                         "file_name": rel_path,
                         "object": obj
                     })
-                except Exception:
+                except (json.JSONDecodeError, UnicodeDecodeError, csv.Error) as e:
+                    logger.warning(f"Failed to load resource file '{rel_path}': {type(e).__name__}: {e}")
                     continue
+                except Exception as e:
+                    logger.error(f"Unexpected error loading resource file '{rel_path}': {type(e).__name__}: {e}")
+                    continue
+            else:
+                logger.warning(f"Resource file not found: '{rel_path}' (expected at {abs_path})")
         resource_file_contents.sort(key=lambda x: x["file_name"])
         return resource_file_contents if resource_file_contents else None
 

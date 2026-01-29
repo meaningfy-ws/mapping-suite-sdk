@@ -1,11 +1,11 @@
 from mapping_suite_sdk.mapping_suite.adapters.loader import (
     MappingSuiteLoader,
     MappingSuiteConfigLoader,
-    ResourcesCollectionLoader,
+    ResourceReferencesLoader,
 )
 
 __all__ = [
     "MappingSuiteLoader",
     "MappingSuiteConfigLoader",
-    "ResourcesCollectionLoader",
+    "ResourceReferencesLoader",
 ]

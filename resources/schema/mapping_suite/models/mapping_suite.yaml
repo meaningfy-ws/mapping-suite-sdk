@@ -24,7 +24,7 @@ classes:
       Encapsulates the core configuration and resources directory.
     slots:
       - mapping_suite_config
-      - resources_collection
+      - resource_file_contents
 
   MappingSuiteConfig:
     description: |
@@ -37,6 +37,7 @@ classes:
       - mapping_suite_metadata
       - metadata_config
       - eligibility_constraint_config
+      - resource_references
 
   DocumentProbingSpec:
     description: |
@@ -103,13 +104,15 @@ classes:
       - matching_method
       - description
 
-  ResourcesCollection:
+  ResourceReferences:
     description: |
-      Represents the resources directory containing vocabulary resources, code lists,
+      Represents the list of relative path references to files containing vocabulary resources, code lists,
       normalization tables, and other auxiliary files needed for processing.
-      Fixed directory name: resources/
     slots:
-      - resource_files
+      - file_paths
+
+  Any:
+    class_uri: linkml:Any
 
 slots:
   # MappingSuite slots
@@ -120,14 +123,6 @@ slots:
       Contains metadata, probing rules, extraction specifications, and eligibility mappings.
       Loaded from: mapping_suite_config.json
     range: MappingSuiteConfig
-    inlined: true
-
-  resources_collection:
-    required: true
-    description: |
-      Directory containing vocabulary resources, code lists, and other auxiliary files.
-      Fixed directory name: resources/
-    range: ResourcesCollection
     inlined: true
 
   # MappingSuiteConfig slots
@@ -146,6 +141,13 @@ slots:
       Loaded from the fixed file: eligibility_constraint_config.json
       Used to select which mapping package applies to a given document.
     range: EligibilityConstraintConfig
+    inlined: true
+
+  resource_references:
+    required: true
+    description: |
+      A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).
+    range: ResourceReferences
     inlined: true
 
   # MappingSuiteMetadata slots
@@ -204,13 +206,18 @@ slots:
     inlined: true
     inlined_as_list: true
 
-  # ResourcesCollection slots
-  resource_files:
+  # ResourceReferences slots
+  file_paths:
     multivalued: true
-    description: List of resource file paths within the resources folder
+    description: List of relative file paths within the project
     examples:
-      - value: "code_lists/countries.json"
-      - value: "normalization/sf_normalisation_rules.csv"
+      - value: "src/transformation/resources/countries.json"
+      - value: "src/normalization/sf_normalisation_rules.csv"
+
+  resource_file_contents:
+    multivalued: true
+    description: List of loaded file objects, modelled elsewhere as FileAsset
+    range: Any
 
   # DocumentMetadataConfig slots
   metadata_properties:

@@ -27,7 +27,8 @@ class TestLoadMappingSuiteFromFolder:
         assert isinstance(result, MappingSuite)
         assert result.mapping_suite_config is not None
         assert result.mapping_suite_config.mapping_suite_metadata is not None
-        assert result.resources_collection is not None
+        assert result.mapping_suite_config.resource_references.file_paths is not None
+        assert result.resource_file_contents is not None
 
     def test_load_mapping_suite_from_folder_with_custom_loader(
             self,
@@ -42,7 +43,7 @@ class TestLoadMappingSuiteFromFolder:
         )
 
         assert isinstance(result, MappingSuite)
-        assert result.resources_collection.resource_files is None
+        assert result.resource_file_contents is None
 
     def test_load_mapping_suite_from_folder_nonexistent_path(self):
         """Test error handling for non-existent folder paths."""
@@ -97,7 +98,7 @@ class TestLoadMappingSuiteFromArchive:
         )
 
         assert isinstance(result, MappingSuite)
-        assert result.resources_collection.resource_files is None
+        assert result.resource_file_contents is None
 
     def test_load_mapping_suite_from_archive_with_custom_extractor(
             self,
@@ -210,7 +211,9 @@ class TestLoadMappingSuitesFromGitHub:
             github_suite_extractor=mock_extractor
         )
 
-        assert isinstance(result, MappingSuite)
+        assert isinstance(result, list)
+        assert len(result) == 1
+        assert isinstance(result[0], MappingSuite)
 
     def test_load_mapping_suites_from_github_with_custom_loader(
             self,
@@ -234,32 +237,10 @@ class TestLoadMappingSuitesFromGitHub:
             mapping_suite_loader=custom_loader
         )
 
-        assert isinstance(result, MappingSuite)
-        assert result.resources_collection.resource_files is None
+        assert isinstance(result, list)
+        assert len(result) == 1
 
-    def test_load_mapping_suites_from_github_loads_first_match(
-            self,
-            dummy_mapping_suite_folder_path: Path
-    ):
-        """Test loading from GitHub loads only the first matching suite when multiple match."""
-        mock_extractor = Mock(spec=GitHubExtractor)
-        another_path = Path("/another/suite/path")
-
-        @contextmanager
-        def mock_extract_temporary(*args, **kwargs):
-            yield [dummy_mapping_suite_folder_path, another_path]
-
-        mock_extractor.extract_temporary = mock_extract_temporary
-
-        # Should load only the first matching suite, ignoring others
-        result = load_mapping_suites_from_github(
-            "https://github.com/test/repo",
-            "suites/*",
-            "main",
-            github_suite_extractor=mock_extractor
-        )
-
-        assert isinstance(result, MappingSuite)
+        assert result[0].resource_file_contents is None
 
     def test_load_mapping_suites_from_github_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""

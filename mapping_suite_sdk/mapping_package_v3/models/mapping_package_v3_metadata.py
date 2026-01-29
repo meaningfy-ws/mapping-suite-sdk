@@ -54,10 +54,9 @@ Defaults to [\"application/xml\"] if not specified.
 Can include: application/xml (for data documents), application/json, text/csv (for vocabulary resources).
 """,
     )
-    document_schema_version: Optional[str] = Field(
+    mssdk_version: Optional[str] = Field(
         default=None,
-        description="""Version of the input document schema (e.g., XSD version for Standard Forms, SDK version for eForms).
-This represents the schema version of the source documents, not the mapping version.
+        description="""Version of the Mapping Suite package structure, both metadata and folder anatomy used to govern and organise the mapping package.
 """,
     )
 

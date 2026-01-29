@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import Field
 
@@ -103,11 +103,9 @@ Contains metadata, probing rules, extraction specifications, and eligibility map
 Loaded from: mapping_suite_config.json
 """,
     )
-    resources_collection: ResourcesCollection = Field(
-        default=...,
-        description="""Directory containing vocabulary resources, code lists, and other auxiliary files.
-Fixed directory name: resources/
-""",
+    resource_file_contents: Optional[list[Any]] = Field(
+        default=None,
+        description="""List of loaded file objects, modelled elsewhere as FileAsset""",
     )
 
 
@@ -138,6 +136,11 @@ Loaded from the fixed file: metadata_config.json
         description="""Configuration mapping metadata properties to package eligibility constraints.
 Loaded from the fixed file: eligibility_constraint_config.json
 Used to select which mapping package applies to a given document.
+""",
+    )
+    resource_references: ResourceReferences = Field(
+        default=...,
+        description="""A list of references to resource files in the mapping suite (vocabulary resources, code lists, and other auxiliary files).
 """,
     )
 
@@ -312,17 +315,15 @@ This is the property in the package metadata that the extracted property will be
     )
 
 
-class ResourcesCollection(PydanticModel):
+class ResourceReferences(PydanticModel):
     """
-    Represents the resources directory containing vocabulary resources, code lists,
+    Represents the list of relative path references to files containing vocabulary resources, code lists,
     normalization tables, and other auxiliary files needed for processing.
-    Fixed directory name: resources/
 
     """
 
-    resource_files: Optional[list[str]] = Field(
-        default=None,
-        description="""List of resource file paths within the resources folder""",
+    file_paths: Optional[list[str]] = Field(
+        default=None, description="""List of relative file paths within the project"""
     )
 
 
@@ -337,4 +338,4 @@ PropertyDefinition.model_rebuild()
 PropertyExtractionSpec.model_rebuild()
 EligibilityConstraintConfig.model_rebuild()
 PropertyEligibilityMapping.model_rebuild()
-ResourcesCollection.model_rebuild()
+ResourceReferences.model_rebuild()

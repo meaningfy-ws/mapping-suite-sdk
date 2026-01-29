@@ -97,25 +97,24 @@ def load_mapping_suites_from_github(
         branch_or_tag_name: Optional[str] = None,
         github_suite_extractor: Optional[GitHubExtractor] = None,
         mapping_suite_loader: Optional[MappingSuiteLoader] = None,
-) -> MappingSuite:
-    """Load a single mapping suite (project-level configuration) from a GitHub repository.
+) -> list[MappingSuite]:
+    """Load mapping suites (project-level configurations) from a GitHub repository.
 
     A mapping suite is a project-level configuration (see load_mapping_suite_from_folder
     for details), distinct from mapping packages which contain transformation rules.
 
-    Extracts the first suite matching the specified path pattern and loads it.
-    If multiple suites match the pattern, only the first one is loaded.
+    Extracts all suites matching the specified path pattern and loads them.
 
     Args:
         github_repository_url (str): GitHub repository URL (e.g., https://github.com/owner/repo).
-        suites_path_pattern (str): Glob pattern to find a suite (e.g., mapping_suites/my_suite).
+        suites_path_pattern (str): Glob pattern to find suites (e.g., mapping_suites/my_suite).
         branch_or_tag_name (Optional[str]): Specific branch or tag to extract from.
             If None, uses default branch.
         github_suite_extractor (Optional[GitHubExtractor]): Custom GitHub extractor instance.
         mapping_suite_loader (Optional[MappingSuiteLoader]): Custom loader instance.
 
     Returns:
-        MappingSuite: The loaded mapping suite (project configuration).
+        list[MappingSuite]: The loaded mapping suites (project configurations).
 
     Raises:
         ValueError: If repository URL or pattern is empty/missing, or if no suites match the pattern.
@@ -144,12 +143,12 @@ def load_mapping_suites_from_github(
                 f"in repository {github_repository_url} at {branch_or_tag_name}"
             )
 
-        # Load only the first matching suite
-        suite_path = suite_paths[0]
-        return load_mapping_suite_from_folder(
-            mapping_suite_folder_path=suite_path,
-            mapping_suite_loader=mapping_suite_loader
-        )
+        suites = []
+        for suite_path in suite_paths:
+            suite = (mapping_suite_loader or MappingSuiteLoader()).load(suite_path)
+            suites.append(suite)
+
+        return suites
 
 
 @traced_routine

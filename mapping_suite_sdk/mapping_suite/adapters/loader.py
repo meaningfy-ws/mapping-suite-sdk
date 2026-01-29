@@ -52,7 +52,7 @@ class ResourceReferencesLoader(AssetLoader):
     Loads and parses resource files from the mapping suite config object.
     """
 
-    def load(self, package_folder_path: Path, config: MappingSuiteConfig) -> list[dict]:
+    def load(self, package_folder_path: Path, config: MappingSuiteConfig) -> list[dict] | None:
         """Load and parse resources from config object.
 
         Args:

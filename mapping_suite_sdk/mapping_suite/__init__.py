@@ -12,6 +12,6 @@ class MappingSuiteAssetsPathsConfig:
 
     @env_property(config_resolver_class=DefaultValueConfigResolver,
                   default_value="config/mapping_suite_config.json")
-    def MAPPING_SUITE_CONFIG_FILE_ASSET_PATH(self, config_value: str) -> Path:
+    def mapping_suite_config_file_asset_path(self, config_value: str) -> Path:
         """Path to the mapping suite configuration file."""
         return Path(config_value)

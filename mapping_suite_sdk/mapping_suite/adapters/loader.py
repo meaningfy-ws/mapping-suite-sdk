@@ -144,7 +144,7 @@ class MappingSuiteLoader(Loader):
         # Load configuration
         mapping_suite_config = MappingSuiteConfigLoader().load(
             project_folder_path=package_folder_path,
-            relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+            relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
         )
 
         # Load resource file contents if requested

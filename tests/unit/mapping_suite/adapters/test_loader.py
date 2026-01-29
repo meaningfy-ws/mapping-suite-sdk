@@ -31,7 +31,7 @@ def test_mapping_suite_config_loader_loads_successfully():
     loader = MappingSuiteConfigLoader()
     config = loader.load(
         project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+        relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
     )
 
     assert isinstance(config, MappingSuiteConfig)
@@ -45,7 +45,7 @@ def test_mapping_suite_config_loader_parses_metadata():
     loader = MappingSuiteConfigLoader()
     config = loader.load(
         project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+        relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
     )
 
     assert isinstance(config.mapping_suite_metadata, MappingSuiteMetadata)
@@ -58,7 +58,7 @@ def test_mapping_suite_config_loader_parses_metadata_config():
     loader = MappingSuiteConfigLoader()
     config = loader.load(
         project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+        relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
     )
 
     assert isinstance(config.metadata_config, DocumentMetadataConfig)
@@ -71,7 +71,7 @@ def test_mapping_suite_config_loader_parses_eligibility_config():
     loader = MappingSuiteConfigLoader()
     config = loader.load(
         project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+        relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
     )
 
     assert isinstance(config.eligibility_constraint_config, EligibilityConstraintConfig)
@@ -141,7 +141,7 @@ def test_resource_references_loader_loads_successfully():
     loader = ResourceReferencesLoader()
     config = MappingSuiteConfigLoader().load(
         project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+        relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
     )
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
@@ -157,7 +157,7 @@ def test_resource_references_loader_finds_file_paths():
     loader = ResourceReferencesLoader()
     config = MappingSuiteConfigLoader().load(
         project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+        relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
     )
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
@@ -171,7 +171,7 @@ def test_resource_references_loader_returns_sorted_files():
     loader = ResourceReferencesLoader()
     config = MappingSuiteConfigLoader().load(
         project_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-        relative_asset_path=mssdk_config.MAPPING_SUITE_CONFIG_FILE_ASSET_PATH,
+        relative_asset_path=mssdk_config.mapping_suite_config_file_asset_path,
     )
     resources = loader.load(
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,

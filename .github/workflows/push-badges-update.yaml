@@ -10,6 +10,11 @@ on:
       - develop
   workflow_dispatch:
 
+# Ensure only one instance runs per branch to avoid conflicts
+concurrency:
+  group: update-badges-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   update-pylint-badge:
     name: Update PyLint Badge
@@ -102,4 +107,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add README.md
           git commit -m "chore: Update PyLint badge to ${{ steps.pylint_score.outputs.score }}"
+          
+          # Pull before pushing to handle any concurrent changes
+          git pull --rebase origin ${{ github.ref_name }} || true
           git push

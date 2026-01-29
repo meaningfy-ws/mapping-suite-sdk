@@ -273,38 +273,43 @@ def test_resource_references_loader_handles_malformed_json():
         assert resources[0]["object"] == {"key": "value"}
 
 
-def test_resource_references_loader_handles_invalid_csv_format():
-    """Test that loader handles invalid CSV format gracefully and continues loading valid files."""
+def test_resource_references_loader_handles_csv_files():
+    """Test that loader successfully loads CSV files with various formats.
+    
+    Note: csv.DictReader is extremely tolerant and rarely raises csv.Error in practice.
+    This test verifies that CSV files with inconsistent column counts are handled gracefully.
+    While the loader has error handling for csv.Error, such errors are uncommon with DictReader.
+    """
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
         
-        # Create a CSV file with inconsistent columns (a common CSV error)
-        # CSV.Error can be raised for various formatting issues
-        invalid_csv_content = 'col1,col2,col3\nval1,val2\nval3,val4,val5,val6\n'
-        (resources_dir / "invalid.csv").write_text(invalid_csv_content)
+        # Create a CSV file with inconsistent columns (still valid for DictReader)
+        irregular_csv_content = 'col1,col2,col3\nval1,val2\nval3,val4,val5,val6\n'
+        (resources_dir / "irregular.csv").write_text(irregular_csv_content)
         
-        # Create a valid CSV file
-        valid_csv_content = 'name,value\nitem1,100\nitem2,200\n'
-        (resources_dir / "valid.csv").write_text(valid_csv_content)
+        # Create a standard CSV file
+        standard_csv_content = 'name,value\nitem1,100\nitem2,200\n'
+        (resources_dir / "standard.csv").write_text(standard_csv_content)
         
         loader = ResourceReferencesLoader()
         config = MappingSuiteConfig(
             mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
             metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
             eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=["resources/invalid.csv", "resources/valid.csv"])
+            resource_references=ResourceReferences(file_paths=["resources/irregular.csv", "resources/standard.csv"])
         )
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
         )
         
-        # Both files should load - CSV.DictReader is tolerant of inconsistent columns
-        # It will handle them gracefully, so both should appear
+        # Both files should load successfully - DictReader is tolerant of irregular formats
         assert resources is not None
         assert len(resources) == 2
+        assert any("irregular.csv" in r["file_name"] for r in resources)
+        assert any("standard.csv" in r["file_name"] for r in resources)
 
 
 def test_resource_references_loader_handles_encoding_errors():

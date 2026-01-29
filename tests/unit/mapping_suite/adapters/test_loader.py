@@ -21,6 +21,31 @@ from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
 from tests import TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH
 
 
+def _create_dummy_config(file_paths: list[str]) -> MappingSuiteConfig:
+    """Helper function to create a minimal MappingSuiteConfig for testing.
+    
+    Args:
+        file_paths: List of file paths for resource references.
+        
+    Returns:
+        MappingSuiteConfig with dummy values for testing.
+    """
+    return MappingSuiteConfig(
+        mapping_suite_metadata=MappingSuiteMetadata(
+            mapping_suite_identifier="dummy",
+            mapping_suite_description="dummy"
+        ),
+        metadata_config=DocumentMetadataConfig(
+            metadata_properties=[],
+            document_type_probing=None
+        ),
+        eligibility_constraint_config=EligibilityConstraintConfig(
+            eligibility_mapping=[]
+        ),
+        resource_references=ResourceReferences(file_paths=file_paths)
+    )
+
+
 # ============================================================================
 # MappingSuiteConfigLoader Tests
 # ============================================================================
@@ -185,12 +210,7 @@ def test_resource_references_loader_handles_missing_directory():
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=[])
-        )
+        config = _create_dummy_config(file_paths=[])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -204,12 +224,7 @@ def test_resource_references_loader_handles_empty_directory():
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=[])
-        )
+        config = _create_dummy_config(file_paths=[])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -226,12 +241,7 @@ def test_resource_references_loader_ignores_directories():
         subdir = resources_dir / "subdir"
         subdir.mkdir()
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=["resources/file1.json", "resources/subdir"])
-        )
+        config = _create_dummy_config(file_paths=["resources/file1.json", "resources/subdir"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -255,12 +265,7 @@ def test_resource_references_loader_handles_malformed_json():
         (resources_dir / "valid.json").write_text('{"key": "value"}')
         
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=["resources/malformed.json", "resources/valid.json"])
-        )
+        config = _create_dummy_config(file_paths=["resources/malformed.json", "resources/valid.json"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -273,12 +278,13 @@ def test_resource_references_loader_handles_malformed_json():
         assert resources[0]["object"] == {"key": "value"}
 
 
-def test_resource_references_loader_handles_csv_files():
+def test_resource_references_loader_loads_csv_files_with_irregular_formats():
     """Test that loader successfully loads CSV files with various formats.
     
-    Note: csv.DictReader is extremely tolerant and rarely raises csv.Error in practice.
-    This test verifies that CSV files with inconsistent column counts are handled gracefully.
-    While the loader has error handling for csv.Error, such errors are uncommon with DictReader.
+    Note: This test verifies successful CSV loading rather than error handling.
+    csv.DictReader is extremely tolerant and rarely raises csv.Error in practice,
+    even with irregular column counts or formatting. The loader's csv.Error handling
+    provides defensive programming but is unlikely to be triggered in real usage.
     """
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
@@ -294,12 +300,7 @@ def test_resource_references_loader_handles_csv_files():
         (resources_dir / "standard.csv").write_text(standard_csv_content)
         
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=["resources/irregular.csv", "resources/standard.csv"])
-        )
+        config = _create_dummy_config(file_paths=["resources/irregular.csv", "resources/standard.csv"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -328,12 +329,7 @@ def test_resource_references_loader_handles_encoding_errors():
         (resources_dir / "valid.json").write_text('{"key": "value"}')
         
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=["resources/invalid_encoding.json", "resources/valid.json"])
-        )
+        config = _create_dummy_config(file_paths=["resources/invalid_encoding.json", "resources/valid.json"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -358,12 +354,7 @@ def test_resource_references_loader_handles_all_files_failing():
         (resources_dir / "malformed2.json").write_text("not json at all {{")
         
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=["resources/malformed1.json", "resources/malformed2.json"])
-        )
+        config = _create_dummy_config(file_paths=["resources/malformed1.json", "resources/malformed2.json"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,

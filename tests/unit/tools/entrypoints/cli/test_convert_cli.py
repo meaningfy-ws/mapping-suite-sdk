@@ -42,7 +42,7 @@ def test_convert_cli_command_invalid_base_version(typer_cli_runner: CliRunner, t
     assert result.exit_code != 0
 
 
-def test_convert_cli_command_invalid_v3_lightweight_source_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
+def test_convert_cli_command_v2_to_v3l_source_version_accepted(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     """Test that v3L conversion accepts v2 as source version."""
     with (
         patch("mapping_suite_sdk.tools.entrypoints.cli.convert.is_mapping_package_already_converted", return_value=False),

@@ -16,6 +16,7 @@ def test_convert_mapping_package_v2_to_v3_lightweight_composes_converters(
     mock_convert_v2_to_v3,
     mock_convert_v3_to_v3l,
 ):
+    """Test that V2 to V3L conversion composes the V2->V3 and V3->V3L converters and recomputes the hash."""
     mpv2 = Mock(spec=MappingPackageV2)
     mpv3 = Mock(spec=MappingPackageV3)
     mpv3l = Mock(spec=MappingPackageV3Lightweight)

@@ -242,6 +242,132 @@ def test_resource_references_loader_ignores_directories():
         assert "resources/subdir" not in file_names
 
 
+def test_resource_references_loader_handles_malformed_json():
+    """Test that loader handles malformed JSON gracefully and continues loading valid files."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create a malformed JSON file
+        (resources_dir / "malformed.json").write_text("{ invalid json content {{")
+        # Create a valid JSON file
+        (resources_dir / "valid.json").write_text('{"key": "value"}')
+        
+        loader = ResourceReferencesLoader()
+        config = MappingSuiteConfig(
+            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
+            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+            resource_references=ResourceReferences(file_paths=["resources/malformed.json", "resources/valid.json"])
+        )
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Should only contain the valid file, malformed file should be skipped
+        assert resources is not None
+        assert len(resources) == 1
+        assert resources[0]["file_name"] == "resources/valid.json"
+        assert resources[0]["object"] == {"key": "value"}
+
+
+def test_resource_references_loader_handles_invalid_csv_format():
+    """Test that loader handles invalid CSV format gracefully and continues loading valid files."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create a CSV file with inconsistent columns (a common CSV error)
+        # CSV.Error can be raised for various formatting issues
+        invalid_csv_content = 'col1,col2,col3\nval1,val2\nval3,val4,val5,val6\n'
+        (resources_dir / "invalid.csv").write_text(invalid_csv_content)
+        
+        # Create a valid CSV file
+        valid_csv_content = 'name,value\nitem1,100\nitem2,200\n'
+        (resources_dir / "valid.csv").write_text(valid_csv_content)
+        
+        loader = ResourceReferencesLoader()
+        config = MappingSuiteConfig(
+            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
+            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+            resource_references=ResourceReferences(file_paths=["resources/invalid.csv", "resources/valid.csv"])
+        )
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Both files should load - CSV.DictReader is tolerant of inconsistent columns
+        # It will handle them gracefully, so both should appear
+        assert resources is not None
+        assert len(resources) == 2
+
+
+def test_resource_references_loader_handles_encoding_errors():
+    """Test that loader handles encoding errors gracefully and continues loading valid files."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create a file with invalid UTF-8 encoding
+        invalid_encoding_file = resources_dir / "invalid_encoding.json"
+        # Write bytes that are invalid UTF-8
+        invalid_encoding_file.write_bytes(b'{"key": "\xff\xfe invalid utf-8"}')
+        
+        # Create a valid file
+        (resources_dir / "valid.json").write_text('{"key": "value"}')
+        
+        loader = ResourceReferencesLoader()
+        config = MappingSuiteConfig(
+            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
+            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+            resource_references=ResourceReferences(file_paths=["resources/invalid_encoding.json", "resources/valid.json"])
+        )
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Should only contain the valid file, file with encoding error should be skipped
+        assert resources is not None
+        assert len(resources) == 1
+        assert resources[0]["file_name"] == "resources/valid.json"
+        assert resources[0]["object"] == {"key": "value"}
+
+
+def test_resource_references_loader_handles_all_files_failing():
+    """Test that loader returns None when all files fail to parse."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create only malformed files
+        (resources_dir / "malformed1.json").write_text("{ invalid json")
+        (resources_dir / "malformed2.json").write_text("not json at all {{")
+        
+        loader = ResourceReferencesLoader()
+        config = MappingSuiteConfig(
+            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
+            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+            resource_references=ResourceReferences(file_paths=["resources/malformed1.json", "resources/malformed2.json"])
+        )
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Should return None when all files fail to load
+        assert resources is None
+
+
 # ============================================================================
 # MappingSuiteLoader Tests
 # ============================================================================

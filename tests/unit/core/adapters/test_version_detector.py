@@ -240,7 +240,7 @@ def test_detect_v2_package(tmp_path):
         "identifier": "test-v2",
         "mapping_version": "1.0",
         "ontology_version": "2.0",
-        "eligibility_constraints": {
+        "metadata_constraints": {
             "constraints": {
                 "eforms_sdk_versions": ["1.0", "2.0"]
             }
@@ -304,7 +304,7 @@ def test_detect_unrecognized_package(tmp_path):
         "identifier": "test-v2",
         "mapping_version": "1.0",
         "ontology_version": "2.0",
-        "eligibility_constraints": {
+        "metadata_constraints": {
             "constraints": {
                 "eforms_sdk_versions": ["1.0", "2.0"]
             }
@@ -328,7 +328,7 @@ def test_detect_with_nested_structure(tmp_path):
         "identifier": "test-v2",
         "mapping_version": "1.0",
         "ontology_version": "2.0",
-        "eligibility_constraints": {
+        "metadata_constraints": {
             "constraints": {
                 "eforms_sdk_versions": ["1.0", "2.0"]
             }

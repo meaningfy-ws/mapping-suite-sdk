@@ -1,16 +1,18 @@
+# This workflow updates the PyLint badge in README.md by running the same canonical
+# command used in PR checks (make lint-report), ensuring consistency between the badge
+# score and the pylint output developers see in PRs.
 name: Update badges
 
 on:
-  pull_request:
+  push:
     branches:
-      - '**'
-      - '!main'
-      - '!develop'
-      - '!v*'
+      - main
+      - develop
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: Pylint
+  update-pylint-badge:
+    name: Update PyLint Badge
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -18,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
+          fetch-depth: 0
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
@@ -32,10 +34,72 @@ jobs:
           sudo apt-get install -y python3-dev libsqlite3-dev
           make install
 
-      - name: Update PyLint Badge
-        uses: Silleellie/pylint-github-action@v2.1
-        with:
-          lint-path: ./mapping_suite_sdk ./tests
-          python-version: "3.11"
-          pylintrc-path: .pylintrc
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # Run the canonical lint command used in PR checks
+      - name: Run Pylint report (canonical command)
+        run: make lint-report
+
+      # Extract and validate the score from pylint_report.txt
+      - name: Extract and validate Pylint score
+        id: pylint_score
+        run: |
+          # Check if report exists
+          if [ ! -f pylint_report.txt ]; then
+            echo "::error::pylint_report.txt not found"
+            exit 1
+          fi
+          
+          # Check for import errors (E0401)
+          if grep -q "E0401" pylint_report.txt; then
+            echo "::error::Pylint report contains E0401 (import-error). Badge update aborted."
+            cat pylint_report.txt
+            exit 1
+          fi
+          
+          # Extract score from report
+          # Expected format: "Pylint: Your code has been rated at X.XX/10"
+          SCORE=$(grep -oP "rated at \K[0-9]+\.[0-9]+" pylint_report.txt || echo "")
+          
+          if [ -z "$SCORE" ]; then
+            echo "::error::Could not extract Pylint score from report"
+            cat pylint_report.txt
+            exit 1
+          fi
+          
+          echo "Extracted score: $SCORE"
+          
+          # Check if score is below 8.0
+          if (( $(echo "$SCORE < 8.0" | bc -l) )); then
+            echo "::error::Pylint score ($SCORE) is below 8.0. Badge update aborted."
+            exit 1
+          fi
+          
+          # Format score with 2 decimals
+          FORMATTED_SCORE=$(printf "%.2f" $SCORE)
+          echo "score=$FORMATTED_SCORE" >> $GITHUB_OUTPUT
+          echo "Badge will be updated with score: $FORMATTED_SCORE"
+
+      # Update the README badge with the extracted score
+      - name: Update README badge
+        run: |
+          SCORE="${{ steps.pylint_score.outputs.score }}"
+          # Update the shields.io badge URL in README.md
+          sed -i "s|PyLint-[0-9]\+\.[0-9]\+|PyLint-$SCORE|g" README.md
+          
+          # Check if there are changes
+          if git diff --quiet README.md; then
+            echo "No changes to badge - score is already $SCORE"
+            echo "has_changes=false" >> $GITHUB_ENV
+          else
+            echo "Badge updated to score: $SCORE"
+            echo "has_changes=true" >> $GITHUB_ENV
+          fi
+
+      # Commit and push the changes (only if there are changes)
+      - name: Commit and push badge update
+        if: env.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git commit -m "chore: Update PyLint badge to ${{ steps.pylint_score.outputs.score }}"
+          git push

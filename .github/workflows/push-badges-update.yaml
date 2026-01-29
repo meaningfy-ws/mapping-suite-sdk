@@ -1,18 +1,24 @@
 # This workflow updates the PyLint badge in README.md by running the same canonical
 # command used in PR checks (make lint-report), ensuring consistency between the badge
 # score and the pylint output developers see in PRs.
+#
+# Why run on pull_request instead of push?
+# - The main and develop branches are protected and cannot be pushed to directly
+# - Running on push to these branches would fail when trying to commit back
+# - Running on PRs allows updating the badge in the PR branch before merging
+# - The updated badge is then included in the PR and merged with the other changes
 name: Update badges
 
 on:
-  push:
+  pull_request:
     branches:
       - main
       - develop
   workflow_dispatch:
 
-# Ensure only one instance runs per branch to avoid conflicts
+# Ensure only one instance runs per PR to avoid conflicts
 concurrency:
-  group: update-badges-${{ github.ref }}
+  group: update-badges-pr-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -23,9 +29,13 @@ jobs:
       contents: write
 
     steps:
+      # Checkout the PR head branch (not the base branch) so we can commit to it
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+          # Persist credentials so we can push back to the PR branch
+          persist-credentials: true
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
@@ -86,15 +96,14 @@ jobs:
             echo "has_changes=true" >> $GITHUB_ENV
           fi
 
-      # Commit and push the changes (only if there are changes)
+      # Commit and push the changes (only if there are changes and not from a fork)
       - name: Commit and push badge update
-        if: env.has_changes == 'true'
+        if: env.has_changes == 'true' && github.event.pull_request.head.repo.fork == false
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
           git commit -m "chore: Update PyLint badge to ${{ steps.pylint_score.outputs.score }}"
 
-          # Pull before pushing to handle any concurrent changes
-          git pull --rebase origin ${{ github.ref_name }} || true
-          git push
+          # Push to the PR head branch (not the protected base branch)
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}

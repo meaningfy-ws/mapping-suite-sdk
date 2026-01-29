@@ -61,7 +61,31 @@ def _convert_v1_constraints_to_v3_applicability_constraints(
 
 def convert_mapping_package_v1_to_v3(mpv1: MappingPackageV1) -> MappingPackageV3:
     """
-    Convert a MappingPackageV1 to MappingPackageV3.
+    Convert a MappingPackageV1 instance into the MappingPackageV3 format.
+
+    This function builds a new :class:`~mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3.MappingPackageV3`
+    from an existing :class:`~mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1.MappingPackageV1`,
+    copying all mapping assets and converting the V1 metadata into the JSON-LD based V3 metadata model.
+
+    Constraint conversion preserves V1 list semantics:
+    - In V1, constraints such as ``start_date``, ``end_date``, ``min_xsd_version`` and ``max_xsd_version``
+      are represented as lists (typically empty meaning "no constraint", or a single value).
+    - In V3, the corresponding fields are represented as optional values on :class:`DateTimeInterval`
+      and :class:`VersionRange`.
+    During conversion, the first element of each V1 list is used when present; an empty list is mapped to ``None``.
+    This preserves the original "unbounded / no constraint" meaning of empty lists.
+
+    Additionally, V1 uses integers for ``eforms_subtype``; V3 expects strings, so subtypes are stringified.
+
+    Finally, a new ``mapping_suite_hash_digest`` is computed for the resulting V3 package so it can be validated
+    immediately.
+
+    Args:
+        mpv1: The source mapping package in V1 / Standard Forms format to be converted.
+
+    Returns:
+        A new MappingPackageV3 instance containing the converted metadata and copies of all mapping assets
+        from the input package.
     """
     mpv1_metadata = mpv1.metadata
     v1_constraints = mpv1_metadata.eligibility_constraints.constraints if mpv1_metadata.eligibility_constraints else None

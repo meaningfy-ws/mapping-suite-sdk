@@ -2,7 +2,7 @@ from pathlib import Path
 
 from mapping_suite_sdk.core.adapters.serialiser import MappingPackageAssetSerialiser, \
     ConceptualMappingFileAssetSerialiser, TechnicalMappingCollectionAssetSerialiser, \
-    VocabularyMappingCollectionAssetSerialiser, TestDataCollectionAssetSerialiser, SAPRQLTestCollectionAssetSerialiser, \
+    VocabularyMappingCollectionAssetSerialiser, TestDataCollectionAssetSerialiser, SPARQLTestCollectionAssetSerialiser, \
     SHACLTestCollectionAssetSerialiser, TestResultCollectionAssetSerialiser
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_serialiser import MappingPackageV3MetadataSerialiser
@@ -36,6 +36,6 @@ class MappingPackageV3Serialiser(MappingPackageAssetSerialiser):
         TechnicalMappingCollectionAssetSerialiser().serialise(package_folder_path, asset.technical_mapping_suite)
         VocabularyMappingCollectionAssetSerialiser().serialise(package_folder_path, asset.vocabulary_mapping_suite)
         TestDataCollectionAssetSerialiser().serialise(package_folder_path, asset.test_data_suites)
-        SAPRQLTestCollectionAssetSerialiser().serialise(package_folder_path, asset.test_suites_sparql)
+        SPARQLTestCollectionAssetSerialiser().serialise(package_folder_path, asset.test_suites_sparql)
         SHACLTestCollectionAssetSerialiser().serialise(package_folder_path, asset.test_suites_shacl)
         TestResultCollectionAssetSerialiser().serialise(package_folder_path, asset.test_results)

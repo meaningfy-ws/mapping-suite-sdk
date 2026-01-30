@@ -19,7 +19,7 @@ from mapping_suite_sdk.core.models.collection_asset import (
     TechnicalMappingCollectionAsset,
     VocabularyMappingCollectionAsset,
     TestDataCollectionAsset,
-    SAPRQLTestCollectionAsset,
+    SPARQLTestCollectionAsset,
     SHACLTestCollectionAsset
 )
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
@@ -158,8 +158,8 @@ def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
     assert len(mapping_package.test_suites_sparql) > 0, \
         "test_suites_sparql list cannot be empty"
     for suite in mapping_package.test_suites_sparql:
-        assert isinstance(suite, SAPRQLTestCollectionAsset), \
-            f"All test_suites_sparql elements must be SAPRQLTestCollectionAsset, got {type(suite)}"
+        assert isinstance(suite, SPARQLTestCollectionAsset), \
+            f"All test_suites_sparql elements must be SPARQLTestCollectionAsset, got {type(suite)}"
 
     # SHACL Test Suites validation
     assert isinstance(mapping_package.test_suites_shacl, list), \

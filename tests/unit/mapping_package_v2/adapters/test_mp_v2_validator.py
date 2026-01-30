@@ -5,7 +5,7 @@ import pytest
 
 from mapping_suite_sdk.core.models.collection_asset import (
     TestDataCollectionAsset,
-    SAPRQLTestCollectionAsset,
+    SPARQLTestCollectionAsset,
     SHACLTestCollectionAsset,
     TestResultCollectionAsset, SHACLShapesCollectionAsset
 )
@@ -50,7 +50,7 @@ def test_mp_v2_structural_validation_step_empty_test_data_suite():
             path=Path("validation/shacl/epo"))
     )
     mock_package.test_suites_sparql = [
-        SAPRQLTestCollectionAsset(
+        SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
             files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
         )
@@ -99,7 +99,7 @@ def test_mp_v2_structural_validation_step_empty_shacl_collection():
     )
 
     mock_package.test_suites_sparql = [
-        SAPRQLTestCollectionAsset(
+        SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
             files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
         )
@@ -137,7 +137,7 @@ def test_mp_v2_structural_validation_step_empty_sparql_suite():
     )
 
     # Create SPARQL suite with empty files
-    empty_sparql_suite = SAPRQLTestCollectionAsset(
+    empty_sparql_suite = SPARQLTestCollectionAsset(
         path=Path("validation/sparql/cm_assertions"),
         files=[]  # Empty files list
     )
@@ -176,7 +176,7 @@ def test_mp_v2_structural_validation_step_empty_test_results_suite():
     )
 
     mock_package.test_suites_sparql = [
-        SAPRQLTestCollectionAsset(
+        SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
             files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
         )
@@ -220,7 +220,7 @@ def test_mp_v2_structural_validation_step_none_test_data_suites():
     )
 
     mock_package.test_suites_sparql = [
-        SAPRQLTestCollectionAsset(
+        SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
             files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
         )

@@ -48,7 +48,7 @@ class TestDataCollectionAsset(CollectionAsset):
     files: List[TestDataFileAsset] = Field(default_factory=list, description="Collection of test data files")
 
 
-class SAPRQLTestCollectionAsset(CollectionAsset):
+class SPARQLTestCollectionAsset(CollectionAsset):
     """A collection of SPARQL test files.
 
     This suite manages a set of SPARQL query files used for testing and validation.

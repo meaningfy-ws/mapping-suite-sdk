@@ -17,7 +17,7 @@ from mapping_suite_sdk.core.models.collection_asset import (
     TechnicalMappingCollectionAsset,
     VocabularyMappingCollectionAsset,
     TestDataCollectionAsset,
-    SAPRQLTestCollectionAsset,
+    SPARQLTestCollectionAsset,
     SHACLTestCollectionAsset,
     TestResultCollectionAsset
 )
@@ -194,7 +194,7 @@ def test_sparql_test_suites_loader(dummy_mapping_package_path: Path,
         assert len(sparql_suites) > 0
 
         for suite in sparql_suites:
-            assert isinstance(suite, SAPRQLTestCollectionAsset)
+            assert isinstance(suite, SPARQLTestCollectionAsset)
             assert suite.path is not None
             assert (temp_mp_path / suite.path).exists()
             assert len(suite.files) > 0

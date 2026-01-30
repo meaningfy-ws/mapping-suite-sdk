@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, List, Protocol, Tuple
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.models.collection_asset import TestDataCollectionAsset, SAPRQLTestCollectionAsset, \
+from mapping_suite_sdk.core.models.collection_asset import TestDataCollectionAsset, SPARQLTestCollectionAsset, \
     SHACLTestCollectionAsset, \
     TestResultCollectionAsset, TestDataResultCollectionAsset, TechnicalMappingCollectionAsset, \
     VocabularyMappingCollectionAsset, SHACLShapesCollectionAsset
@@ -199,7 +199,7 @@ class SPARQLTestSuitesLoader(AssetLoader):
     Handles loading of SPARQL query files organized in validation suites.
     """
 
-    def load(self, package_folder_path: Path, relative_asset_path: Path) -> List[SAPRQLTestCollectionAsset]:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> List[SPARQLTestCollectionAsset]:
         """Load SPARQL validation suites from the package.
 
         Args:
@@ -207,7 +207,7 @@ class SPARQLTestSuitesLoader(AssetLoader):
             relative_asset_path (Path): Path to the asset relative to the package folder.
 
         Returns:
-            List[SAPRQLTestCollectionAsset]: List of SPARQL validation suites.
+            List[SPARQLTestCollectionAsset]: List of SPARQL validation suites.
         """
 
         # If the root folder persists
@@ -217,11 +217,11 @@ class SPARQLTestSuitesLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
             package_folder_path = root_folder
 
-        sparql_validation_suites: List[SAPRQLTestCollectionAsset] = []
+        sparql_validation_suites: List[SPARQLTestCollectionAsset] = []
         for sparql_suite in asset_path.iterdir():
             if sparql_suite.is_dir():
                 sparql_validation_suites.append(
-                    SAPRQLTestCollectionAsset(path=sparql_suite.relative_to(package_folder_path),
+                    SPARQLTestCollectionAsset(path=sparql_suite.relative_to(package_folder_path),
                                               files=[SPARQLQueryFileAsset(
                                                   path=ts_file.relative_to(package_folder_path),
                                                   content=ts_file.read_text()) for ts_file

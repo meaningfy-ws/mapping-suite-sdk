@@ -100,6 +100,9 @@ def convert_mapping_package_v1_to_v3(mpv1: MappingPackageV1) -> MappingPackageV3
             context="context.jsonld",
             id=mpv1_metadata.identifier,
             title=mpv1_metadata.title,
+            # V3 requires a project_identifier, but V1 does not provide a dedicated source field for it.
+            # We use "standard_forms" as the V1→V3 default; conditional behavior should rely on version detection,
+            # not on this value (it can be arbitrary across projects).
             project_identifier="standard_forms",
             created_at=mpv1_metadata.issue_date,
             mapping_version=mpv1_metadata.mapping_version,

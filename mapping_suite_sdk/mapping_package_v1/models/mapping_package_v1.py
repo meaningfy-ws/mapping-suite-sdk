@@ -4,7 +4,7 @@ from pydantic import Field
 
 from mapping_suite_sdk.core.models.collection_asset import TestDataCollectionAsset, TestResultCollectionAsset, \
     SHACLTestCollectionAsset, \
-    SAPRQLTestCollectionAsset, TechnicalMappingCollectionAsset, VocabularyMappingCollectionAsset
+    SPARQLTestCollectionAsset, TechnicalMappingCollectionAsset, VocabularyMappingCollectionAsset
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1_metadata import MappingPackageV1Metadata
@@ -32,7 +32,7 @@ class MappingPackageV1(MappingPackage):
                                                                        description="The resources JSONs, CSV and XML files")
     test_data_suites: List[TestDataCollectionAsset] = Field(...,
                                                             description="Collections of test data for transformation")
-    test_suites_sparql: List[SAPRQLTestCollectionAsset] = Field(...,
+    test_suites_sparql: List[SPARQLTestCollectionAsset] = Field(...,
                                                                 description="Collections of SPARQL-based test suites")
     test_suites_shacl: SHACLTestCollectionAsset = Field(...,
                                                         description="Collections of SHACL-based validation test suites")

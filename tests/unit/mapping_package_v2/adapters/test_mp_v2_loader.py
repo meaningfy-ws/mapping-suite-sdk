@@ -8,7 +8,7 @@ from mapping_suite_sdk.core.models.collection_asset import (
     TechnicalMappingCollectionAsset,
     VocabularyMappingCollectionAsset,
     TestDataCollectionAsset,
-    SAPRQLTestCollectionAsset,
+    SPARQLTestCollectionAsset,
     SHACLTestCollectionAsset,
     TestResultCollectionAsset
 )
@@ -113,4 +113,4 @@ def test_mp_v2_loader_component_types(dummy_mapping_package_v2_model):
 
     if dummy_mapping_package_v2_model.test_suites_sparql:
         assert all(
-            isinstance(suite, SAPRQLTestCollectionAsset) for suite in dummy_mapping_package_v2_model.test_suites_sparql)
+            isinstance(suite, SPARQLTestCollectionAsset) for suite in dummy_mapping_package_v2_model.test_suites_sparql)

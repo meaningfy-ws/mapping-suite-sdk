@@ -128,7 +128,7 @@ def test_mp_v1_serialiser_creates_all_components(dummy_mapping_package_v2_model)
 @patch('mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser.TechnicalMappingCollectionAssetSerialiser')
 @patch('mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser.VocabularyMappingCollectionAssetSerialiser')
 @patch('mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser.TestDataCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser.SAPRQLTestCollectionAssetSerialiser')
+@patch('mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser.SPARQLTestCollectionAssetSerialiser')
 @patch('mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser.SHACLTestCollectionAssetSerialiser')
 @patch('mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_serialiser.TestResultCollectionAssetSerialiser')
 def test_mp_v1_serialiser_calls_all_component_serialisers(

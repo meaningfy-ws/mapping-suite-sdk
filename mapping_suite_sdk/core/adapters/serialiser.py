@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Protocol, Any, List, Union, Optional, NoReturn
 
 from mapping_suite_sdk.core.models.collection_asset import TechnicalMappingCollectionAsset, \
-    VocabularyMappingCollectionAsset, TestDataCollectionAsset, SAPRQLTestCollectionAsset, SHACLTestCollectionAsset, \
+    VocabularyMappingCollectionAsset, TestDataCollectionAsset, SPARQLTestCollectionAsset, SHACLTestCollectionAsset, \
     TestResultCollectionAsset
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
 
@@ -93,10 +93,10 @@ class TestDataCollectionAssetSerialiser(MappingPackageAssetSerialiser):
                 write_file_by_content_type(file_path=file_path, content=test_file.content)
 
 
-class SAPRQLTestCollectionAssetSerialiser(MappingPackageAssetSerialiser):
+class SPARQLTestCollectionAssetSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for SPARQL test suites."""
 
-    def serialise(self, package_folder_path: Path, asset: List[SAPRQLTestCollectionAsset]) -> None:
+    def serialise(self, package_folder_path: Path, asset: List[SPARQLTestCollectionAsset]) -> None:
         for suite in asset:
             suite_path = package_folder_path / suite.path
             suite_path.mkdir(parents=True, exist_ok=True)

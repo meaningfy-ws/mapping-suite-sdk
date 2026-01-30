@@ -8,7 +8,7 @@ from mapping_suite_sdk.core.adapters.serialiser import (
     TechnicalMappingCollectionAssetSerialiser,
     VocabularyMappingCollectionAssetSerialiser,
     TestDataCollectionAssetSerialiser,
-    SAPRQLTestCollectionAssetSerialiser,
+    SPARQLTestCollectionAssetSerialiser,
     SHACLTestCollectionAssetSerialiser,
     ConceptualMappingFileAssetSerialiser,
     TestResultCollectionAssetSerialiser, write_file_by_content_type
@@ -17,7 +17,7 @@ from mapping_suite_sdk.core.models.collection_asset import (
     TechnicalMappingCollectionAsset,
     VocabularyMappingCollectionAsset,
     TestDataCollectionAsset,
-    SAPRQLTestCollectionAsset,
+    SPARQLTestCollectionAsset,
     SHACLTestCollectionAsset,
     TestResultCollectionAsset, TestDataResultCollectionAsset
 )
@@ -218,7 +218,7 @@ def test_sparql_test_collection_asset_serialiser():
 
         # Create SPARQL test suites
         sparql_suites = [
-            SAPRQLTestCollectionAsset(
+            SPARQLTestCollectionAsset(
                 path=Path("validation/sparql/cm_assertions"),
                 files=[
                     SPARQLQueryFileAsset(
@@ -233,7 +233,7 @@ def test_sparql_test_collection_asset_serialiser():
             )
         ]
 
-        serialiser = SAPRQLTestCollectionAssetSerialiser()
+        serialiser = SPARQLTestCollectionAssetSerialiser()
         serialiser.serialise(temp_path, sparql_suites)
 
         # Verify suite and files are created

@@ -302,18 +302,28 @@ class TestResultSuiteLoader(AssetLoader):
                 path=report_path.relative_to(package_folder_path),
                 content=load_file_by_extensions(report_path)
             ) for report_path in suite_path.iterdir() if report_path.is_file()],
-            result_suites=[TestDataResultCollectionAsset(
-                path=test_data_suites_result.relative_to(package_folder_path),
-                files=[ReportFileAsset(
-                    path=test_data_report.relative_to(package_folder_path),
-                    content=load_file_by_extensions(test_data_report)
-                ) for test_data_report in
-                    (test_data_suites_result / "test_suite_report").iterdir() if
-                    test_data_report.is_file()],
-                test_data_output=TestDataResultFileAsset(
-                    path=next(test_data_suites_result.glob('*.ttl'), None).relative_to(package_folder_path),
-                    content=load_file_by_extensions(next(test_data_suites_result.glob('*.ttl'), None))),
-            ) for test_data_suites_result in suite_path.iterdir() if test_data_suites_result.is_dir()]
+            result_suites=[
+                TestDataResultCollectionAsset(
+                    path=test_data_suites_result.relative_to(package_folder_path),
+                    files=[
+                        ReportFileAsset(
+                            path=test_data_report.relative_to(package_folder_path),
+                            content=load_file_by_extensions(test_data_report)
+                        )
+                        for test_data_report in report_dir.iterdir()
+                        if test_data_report.is_file()
+                    ]
+                    if report_dir.exists() and report_dir.is_dir()
+                    else [],
+                    test_data_output=TestDataResultFileAsset(
+                        path=ttl_file.relative_to(package_folder_path),
+                        content=load_file_by_extensions(ttl_file)),
+                )
+                for test_data_suites_result in suite_path.iterdir()
+                if test_data_suites_result.is_dir()
+                and (ttl_file := next(test_data_suites_result.glob('*.ttl'), None)) is not None
+                and (report_dir := test_data_suites_result / "test_suite_report")
+            ]
         ) for suite_path in asset_path.iterdir() if suite_path.is_dir()]
 
         return test_result_collection_asset

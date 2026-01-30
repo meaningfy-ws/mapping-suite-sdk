@@ -1,11 +1,10 @@
 import json
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Protocol
 
 from mapping_suite_sdk.core.adapters.hasher import (
     MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
 )
 from mapping_suite_sdk.core.models.pydantic import fields
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
 
 
@@ -33,6 +32,27 @@ def _hash_file_assets(file_assets: List, hasher: HasherABC) -> List[Tuple[str, s
     return file_hashes
 
 
+class _V3HashableMetadata(Protocol):
+    mapping_version: str
+    mapping_suite_hash_digest: str
+
+    def model_dump(self, *args, **kwargs): ...  # pragma: no cover
+
+
+class V3HashableMappingPackage(Protocol):
+    """
+    Protocol for mapping packages that can be hashed with V3 hashing rules.
+
+    Both full V3 packages and V3 lightweight packages expose the same essential
+    attributes required for hash computation: metadata, technical mapping suite,
+    and vocabulary mapping suite.
+    """
+
+    metadata: _V3HashableMetadata
+    technical_mapping_suite: object
+    vocabulary_mapping_suite: object
+
+
 class MappingPackageV3Hasher(MappingPackageHasher):
     """
     Generates signature for an eforms-specific Mapping Package V3.
@@ -45,7 +65,7 @@ class MappingPackageV3Hasher(MappingPackageHasher):
         hasher (HasherABC): The hasher implementation to use for generating hashes.
     """
 
-    def __init__(self, mapping_package: MappingPackageV3, hasher: Optional[HasherABC] = None):
+    def __init__(self, mapping_package: V3HashableMappingPackage, hasher: Optional[HasherABC] = None):
         self.mapping_package = mapping_package
         self.hasher = hasher or SHA256Hasher()
 

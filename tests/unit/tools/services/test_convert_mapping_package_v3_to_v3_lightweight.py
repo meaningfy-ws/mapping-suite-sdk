@@ -2,6 +2,7 @@ import pytest
 
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
 
 
@@ -13,6 +14,7 @@ def test_convert_mapping_package_v3_to_v3_lightweight_creates_successfully(fixtu
     assert result.metadata == fixture_mapping_package_v3_model.metadata
     assert result.technical_mapping_suite == fixture_mapping_package_v3_model.technical_mapping_suite
     assert result.vocabulary_mapping_suite == fixture_mapping_package_v3_model.vocabulary_mapping_suite
+    assert result.metadata.mapping_suite_hash_digest == MappingPackageV3Hasher(result).hash()
 
 
 def test_convert_mapping_package_v3_to_v3_lightweight_preserves_essential_components(fixture_mapping_package_v3_model: MappingPackageV3) -> None:
@@ -25,8 +27,8 @@ def test_convert_mapping_package_v3_to_v3_lightweight_preserves_essential_compon
     assert result.technical_mapping_suite is not None
     assert result.vocabulary_mapping_suite is not None
     
-    # Verify metadata is the same object (reference equality)
-    assert result.metadata is fixture_mapping_package_v3_model.metadata
+    # Metadata is copied (we recompute the signature for the lightweight package).
+    assert result.metadata is not fixture_mapping_package_v3_model.metadata
     assert result.technical_mapping_suite is fixture_mapping_package_v3_model.technical_mapping_suite
     assert result.vocabulary_mapping_suite is fixture_mapping_package_v3_model.vocabulary_mapping_suite
 
@@ -63,13 +65,14 @@ def test_convert_mapping_package_v3_to_v3_lightweight_metadata_unchanged(fixture
     original_metadata = fixture_mapping_package_v3_model.metadata
     result = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     
-    # Metadata should be the same object (reference equality)
-    assert result.metadata is original_metadata
+    # Metadata content should be preserved, but it's a copy (signature is recomputed).
+    assert result.metadata is not original_metadata
     assert result.metadata.id == original_metadata.id
     assert result.metadata.title == original_metadata.title
     assert result.metadata.project_identifier == original_metadata.project_identifier
     assert result.metadata.mapping_version == original_metadata.mapping_version
     assert result.metadata.model_version == original_metadata.model_version
+    assert result.metadata.mapping_suite_hash_digest == MappingPackageV3Hasher(result).hash()
 
 
 def test_convert_mapping_package_v3_to_v3_lightweight_technical_mapping_unchanged(fixture_mapping_package_v3_model: MappingPackageV3) -> None:

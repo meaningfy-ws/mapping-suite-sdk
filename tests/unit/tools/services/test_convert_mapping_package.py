@@ -131,6 +131,20 @@ class TestConvertMappingPackageModel:
         assert result is fixture_mapping_package_v3_model
         mock_convert.assert_called_once_with(mock_v1_package)
 
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v1_to_v3_lightweight')
+    def test_convert_v1_to_v3l_success(self, mock_convert):
+        """Test converting V1 to V3L model successfully."""
+        from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+
+        mock_v1_package = Mock(spec=MappingPackageV1)
+        mock_v3l_package = Mock(spec=MappingPackageV3Lightweight)
+        mock_convert.return_value = mock_v3l_package
+
+        result = convert_mapping_package_model(Version.V1, Version.V3L, mock_v1_package)
+
+        assert result is mock_v3l_package
+        mock_convert.assert_called_once_with(mock_v1_package)
+
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v2_to_v3')
     def test_convert_v2_to_v3_success(self, mock_convert, fixture_mapping_package_v3_model: MappingPackageV3):
         """Test converting V2 to V3 model successfully."""
@@ -170,7 +184,7 @@ class TestConvertMappingPackageModel:
         mock_package = Mock()
 
         with pytest.raises(UnsupportedVersionError, match="Unsupported conversion"):
-            convert_mapping_package_model(Version.V1, Version.V3L, mock_package)
+            convert_mapping_package_model(Version.V1, Version.V2, mock_package)
 
 
 class TestSerialiseMappingPackage:
@@ -263,7 +277,8 @@ class TestSerialiseMappingPackage:
         
         # Verify old metadata.json was removed
         assert not old_metadata.exists()
-        mock_resolve.assert_called_once_with(tmp_path)
+        # Package root may be resolved multiple times (serialization + context copy + cleanup).
+        mock_resolve.assert_any_call(tmp_path)
 
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_folder')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_conceptual_mapping_file')

@@ -1,5 +1,5 @@
 import json
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Protocol
 
 from mapping_suite_sdk.core.adapters.hasher import (
     MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
@@ -32,6 +32,27 @@ def _hash_file_assets(file_assets: List, hasher: HasherABC) -> List[Tuple[str, s
     # Sort by file path for consistent ordering
     file_hashes.sort(key=lambda x: x[0])
     return file_hashes
+
+
+class _V3HashableMetadata(Protocol):
+    mapping_version: str
+    mapping_suite_hash_digest: str
+
+    def model_dump(self, *args, **kwargs): ...  # pragma: no cover
+
+
+class V3HashableMappingPackage(Protocol):
+    """
+    Protocol for mapping packages that can be hashed with V3 hashing rules.
+
+    Both full V3 packages and V3 lightweight packages expose the same essential
+    attributes required for hash computation: metadata, technical mapping suite,
+    and vocabulary mapping suite.
+    """
+
+    metadata: _V3HashableMetadata
+    technical_mapping_suite: object
+    vocabulary_mapping_suite: object
 
 
 class MappingPackageV3Hasher(MappingPackageHasher):

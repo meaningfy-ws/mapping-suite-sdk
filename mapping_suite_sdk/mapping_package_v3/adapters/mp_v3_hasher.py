@@ -1,5 +1,5 @@
 import json
-from typing import Optional, List, Tuple, Union
+from typing import Optional, List, Tuple
 
 from mapping_suite_sdk.core.adapters.hasher import (
     MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
@@ -42,11 +42,11 @@ class MappingPackageV3Hasher(MappingPackageHasher):
     including its files and metadata, to produce a unique signature.
 
     Args:
-        mapping_package (Union[MappingPackageV3, MappingPackageV3Lightweight]): The Mapping Package instance to hash.
+        mapping_package (MappingPackageV3 | MappingPackageV3Lightweight): The Mapping Package instance to hash.
         hasher (HasherABC): The hasher implementation to use for generating hashes.
     """
 
-    def __init__(self, mapping_package: Union[MappingPackageV3, MappingPackageV3Lightweight], hasher: Optional[HasherABC] = None):
+    def __init__(self, mapping_package: MappingPackageV3 | MappingPackageV3Lightweight, hasher: Optional[HasherABC] = None):
         self.mapping_package = mapping_package
         self.hasher = hasher or SHA256Hasher()
 

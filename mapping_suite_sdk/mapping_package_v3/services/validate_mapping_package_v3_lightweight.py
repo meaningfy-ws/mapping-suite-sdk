@@ -32,7 +32,7 @@ def validate_mapping_package_v3_lightweight(
     Returns:
         Literal[True] | NoReturn: True if the validation passes, otherwise raises an exception.
     """
-    hasher = MappingPackageV3Hasher(mapping_package)  # type: ignore[arg-type]
+    hasher = MappingPackageV3Hasher(mapping_package)
     expected_hash = hasher.hash()
     actual_hash = mapping_package.metadata.mapping_suite_hash_digest
 
@@ -111,7 +111,7 @@ def validate_bulk_mapping_packages_v3_lightweight_from_folder(
                 if metadata_file.exists():
                     metadata = json.loads(metadata_file.read_text())
                     lightweight_package = load_mapping_package_v3_lightweight_from_folder(mp_folder)
-                    metadata['mapping_suite_hash_digest'] = MappingPackageV3Hasher(lightweight_package).hash()  # type: ignore[arg-type]
+                    metadata['mapping_suite_hash_digest'] = MappingPackageV3Hasher(lightweight_package).hash()
                     metadata_file.write_text(json.dumps(metadata, indent=4))
             else:
                 all_valid = False

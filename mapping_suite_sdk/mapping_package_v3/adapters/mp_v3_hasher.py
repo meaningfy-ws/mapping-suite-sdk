@@ -6,6 +6,7 @@ from mapping_suite_sdk.core.adapters.hasher import (
 )
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
 
 
@@ -35,17 +36,17 @@ def _hash_file_assets(file_assets: List, hasher: HasherABC) -> List[Tuple[str, s
 
 class MappingPackageV3Hasher(MappingPackageHasher):
     """
-    Generates signature for an eforms-specific Mapping Package V3.
+    Generates signature for an eforms-specific Mapping Package V3 or V3 Lightweight.
 
-    This class provides functionality to hash a MappingPackageV3 instance for unified mapping packages,
+    This class provides functionality to hash a MappingPackageV3 or V3 Lightweight instance for unified mapping packages,
     including its files and metadata, to produce a unique signature.
 
     Args:
-        mapping_package (MappingPackageV3): The Mapping Package instance to hash.
+        mapping_package (MappingPackageV3 | MappingPackageV3Lightweight): The Mapping Package instance to hash.
         hasher (HasherABC): The hasher implementation to use for generating hashes.
     """
 
-    def __init__(self, mapping_package: MappingPackageV3, hasher: Optional[HasherABC] = None):
+    def __init__(self, mapping_package: MappingPackageV3 | MappingPackageV3Lightweight, hasher: Optional[HasherABC] = None):
         self.mapping_package = mapping_package
         self.hasher = hasher or SHA256Hasher()
 
@@ -76,7 +77,7 @@ class MappingPackageV3Hasher(MappingPackageHasher):
         # Step 2: Collect all hash signatures
         signatures = [signature[1] for signature in file_hashes]
 
-        # Step 3: Add metadata (only package specific metadata, without Linked Data part
+        # Step 3: Add metadata (only package specific metadata, without Linked Data part)
         only_metadata = MappingPackageV3Metadata.model_construct(**self.mapping_package.metadata.model_dump())
 
         model_str = only_metadata.model_dump_json(

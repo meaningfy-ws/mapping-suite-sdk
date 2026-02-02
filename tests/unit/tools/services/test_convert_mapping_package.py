@@ -741,20 +741,18 @@ class TestHelperFunctions:
         
         mock_resolve.assert_called_once_with(package_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
     def test_remove_old_metadata_json_uses_original_path_when_resolve_returns_none(
         self,
-        mock_resolve,
         tmp_path: Path
     ):
         """Test that _remove_old_metadata_json uses original path when _resolve_package_root returns None."""
         package_path = tmp_path / "package"
         package_path.mkdir()
-        mock_resolve.return_value = None
         
         old_metadata = package_path / "metadata.json"
         old_metadata.write_text('{"test": "data"}')
         
+        # Don't mock _resolve_package_root - let it return None naturally
         _remove_old_metadata_json(package_path)
         
         assert not old_metadata.exists()
@@ -790,10 +788,8 @@ class TestHelperFunctions:
         
         mock_resolve.assert_called_once_with(package_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
     def test_remove_conceptual_mapping_file_uses_original_path_when_resolve_returns_none(
         self,
-        mock_resolve,
         tmp_path: Path
     ):
         """Test that _remove_conceptual_mapping_file uses original path when _resolve_package_root returns None."""
@@ -801,12 +797,12 @@ class TestHelperFunctions:
         
         package_path = tmp_path / "package"
         package_path.mkdir()
-        mock_resolve.return_value = None
         
         conceptual_path = package_path / mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH
         conceptual_path.parent.mkdir(parents=True, exist_ok=True)
         conceptual_path.write_bytes(b"fake xlsx")
         
+        # Don't mock _resolve_package_root - let it return None naturally
         _remove_conceptual_mapping_file(package_path)
         
         assert not conceptual_path.exists()
@@ -840,21 +836,19 @@ class TestHelperFunctions:
         
         mock_resolve.assert_called_once_with(package_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
     def test_remove_folder_uses_original_path_when_resolve_returns_none(
         self,
-        mock_resolve,
         tmp_path: Path
     ):
         """Test that _remove_folder uses original path when _resolve_package_root returns None."""
         package_path = tmp_path / "package"
         package_path.mkdir()
-        mock_resolve.return_value = None
         
         test_folder = package_path / "test_folder"
         test_folder.mkdir()
         (test_folder / "file.txt").write_text("content")
         
+        # Don't mock _resolve_package_root - let it return None naturally
         _remove_folder(package_path, "test_folder", "test_folder")
         
         assert not test_folder.exists()

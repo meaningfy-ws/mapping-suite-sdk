@@ -289,6 +289,71 @@ def test_test_result_suite_loader_with_valid_structure(dummy_mapping_test_result
         assert isinstance(result, TestResultCollectionAsset)
 
 
+def test_test_result_suite_loader_with_nonexistent_output_folder(dummy_mapping_test_result_collection_path: Path):
+    """Test that loader returns empty collection when output folder doesn't exist."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+
+        loader = TestResultSuiteLoader()
+        result = loader.load(temp_dir_path, dummy_mapping_test_result_collection_path)
+
+        assert isinstance(result, TestResultCollectionAsset)
+        assert result.files == []
+        assert result.result_suites == []
+
+
+def test_test_result_suite_loader_without_ttl_files(dummy_mapping_test_result_collection_path: Path):
+    """Test that test data results without .ttl files are skipped."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+
+        # Create test structure without .ttl files
+        output_dir = temp_dir_path / "output"
+        output_dir.mkdir()
+
+        suite_dir = output_dir / "test_suite"
+        suite_dir.mkdir()
+        (suite_dir / "suite_report.json").write_text('{"test": "data"}')
+
+        # Create test data result directory without .ttl file
+        test_data_dir = suite_dir / "test_data_result"
+        test_data_dir.mkdir()
+        (test_data_dir / "some_file.txt").write_text("not a ttl file")
+
+        loader = TestResultSuiteLoader()
+        result = loader.load(temp_dir_path, dummy_mapping_test_result_collection_path)
+
+        assert isinstance(result, TestResultCollectionAsset)
+        assert len(result.result_suites) == 1
+        assert len(result.result_suites[0].result_suites) == 0
+
+
+def test_test_result_suite_loader_without_test_suite_report(dummy_mapping_test_result_collection_path: Path):
+    """Test that test data results work without test_suite_report directory."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+
+        # Create test structure without test_suite_report directory
+        output_dir = temp_dir_path / "output"
+        output_dir.mkdir()
+
+        suite_dir = output_dir / "test_suite"
+        suite_dir.mkdir()
+
+        # Create test data result directory with .ttl but no test_suite_report
+        test_data_dir = suite_dir / "test_data_result"
+        test_data_dir.mkdir()
+        (test_data_dir / "result.ttl").write_text("test ttl content")
+
+        loader = TestResultSuiteLoader()
+        result = loader.load(temp_dir_path, dummy_mapping_test_result_collection_path)
+
+        assert isinstance(result, TestResultCollectionAsset)
+        assert len(result.result_suites) == 1
+        assert len(result.result_suites[0].result_suites) == 1
+        assert len(result.result_suites[0].result_suites[0].files) == 0
+
+
 def test_loader_with_nonexistent_path():
     loader = TechnicalMappingSuiteLoader()
 

@@ -38,6 +38,26 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
 class TestLoadMappingPackageFromFolder:
     """Tests for load_mapping_package_from_folder function."""
 
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v1_from_folder')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV1Loader')
+    def test_load_v1_package_success(self, mock_loader_class, mock_load_service, tmp_path: Path):
+        """Test loading V1 package successfully."""
+        from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+
+        mock_package = Mock(spec=MappingPackageV1)
+        mock_loader = Mock()
+        mock_loader_class.return_value = mock_loader
+        mock_load_service.return_value = mock_package
+
+        result = load_mapping_package_from_folder(Version.V1, tmp_path)
+
+        assert result is mock_package
+        mock_loader_class.assert_called_once()
+        mock_load_service.assert_called_once_with(
+            mapping_package_folder_path=tmp_path,
+            mapping_package_loader=mock_loader
+        )
+
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v2_from_folder')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV2Loader')
     def test_load_v2_package_success(self, mock_loader_class, mock_load_service, tmp_path: Path):
@@ -92,11 +112,24 @@ class TestLoadMappingPackageFromFolder:
     def test_load_package_unsupported_version(self, tmp_path: Path):
         """Test that unsupported version raises UnsupportedVersionError."""
         with pytest.raises(UnsupportedVersionError, match="Unsupported source version"):
-            load_mapping_package_from_folder("v1", tmp_path)
+            load_mapping_package_from_folder("v0", tmp_path)
 
 
 class TestConvertMappingPackageModel:
     """Tests for convert_mapping_package_model function."""
+
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v1_to_v3')
+    def test_convert_v1_to_v3_success(self, mock_convert, fixture_mapping_package_v3_model: MappingPackageV3):
+        """Test converting V1 to V3 model successfully."""
+        from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+
+        mock_v1_package = Mock(spec=MappingPackageV1)
+        mock_convert.return_value = fixture_mapping_package_v3_model
+
+        result = convert_mapping_package_model(Version.V1, Version.V3, mock_v1_package)
+
+        assert result is fixture_mapping_package_v3_model
+        mock_convert.assert_called_once_with(mock_v1_package)
 
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v2_to_v3')
     def test_convert_v2_to_v3_success(self, mock_convert, fixture_mapping_package_v3_model: MappingPackageV3):
@@ -137,7 +170,7 @@ class TestConvertMappingPackageModel:
         mock_package = Mock()
 
         with pytest.raises(UnsupportedVersionError, match="Unsupported conversion"):
-            convert_mapping_package_model(Version.V1, Version.V3, mock_package)
+            convert_mapping_package_model(Version.V1, Version.V3L, mock_package)
 
 
 class TestSerialiseMappingPackage:

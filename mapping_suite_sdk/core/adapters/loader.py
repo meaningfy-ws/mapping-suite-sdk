@@ -9,7 +9,6 @@ from mapping_suite_sdk.core.models.collection_asset import TestDataCollectionAss
 from mapping_suite_sdk.core.models.file_asset import RMLMappingFileAsset, VocabularyMappingFileAsset, TestDataFileAsset, \
     SPARQLQueryFileAsset, SHACLShapesFileAsset, ReportFileAsset, TestDataResultFileAsset, ConceptualMappingFileAsset, \
     SHACLShapesResultQueryFileAsset
-from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 
 
 def load_file_by_extensions(file_path: Path,
@@ -291,21 +290,39 @@ class TestResultSuiteLoader(AssetLoader):
             asset_path = root_folder / test_result_collection_asset.path
             package_folder_path = root_folder
 
+        # If the output folder doesn't exist, return empty collection
+        if not asset_path.exists():
+            return test_result_collection_asset
+
         test_result_collection_asset.files = [ReportFileAsset(
             path=report_path.relative_to(package_folder_path),
             content=load_file_by_extensions(report_path)
         ) for report_path in asset_path.iterdir() if report_path.is_file()]
 
-        test_result_collection_asset.result_suites = [TestResultCollectionAsset(
-            path=suite_path.relative_to(package_folder_path),
-            files=[ReportFileAsset(
+        result_suites = []
+        for suite_path in asset_path.iterdir():
+            if not suite_path.is_dir():
+                continue
+
+            suite_files = [ReportFileAsset(
                 path=report_path.relative_to(package_folder_path),
                 content=load_file_by_extensions(report_path)
-            ) for report_path in suite_path.iterdir() if report_path.is_file()],
-            result_suites=[
-                TestDataResultCollectionAsset(
-                    path=test_data_suites_result.relative_to(package_folder_path),
-                    files=[
+            ) for report_path in suite_path.iterdir() if report_path.is_file()]
+
+            test_data_results = []
+            for test_data_suites_result in suite_path.iterdir():
+                if not test_data_suites_result.is_dir():
+                    continue
+
+                ttl_file = next(test_data_suites_result.glob('*.ttl'), None)
+                if ttl_file is None:
+                    continue
+
+                report_dir = test_data_suites_result / "test_suite_report"
+
+                report_files = []
+                if report_dir.exists() and report_dir.is_dir():
+                    report_files = [
                         ReportFileAsset(
                             path=test_data_report.relative_to(package_folder_path),
                             content=load_file_by_extensions(test_data_report)
@@ -313,18 +330,25 @@ class TestResultSuiteLoader(AssetLoader):
                         for test_data_report in report_dir.iterdir()
                         if test_data_report.is_file()
                     ]
-                    if report_dir.exists() and report_dir.is_dir()
-                    else [],
-                    test_data_output=TestDataResultFileAsset(
-                        path=ttl_file.relative_to(package_folder_path),
-                        content=load_file_by_extensions(ttl_file)),
+
+                test_data_results.append(
+                    TestDataResultCollectionAsset(
+                        path=test_data_suites_result.relative_to(package_folder_path),
+                        files=report_files,
+                        test_data_output=TestDataResultFileAsset(
+                            path=ttl_file.relative_to(package_folder_path),
+                            content=load_file_by_extensions(ttl_file)
+                        ),
+                    )
                 )
-                for test_data_suites_result in suite_path.iterdir()
-                if test_data_suites_result.is_dir()
-                and (ttl_file := next(test_data_suites_result.glob('*.ttl'), None)) is not None
-                and (report_dir := test_data_suites_result / "test_suite_report")
-            ]
-        ) for suite_path in asset_path.iterdir() if suite_path.is_dir()]
+
+            result_suites.append(TestResultCollectionAsset(
+                path=suite_path.relative_to(package_folder_path),
+                files=suite_files,
+                result_suites=test_data_results
+            ))
+
+        test_result_collection_asset.result_suites = result_suites
 
         return test_result_collection_asset
 

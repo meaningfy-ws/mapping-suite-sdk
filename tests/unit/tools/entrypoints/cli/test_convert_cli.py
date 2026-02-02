@@ -67,6 +67,16 @@ def test_convert_cli_command_invalid_target_version(typer_cli_runner: CliRunner,
     assert result.exit_code != 0
 
 
+def test_convert_cli_command_v3l_invalid_source_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
+    """Test that v3L conversion rejects invalid source versions."""
+    result = typer_cli_runner.invoke(
+        mssdk_cli_convert_subcommand,
+        ["--to-version", "v3L", "--from-version", "v1", "from-package", str(tmp_path)]
+    )
+
+    assert result.exit_code != 0
+
+
 def test_convert_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
     invalid_path = tmp_path / "nonexistent"
     result = typer_cli_runner.invoke(

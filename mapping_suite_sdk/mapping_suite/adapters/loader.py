@@ -9,7 +9,6 @@ from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
     MappingSuite,
     MappingSuiteConfig,
-    ResourceReferences,
 )
 
 logger = logging.getLogger(__name__)

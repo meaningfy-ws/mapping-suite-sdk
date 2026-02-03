@@ -1,7 +1,6 @@
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 from typer.testing import CliRunner
 
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3

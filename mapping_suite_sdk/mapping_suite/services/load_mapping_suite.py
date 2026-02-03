@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine

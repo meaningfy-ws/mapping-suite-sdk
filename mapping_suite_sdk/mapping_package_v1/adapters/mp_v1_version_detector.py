@@ -8,7 +8,6 @@ using declarative specifications.
 from mapping_suite_sdk.core import VersionDetectionRegistry
 from mapping_suite_sdk.core.adapters.version_detector import (
     VersionDetectionSpec,
-    PathCondition,
     MetadataCondition,
 )
 

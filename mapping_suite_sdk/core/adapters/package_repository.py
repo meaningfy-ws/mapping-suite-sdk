@@ -4,7 +4,7 @@ Repository implementation specifically for mapping packages.
 This module provides PackageRepository, which extends MongoDBRepository
 with package-specific convenience methods.
 """
-from typing import Generic, Type, TypeVar
+from typing import Type, TypeVar
 
 from pymongo import MongoClient
 

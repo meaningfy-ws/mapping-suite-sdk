@@ -1,12 +1,8 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_serialiser import MappingPackageV3MetadataSerialiser
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
-
 
 def test_mp_v3_metadata_serialiser_creates_metadata_file(tmp_path: Path,
                                                          fixture_mapping_package_v3_model: MappingPackageV3) -> None:

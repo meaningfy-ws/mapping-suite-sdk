@@ -1,5 +1,5 @@
 import json
-from typing import Optional, List, Tuple, Protocol
+from typing import Optional, List, Tuple
 
 from mapping_suite_sdk.core.adapters.hasher import (
     MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content

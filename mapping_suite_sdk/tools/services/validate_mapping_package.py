@@ -16,11 +16,13 @@ import tempfile
 from typing import Optional, Union, Literal, NoReturn, Any
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.core.adapters.tracer import traced_class, traced_routine
 from mapping_suite_sdk.core.adapters.validator import MPValidationException, MPValidationStepABC
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.tools.services.convert_mapping_package import Version
 
 
+@traced_class
 class CrossVersionValidationError(MPValidationException):
     """Raised when cross-version validation cannot route to a validator."""
 
@@ -111,7 +113,7 @@ def _validate_folder(mapping_package_folder_path: Path, version: Version) -> Lit
 
     raise CrossVersionValidationError(f"Unsupported version: {version}")
 
-
+@traced_routine
 def validate_mapping_package(
     mapping_package: Union[Path, object],
     *,
@@ -176,4 +178,3 @@ def validate_mapping_package(
         return _validate_model(mapping_package, Version.V3)
 
     raise CrossVersionValidationError(f"Cannot auto-detect version from mapping package type: {type(mapping_package)}")
-

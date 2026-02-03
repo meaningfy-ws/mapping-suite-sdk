@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Union
 
 from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.version_detector import _resolve_package_root
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
 from mapping_suite_sdk.mapping_package_v1.services.load_mapping_package_v1 import load_mapping_package_v1_from_folder
@@ -64,7 +65,7 @@ class InvalidPackagePathError(ConversionError):
     """Raised when package path is invalid."""
     pass
 
-
+@traced_routine
 def load_mapping_package_from_folder(from_version: str, mapping_package_folder_path: Path):
     """
     Load a mapping package from filesystem based on version.
@@ -106,7 +107,7 @@ def load_mapping_package_from_folder(from_version: str, mapping_package_folder_p
     else:
         raise UnsupportedVersionError(f"Unsupported source version: {from_version}")
 
-
+@traced_routine
 def convert_mapping_package_model(from_version: str, to_version: str, source_package):
     """
     Convert mapping package model between versions.
@@ -263,7 +264,7 @@ def _remove_folder(mapping_package_folder_path: Path, relative_folder_path: Unio
             package_source=mapping_package_folder_path,
             message=f"Removed {folder_name} folder from {folder_path}"))
 
-
+@traced_routine
 def serialise_mapping_package(to_version: str, mapping_package_folder_path: Path, converted_package) -> None:
     """
     Serialize a mapping package to filesystem based on version.
@@ -303,7 +304,7 @@ def serialise_mapping_package(to_version: str, mapping_package_folder_path: Path
     else:
         raise UnsupportedVersionError(f"Unsupported target version: {to_version}")
 
-
+@traced_routine
 def convert_mapping_package_from_folder(
     from_version: str,
     to_version: str,
@@ -333,7 +334,7 @@ def convert_mapping_package_from_folder(
     converted_package = convert_mapping_package_model(from_version, to_version, source_package)
     serialise_mapping_package(to_version, mapping_package_folder_path, converted_package)
 
-
+@traced_routine
 def convert_mapping_packages_from_folder(
     from_version: str,
     to_version: str,

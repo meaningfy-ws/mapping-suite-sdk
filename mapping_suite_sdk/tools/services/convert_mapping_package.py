@@ -25,6 +25,9 @@ from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_serialiser impo
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_serialiser import MappingPackageV3LightweightSerialiser
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import load_mapping_package_v3_from_folder
 from mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3 import convert_mapping_package_v1_to_v3
+from mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3_lightweight import (
+    convert_mapping_package_v1_to_v3_lightweight,
+)
 from mapping_suite_sdk.tools.services.convert_mapping_package_v2_to_v3 import (
     convert_mapping_package_v2_to_v3,
     is_mapping_package_already_converted  # Re-export for convenience
@@ -121,6 +124,8 @@ def convert_mapping_package_model(from_version: str, to_version: str, source_pac
     """
     if from_version == Version.V1 and to_version == Version.V3:
         return convert_mapping_package_v1_to_v3(source_package)
+    elif from_version == Version.V1 and to_version == Version.V3L:
+        return convert_mapping_package_v1_to_v3_lightweight(source_package)
     elif from_version == Version.V2 and to_version == Version.V3:
         return convert_mapping_package_v2_to_v3(source_package)
     elif from_version == Version.V2 and to_version == Version.V3L:
@@ -173,7 +178,12 @@ def _copy_context_jsonld_to_package(mapping_package_folder_path: Path, converted
         FileNotFoundError: If context.jsonld file cannot be found in schema directory
     """
     schema_context_path = _get_context_jsonld_path()
-    metadata_path = mapping_package_folder_path / converted_package.metadata.path
+
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        package_root = mapping_package_folder_path
+
+    metadata_path = package_root / converted_package.metadata.path
     metadata_directory = metadata_path.parent
     package_context_path = metadata_directory / "context.jsonld"
 
@@ -272,14 +282,18 @@ def serialise_mapping_package(to_version: str, mapping_package_folder_path: Path
     Raises:
         UnsupportedVersionError: If to_version is not supported
     """
+    package_root = _resolve_package_root(mapping_package_folder_path)
+    if package_root is None:
+        package_root = mapping_package_folder_path
+
     if to_version == Version.V3:
         serialiser = MappingPackageV3Serialiser()
-        serialiser.serialise(mapping_package_folder_path, converted_package)
+        serialiser.serialise(package_root, converted_package)
         _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
         _remove_old_metadata_json(mapping_package_folder_path)
     elif to_version == Version.V3L:
         serialiser = MappingPackageV3LightweightSerialiser()
-        serialiser.serialise(mapping_package_folder_path, converted_package)
+        serialiser.serialise(package_root, converted_package)
         _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
         _remove_old_metadata_json(mapping_package_folder_path)
         _remove_conceptual_mapping_file(mapping_package_folder_path)

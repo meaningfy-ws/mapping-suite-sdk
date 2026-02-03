@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import Field
 from mapping_suite_sdk.core.models.collection_asset import SHACLTestCollectionAsset, SPARQLTestCollectionAsset, TechnicalMappingCollectionAsset, TestDataCollectionAsset, TestResultCollectionAsset, VocabularyMappingCollectionAsset
@@ -21,8 +21,8 @@ class MappingPackageCommon(MappingPackage):
     """
 
     # Common package elements
-    conceptual_mapping_asset: ConceptualMappingFileAsset | None = Field(None, description="The Conceptual Mapping (CM) in Excel (XLSX) spreadsheet format")
+    conceptual_mapping_asset: Optional[ConceptualMappingFileAsset] = Field(None, description="The Conceptual Mapping (CM) in Excel (XLSX) spreadsheet format")
     test_data_suites: List[TestDataCollectionAsset] = Field(default_factory=list, description="List of test data collections in XML format")
     test_suites_sparql: List[SPARQLTestCollectionAsset] = Field(default_factory=list, description="List of SPARQL-based validation test suites")
-    test_suites_shacl: SHACLTestCollectionAsset | None = Field(None, description="Container for SHACL-based validation test suites")
-    test_results: TestResultCollectionAsset | None = Field(None, description="Container for transformation test results and outputs")
+    test_suites_shacl: Optional[SHACLTestCollectionAsset] = Field(None, description="Container for SHACL-based validation test suites")
+    test_results: Optional[TestResultCollectionAsset] = Field(None, description="Container for transformation test results and outputs")

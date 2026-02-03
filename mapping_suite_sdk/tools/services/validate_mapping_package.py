@@ -13,12 +13,13 @@ from __future__ import annotations
 
 from pathlib import Path
 import tempfile
-from typing import Optional, Union, Literal, NoReturn, Any
+from typing import Optional, Literal, NoReturn
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_class, traced_routine
 from mapping_suite_sdk.core.adapters.validator import MPValidationException, MPValidationStepABC
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
+from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 from mapping_suite_sdk.tools.services.convert_mapping_package import Version
 
 
@@ -58,7 +59,7 @@ def _normalize_version(version: str) -> Version:
     return version_map[normalized]
 
 
-def _validate_model(mapping_package: Any, version: Version) -> Literal[True] | NoReturn:
+def _validate_model(mapping_package: MappingPackage, version: Version) -> Literal[True] | NoReturn:
     # Import lazily to avoid version-specific imports in consumer code.
     from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
     from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
@@ -115,8 +116,7 @@ def _validate_folder(mapping_package_folder_path: Path, version: Version) -> Lit
 
 @traced_routine
 def validate_mapping_package(
-    mapping_package: Union[Path, object],
-    *,
+    mapping_package: Path | MappingPackage,
     version: Optional[str] = None,
 ) -> Literal[True] | NoReturn:
     """
@@ -139,6 +139,7 @@ def validate_mapping_package(
         # Validate basic path shape early with consistent errors
         MPValidationStepABC.validate_path_exists(path, context="validate mapping package")
 
+        # if the given path is a file, assume it as a (ZIP) archive
         if path.is_file():
             MPValidationStepABC.validate_archive_path(path, context="validate mapping package archive")
             extractor = ArchiveExtractor()
@@ -152,6 +153,7 @@ def validate_mapping_package(
                     raise CrossVersionValidationError(f"Unknown or unsupported mapping package version for: {path}")
                 return _validate_folder(extracted_folder, detected)
 
+        # if not a file, assume it's a folder
         MPValidationStepABC.validate_folder_path(path, context="validate mapping package folder")
         detected = _normalize_version(version) if version else detect_mapping_package_version(path)
         if not detected:

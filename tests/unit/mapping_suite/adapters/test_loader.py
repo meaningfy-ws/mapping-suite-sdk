@@ -21,6 +21,31 @@ from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
 from tests import TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH
 
 
+def _create_dummy_config(file_paths: list[str]) -> MappingSuiteConfig:
+    """Helper function to create a minimal MappingSuiteConfig for testing.
+    
+    Args:
+        file_paths: List of file paths for resource references.
+        
+    Returns:
+        MappingSuiteConfig with dummy values for testing.
+    """
+    return MappingSuiteConfig(
+        mapping_suite_metadata=MappingSuiteMetadata(
+            mapping_suite_identifier="dummy",
+            mapping_suite_description="dummy"
+        ),
+        metadata_config=DocumentMetadataConfig(
+            metadata_properties=[],
+            document_type_probing=None
+        ),
+        eligibility_constraint_config=EligibilityConstraintConfig(
+            eligibility_mapping=[]
+        ),
+        resource_references=ResourceReferences(file_paths=file_paths)
+    )
+
+
 # ============================================================================
 # MappingSuiteConfigLoader Tests
 # ============================================================================
@@ -185,12 +210,7 @@ def test_resource_references_loader_handles_missing_directory():
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=[])
-        )
+        config = _create_dummy_config(file_paths=[])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -204,12 +224,7 @@ def test_resource_references_loader_handles_empty_directory():
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=[])
-        )
+        config = _create_dummy_config(file_paths=[])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -226,12 +241,7 @@ def test_resource_references_loader_ignores_directories():
         subdir = resources_dir / "subdir"
         subdir.mkdir()
         loader = ResourceReferencesLoader()
-        config = MappingSuiteConfig(
-            mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
-            metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=None),
-            eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
-            resource_references=ResourceReferences(file_paths=["resources/file1.json", "resources/subdir"])
-        )
+        config = _create_dummy_config(file_paths=["resources/file1.json", "resources/subdir"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
@@ -240,6 +250,118 @@ def test_resource_references_loader_ignores_directories():
         file_names = [r["file_name"] for r in resources]
         assert "resources/file1.json" in file_names
         assert "resources/subdir" not in file_names
+
+
+def test_resource_references_loader_handles_malformed_json():
+    """Test that loader handles malformed JSON gracefully and continues loading valid files."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create a malformed JSON file
+        (resources_dir / "malformed.json").write_text("{ invalid json content {{")
+        # Create a valid JSON file
+        (resources_dir / "valid.json").write_text('{"key": "value"}')
+        
+        loader = ResourceReferencesLoader()
+        config = _create_dummy_config(file_paths=["resources/malformed.json", "resources/valid.json"])
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Should only contain the valid file, malformed file should be skipped
+        assert resources is not None
+        assert len(resources) == 1
+        assert resources[0]["file_name"] == "resources/valid.json"
+        assert resources[0]["object"] == {"key": "value"}
+
+
+def test_resource_references_loader_loads_csv_files_with_irregular_formats():
+    """Test that loader successfully loads CSV files with various formats.
+    
+    Note: This test verifies successful CSV loading rather than error handling.
+    csv.DictReader is extremely tolerant and rarely raises csv.Error in practice,
+    even with irregular column counts or formatting. The loader's csv.Error handling
+    provides defensive programming but is unlikely to be triggered in real usage.
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create a CSV file with inconsistent columns (still valid for DictReader)
+        irregular_csv_content = 'col1,col2,col3\nval1,val2\nval3,val4,val5,val6\n'
+        (resources_dir / "irregular.csv").write_text(irregular_csv_content)
+        
+        # Create a standard CSV file
+        standard_csv_content = 'name,value\nitem1,100\nitem2,200\n'
+        (resources_dir / "standard.csv").write_text(standard_csv_content)
+        
+        loader = ResourceReferencesLoader()
+        config = _create_dummy_config(file_paths=["resources/irregular.csv", "resources/standard.csv"])
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Both files should load successfully - DictReader is tolerant of irregular formats
+        assert resources is not None
+        assert len(resources) == 2
+        assert any("irregular.csv" in r["file_name"] for r in resources)
+        assert any("standard.csv" in r["file_name"] for r in resources)
+
+
+def test_resource_references_loader_handles_encoding_errors():
+    """Test that loader handles encoding errors gracefully and continues loading valid files."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create a file with invalid UTF-8 encoding
+        invalid_encoding_file = resources_dir / "invalid_encoding.json"
+        # Write bytes that are invalid UTF-8
+        invalid_encoding_file.write_bytes(b'{"key": "\xff\xfe invalid utf-8"}')
+        
+        # Create a valid file
+        (resources_dir / "valid.json").write_text('{"key": "value"}')
+        
+        loader = ResourceReferencesLoader()
+        config = _create_dummy_config(file_paths=["resources/invalid_encoding.json", "resources/valid.json"])
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Should only contain the valid file, file with encoding error should be skipped
+        assert resources is not None
+        assert len(resources) == 1
+        assert resources[0]["file_name"] == "resources/valid.json"
+        assert resources[0]["object"] == {"key": "value"}
+
+
+def test_resource_references_loader_handles_all_files_failing():
+    """Test that loader returns None when all files fail to parse."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+        
+        # Create only malformed files
+        (resources_dir / "malformed1.json").write_text("{ invalid json")
+        (resources_dir / "malformed2.json").write_text("not json at all {{")
+        
+        loader = ResourceReferencesLoader()
+        config = _create_dummy_config(file_paths=["resources/malformed1.json", "resources/malformed2.json"])
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+        
+        # Should return None when all files fail to load
+        assert resources is None
 
 
 # ============================================================================

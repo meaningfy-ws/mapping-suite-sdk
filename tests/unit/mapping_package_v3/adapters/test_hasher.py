@@ -131,3 +131,26 @@ def test_mp_v3_hasher_uses_only_package_metadata_for_hashing(fixture_mapping_pac
     hash_after_change: str = hasher.hash()
 
     assert initial_hash == hash_after_change
+
+
+def test_mp_v3_hasher_with_applicability_constraints(fixture_mapping_package_v3_model):
+    """Test that hashing works correctly when applicability_constraints is present."""
+    hasher = MappingPackageV3Hasher(fixture_mapping_package_v3_model)
+    hash_result = hasher.hash()
+    
+    assert hash_result is not None
+    assert isinstance(hash_result, str)
+    assert len(hash_result) == 64
+
+
+def test_mp_v3_hasher_without_applicability_constraints(fixture_mapping_package_v3_model):
+    """Test that hashing works correctly when applicability_constraints is absent or None."""
+    # Clear applicability_constraints to test the absence branch
+    fixture_mapping_package_v3_model.metadata.applicability_constraints = None
+    
+    hasher = MappingPackageV3Hasher(fixture_mapping_package_v3_model)
+    hash_result = hasher.hash()
+    
+    assert hash_result is not None
+    assert isinstance(hash_result, str)
+    assert len(hash_result) == 64

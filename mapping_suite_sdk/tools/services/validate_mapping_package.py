@@ -95,7 +95,8 @@ def _validate_model(mapping_package: MappingPackage, version: Version) -> Litera
     raise CrossVersionValidationError(f"Unsupported version: {version}")
 
 
-def _validate_folder(mapping_package_folder_path: Path, version: Version) -> Literal[True] | NoReturn:
+def _validate_folder_from_path(path: Path, version: Version) -> Literal[True] | NoReturn:
+    """Call the appropriate version-specific folder validator."""
     from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import validate_mapping_package_v1_from_folder
     from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import validate_mapping_package_v2_from_folder
     from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import validate_mapping_package_v3_from_folder
@@ -104,15 +105,67 @@ def _validate_folder(mapping_package_folder_path: Path, version: Version) -> Lit
     )
 
     if version == Version.V1:
-        return validate_mapping_package_v1_from_folder(mapping_package_folder_path=mapping_package_folder_path)
+        return validate_mapping_package_v1_from_folder(mapping_package_folder_path=path)
     if version == Version.V2:
-        return validate_mapping_package_v2_from_folder(mapping_package_folder_path=mapping_package_folder_path)
+        return validate_mapping_package_v2_from_folder(mapping_package_folder_path=path)
     if version == Version.V3:
-        return validate_mapping_package_v3_from_folder(mapping_package_folder_path=mapping_package_folder_path)
+        return validate_mapping_package_v3_from_folder(mapping_package_folder_path=path)
     if version == Version.V3L:
-        return validate_mapping_package_v3_lightweight_from_folder(mapping_package_folder_path=mapping_package_folder_path)
+        return validate_mapping_package_v3_lightweight_from_folder(mapping_package_folder_path=path)
 
     raise CrossVersionValidationError(f"Unsupported version: {version}")
+
+
+def _validate_archive_path(path: Path, version: Optional[str]) -> Literal[True] | NoReturn:
+    """Validate a mapping package from an archive file."""
+    MPValidationStepABC.validate_archive_path(path, context="validate mapping package archive")
+    extractor = ArchiveExtractor()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        extracted_folder = extractor.extract(path, Path(temp_dir))
+
+        detected = _normalize_version(version) if version else detect_mapping_package_version(extracted_folder)
+        if not detected:
+            raise CrossVersionValidationError(f"Unknown or unsupported mapping package version for: {path}")
+        return _validate_folder_from_path(extracted_folder, detected)
+
+
+def _validate_folder_path(path: Path, version: Optional[str]) -> Literal[True] | NoReturn:
+    """Validate a mapping package from a folder path."""
+    MPValidationStepABC.validate_folder_path(path, context="validate mapping package folder")
+    detected = _normalize_version(version) if version else detect_mapping_package_version(path)
+    if not detected:
+        raise CrossVersionValidationError(f"Unknown or unsupported mapping package version for: {path}")
+    return _validate_folder_from_path(path, detected)
+
+
+def _validate_path(path: Path, version: Optional[str]) -> Literal[True] | NoReturn:
+    """Validate a mapping package from a Path (file or folder)."""
+    MPValidationStepABC.validate_path_exists(path, context="validate mapping package")
+
+    if path.is_file():
+        return _validate_archive_path(path, version)
+    
+    return _validate_folder_path(path, version)
+
+
+def _detect_version_from_model(mapping_package: MappingPackage) -> Version:
+    """Auto-detect version from model instance type."""
+    from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+    from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+
+    if isinstance(mapping_package, MappingPackageV1):
+        return Version.V1
+    if isinstance(mapping_package, MappingPackageV2):
+        return Version.V2
+    if isinstance(mapping_package, MappingPackageV3Lightweight):
+        return Version.V3L
+    if isinstance(mapping_package, MappingPackageV3):
+        return Version.V3
+
+    raise CrossVersionValidationError(f"Cannot auto-detect version from mapping package type: {type(mapping_package)}")
+
 
 @traced_routine
 def validate_mapping_package(
@@ -135,48 +188,8 @@ def validate_mapping_package(
         True if validation passes, otherwise raises.
     """
     if isinstance(mapping_package, Path):
-        path = mapping_package
-        # Validate basic path shape early with consistent errors
-        MPValidationStepABC.validate_path_exists(path, context="validate mapping package")
-
-        # if the given path is a file, assume it as a (ZIP) archive
-        if path.is_file():
-            MPValidationStepABC.validate_archive_path(path, context="validate mapping package archive")
-            extractor = ArchiveExtractor()
-            # IMPORTANT: don't use extract_temporary() here because it wraps any exception raised
-            # inside the context (including validation failures) as a ZIP extraction failure.
-            with tempfile.TemporaryDirectory() as temp_dir:
-                extracted_folder = extractor.extract(path, Path(temp_dir))
-
-                detected = _normalize_version(version) if version else detect_mapping_package_version(extracted_folder)
-                if not detected:
-                    raise CrossVersionValidationError(f"Unknown or unsupported mapping package version for: {path}")
-                return _validate_folder(extracted_folder, detected)
-
-        # if not a file, assume it's a folder
-        MPValidationStepABC.validate_folder_path(path, context="validate mapping package folder")
-        detected = _normalize_version(version) if version else detect_mapping_package_version(path)
-        if not detected:
-            raise CrossVersionValidationError(f"Unknown or unsupported mapping package version for: {path}")
-        return _validate_folder(path, detected)
+        return _validate_path(mapping_package, version)
 
     # Model instance case
-    if version is not None:
-        return _validate_model(mapping_package, _normalize_version(version))
-
-    # Auto-detect from model type (no filesystem detection).
-    from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
-    from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
-
-    if isinstance(mapping_package, MappingPackageV1):
-        return _validate_model(mapping_package, Version.V1)
-    if isinstance(mapping_package, MappingPackageV2):
-        return _validate_model(mapping_package, Version.V2)
-    if isinstance(mapping_package, MappingPackageV3Lightweight):
-        return _validate_model(mapping_package, Version.V3L)
-    if isinstance(mapping_package, MappingPackageV3):
-        return _validate_model(mapping_package, Version.V3)
-
-    raise CrossVersionValidationError(f"Cannot auto-detect version from mapping package type: {type(mapping_package)}")
+    detected = _normalize_version(version) if version else _detect_version_from_model(mapping_package)
+    return _validate_model(mapping_package, detected)

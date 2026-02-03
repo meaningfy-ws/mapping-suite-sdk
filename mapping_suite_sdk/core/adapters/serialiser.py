@@ -135,8 +135,8 @@ class ConceptualMappingFileAssetSerialiser(MappingPackageAssetSerialiser):
 
 
 class TestResultCollectionAssetSerialiser(MappingPackageAssetSerialiser):
-    """Serialiser for test result suites."""
     __test__ = False
+    """Serialiser for test result suites."""
     def serialise(self, package_folder_path: Path, asset: TestResultCollectionAsset) -> None:
         folder_path = package_folder_path
         for report in asset.files:

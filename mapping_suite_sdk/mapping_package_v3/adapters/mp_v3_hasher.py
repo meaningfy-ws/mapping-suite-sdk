@@ -7,7 +7,7 @@ from mapping_suite_sdk.core.adapters.hasher import (
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata, ApplicabilityConstraints
 
 
 def _hash_file_assets(file_assets: List, hasher: HasherABC) -> List[Tuple[str, str]]:
@@ -78,12 +78,20 @@ class MappingPackageV3Hasher(MappingPackageHasher):
         signatures = [signature[1] for signature in file_hashes]
 
         # Step 3: Add metadata (only package specific metadata, without Linked Data part)
-        only_metadata = MappingPackageV3Metadata.model_construct(**self.mapping_package.metadata.model_dump())
-
-        model_str = only_metadata.model_dump_json(
+        metadata_dict = self.mapping_package.metadata.model_dump(
             by_alias=True,
             exclude={fields(MappingPackageV3Metadata).mapping_suite_hash_digest}
         )
+
+        # Reconstruct nested models to avoid serialization warnings
+        if 'applicability_constraints' in metadata_dict and metadata_dict['applicability_constraints']:
+            metadata_dict['applicability_constraints'] = ApplicabilityConstraints.model_validate(
+                metadata_dict['applicability_constraints']
+            )
+
+        only_metadata = MappingPackageV3Metadata.model_construct(**metadata_dict)
+
+        model_str = only_metadata.model_dump_json(by_alias=True)
         metadata_hash = self.hasher.hash(json.dumps(model_str).encode('utf-8'))
         signatures.append(metadata_hash)
 

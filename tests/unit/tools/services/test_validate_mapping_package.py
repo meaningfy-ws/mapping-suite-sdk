@@ -20,6 +20,7 @@ from mapping_suite_sdk.tools.services.validate_mapping_package import (
 
 
 def test_validate_mapping_package_auto_detects_version_for_folder_path(tmp_path: Path) -> None:
+    """Test that version is auto-detected when validating a folder path without explicit version."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version", return_value=Version.V2) as mock_detect,
         patch("mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2.validate_mapping_package_v2_from_folder", return_value=True) as mock_v2,
@@ -30,6 +31,7 @@ def test_validate_mapping_package_auto_detects_version_for_folder_path(tmp_path:
 
 
 def test_validate_mapping_package_explicit_version_skips_detection_for_folder_path(tmp_path: Path) -> None:
+    """Test that explicit version parameter skips auto-detection for folder paths."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
         patch("mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3_from_folder", return_value=True) as mock_v3,
@@ -40,6 +42,7 @@ def test_validate_mapping_package_explicit_version_skips_detection_for_folder_pa
 
 
 def test_validate_mapping_package_raises_clear_error_for_unknown_version(tmp_path: Path) -> None:
+    """Test that a clear error is raised when version cannot be detected."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version", return_value=None),
     ):
@@ -48,6 +51,7 @@ def test_validate_mapping_package_raises_clear_error_for_unknown_version(tmp_pat
 
 
 def test_validate_mapping_package_archive_does_not_wrap_validation_errors(tmp_path: Path) -> None:
+    """Test that validation errors from archive extraction are propagated without wrapping."""
     archive_path = tmp_path / "mp.zip"
     archive_path.write_text("dummy")  # just needs to exist as a file for this test
 
@@ -65,6 +69,7 @@ def test_validate_mapping_package_archive_does_not_wrap_validation_errors(tmp_pa
 
 
 def test_validate_mapping_package_auto_detects_version_from_model_type(dummy_mapping_package_v1_model) -> None:
+    """Test that version is auto-detected from model type when validating a model instance."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
         patch("mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1.validate_mapping_package_v1", return_value=True) as mock_v1,
@@ -75,6 +80,7 @@ def test_validate_mapping_package_auto_detects_version_from_model_type(dummy_map
 
 
 def test_validate_mapping_package_explicit_version_skips_detection_for_model(fixture_mapping_package_v3_model) -> None:
+    """Test that explicit version parameter skips auto-detection for model instances."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
         patch("mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3", return_value=True) as mock_v3,
@@ -88,22 +94,26 @@ def test_validate_mapping_package_explicit_version_skips_detection_for_model(fix
 
 
 def test_normalize_version_strips_whitespace() -> None:
+    """Test that _normalize_version strips leading and trailing whitespace."""
     assert _normalize_version("  v1  ") == Version.V1
 
 
 def test_normalize_version_lowercases() -> None:
+    """Test that _normalize_version converts version strings to lowercase."""
     assert _normalize_version("V1") == Version.V1
     assert _normalize_version("V2") == Version.V2
     assert _normalize_version("V3") == Version.V3
 
 
 def test_normalize_version_v3l_to_v3L() -> None:
+    """Test that _normalize_version correctly handles v3L case variations."""
     assert _normalize_version("v3l") == Version.V3L
     assert _normalize_version("V3L") == Version.V3L
     assert _normalize_version("  v3l  ") == Version.V3L
 
 
 def test_normalize_version_raises_on_invalid_version() -> None:
+    """Test that _normalize_version raises CrossVersionValidationError for invalid versions."""
     with pytest.raises(CrossVersionValidationError, match="Unsupported version: v99"):
         _normalize_version("v99")
 
@@ -112,6 +122,7 @@ def test_normalize_version_raises_on_invalid_version() -> None:
 
 
 def test_validate_model_v1_calls_v1_validator(dummy_mapping_package_v1_model) -> None:
+    """Test that _validate_model calls the V1 validator for V1 models."""
     with patch(
         "mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1.validate_mapping_package_v1",
         return_value=True,
@@ -121,11 +132,13 @@ def test_validate_model_v1_calls_v1_validator(dummy_mapping_package_v1_model) ->
 
 
 def test_validate_model_v1_raises_on_wrong_type(fixture_mapping_package_v3_model) -> None:
+    """Test that _validate_model raises error when model type doesn't match V1."""
     with pytest.raises(CrossVersionValidationError, match="Version 'v1' requires MappingPackageV1"):
         _validate_model(fixture_mapping_package_v3_model, Version.V1)
 
 
 def test_validate_model_v2_calls_v2_validator(dummy_mapping_package_v2_model) -> None:
+    """Test that _validate_model calls the V2 validator for V2 models."""
     with patch(
         "mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2.validate_mapping_package_v2",
         return_value=True,
@@ -135,11 +148,13 @@ def test_validate_model_v2_calls_v2_validator(dummy_mapping_package_v2_model) ->
 
 
 def test_validate_model_v2_raises_on_wrong_type(dummy_mapping_package_v1_model) -> None:
+    """Test that _validate_model raises error when model type doesn't match V2."""
     with pytest.raises(CrossVersionValidationError, match="Version 'v2' requires MappingPackageV2"):
         _validate_model(dummy_mapping_package_v1_model, Version.V2)
 
 
 def test_validate_model_v3_calls_v3_validator(fixture_mapping_package_v3_model) -> None:
+    """Test that _validate_model calls the V3 validator for V3 models."""
     with patch(
         "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3",
         return_value=True,
@@ -149,6 +164,7 @@ def test_validate_model_v3_calls_v3_validator(fixture_mapping_package_v3_model) 
 
 
 def test_validate_model_v3_raises_on_wrong_type(dummy_mapping_package_v1_model) -> None:
+    """Test that _validate_model raises error when model type doesn't match V3."""
     with pytest.raises(CrossVersionValidationError, match="Version 'v3' requires MappingPackageV3"):
         _validate_model(dummy_mapping_package_v1_model, Version.V3)
 
@@ -156,6 +172,7 @@ def test_validate_model_v3_raises_on_wrong_type(dummy_mapping_package_v1_model) 
 def test_validate_model_v3L_calls_v3_lightweight_validator(
     fixture_mapping_package_v3_model,
 ) -> None:
+    """Test that _validate_model calls the V3 Lightweight validator for V3L models."""
     v3l_model = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     with patch(
         "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_lightweight.validate_mapping_package_v3_lightweight",
@@ -166,6 +183,7 @@ def test_validate_model_v3L_calls_v3_lightweight_validator(
 
 
 def test_validate_model_v3L_raises_on_wrong_type(fixture_mapping_package_v3_model) -> None:
+    """Test that _validate_model raises error when model type doesn't match V3L."""
     with pytest.raises(
         CrossVersionValidationError,
         match="Version 'v3L' requires MappingPackageV3Lightweight",
@@ -174,6 +192,7 @@ def test_validate_model_v3L_raises_on_wrong_type(fixture_mapping_package_v3_mode
 
 
 def test_validate_model_raises_on_unsupported_version(dummy_mapping_package_v1_model) -> None:
+    """Test that _validate_model raises error for unsupported version strings."""
     with pytest.raises(CrossVersionValidationError, match="Unsupported version"):
         _validate_model(dummy_mapping_package_v1_model, cast(Version, "v99"))
 
@@ -182,6 +201,7 @@ def test_validate_model_raises_on_unsupported_version(dummy_mapping_package_v1_m
 
 
 def test_validate_folder_from_path_v1_calls_v1_from_folder(tmp_path: Path) -> None:
+    """Test that _validate_folder_from_path calls V1 folder validator for V1 version."""
     with patch(
         "mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1.validate_mapping_package_v1_from_folder",
         return_value=True,
@@ -191,6 +211,7 @@ def test_validate_folder_from_path_v1_calls_v1_from_folder(tmp_path: Path) -> No
 
 
 def test_validate_folder_from_path_v2_calls_v2_from_folder(tmp_path: Path) -> None:
+    """Test that _validate_folder_from_path calls V2 folder validator for V2 version."""
     with patch(
         "mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2.validate_mapping_package_v2_from_folder",
         return_value=True,
@@ -200,6 +221,7 @@ def test_validate_folder_from_path_v2_calls_v2_from_folder(tmp_path: Path) -> No
 
 
 def test_validate_folder_from_path_v3_calls_v3_from_folder(tmp_path: Path) -> None:
+    """Test that _validate_folder_from_path calls V3 folder validator for V3 version."""
     with patch(
         "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3_from_folder",
         return_value=True,
@@ -209,6 +231,7 @@ def test_validate_folder_from_path_v3_calls_v3_from_folder(tmp_path: Path) -> No
 
 
 def test_validate_folder_from_path_v3L_calls_v3_lightweight_from_folder(tmp_path: Path) -> None:
+    """Test that _validate_folder_from_path calls V3L folder validator for V3L version."""
     with patch(
         "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_lightweight.validate_mapping_package_v3_lightweight_from_folder",
         return_value=True,
@@ -221,23 +244,28 @@ def test_validate_folder_from_path_v3L_calls_v3_lightweight_from_folder(tmp_path
 
 
 def test_detect_version_from_model_v1(dummy_mapping_package_v1_model) -> None:
+    """Test that _detect_version_from_model correctly identifies V1 models."""
     assert _detect_version_from_model(dummy_mapping_package_v1_model) == Version.V1
 
 
 def test_detect_version_from_model_v2(dummy_mapping_package_v2_model) -> None:
+    """Test that _detect_version_from_model correctly identifies V2 models."""
     assert _detect_version_from_model(dummy_mapping_package_v2_model) == Version.V2
 
 
 def test_detect_version_from_model_v3(fixture_mapping_package_v3_model) -> None:
+    """Test that _detect_version_from_model correctly identifies V3 models."""
     assert _detect_version_from_model(fixture_mapping_package_v3_model) == Version.V3
 
 
 def test_detect_version_from_model_v3L(fixture_mapping_package_v3_model) -> None:
+    """Test that _detect_version_from_model correctly identifies V3L models."""
     v3l_model = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     assert _detect_version_from_model(v3l_model) == Version.V3L
 
 
 def test_detect_version_from_model_raises_for_unknown_type() -> None:
+    """Test that _detect_version_from_model raises error for unrecognized model types."""
     with pytest.raises(CrossVersionValidationError, match="Cannot auto-detect version"):
         _detect_version_from_model("not a package")
 
@@ -246,6 +274,7 @@ def test_detect_version_from_model_raises_for_unknown_type() -> None:
 
 
 def test_validate_mapping_package_archive_raises_clear_error_for_unknown_version(tmp_path: Path) -> None:
+    """Test that archive validation raises clear error when version cannot be detected."""
     archive_path = tmp_path / "mp.zip"
     archive_path.write_text("dummy")
 
@@ -267,6 +296,7 @@ def test_validate_mapping_package_archive_raises_clear_error_for_unknown_version
 
 
 def test_validate_mapping_package_auto_detects_v2_from_model_type(dummy_mapping_package_v2_model) -> None:
+    """Test that version is auto-detected from V2 model type."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
         patch(
@@ -282,6 +312,7 @@ def test_validate_mapping_package_auto_detects_v2_from_model_type(dummy_mapping_
 def test_validate_mapping_package_auto_detects_v3L_from_model_type(
     fixture_mapping_package_v3_model,
 ) -> None:
+    """Test that version is auto-detected from V3L model type."""
     v3l_model = convert_mapping_package_v3_to_v3_lightweight(fixture_mapping_package_v3_model)
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
@@ -296,6 +327,7 @@ def test_validate_mapping_package_auto_detects_v3L_from_model_type(
 
 
 def test_validate_mapping_package_auto_detects_v3_from_model_type(fixture_mapping_package_v3_model) -> None:
+    """Test that version is auto-detected from V3 model type."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
         patch(
@@ -309,6 +341,7 @@ def test_validate_mapping_package_auto_detects_v3_from_model_type(fixture_mappin
 
 
 def test_validate_mapping_package_raises_when_model_type_unknown() -> None:
+    """Test that error is raised when model type cannot be determined."""
     with pytest.raises(
         CrossVersionValidationError,
         match="Cannot auto-detect version from mapping package type",

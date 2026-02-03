@@ -2,6 +2,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from typing import cast
 
 from mapping_suite_sdk.core.adapters.validator import MPValidationException
 from mapping_suite_sdk.tools.services.convert_mapping_package import Version
@@ -170,6 +171,11 @@ def test_validate_model_v3L_raises_on_wrong_type(fixture_mapping_package_v3_mode
         match="Version 'v3L' requires MappingPackageV3Lightweight",
     ):
         _validate_model(fixture_mapping_package_v3_model, Version.V3L)
+
+
+def test_validate_model_raises_on_unsupported_version(dummy_mapping_package_v1_model) -> None:
+    with pytest.raises(CrossVersionValidationError, match="Unsupported version"):
+        _validate_model(dummy_mapping_package_v1_model, cast(Version, "v99"))
 
 
 # --- _validate_folder_from_path ---

@@ -157,6 +157,7 @@ class VocabularyMappingSuiteLoader(AssetLoader):
 
 
 class TestDataSuitesLoader(AssetLoader):
+    __test__ = False
     """Loader for test data suites.
 
     Handles loading of test data files organized in test suites.
@@ -276,6 +277,7 @@ class SHACLTestSuitesLoader(AssetLoader):
 
 
 class TestResultSuiteLoader(AssetLoader):
+    __test__ = False
     """Loader for test result suite.
 
     Handles loading of test execution results.

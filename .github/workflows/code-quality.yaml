@@ -52,12 +52,12 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: 'pip'
@@ -87,7 +87,7 @@ jobs:
 
       - name: Publish Pylint Comment
         if: always() && github.event_name == 'pull_request' && steps.check_report.outputs.report_exists == 'true'
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
           filePath: pylint_report.txt
           comment_tag: pylint
@@ -106,12 +106,12 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: 'pip'
@@ -140,7 +140,7 @@ jobs:
 
       - name: Comment on PR about out-of-sync code
         if: failure() && github.event_name == 'pull_request' && steps.verify_generated_code.outputs.has_changes == 'true'
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
             ## Generated Code Out of Sync with LinkML schemas
@@ -161,7 +161,7 @@ jobs:
 
       - name: Comment on PR that generated code is in sync
         if: success() && github.event_name == 'pull_request' && steps.verify_generated_code.outputs.has_changes == 'false'
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
             ## Generated Code is in Sync with LinkML schemas
@@ -175,7 +175,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

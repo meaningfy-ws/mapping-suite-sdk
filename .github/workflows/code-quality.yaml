@@ -1,9 +1,8 @@
 name: Quality Check
 
 on:
-  # Testing on this branch only - revert after testing
   push:
-    branches: [ feature/OPS-30/sonarube ]
+    branches: [ develop, main ]
     paths:
       - 'mapping_suite_sdk/**'
       - 'resources/schema/**'
@@ -15,33 +14,18 @@ on:
       - 'sonar-project.properties'
       - '.pylintrc'
       - '.github/workflows/code-quality.yaml'
-  # TODO: Uncomment after testing
-  # push:
-  #   branches: [ develop, main ]
-  #   paths:
-  #     - 'mapping_suite_sdk/**'
-  #     - 'resources/schema/**'
-  #     - 'resources/templates/**'
-  #     - 'tests/**'
-  #     - 'pyproject.toml'
-  #     - 'poetry.lock'
-  #     - 'tox.ini'
-  #     - 'sonar-project.properties'
-  #     - '.pylintrc'
-  #     - '.github/workflows/code-quality.yaml'
-  # pull_request:
-  #   branches: [ "**" ]
-  #   paths:
-  #     - 'mapping_suite_sdk/**'
-  #     - 'resources/schema/**'
-  #     - 'resources/templates/**'
-  #     - 'tests/**'
-  #     - 'pyproject.toml'
-  #     - 'poetry.lock'
-  #     - 'tox.ini'
-  #     - 'sonar-project.properties'
-  #     - '.pylintrc'
-  #     - '.github/workflows/code-quality.yaml'
+  pull_request:
+    paths:
+      - 'mapping_suite_sdk/**'
+      - 'resources/schema/**'
+      - 'resources/templates/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'poetry.lock'
+      - 'tox.ini'
+      - 'sonar-project.properties'
+      - '.pylintrc'
+      - '.github/workflows/code-quality.yaml'
 
 jobs:
   lint:

@@ -1,0 +1,170 @@
+name: Quality Check
+
+on:
+  push:
+    branches: [ develop, main ]
+    paths:
+      - 'mapping_suite_sdk/**'
+      - 'resources/schema/**'
+      - 'resources/templates/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'poetry.lock'
+      - 'tox.ini'
+      - 'sonar-project.properties'
+      - '.pylintrc'
+      - '.github/workflows/code-quality.yaml'
+  pull_request:
+    branches: [ "**" ]
+    paths:
+      - 'mapping_suite_sdk/**'
+      - 'resources/schema/**'
+      - 'resources/templates/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'poetry.lock'
+      - 'tox.ini'
+      - 'sonar-project.properties'
+      - '.pylintrc'
+      - '.github/workflows/code-quality.yaml'
+
+jobs:
+  lint:
+    name: Pylint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev libsqlite3-dev
+          make install
+
+      - name: Run Pylint with report
+        id: pylint
+        continue-on-error: true
+        run: |
+          make lint-report
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Check if report exists
+        id: check_report
+        run: |
+          if [ -f pylint_report.txt ]; then
+            echo "report_exists=true" >> $GITHUB_OUTPUT
+            cat pylint_report.txt
+          else
+            echo "report_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish Pylint Comment
+        if: always() && github.event_name == 'pull_request' && steps.check_report.outputs.report_exists == 'true'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: pylint_report.txt
+          comment_tag: pylint
+
+      - name: Fail if Pylint score is too low
+        if: steps.pylint.outputs.exit_code != '0'
+        run: |
+          echo "::error::Pylint found issues. Please fix them."
+          exit 1
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev libsqlite3-dev
+          make install
+
+      - name: Generate LinkML models
+        run: make generate-models
+
+      - name: Verify generated code is up to date
+        id: verify_generated_code
+        run: |
+          echo "Checking if generated models match LinkML schemas..."
+          if ! git diff --quiet mapping_suite_sdk/; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Generated code is out of sync!"
+            exit 1
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "Generated code is up to date"
+          fi
+
+      - name: Comment on PR about out-of-sync code
+        if: failure() && github.event_name == 'pull_request' && steps.verify_generated_code.outputs.has_changes == 'true'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ## Generated Code Out of Sync with LinkML schemas
+
+            The Python models in `mapping_suite_sdk/` are out of sync with the LinkML schemas.
+
+            **To fix this locally:**
+            ```bash
+            make test-unit
+            git add mapping_suite_sdk/
+            git commit -m "chore: regenerate models from LinkML schemas"
+            git push
+            ```
+          comment_tag: generated_code_check
+
+      - name: Run unit tests with coverage
+        run: make test-unit
+
+      - name: Comment on PR that generated code is in sync
+        if: success() && github.event_name == 'pull_request' && steps.verify_generated_code.outputs.has_changes == 'false'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ## Generated Code is in Sync with LinkML schemas
+
+            The Python models in `mapping_suite_sdk/` are up to date with the LinkML schemas.
+          comment_tag: generated_code_check
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300

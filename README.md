@@ -85,7 +85,15 @@ mapping-package/
         └── input.xml              # Input test data
 ```
 
-This standardized structure ensures consistency across mapping packages and simplifies the process of loading, validating, and executing data transformations.
+The diagram above is the **full** layout. Not all packages include every part; structure varies by version.
+
+**Version variations:**  
+- **v3L (lightweight)** — Only what’s needed for transformation: metadata, technical mappings (RML), and vocabulary resources. It has **no** conceptual mapping, test_data, validation (SHACL/SPARQL), or output.  
+- **v1** — `metadata.json` with XSD version constraints (`min_xsd_version`); no `@context`.  
+- **v2** — `metadata.json` with eForms SDK constraints (`eforms_sdk_versions`); no `@context`.  
+- **v3 (full)** — Metadata as JSON-LD (`@context`, `project_identifier`) and must include `transformation/conceptual_mappings.xlsx` plus the full transformation/validation/test_data layout.
+
+This structure supports consistent loading, validation, and conversion across versions.
 
 ## Quick Start
 
@@ -99,208 +107,154 @@ or using poetry:
 poetry add mapping-suite-sdk
 ```
 
+Supported package versions: **v1**, **v2**, **v3**, and **v3L** (v3 lightweight). Besides the CLI, you can **load, convert, and validate** packages programmatically using the **`load_mapping_package_shortcut`** script (no CLI required): it auto-detects version, optionally converts to v3 or v3L, and can validate and/or persist to MongoDB. Version-specific loaders are also available.
+
 ### Loading a Mapping Package
 
-The SDK provides several ways to load mapping packages:
+**Version-agnostic (recommended):** use the shortcut to load from folder with auto-detection; optionally convert to v3 or v3L and validate:
 
 ```python
 from pathlib import Path
-import mapping_suite_sdk as mssdk 
+from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import load_mapping_package
 
-# Load from a local folder
-package = mssdk.load_mapping_package_from_folder(
-    mapping_package_folder_path=Path("/path/to/mapping/package")
-)
-
-# Load from a ZIP archive
-package = mssdk.load_mapping_package_from_archive(
-    mapping_package_archive_path=Path("/path/to/package.zip")
-)
-
-# Load from GitHub
-packages = mssdk.load_mapping_packages_from_github(
-    github_repository_url="https://github.com/your-org/mapping-repo",
-    packages_path_pattern="mappings/package*",
-    branch_or_tag_name="main"
+# Auto-detect version, convert to v3 (full) or v3L (lightweight), optionally validate
+package = load_mapping_package(
+    Path("/path/to/mapping/package"),
+    include_test_data=True,   # True → v3, False → v3L
+    validate_package=False,   # set True to validate before/after conversion
 )
 ```
+
+**Version-specific:** load from folder, archive, or GitHub (example for v2):
+
+```python
+from pathlib import Path
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_folder,
+    load_mapping_package_v2_from_archive,
+    load_mapping_packages_v2_from_github,
+)
+
+package = load_mapping_package_v2_from_folder(mapping_package_folder_path=Path("/path/to/package"))
+# Or: load_mapping_package_v2_from_archive(...), load_mapping_packages_v2_from_github(...)
+```
+
+Same pattern exists for v1, v3, and v3L under `mapping_suite_sdk.mapping_package_v1`, `mapping_package_v3`, etc.
 
 ### Serializing a Mapping Package
 
-```python
-# Serialize a mapping package to a dictionary
-package_dict = mssdk.serialise_mapping_package(mapping_package)
-```
+Version-specific serialisers write a package to a folder (e.g. `serialise_mapping_package_v2_to_folder`). Conversion (see below) also serialises in-place.
 
-### Converting Mapping Packages
+### CLI: Update (convert) and validate packages
 
-The SDK provides a CLI command to convert mapping packages between versions:
+**Conversion matrix:** The SDK only supports converting **to** v3 or v3L. You can convert from v1, v2, or v3 into v3 or v3L as below. There is no conversion to v1 or v2 (e.g. v1→v2 is not implemented), and no conversion from v3 or v3L back to v1 or v2.
 
-#### Convert Single Package
+| From → To | v1 | v2 | v3 | v3L |
+|-----------|---:|---:|---:|---:|
+| v1        | — | ✗ | ✓ | ✓ |
+| v2        | ✗ | — | ✓ | ✓ |
+| v3        | ✗ | ✗ | — | ✓ |
+| v3L       | ✗ | ✗ | ✗ | — |
 
-Convert a single mapping package from one version to another (in-place conversion):
-
-```bash
-mssdk convert --to-version v3 --from-version v2 \
-    from-package /path/to/mapping/package
-```
-
-#### Convert Multiple Packages from Folder
-
-Convert all mapping packages in a folder (in-place conversion):
+**Update (convert) a single package** (in-place):
 
 ```bash
-mssdk convert --to-version v3 --from-version v2 \
-    from-folder /path/to/mappings/folder
+# v1 or v2 → v3 (full package)
+mssdk convert --to-version v3 --from-version v2 from-package /path/to/package
+mssdk convert --to-version v3 --from-version v1 from-package /path/to/package
+
+# v1, v2, or v3 → v3L (lightweight)
+mssdk convert --to-version v3L --from-version v3 from-package /path/to/package
+mssdk convert --to-version v3L --from-version v2 from-package /path/to/package
 ```
 
-The `from-folder` command will:
-- Iterate through all subdirectories in the specified folder
-- Convert each valid mapping package in-place
-- Skip packages that cannot be converted (e.g., already in target version)
-- Report a summary with counts of successful and failed conversions
+**Update all packages in a folder** (in-place):
 
-**Options:**
-- `--to-version`: Target mapping package version (e.g., `v3`)
-- `--from-version`: Source mapping package version (e.g., `v2`)
-- `--verbose, -v`: Show detailed debug logs
+```bash
+mssdk convert --to-version v3 --from-version v2 from-folder /path/to/mappings/folder
+mssdk convert --to-version v3L --from-version v3 from-folder /path/to/mappings/folder
+```
+
+Packages already in the target version are skipped. Use `--verbose` for detailed logs.
+
+**Validate packages** (structure, hash, etc.) from folder, archive, or GitHub:
+
+```bash
+# Validate all packages under a folder (optionally fix invalid hashes)
+mssdk validate from-folder /path/to/mappings/folder
+mssdk validate from-folder --update-hash /path/to/mappings/folder
+
+# Validate a single package from a ZIP
+mssdk validate from-archive path/to/package.zip
+mssdk validate from-archive --include-test-data path/to/package.zip
+
+# Validate packages from a GitHub repo
+mssdk validate from-github https://github.com/org/repo mappings/*
+mssdk validate from-github --branch main https://github.com/org/repo mappings/*
+```
+
+Validate options: `--include-test-data`, `--include-output`, `--update-hash` (from-folder), `--branch` (from-github), `--verbose`.
 
 ## Extractors
 
-The SDK provides flexible extractors for working with mapping packages from different sources.
-
-### Archive Package Extractor
-
-Extract mapping packages from ZIP archives:
+Extract packages from ZIP archives or GitHub using `ArchiveExtractor` and `GitHubExtractor`:
 
 ```python
 from pathlib import Path
-from mapping_suite_sdk import ArchivePackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 
-extractor = ArchivePackageExtractor()
-
-# Extract to a specific location
-output_path = extractor.extract(
-    source_path=Path("package.zip"),
-    destination_path=Path("output_directory")
-)
-
-# Extract to a temporary location (automatically cleaned up)
+# Archive: extract to path or temporary directory
+extractor = ArchiveExtractor()
+output_path = extractor.extract(Path("package.zip"), Path("output_directory"))
 with extractor.extract_temporary(Path("package.zip")) as temp_path:
-    # Work with files in temp_path
-    pass  # Cleanup is automatic
-```
+    pass  # cleanup automatic
 
-### GitHub Package Extractor
-
-Clone and extract mapping packages directly from GitHub repositories:
-
-```python
-from mapping_suite_sdk import GithubPackageExtractor
-
-extractor = GithubPackageExtractor()
-
-# Extract multiple packages matching a pattern
+# GitHub: extract packages matching a pattern
+extractor = GitHubExtractor()
 with extractor.extract_temporary(
     repository_url="https://github.com/org/repo",
     packages_path_pattern="mappings/package*",
     branch_or_tag_name="v1.0.0"
 ) as package_paths:
     for path in package_paths:
-        # Process each package
         print(f"Found package at: {path}")
 ```
 
 ## MongoDB Support
 
-The SDK provides seamless integration with MongoDB for storing and retrieving mapping packages.
-
-### Setting Up the Repository
-
-```python
-from pymongo import MongoClient
-from mapping_suite_sdk import MongoDBRepository
-from mapping_suite_sdk.models.mapping_package_v2 import MappingPackageABC
-
-# Initialize MongoDB client
-mongo_client = MongoClient("mongodb://localhost:27017/")
-
-# Create a repository for mapping packages
-repository = MongoDBRepository(
-    model_class=MappingPackageABC,
-    mongo_client=mongo_client,
-    database_name="mapping_suites",
-    collection_name="packages"
-)
-```
-
-### Loading and Storing Packages
+Use `MongoDBRepository` with the model class for the version you use (e.g. `MappingPackageV2`, `MappingPackageV3`):
 
 ```python
 from pathlib import Path
-from mapping_suite_sdk import load_mapping_package_from_folder, load_mapping_package_from_mongo_db
-
-# Load a package from a folder
-package = load_mapping_package_from_folder(
-    mapping_package_folder_path=Path("/path/to/package")
+from pymongo import MongoClient
+from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_folder,
+    load_mapping_package_v2_from_mongo_db,
 )
 
-# Store the package in MongoDB
+mongo_client = MongoClient("mongodb://localhost:27017/")
+repository = MongoDBRepository(
+    model_class=MappingPackageV2,
+    mongo_client=mongo_client,
+    database_name="mapping_suites",
+    collection_name="packages",
+)
+
+package = load_mapping_package_v2_from_folder(mapping_package_folder_path=Path("/path/to/package"))
 repository.create(package)
 
-# Retrieve the package by ID
-retrieved_package = load_mapping_package_from_mongo_db(
+retrieved_package = load_mapping_package_v2_from_mongo_db(
     mapping_package_id=package.id,
-    mapping_package_repository=repository
+    mapping_package_repository=repository,
 )
-
-# Query multiple packages
 packages = repository.read_many({"metadata.version": "1.0.0"})
 ```
 
 ## OpenTelemetry Tracing
 
-The SDK includes built-in support for OpenTelemetry tracing, which helps with performance monitoring and debugging.
-
-### Enabling Tracing
-
-```python
-from mapping_suite_sdk import set_mssdk_tracing, get_mssdk_tracing
-
-# Enable tracing
-set_mssdk_tracing(True)
-
-# Check if tracing is enabled
-is_enabled = get_mssdk_tracing()
-```
-
-### Adding Custom Span Processors
-
-```python
-from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
-from mapping_suite_sdk import add_span_processor_to_mssdk_tracer_provider
-
-# Add a console exporter for tracing output
-console_exporter = ConsoleSpanExporter()
-span_processor = SimpleSpanProcessor(console_exporter)
-add_span_processor_to_mssdk_tracer_provider(span_processor)
-```
-
-### Using Tracer with OTLP Exporter
-
-```python
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from mapping_suite_sdk import add_span_processor_to_mssdk_tracer_provider, set_mssdk_tracing
-
-# Configure and enable OpenTelemetry with OTLP exporter
-otlp_exporter = OTLPSpanExporter(endpoint="localhost:4317", insecure=True)
-span_processor = BatchSpanProcessor(otlp_exporter)
-add_span_processor_to_mssdk_tracer_provider(span_processor)
-set_mssdk_tracing(True)
-
-# Now all SDK operations will be traced and sent to your collector
-```
+Tracing is supported via the SDK config and tracer helpers. Import from the modules that define them (e.g. `mapping_suite_sdk.config` for `mssdk_config`; see docs for `set_mssdk_tracing`, `get_mssdk_tracing`, `add_span_processor_to_mssdk_tracer_provider`). Enable tracing and add span processors (e.g. console or OTLP) as needed; see the full documentation for examples.
 
 ## Contributing
 
@@ -309,17 +263,13 @@ Contributions to the Mapping Suite SDK are welcome! Use fork and pull request wo
 ### Development Setup
 
 ```bash
-# Clone the repository
 git clone https://github.com/meaningfy-ws/mapping-suite-sdk.git
 cd mapping-suite-sdk
-
-# Install dependencies
-# Use Makefile commands
 make install
-
-# Run tests
-make test-unit
+make test-unit   # runs generate-models then unit tests (LinkML → Python)
 ```
+
+Python models are generated from LinkML schemas in `resources/schema/`. After schema changes, run `make generate-models` before tests.
 
 ### Dependency Restrictions
 

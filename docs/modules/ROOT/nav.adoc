@@ -1,4 +1,5 @@
 * xref:index.adoc[Home]
+* xref:package-anatomy.adoc[Package Anatomy and Versions]
 * xref:quick-start.adoc[Quick Start]
 * xref:cli.adoc[Command Line Interface]
 * xref:extractors.adoc[Extractors]

@@ -6,123 +6,92 @@
 
 The Mapping Suite SDK provides two primary extractors for handling mapping packages:
 
-- `ArchivePackageExtractor`: For working with ZIP archives
-- `GithubPackageExtractor`: For extracting packages from GitHub repositories
+- `ArchiveExtractor`: For working with ZIP archives
+- `GitHubExtractor`: For extracting packages from GitHub repositories
 
-== Archive Package Extractor
+Import from `mapping_suite_sdk.core.adapters.extractor`.
+
+== Archive Extractor
 
 === Basic Usage
 
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk import ArchivePackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 
-# Create an extractor instance
-extractor = ArchivePackageExtractor()
+extractor = ArchiveExtractor()
+output_path = extractor.extract(Path("package.zip"), Path("output_directory"))
 
-# Extract to a specific destination
-output_path = extractor.extract(
-    source_path=Path("package.zip"),
-    destination_path=Path("output_directory")
-)
-
-# Extract to a temporary location (automatically cleaned up)
 with extractor.extract_temporary(Path("package.zip")) as temp_path:
-    # Work with extracted files
     print(f"Extracted to temporary path: {temp_path}")
-    # Files will be automatically cleaned up after the block
 ----
 
-=== Advanced Packing
+=== Packing a directory
 
 [source,python]
 ----
-# Pack a directory into a ZIP file
 source_dir = Path("folder_to_archive")
 output_path = Path("output/my_package")
-
-# Creates a ZIP without including the root directory
 zip_path = extractor.pack_directory(source_dir, output_path)
-print(f"Created ZIP at: {zip_path}")
 ----
 
-== GitHub Package Extractor
+== GitHub Extractor
 
-=== Basic Repository Extraction
-
-[source,python]
-----
-from mapping_suite_sdk import GithubPackageExtractor
-
-extractor = GithubPackageExtractor()
-
-# Extract a specific package from a repository
-package_path = extractor.extract(
-    repository_url="https://github.com/org/repo",
-    destination_path=Path("/local/path"),
-    package_path=Path("mappings/package_v1"),
-    branch_or_tag_name="main"
-)
-----
-
-=== Multiple Package Extraction
-
-[source,python]
-----
-# Extract multiple packages matching a pattern
-with extractor.extract_temporary(
-    repository_url="https://github.com/org/repo",
-    packages_path_pattern="mappings/package*",
-    branch_or_tag_name="v1.0.0"
-) as package_paths:
-    for path in package_paths:
-        print(f"Found package at: {path}")
-        # Process each package as needed
-----
-
-== Custom Extractor Implementation
-
-You can create custom extractors by implementing the `MappingPackageExtractorABC` abstract base class:
+=== Single package
 
 [source,python]
 ----
 from pathlib import Path
-from contextlib import contextmanager
-from typing import Generator, List
+from mapping_suite_sdk.core.adapters.extractor import GitHubExtractor
 
-from mapping_suite_sdk.adapters.extractor import MappingPackageExtractorABC
+extractor = GitHubExtractor()
+package_path = extractor.extract(
+    repository_url="https://github.com/org/repo",
+    destination_path=Path("/local/path"),
+    package_path=Path("mappings/package_v1"),
+    branch_or_tag_name="main",
+)
+----
 
-class CustomPackageExtractor(MappingPackageExtractorABC):
-    def extract(
-        self,
-        source: Path,
-        destination: Path,
-        **kwargs
-    ) -> Path:
+=== Multiple packages (pattern)
 
-        # Implement custom extraction logic
-        destination.mkdir(parents=True, exist_ok=True)
-        # Your extraction code here
-        return destination
+[source,python]
+----
+with extractor.extract_temporary(
+    repository_url="https://github.com/org/repo",
+    packages_path_pattern="mappings/package*",
+    branch_or_tag_name="v1.0.0",
+) as package_paths:
+    for path in package_paths:
+        print(f"Found package at: {path}")
+----
 
-    @contextmanager
-    def extract_temporary(
-        self,
-        source: Path,
-        **kwargs
-    ) -> Generator[List[Path], None, None]:
+=== Git-based behaviour
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-            # Your temporary extraction logic
-            yield [temp_path]
+The GitHub extractor uses *Git* to clone the repository (shallow clone, depth=1) and then resolves package paths from the working tree. The same mechanism is used when you load or validate packages from GitHub without using the extractor directly:
 
-# Usage example
-custom_extractor = CustomPackageExtractor()
-with custom_extractor.extract_temporary(Path("source_package")) as paths:
-    for path in paths:
-        print(f"Extracted to: {path}")
+* *Loading from GitHub* — Version-specific loaders clone the repo and load each matching package: `load_mapping_packages_v1_from_github`, `load_mapping_packages_v2_from_github`, `load_mapping_packages_v3_from_github`, `load_mapping_packages_v3_lightweight_from_github` (in the corresponding `mapping_package_v1`, `mapping_package_v2`, `mapping_package_v3` services). They accept `github_repository_url`, `packages_path_pattern`, and `branch_or_tag_name`.
+* *Validating from GitHub* — The CLI command `mssdk validate from-github GITHUB_REPOSITORY_URL PACKAGES_PATH_PATTERN` clones the repository and validates each matching package. Use `--branch` to specify branch or tag.
+
+So you can either use `GitHubExtractor` for low-level clone and path discovery, or the version-specific loaders and the validate CLI, which use the extractor under the hood.
+
+== Custom Extractor
+
+Implement `ExtractorABC` from `mapping_suite_sdk.core.adapters.extractor`:
+
+[source,python]
+----
+from mapping_suite_sdk.core.adapters.extractor import ExtractorABC
+
+class CustomPackageExtractor(ExtractorABC):
+    def extract(self, *args, **kwargs):
+        # Your logic
+        pass
+
+    def extract_temporary(self, *args, **kwargs):
+        # Your logic; yield path(s)
+        pass
 ----
 
 == Best Practices
@@ -137,7 +106,7 @@ with custom_extractor.extract_temporary(Path("source_package")) as paths:
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk import ArchivePackageExtractor, GithubPackageExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 
 def safe_extract(extractor, source):
     try:
@@ -150,8 +119,8 @@ def safe_extract(extractor, source):
         print(f"Extraction error: {e}")
 
 # Example usage
-archive_extractor = ArchivePackageExtractor()
-github_extractor = GithubPackageExtractor()
+archive_extractor = ArchiveExtractor()
+github_extractor = GitHubExtractor()
 
 safe_extract(archive_extractor, Path("non_existent.zip"))
 safe_extract(

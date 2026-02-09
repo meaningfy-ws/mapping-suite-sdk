@@ -88,10 +88,10 @@ mapping-package/
 The diagram above is the **full** layout. Not all packages include every part; structure varies by version.
 
 **Version variations:**  
-- **v3L (lightweight)** — Only what’s needed for transformation: metadata, technical mappings (RML), and vocabulary resources. It has **no** conceptual mapping, test_data, validation (SHACL/SPARQL), or output.  
-- **v1** — `metadata.json` with XSD version constraints (`min_xsd_version`); no `@context`.  
-- **v2** — `metadata.json` with eForms SDK constraints (`eforms_sdk_versions`); no `@context`.  
-- **v3 (full)** — Metadata as JSON-LD (`@context`, `project_identifier`) and must include `transformation/conceptual_mappings.xlsx` plus the full transformation/validation/test_data layout.
+- **v3L (lightweight)** - Only what’s needed for transformation: metadata, technical mappings (RML), and vocabulary resources. It has **no** conceptual mapping, test_data, validation (SHACL/SPARQL), or output.  
+- **v1** - `metadata.json` with XSD version constraints (`min_xsd_version`); no `@context`.  
+- **v2** - `metadata.json` with eForms SDK constraints (`eforms_sdk_versions`); no `@context`.  
+- **v3 (full)** - Metadata as JSON-LD (`@context`, `project_identifier`) and must include `transformation/conceptual_mappings.xlsx` plus the full transformation/validation/test_data layout.
 
 This structure supports consistent loading, validation, and conversion across versions.
 

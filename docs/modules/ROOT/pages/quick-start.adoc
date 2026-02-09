@@ -9,7 +9,8 @@ The Mapping Suite SDK is a powerful tool designed for working with mapping suite
 == Key Concepts
 
 === Mapping Package
-A mapping package is a collection of related mapping components that include:
+A mapping package is a collection of related mapping components that include the items below.
+For full structure and version differences (v1, v2, v3, v3L), see xref:package-anatomy.adoc[Package Anatomy and Versions].
 
 * Metadata - Package identification and versioning information
 * Conceptual Mappings - Spreadsheets defining mapping concepts (Excel/XLSX)
@@ -55,84 +56,67 @@ poetry add mapping-suite-sdk
 
 == Core Functionalities
 
-The Mapping Suite SDK provides several key functionalities for handling mapping packages.
+The Mapping Suite SDK provides several key functionalities for handling mapping packages. Package versions (v1, v2, v3, v3L) use version-specific loaders; for version-agnostic loading with auto-detection and optional conversion/validation, use the shortcut (see xref:package-anatomy.adoc[Package Anatomy and Versions]).
 
 === Loading Mapping Packages
 
-==== From Local Folder
+==== Version-agnostic (shortcut, recommended)
 
 [source,python]
 ----
 from pathlib import Path
-import mapping_suite_sdk as mssdk
+from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import load_mapping_package
 
-# Load from a local folder
-package = mssdk.load_mapping_package_from_folder(
-    mapping_package_folder_path=Path("/path/to/mapping/package")
+package = load_mapping_package(
+    Path("/path/to/mapping/package"),
+    include_test_data=True,
+    validate_package=False,
 )
 ----
 
-==== From ZIP Archive
+==== Version-specific (example: v2)
 
 [source,python]
 ----
 from pathlib import Path
-import mapping_suite_sdk as mssdk
-
-# Load from a ZIP archive
-package = mssdk.load_mapping_package_from_archive(
-    mapping_package_archive_path=Path("/path/to/package.zip")
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_folder,
+    load_mapping_package_v2_from_archive,
+    load_mapping_packages_v2_from_github,
 )
-----
 
-==== From GitHub
-
-[source,python]
-----
-import mapping_suite_sdk as mssdk
-
-# Load from GitHub repository
-packages = mssdk.load_mapping_packages_from_github(
-    github_repository_url="https://github.com/your-org/mapping-repo",
-    packages_path_pattern="mappings/package*",
-    branch_or_tag_name="main"
-)
+package = load_mapping_package_v2_from_folder(mapping_package_folder_path=Path("/path/to/package"))
+# Or: load_mapping_package_v2_from_archive(...), load_mapping_packages_v2_from_github(...)
 ----
 
 ==== From MongoDB
 
 [source,python]
 ----
+from pathlib import Path
 from pymongo import MongoClient
-from mapping_suite_sdk import MongoDBRepository, load_mapping_package_from_mongo_db
-from mapping_suite_sdk.models.mapping_package_v2 import MappingPackageABC
-
-# Initialise MongoDB repository
-mongo_client = MongoClient("mongodb://localhost:27017/")
-repository = MongoDBRepository(
-    model_class=MappingPackageABC,
-    mongo_client=mongo_client,
-    database_name="mapping_suites",
-    collection_name="packages"
+from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_folder,
+    load_mapping_package_v2_from_mongo_db,
 )
 
-# Load package from MongoDB
-package = load_mapping_package_from_mongo_db(
-    mapping_package_id="unique_package_id",
-    mapping_package_repository=repository
+mongo_client = MongoClient("mongodb://localhost:27017/")
+repository = MongoDBRepository(
+    model_class=MappingPackageV2,
+    mongo_client=mongo_client,
+    database_name="mapping_suites",
+    collection_name="packages",
+)
+package = load_mapping_package_v2_from_folder(mapping_package_folder_path=Path("/path/to/package"))
+repository.create(package)
+retrieved = load_mapping_package_v2_from_mongo_db(
+    mapping_package_id=package.id,
+    mapping_package_repository=repository,
 )
 ----
 
 === Serialising Mapping Packages
 
-[source,python]
-----
-from pathlib import Path
-import mapping_suite_sdk as mssdk
-
-# Serialise a mapping package to a specified directory
-mssdk.serialise_mapping_package(
-    mapping_package=package,
-    serialisation_folder_path=Path("/output/path/package")
-)
-----
+Serialisation is version-specific: use functions such as `serialise_mapping_package_v2_to_folder` for a given version, or run the convert CLI to serialise in-place to v3/v3L.

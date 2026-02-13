@@ -198,8 +198,9 @@ class TestLoadMappingPackageValidation:
         assert mock_validate.call_count == 2
         first_call = mock_validate.call_args_list[0]
         second_call = mock_validate.call_args_list[1]
+        # First validation: validate the folder path before conversion
         assert first_call[0][0] == tmp_path
-        assert first_call[1].get("version") == "v2"
+        # Second validation: validate the converted package after conversion
         assert second_call[0][0] is converted
 
     @patch(

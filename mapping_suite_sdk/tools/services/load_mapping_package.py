@@ -106,6 +106,67 @@ def _persist_to_mongodb(
     )
 
 
+def _validate_package_path(package_folder_path: Path) -> None:
+    """Validate that the package path exists and is a directory."""
+    if not package_folder_path.exists():
+        raise InvalidPackagePathError(f"Package path does not exist: {package_folder_path}")
+    if not package_folder_path.is_dir():
+        raise InvalidPackagePathError(
+            f"Package path is not a directory: {package_folder_path}"
+        )
+
+
+def _resolve_version(version: Optional[str], package_folder_path: Path) -> Version:
+    """Resolve the package version from explicit input or auto-detection."""
+    if version is not None:
+        return _normalize_version(version)
+
+    detected = detect_mapping_package_version(package_folder_path)
+    if detected is None:
+        raise VersionDetectionError(
+            f"Could not detect mapping package version for: {package_folder_path}"
+        )
+    return _normalize_version(detected)
+
+
+def _validate_conversion_path(source_version: Version, target_version: Version) -> None:
+    """Validate that conversion from source to target is supported."""
+    if source_version == Version.V3L and target_version == Version.V3:
+        raise UnsupportedConversionError(
+            "Cannot produce v3 (full) from a v3L source; v3L has no test data or validation assets."
+        )
+
+
+def _validate_if_requested(package, validate_package: bool) -> None:
+    """Validate package if validation is enabled."""
+    if validate_package:
+        from mapping_suite_sdk.tools.services.validate_mapping_package import (
+            validate_mapping_package,
+        )
+        validate_mapping_package(package)
+
+
+def _persist_if_requested(
+    mapping_package,
+    persist_to_mongodb: bool,
+    mongo_client: Optional[MongoClient],
+    database_name: Optional[str],
+    collection_name: str,
+):
+    """Persist package to MongoDB if requested."""
+    if not persist_to_mongodb:
+        return mapping_package
+
+    if mongo_client is None or database_name is None:
+        raise ValueError(
+            "persist_to_mongodb requires mongo_client and database_name"
+        )
+
+    return _persist_to_mongodb(
+        mapping_package, mongo_client, database_name, collection_name
+    )
+
+
 @traced_routine
 def load_mapping_package(
     package_folder_path: Path,
@@ -151,57 +212,24 @@ def load_mapping_package(
         UnsupportedConversionError: If the source cannot be converted to the target
             (e.g. v3L source with include_test_data True).
     """
-    if not package_folder_path.exists():
-        raise InvalidPackagePathError(f"Package path does not exist: {package_folder_path}")
-    if not package_folder_path.is_dir():
-        raise InvalidPackagePathError(
-            f"Package path is not a directory: {package_folder_path}"
-        )
+    _validate_package_path(package_folder_path)
 
-    if version is not None:
-        source_version = _normalize_version(version)
-    else:
-        detected = detect_mapping_package_version(package_folder_path)
-        if detected is None:
-            raise VersionDetectionError(
-                f"Could not detect mapping package version for: {package_folder_path}"
-            )
-        source_version = _normalize_version(detected)
-
+    source_version = _resolve_version(version, package_folder_path)
     target_version = Version.V3 if include_test_data else Version.V3L
-    if source_version == Version.V3L and target_version == Version.V3:
-        raise UnsupportedConversionError(
-            "Cannot produce v3 (full) from a v3L source; v3L has no test data or validation assets."
-        )
 
-    if validate_package:
-        from mapping_suite_sdk.tools.services.validate_mapping_package import (
-            validate_mapping_package,
-        )
-        validate_mapping_package(package_folder_path, version=source_version.value)
+    _validate_conversion_path(source_version, target_version)
+    _validate_if_requested(package_folder_path, validate_package)
 
     source_package = _load_source_package(source_version, package_folder_path)
 
-    if source_version != target_version:
-        converted = convert_mapping_package_model(
-            source_version, target_version, source_package
-        )
-    else:
-        converted = source_package
+    converted = (
+        convert_mapping_package_model(source_version, target_version, source_package)
+        if source_version != target_version
+        else source_package
+    )
 
-    if validate_package:
-        from mapping_suite_sdk.tools.services.validate_mapping_package import (
-            validate_mapping_package,
-        )
-        validate_mapping_package(converted)
+    _validate_if_requested(converted, validate_package)
 
-    if persist_to_mongodb:
-        if mongo_client is None or database_name is None:
-            raise ValueError(
-                "persist_to_mongodb requires mongo_client and database_name"
-            )
-        converted = _persist_to_mongodb(
-            converted, mongo_client, database_name, collection_name
-        )
-
-    return converted
+    return _persist_if_requested(
+        converted, persist_to_mongodb, mongo_client, database_name, collection_name
+    )

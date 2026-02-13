@@ -50,7 +50,7 @@ class TestLoadMappingPackageVersionHandling:
     )
     def test_explicit_version_skips_detection(self, mock_load, tmp_path: Path):
         mock_load.return_value = Mock(spec=MappingPackageV3)
-        load_mapping_package(tmp_path, version="v3", include_test_data=True)
+        load_mapping_package(tmp_path, version="v3", include_test_data=True, validate_package=False)
         mock_load.assert_called_once_with(Version.V3, tmp_path)
 
     @patch(
@@ -66,7 +66,7 @@ class TestLoadMappingPackageVersionHandling:
             "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
         ) as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
-            load_mapping_package(tmp_path, include_test_data=True)
+            load_mapping_package(tmp_path, include_test_data=True, validate_package=False)
         mock_detect.assert_called_once_with(tmp_path)
         mock_load.assert_called_once_with(Version.V2, tmp_path)
 
@@ -76,11 +76,11 @@ class TestLoadMappingPackageVersionHandling:
     def test_detection_failure_raises(self, mock_detect, tmp_path: Path):
         mock_detect.return_value = None
         with pytest.raises(VersionDetectionError, match="Could not detect"):
-            load_mapping_package(tmp_path)
+            load_mapping_package(tmp_path, validate_package=False)
 
     def test_unsupported_version_string_raises(self, tmp_path: Path):
         with pytest.raises(UnsupportedVersionError, match="Unsupported version"):
-            load_mapping_package(tmp_path, version="v99")
+            load_mapping_package(tmp_path, version="v99", validate_package=False)
 
     @patch(
         "mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight.load_mapping_package_v3_lightweight_from_folder"
@@ -88,7 +88,7 @@ class TestLoadMappingPackageVersionHandling:
     def test_version_normalized_case_insensitive_v3l(self, mock_v3l_load, tmp_path: Path):
         mock_v3l_load.return_value = Mock(spec=MappingPackageV3Lightweight)
         result = load_mapping_package(
-            tmp_path, version="  v3L  ", include_test_data=False
+            tmp_path, version="  v3L  ", include_test_data=False, validate_package=False
         )
         mock_v3l_load.assert_called_once_with(
             mapping_package_folder_path=tmp_path,
@@ -113,7 +113,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
         mock_load.return_value = source
         mock_convert.return_value = converted
         result = load_mapping_package(
-            tmp_path, version="v2", include_test_data=True
+            tmp_path, version="v2", include_test_data=True, validate_package=False
         )
         mock_convert.assert_called_once_with(Version.V2, Version.V3, source)
         assert result is converted
@@ -132,7 +132,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
         mock_load.return_value = source
         mock_convert.return_value = converted
         result = load_mapping_package(
-            tmp_path, version="v3", include_test_data=False
+            tmp_path, version="v3", include_test_data=False, validate_package=False
         )
         mock_convert.assert_called_once_with(Version.V3, Version.V3L, source)
         assert result is converted
@@ -149,7 +149,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
             match="Cannot produce v3.*from a v3L source",
         ):
             load_mapping_package(
-                tmp_path, version="v3L", include_test_data=True
+                tmp_path, version="v3L", include_test_data=True, validate_package=False
             )
 
     @patch(
@@ -164,7 +164,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
             "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
         ) as mock_convert:
             result = load_mapping_package(
-                tmp_path, version="v3L", include_test_data=False
+                tmp_path, version="v3L", include_test_data=False, validate_package=False
             )
             mock_convert.assert_not_called()
         assert result is pkg
@@ -242,6 +242,7 @@ class TestLoadMappingPackageMongoDBPersistence:
             mongo_client=client,
             database_name="db",
             collection_name="coll",
+            validate_package=False,
         )
         mock_persist.assert_called_once_with(
             pkg, client, "db", "coll"
@@ -256,8 +257,10 @@ class TestLoadMappingPackageMongoDBPersistence:
                 load_mapping_package(
                     tmp_path,
                     version="v3",
+                    include_test_data=True,
                     persist_to_mongodb=True,
                     database_name="db",
+                    validate_package=False,
                 )
 
     def test_persist_to_mongodb_without_database_name_raises(self, tmp_path: Path):
@@ -269,8 +272,10 @@ class TestLoadMappingPackageMongoDBPersistence:
                 load_mapping_package(
                     tmp_path,
                     version="v3",
+                    include_test_data=True,
                     persist_to_mongodb=True,
                     mongo_client=MagicMock(),
+                    validate_package=False,
                 )
 
     @patch(
@@ -293,6 +298,7 @@ class TestLoadMappingPackageMongoDBPersistence:
             mongo_client=client,
             database_name="db",
             collection_name="coll",
+            validate_package=False,
         )
         mock_save_v3.assert_called_once()
         assert mock_save_v3.call_args[1]["mapping_package"] is not None
@@ -320,6 +326,7 @@ class TestLoadMappingPackageMongoDBPersistence:
             persist_to_mongodb=True,
             mongo_client=client,
             database_name="db",
+            validate_package=False,
         )
         mock_save_v3l.assert_called_once()
         assert mock_save_v3l.call_args[1]["mapping_package"] is not None
@@ -359,7 +366,7 @@ class TestLoadMappingPackageV3NoConversion:
         pkg = Mock(spec=MappingPackageV3)
         mock_load.return_value = pkg
         result = load_mapping_package(
-            tmp_path, version="v3", include_test_data=True
+            tmp_path, version="v3", include_test_data=True, validate_package=False
         )
         mock_convert.assert_not_called()
         assert result is pkg

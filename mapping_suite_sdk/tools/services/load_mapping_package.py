@@ -111,8 +111,8 @@ def load_mapping_package(
     package_folder_path: Path,
     *,
     version: Optional[str] = None,
-    include_test_data: bool = True,
-    validate_package: bool = False,
+    include_test_data: bool = False,
+    validate_package: bool = True,
     persist_to_mongodb: bool = False,
     mongo_client: Optional[MongoClient] = None,
     database_name: Optional[str] = None,
@@ -130,8 +130,10 @@ def load_mapping_package(
         version: Optional explicit version ("v1", "v2", "v3", "v3L"). When omitted, version
             is detected from the package structure.
         include_test_data: If True, target v3 (full package); if False, target v3L (lightweight).
+            Defaults to False.
         validate_package: If True, validate the source package before conversion and the
             result after conversion. Validation before conversion fails on invalid hash (no update).
+            Defaults to True.
         persist_to_mongodb: If True, persist the resulting package to MongoDB. Requires
             mongo_client and database_name.
         mongo_client: MongoDB client (required when persist_to_mongodb is True).

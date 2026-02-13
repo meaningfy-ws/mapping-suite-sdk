@@ -1,5 +1,5 @@
 """
-Unit tests for the load_mapping_package shortcut service.
+Unit tests for the load_mapping_package service.
 
 Tests focus on service-layer orchestration:
 - Path and version handling
@@ -18,7 +18,7 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight 
     MappingPackageV3Lightweight,
 )
 from mapping_suite_sdk.tools.services.convert_mapping_package import Version
-from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import (
+from mapping_suite_sdk.tools.services.load_mapping_package import (
     InvalidPackagePathError,
     UnsupportedConversionError,
     UnsupportedVersionError,
@@ -46,7 +46,7 @@ class TestLoadMappingPackageVersionHandling:
     """Explicit version and auto-detection."""
 
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_explicit_version_skips_detection(self, mock_load, tmp_path: Path):
         mock_load.return_value = Mock(spec=MappingPackageV3)
@@ -54,16 +54,16 @@ class TestLoadMappingPackageVersionHandling:
         mock_load.assert_called_once_with(Version.V3, tmp_path)
 
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.detect_mapping_package_version"
+        "mapping_suite_sdk.tools.services.load_mapping_package.detect_mapping_package_version"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_no_version_triggers_detection(self, mock_load, mock_detect, tmp_path: Path):
         mock_detect.return_value = "v2"
         mock_load.return_value = Mock(spec=MappingPackageV3)
         with patch(
-            "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.convert_mapping_package_model"
+            "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
         ) as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
             load_mapping_package(tmp_path, include_test_data=True)
@@ -71,7 +71,7 @@ class TestLoadMappingPackageVersionHandling:
         mock_load.assert_called_once_with(Version.V2, tmp_path)
 
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.detect_mapping_package_version"
+        "mapping_suite_sdk.tools.services.load_mapping_package.detect_mapping_package_version"
     )
     def test_detection_failure_raises(self, mock_detect, tmp_path: Path):
         mock_detect.return_value = None
@@ -100,10 +100,10 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
     """Target version (v3 vs v3L) and conversion routing."""
 
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.convert_mapping_package_model"
+        "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_include_test_data_true_targets_v3(
         self, mock_load, mock_convert, tmp_path: Path
@@ -119,10 +119,10 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
         assert result is converted
 
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.convert_mapping_package_model"
+        "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_include_test_data_false_targets_v3l(
         self, mock_load, mock_convert, tmp_path: Path
@@ -161,7 +161,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
         pkg = Mock(spec=MappingPackageV3Lightweight)
         mock_v3l_load.return_value = pkg
         with patch(
-            "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.convert_mapping_package_model"
+            "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
         ) as mock_convert:
             result = load_mapping_package(
                 tmp_path, version="v3L", include_test_data=False
@@ -177,10 +177,10 @@ class TestLoadMappingPackageValidation:
         "mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.convert_mapping_package_model"
+        "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_validate_package_true_validates_before_and_after(
         self, mock_load, mock_convert, mock_validate, tmp_path: Path
@@ -206,7 +206,7 @@ class TestLoadMappingPackageValidation:
         "mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_validate_package_false_skips_validation(
         self, mock_load, mock_validate, tmp_path: Path
@@ -222,10 +222,10 @@ class TestLoadMappingPackageMongoDBPersistence:
     """Optional persist to MongoDB."""
 
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut._persist_to_mongodb"
+        "mapping_suite_sdk.tools.services.load_mapping_package._persist_to_mongodb"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_persist_to_mongodb_calls_saver(
         self, mock_load, mock_persist, tmp_path: Path
@@ -249,7 +249,7 @@ class TestLoadMappingPackageMongoDBPersistence:
 
     def test_persist_to_mongodb_without_client_raises(self, tmp_path: Path):
         with patch(
-            "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+            "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
         ) as mock_load:
             mock_load.return_value = Mock(spec=MappingPackageV3)
             with pytest.raises(ValueError, match="mongo_client and database_name"):
@@ -262,7 +262,7 @@ class TestLoadMappingPackageMongoDBPersistence:
 
     def test_persist_to_mongodb_without_database_name_raises(self, tmp_path: Path):
         with patch(
-            "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+            "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
         ) as mock_load:
             mock_load.return_value = Mock(spec=MappingPackageV3)
             with pytest.raises(ValueError, match="mongo_client and database_name"):
@@ -327,7 +327,7 @@ class TestLoadMappingPackageMongoDBPersistence:
         mock_save_v3.assert_not_called()
 
     def test_persist_to_mongodb_unsupported_type_raises(self):
-        from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import (
+        from mapping_suite_sdk.tools.services.load_mapping_package import (
             _persist_to_mongodb,
         )
         client = MagicMock()
@@ -348,10 +348,10 @@ class TestLoadMappingPackageV3NoConversion:
     """When source is already target version, no conversion."""
 
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.convert_mapping_package_model"
+        "mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model"
     )
     @patch(
-        "mapping_suite_sdk.tools.services.load_mapping_package_shortcut.load_mapping_package_from_folder"
+        "mapping_suite_sdk.tools.services.load_mapping_package.load_mapping_package_from_folder"
     )
     def test_v3_source_target_v3_returns_same_instance(
         self, mock_load, mock_convert, tmp_path: Path
@@ -366,13 +366,13 @@ class TestLoadMappingPackageV3NoConversion:
 
 
 # ---------------------------------------------------------------------------
-# Integration tests: run the shortcut against actual packages in tests/test_data
-# All supported source → target combinations (shortcut only outputs v3 or v3L).
+# Integration tests: run the service against actual packages in tests/test_data
+# All supported source → target combinations (service only outputs v3 or v3L).
 # Assertions verify real content from disk (metadata, mappings) to confirm we
 # are not mocking and that actual package data is loaded.
 # ---------------------------------------------------------------------------
 
-class TestLoadMappingPackageShortcutIntegration:
+class TestLoadMappingPackageIntegration:
     """
     Tests against actual v1, v2, v3 and v3L packages under tests/test_data.
 

@@ -1,5 +1,5 @@
 """
-Shortcut service for loading mapping packages with autoconversion.
+One-stop service for loading mapping packages with autoconversion.
 
 This service provides a single, version-agnostic entry point that:
 - Detects package version when not provided

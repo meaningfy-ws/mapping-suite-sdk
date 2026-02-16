@@ -86,6 +86,7 @@ class SHACLShapesResultQueryFileAsset(SPARQLQueryFileAsset):
 
 
 class TestDataFileAsset(FileAsset):
+    __test__ = False
     """A class representing a Test Data file.
 
     This class manages files containing test data used for validating and verifying
@@ -96,6 +97,7 @@ class TestDataFileAsset(FileAsset):
 
 
 class TestDataResultFileAsset(FileAsset):
+    __test__ = False
     """A class representing a test data result file.
 
     This class handles files that contain the actual output results from

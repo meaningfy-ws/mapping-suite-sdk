@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2

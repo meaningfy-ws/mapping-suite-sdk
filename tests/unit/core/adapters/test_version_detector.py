@@ -7,8 +7,6 @@ Tests the version detection registry, rules, and detection orchestration.
 import json
 from pathlib import Path
 
-import pytest
-
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core import VersionDetectionRegistry
 from mapping_suite_sdk.core.adapters.version_detector import (
@@ -21,6 +19,8 @@ from mapping_suite_sdk.core.adapters.version_detector import (
     _try_load_json_metadata,
     _get_nested_value
 )
+
+# these imports register the version detection rules and need not be "used" directly
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_version_detector import V1_SPEC
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_version_detector import V2_SPEC
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_version_detector import (

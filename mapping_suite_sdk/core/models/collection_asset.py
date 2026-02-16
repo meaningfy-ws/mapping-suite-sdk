@@ -38,6 +38,7 @@ class TechnicalMappingCollectionAsset(CollectionAsset):
 
 
 class TestDataCollectionAsset(CollectionAsset):
+    __test__ = False
     """A collection of test data files.
 
     This suite manages a set of test data files used for validation and verification
@@ -79,11 +80,13 @@ class SHACLTestCollectionAsset(CollectionAsset):
 
 
 class TestDataResultCollectionAsset(CollectionAsset):
+    __test__ = False
     files: List[ReportFileAsset] = Field(default_factory=list, description="Collection of reports for a suite of tests")
     test_data_output: TestDataResultFileAsset
 
 
 class TestResultCollectionAsset(CollectionAsset):
+    __test__ = False
     files: List[ReportFileAsset] = Field(default_factory=list, description="Collection of reports for a suite of tests")
     result_suites: List[Union['TestResultCollectionAsset', TestDataResultCollectionAsset]] = Field(default_factory=list,
                                                                                                    description="Collection of test result suites")

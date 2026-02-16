@@ -21,11 +21,11 @@ def test_convert_mapping_package_v1_to_v3_maps_metadata_constraints_and_assets(d
     mpv1.metadata.description = "This is the conceptual mapping for Standard Form F22, all directives."
     mpv1.metadata.signature = "deadbeef"
 
-    mpv1.metadata.eligibility_constraints.constraints.eforms_subtype = [5, 13]
-    mpv1.metadata.eligibility_constraints.constraints.start_date = ["2014-01-01"]
-    mpv1.metadata.eligibility_constraints.constraints.end_date = []
-    mpv1.metadata.eligibility_constraints.constraints.min_xsd_version = ["R2.0.9.S01.E01"]
-    mpv1.metadata.eligibility_constraints.constraints.max_xsd_version = ["R2.0.9.S05.E01"]
+    mpv1.metadata.metadata_constraints.constraints.eforms_subtype = [5, 13]
+    mpv1.metadata.metadata_constraints.constraints.start_date = ["2014-01-01"]
+    mpv1.metadata.metadata_constraints.constraints.end_date = []
+    mpv1.metadata.metadata_constraints.constraints.min_xsd_version = ["R2.0.9.S01.E01"]
+    mpv1.metadata.metadata_constraints.constraints.max_xsd_version = ["R2.0.9.S05.E01"]
 
     result = convert_mapping_package_v1_to_v3(mpv1)
 
@@ -87,22 +87,22 @@ def test_convert_mapping_package_v1_to_v3_fails_with_invalid_issue_date(dummy_ma
 
 
 def test_convert_mapping_package_v1_to_v3_fails_with_invalid_start_date(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = ["invalid-date-format"]
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.start_date = ["invalid-date-format"]
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.end_date = []
     with pytest.raises((ValueError, TypeError)):
         convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
 
 def test_convert_mapping_package_v1_to_v3_fails_with_invalid_end_date(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = []
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = ["invalid-date-format"]
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.start_date = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.end_date = ["invalid-date-format"]
     with pytest.raises((ValueError, TypeError)):
         convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
 
 def test_convert_mapping_package_v1_to_v3_empty_date_lists_result_in_no_interval(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = []
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.start_date = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.end_date = []
 
     result = convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
@@ -112,8 +112,8 @@ def test_convert_mapping_package_v1_to_v3_empty_date_lists_result_in_no_interval
 
 
 def test_convert_mapping_package_v1_to_v3_only_start_date_creates_open_interval(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = ["2014-01-01"]
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.start_date = ["2014-01-01"]
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.end_date = []
 
     result = convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
@@ -125,8 +125,8 @@ def test_convert_mapping_package_v1_to_v3_only_start_date_creates_open_interval(
 
 
 def test_convert_mapping_package_v1_to_v3_only_end_date_creates_open_interval(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = []
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = ["2014-12-31"]
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.start_date = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.end_date = ["2014-12-31"]
 
     result = convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
@@ -138,7 +138,7 @@ def test_convert_mapping_package_v1_to_v3_only_end_date_creates_open_interval(du
 
 
 def test_convert_mapping_package_v1_to_v3_empty_subtypes_kept_as_empty_list(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.eforms_subtype = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.eforms_subtype = []
 
     result = convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
@@ -148,8 +148,8 @@ def test_convert_mapping_package_v1_to_v3_empty_subtypes_kept_as_empty_list(dumm
 
 
 def test_convert_mapping_package_v1_to_v3_empty_xsd_versions_result_in_no_version_range(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.min_xsd_version = []
-    dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.max_xsd_version = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.min_xsd_version = []
+    dummy_mapping_package_v1_model.metadata.metadata_constraints.constraints.max_xsd_version = []
 
     result = convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 

@@ -43,7 +43,5 @@ class MappingPackageV2Metadata(MappingPackageMetadata):
     type: str = Field(..., min_length=mssdk_config.MSSDK_MIN_STR_LENGTH, max_length=mssdk_config.MSSDK_MAX_STR_LENGTH,
                       alias="mapping_type")
 
-    eligibility_constraints: MappingPackageV2EligibilityConstraints = Field(...,
-                                                                            description="Constraints defining package applicability",
-                                                                            alias="metadata_constraints")
+    metadata_constraints: MappingPackageV2EligibilityConstraints = Field(..., description="Constraints defining package applicability")
     signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")

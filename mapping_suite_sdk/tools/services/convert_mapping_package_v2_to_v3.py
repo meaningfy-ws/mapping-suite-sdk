@@ -76,7 +76,7 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
         A V3 mapping package with all components converted
     """
     mpv2_metadata: MappingPackageV2Metadata = mpv2.metadata
-    v2_constraints = mpv2_metadata.eligibility_constraints.constraints
+    v2_constraints = mpv2_metadata.metadata_constraints.constraints
 
     # Convert V2 constraints to V3 format
     applicability_constraints = _convert_v2_constraints_to_v3_applicability_constraints(v2_constraints)

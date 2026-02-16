@@ -317,7 +317,7 @@ In PropertyEligibilityMapping: reference to the extracted property.
     )
     constraint_property: str = Field(
         default=...,
-        description="""Identifier of the constraint property in the mapping package eligibility_constraints.
+        description="""Identifier of the constraint property in the mapping package metadata/applicability constraints.
 This is the property in the package metadata that the extracted property will be matched against.
 """,
     )

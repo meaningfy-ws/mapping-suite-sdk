@@ -314,13 +314,15 @@ def convert_mapping_package_from_folder(
     Convert a mapping package from filesystem to filesystem.
 
     Complete workflow:
-    1. Load package from folder
-    2. Convert package model
-    3. Serialize converted package back to folder
-    4. Handle file operations (context.jsonld, cleanup)
+    1. Validate source package (fail if broken; no conversion of invalid packages)
+    2. Load package from folder
+    3. Convert package model (hash is updated on the converted model)
+    4. Serialize converted package back to folder
+    5. Handle file operations (context.jsonld, cleanup)
+    6. Validate converted package (ensures hash and structure are sane)
 
     Args:
-        from_version: Source version (v2 or v3)
+        from_version: Source version (v1, v2 or v3)
         to_version: Target version (v3 or v3L)
         mapping_package_folder_path: Path to the mapping package folder
 
@@ -329,10 +331,24 @@ def convert_mapping_package_from_folder(
         UnsupportedVersionError: If version or conversion is not supported
         FileNotFoundError: If required files are missing
         ConversionError: For other conversion errors
+        MPValidationException: If source package fails validation (pre-conversion)
+            or converted package fails validation (post-conversion)
     """
+    if not mapping_package_folder_path.exists():
+        raise InvalidPackagePathError(f"Package path does not exist: {mapping_package_folder_path}")
+    if not mapping_package_folder_path.is_dir():
+        raise InvalidPackagePathError(f"Package path is not a directory: {mapping_package_folder_path}")
+
+    # Pre-conversion: validate source package; abort if invalid (e.g. wrong hash)
+    from mapping_suite_sdk.tools.services.validate_mapping_package import validate_mapping_package
+    validate_mapping_package(mapping_package_folder_path, version=from_version)
+
     source_package = load_mapping_package_from_folder(from_version, mapping_package_folder_path)
     converted_package = convert_mapping_package_model(from_version, to_version, source_package)
     serialise_mapping_package(to_version, mapping_package_folder_path, converted_package)
+
+    # Post-conversion: validate converted package (hash already updated by converters)
+    validate_mapping_package(converted_package)
 
 @traced_routine
 def convert_mapping_packages_from_folder(

@@ -7,7 +7,7 @@ import logging
 
 from pymongo import MongoClient
 
-from mapping_suite_sdk.core.adapters.package_repository import PackageRepository
+from mapping_suite_sdk.core.adapters.gridfs_repository import GridFSPackageRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 
@@ -39,7 +39,7 @@ class MappingPackageV2Saver:
         if not mongo_client:
             raise ValueError("MongoDB client must be provided")
 
-        repository = PackageRepository[MappingPackageV2](
+        repository = GridFSPackageRepository[MappingPackageV2](
             model_class=MappingPackageV2,
             mongo_client=mongo_client,
             database_name=database_name,

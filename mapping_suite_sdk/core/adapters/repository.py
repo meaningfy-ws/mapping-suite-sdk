@@ -121,6 +121,3 @@ class MongoDBRepository(RepositoryABC[T]):
 
         if result.deleted_count < 1:
             raise ModelNotFoundError(f"Asset with ID {model_id} not found")
-
-    def __del__(self):
-        self.client.close()

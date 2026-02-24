@@ -248,7 +248,8 @@ class TestPackageRepositoryCreatePackage:
 
     @patch("mapping_suite_sdk.core.adapters.package_repository.prepare_doc_for_insert")
     def test_create_package_returns_same_as_create(self, mock_prepare):
-        repo = _make_repository()  # PackageRepository, which defines create_package
+        repo = _make_repository()
+        assert isinstance(repo, PackageRepository), "This test targets PackageRepository.create_package, not GridFSPackageRepository"
         model = TestModel(id="pkg1", name="p", description="pkg", count=1)
         result = repo.create_package(model)
         assert result == model

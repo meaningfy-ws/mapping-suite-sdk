@@ -14,7 +14,6 @@ class FakeDatabase:
 
 from mapping_suite_sdk.core.adapters.gridfs_store import (
     GRIDFS_REF_KEY,
-    DEFAULT_GRIDFS_THRESHOLD_BYTES,
     collect_gridfs_ids_from_doc,
     prepare_doc_for_insert,
     resolve_doc_gridfs_refs,

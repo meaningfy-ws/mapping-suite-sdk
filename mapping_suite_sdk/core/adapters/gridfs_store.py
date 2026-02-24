@@ -13,7 +13,7 @@ helpers (:func:`prepare_doc_for_insert`, etc.). The low-level helpers here
 directly on GridFS.
 """
 import logging
-from typing import Any, Dict, List, MutableMapping, Optional
+from typing import Any, Dict, List, MutableMapping, Optional, Union
 
 from bson import ObjectId
 from gridfs import GridFS
@@ -91,7 +91,7 @@ def get_content(
 
 
 def delete_content(
-    database: Any,
+    database: Union[Database, Any],
     file_id: ObjectId,
     bucket_name: str = "gridfs_package_assets",
 ) -> None:
@@ -102,8 +102,8 @@ def delete_content(
     logged at warning and re-raised so callers can handle them.
 
     Args:
-        database: MongoDB database. Any is accepted for mongomock compatibility;
-            non-Database results in an immediate no-op.
+        database: Real PyMongo Database or mock (e.g. mongomock); Union is used
+            so callers can pass in-memory DBs; non-Database results in an immediate no-op.
         file_id: GridFS file ObjectId.
         bucket_name: GridFS bucket/collection prefix.
     """
@@ -188,7 +188,7 @@ def _resolve_gridfs_refs(
 
 def prepare_doc_for_insert(
     doc: MutableMapping[str, Any],
-    database: Any,
+    database: Union[Database, Any],
     threshold_bytes: int = DEFAULT_GRIDFS_THRESHOLD_BYTES,
     bucket_name: str = "gridfs_package_assets",
 ) -> None:
@@ -199,8 +199,8 @@ def prepare_doc_for_insert(
 
     Args:
         doc: Document to mutate (nested 'content' fields may be replaced with refs).
-        database: MongoDB database. Any is accepted for mongomock compatibility;
-            non-Database results in an immediate no-op.
+        database: Real PyMongo Database or mock (e.g. mongomock); Union is used
+            so callers can pass in-memory DBs; non-Database results in an immediate no-op.
         threshold_bytes: Minimum size in bytes for moving content to GridFS.
         bucket_name: GridFS bucket/collection prefix.
     """
@@ -211,7 +211,7 @@ def prepare_doc_for_insert(
 
 def resolve_doc_gridfs_refs(
     doc: MutableMapping[str, Any],
-    database: Any,
+    database: Union[Database, Any],
     bucket_name: str = "gridfs_package_assets",
 ) -> None:
     """Mutate the document in place: replace GridFS reference objects with actual content.
@@ -221,8 +221,8 @@ def resolve_doc_gridfs_refs(
 
     Args:
         doc: Document to mutate (GridFS refs will be replaced with content).
-        database: MongoDB database. Any is accepted for mongomock compatibility;
-            non-Database results in an immediate no-op.
+        database: Real PyMongo Database or mock (e.g. mongomock); Union is used
+            so callers can pass in-memory DBs; non-Database results in an immediate no-op.
         bucket_name: GridFS bucket/collection prefix.
     """
     if not isinstance(database, Database):

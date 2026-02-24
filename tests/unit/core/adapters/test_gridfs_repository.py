@@ -12,6 +12,7 @@ from bson import ObjectId
 
 from pydantic import BaseModel
 
+from mapping_suite_sdk.core.adapters.gridfs_repository import GridFSPackageRepository
 from mapping_suite_sdk.core.adapters.package_repository import PackageRepository
 from mapping_suite_sdk.core.adapters.repository import ModelNotFoundError
 from tests.conftest import TestModel
@@ -252,3 +253,44 @@ class TestPackageRepositoryCreatePackage:
         result = repo.create_package(model)
         assert result == model
         assert repo.collection.find_one({"_id": "pkg1"}) is not None
+
+
+class TestGridFSPackageRepositoryDeprecated:
+    """Tests for deprecated GridFSPackageRepository (alias; coverage for deprecation path)."""
+
+    @patch("mapping_suite_sdk.core.adapters.package_repository.prepare_doc_for_insert")
+    def test_init_emits_deprecation_warning(self, mock_prepare):
+        with pytest.warns(DeprecationWarning, match="GridFSPackageRepository is deprecated"):
+            coll = _make_mock_collection()
+            db = MagicMock()
+            db.__getitem__.return_value = coll
+            client = MagicMock()
+            client.__getitem__.return_value = db
+            GridFSPackageRepository(
+                model_class=TestModel,
+                mongo_client=client,
+                database_name="test_db",
+                collection_name="test_coll",
+            )
+
+    @patch("mapping_suite_sdk.core.adapters.package_repository.prepare_doc_for_insert")
+    def test_repo_works_like_package_repository(self, mock_prepare):
+        with pytest.warns(DeprecationWarning):
+            coll = _make_mock_collection()
+            db = MagicMock()
+            db.__getitem__.return_value = coll
+            client = MagicMock()
+            client.__getitem__.return_value = db
+            repo = GridFSPackageRepository(
+                model_class=TestModel,
+                mongo_client=client,
+                database_name="test_db",
+                collection_name="test_coll",
+            )
+        model = TestModel(id="dep1", name="n", description="d", count=1)
+        result = repo.create(model)
+        assert result == model
+        assert repo.collection.find_one({"_id": "dep1"}) is not None
+        got = repo.read("dep1")
+        assert got.id == "dep1"
+        assert got.name == "n"

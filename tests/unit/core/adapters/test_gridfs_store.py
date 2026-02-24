@@ -21,7 +21,23 @@ from mapping_suite_sdk.core.adapters.gridfs_store import (
     store_content,
     get_content,
     delete_content,
+    get_gridfs_bucket,
 )
+
+
+class TestGetGridfsBucket:
+    """Tests for get_gridfs_bucket (covers return GridFS(...) line)."""
+
+    def test_returns_gridfs_for_database_and_bucket(self):
+        db = MagicMock()
+        with patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.GridFS"
+        ) as mock_gridfs:
+            sentinel = object()
+            mock_gridfs.return_value = sentinel
+            result = get_gridfs_bucket(db, bucket_name="my_bucket")
+            mock_gridfs.assert_called_once_with(db, collection="my_bucket")
+            assert result is sentinel
 
 
 class TestCollectGridfsIdsFromDoc:
@@ -60,6 +76,22 @@ class TestPrepareDocForInsert:
         with patch(
             "mapping_suite_sdk.core.adapters.gridfs_store.store_content"
         ) as mock_store:
+            prepare_doc_for_insert(
+                doc, db, threshold_bytes=100, bucket_name="test_bucket"
+            )
+        assert doc["content"] == "small"
+        mock_store.assert_not_called()
+
+    def test_leaves_small_content_unchanged_with_real_database_type(self):
+        """Covers else-branch in _serialize_content_to_gridfs (leave as-is when size < threshold)."""
+        doc = {"content": "small"}
+        db = FakeDatabase()
+        with patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.store_content"
+        ) as mock_store, patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.Database",
+            FakeDatabase,
+        ):
             prepare_doc_for_insert(
                 doc, db, threshold_bytes=100, bucket_name="test_bucket"
             )
@@ -259,6 +291,15 @@ class TestGetContent:
 class TestDeleteContent:
     """Tests for delete_content with mocked GridFS."""
 
+    def test_delete_no_op_when_database_not_pymongo(self):
+        """Covers early return when database is not a real PyMongo Database."""
+        oid = ObjectId()
+        with patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.get_gridfs_bucket"
+        ) as mock_bucket:
+            delete_content(MagicMock(), oid, bucket_name="test_bucket")
+        mock_bucket.assert_not_called()
+
     def test_delete_calls_fs_delete(self):
         db = FakeDatabase()
         oid = ObjectId()
@@ -272,3 +313,25 @@ class TestDeleteContent:
         ):
             delete_content(db, oid, bucket_name="test_bucket")
         mock_fs.delete.assert_called_once_with(oid)
+
+    def test_delete_logs_and_swallows_exception(self):
+        """Covers try/except in delete_content when fs.delete raises."""
+        db = FakeDatabase()
+        oid = ObjectId()
+        mock_fs = MagicMock()
+        mock_fs.delete.side_effect = Exception("file not found")
+        with patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.Database",
+            FakeDatabase,
+        ), patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.get_gridfs_bucket",
+            return_value=mock_fs,
+        ), patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.logger"
+        ) as mock_logger:
+            delete_content(db, oid, bucket_name="test_bucket")
+        mock_logger.debug.assert_called_once()
+        call_args = mock_logger.debug.call_args[0]
+        assert "GridFS delete" in call_args[0]
+        assert oid in call_args
+        assert "file not found" in str(call_args[-1])

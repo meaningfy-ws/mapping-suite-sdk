@@ -1,5 +1,5 @@
 """
-Unit tests for GridFSPackageRepository.
+Unit tests for PackageRepository GridFS interception.
 
 Uses unittest.mock only (no mongomock). Mongo client, database, and
 collection are mocked; GridFS store helpers are patched so tests do not
@@ -8,7 +8,7 @@ require a real MongoDB or GridFS.
 import pytest
 from unittest.mock import MagicMock, patch
 
-from mapping_suite_sdk.core.adapters.gridfs_repository import GridFSPackageRepository
+from mapping_suite_sdk.core.adapters.package_repository import PackageRepository
 from mapping_suite_sdk.core.adapters.repository import ModelNotFoundError
 from tests.conftest import TestModel
 
@@ -55,7 +55,7 @@ def _make_repository(collection=None):
     db.__getitem__.return_value = collection
     client = MagicMock()
     client.__getitem__.return_value = db
-    return GridFSPackageRepository[TestModel](
+    return PackageRepository[TestModel](
         model_class=TestModel,
         mongo_client=client,
         database_name="test_db",
@@ -65,10 +65,10 @@ def _make_repository(collection=None):
     )
 
 
-class TestGridFSPackageRepositoryCreate:
-    """Tests for GridFSPackageRepository.create."""
+class TestPackageRepositoryGridFSInterceptionCreate:
+    """Tests for PackageRepository.create (GridFS interception)."""
 
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.prepare_doc_for_insert")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.prepare_doc_for_insert")
     def test_create_calls_prepare_then_insert(self, mock_prepare):
         repo = _make_repository()
         model = TestModel(id="id1", name="n", description="d", count=1)
@@ -82,10 +82,10 @@ class TestGridFSPackageRepositoryCreate:
         assert repo.collection.find_one({"_id": "id1"}) is not None
 
 
-class TestGridFSPackageRepositoryRead:
-    """Tests for GridFSPackageRepository.read."""
+class TestPackageRepositoryGridFSInterceptionRead:
+    """Tests for PackageRepository.read (GridFS interception)."""
 
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.resolve_doc_gridfs_refs")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.resolve_doc_gridfs_refs")
     def test_read_resolves_refs_and_returns_model(self, mock_resolve):
         coll = _make_mock_collection()
         doc = {"_id": "id1", "name": "n", "description": "d", "count": 1}
@@ -103,10 +103,10 @@ class TestGridFSPackageRepositoryRead:
             repo.read("id_missing")
 
 
-class TestGridFSPackageRepositoryReadMany:
-    """Tests for GridFSPackageRepository.read_many."""
+class TestPackageRepositoryGridFSInterceptionReadMany:
+    """Tests for PackageRepository.read_many (GridFS interception)."""
 
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.resolve_doc_gridfs_refs")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.resolve_doc_gridfs_refs")
     def test_read_many_resolves_refs_and_returns_models(self, mock_resolve):
         coll = _make_mock_collection()
         coll.insert_one({"_id": "a", "name": "A", "description": None, "count": 0})
@@ -119,12 +119,12 @@ class TestGridFSPackageRepositoryReadMany:
         assert ids == {"a", "b"}
 
 
-class TestGridFSPackageRepositoryUpdate:
-    """Tests for GridFSPackageRepository.update."""
+class TestPackageRepositoryGridFSInterceptionUpdate:
+    """Tests for PackageRepository.update (GridFS interception)."""
 
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.delete_content")
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.prepare_doc_for_insert")
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.collect_gridfs_ids_from_doc")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.delete_content")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.prepare_doc_for_insert")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.collect_gridfs_ids_from_doc")
     def test_update_replaces_doc_and_deletes_old_gridfs(
         self, mock_collect, mock_prepare, mock_delete
     ):
@@ -148,11 +148,11 @@ class TestGridFSPackageRepositoryUpdate:
             repo.update(model)
 
 
-class TestGridFSPackageRepositoryDelete:
-    """Tests for GridFSPackageRepository.delete."""
+class TestPackageRepositoryGridFSInterceptionDelete:
+    """Tests for PackageRepository.delete (GridFS interception)."""
 
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.delete_content")
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.collect_gridfs_ids_from_doc")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.delete_content")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.collect_gridfs_ids_from_doc")
     def test_delete_removes_doc_and_calls_delete_content(
         self, mock_collect, mock_delete
     ):
@@ -171,10 +171,10 @@ class TestGridFSPackageRepositoryDelete:
             repo.delete("id_missing")
 
 
-class TestGridFSPackageRepositoryCreatePackage:
+class TestPackageRepositoryCreatePackage:
     """Test that create_package (convenience method) delegates to create."""
 
-    @patch("mapping_suite_sdk.core.adapters.gridfs_repository.prepare_doc_for_insert")
+    @patch("mapping_suite_sdk.core.adapters.package_repository.prepare_doc_for_insert")
     def test_create_package_returns_same_as_create(self, mock_prepare):
         repo = _make_repository()
         model = TestModel(id="pkg1", name="p", description="pkg", count=1)

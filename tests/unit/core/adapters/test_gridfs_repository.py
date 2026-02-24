@@ -244,11 +244,11 @@ class TestPackageRepositoryGridFSInterceptionDelete:
 
 
 class TestPackageRepositoryCreatePackage:
-    """Test that create_package (convenience method) delegates to create."""
+    """Test that PackageRepository.create_package (convenience method) delegates to create."""
 
     @patch("mapping_suite_sdk.core.adapters.package_repository.prepare_doc_for_insert")
     def test_create_package_returns_same_as_create(self, mock_prepare):
-        repo = _make_repository()
+        repo = _make_repository()  # PackageRepository, which defines create_package
         model = TestModel(id="pkg1", name="p", description="pkg", count=1)
         result = repo.create_package(model)
         assert result == model

@@ -314,12 +314,14 @@ class TestDeleteContent:
             delete_content(db, oid, bucket_name="test_bucket")
         mock_fs.delete.assert_called_once_with(oid)
 
-    def test_delete_logs_and_swallows_exception(self):
-        """Covers try/except in delete_content when fs.delete raises."""
+    def test_delete_logs_debug_when_no_file(self):
+        """Covers delete_content when fs.delete raises NoFile (file already gone)."""
+        from gridfs.errors import NoFile
+
         db = FakeDatabase()
         oid = ObjectId()
         mock_fs = MagicMock()
-        mock_fs.delete.side_effect = Exception("file not found")
+        mock_fs.delete.side_effect = NoFile()
         with patch(
             "mapping_suite_sdk.core.adapters.gridfs_store.Database",
             FakeDatabase,
@@ -331,7 +333,25 @@ class TestDeleteContent:
         ) as mock_logger:
             delete_content(db, oid, bucket_name="test_bucket")
         mock_logger.debug.assert_called_once()
-        call_args = mock_logger.debug.call_args[0]
-        assert "GridFS delete" in call_args[0]
-        assert oid in call_args
-        assert "file not found" in str(call_args[-1])
+        assert "file not found" in mock_logger.debug.call_args[0][0] or ""
+
+    def test_delete_logs_warning_and_reraises_other_exceptions(self):
+        """Covers delete_content when fs.delete raises a non-NoFile error."""
+        db = FakeDatabase()
+        oid = ObjectId()
+        mock_fs = MagicMock()
+        mock_fs.delete.side_effect = RuntimeError("permission denied")
+        with patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.Database",
+            FakeDatabase,
+        ), patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.get_gridfs_bucket",
+            return_value=mock_fs,
+        ), patch(
+            "mapping_suite_sdk.core.adapters.gridfs_store.logger"
+        ) as mock_logger:
+            with pytest.raises(RuntimeError, match="permission denied"):
+                delete_content(db, oid, bucket_name="test_bucket")
+        mock_logger.warning.assert_called_once()
+        assert oid in mock_logger.warning.call_args[0]
+        assert "permission denied" in str(mock_logger.warning.call_args[0][-1])

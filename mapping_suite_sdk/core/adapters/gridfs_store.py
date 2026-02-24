@@ -3,6 +3,14 @@ GridFS storage for large file content in mapping packages.
 
 This module provides helpers to store and retrieve large string/binary content
 in MongoDB GridFS so that the main package document stays under the 16MB BSON limit.
+
+Content is stored inline on the document when below a size threshold; above the
+threshold it is moved into GridFS and the document holds a reference via
+:data:`GRIDFS_REF_KEY`. The threshold is controlled by :data:`DEFAULT_GRIDFS_THRESHOLD_BYTES`
+(1 MiB) or a caller-supplied ``threshold_bytes`` in the higher-level serialization
+helpers (:func:`prepare_doc_for_insert`, etc.). The low-level helpers here
+(:func:`store_content`, :func:`get_content`, :func:`delete_content`) operate
+directly on GridFS.
 """
 import logging
 from typing import Any, Dict, List, MutableMapping, Optional
@@ -15,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 # Key used in document to mark content stored in GridFS
 GRIDFS_REF_KEY = "_gridfs_id"
+# Document key for fields eligible for GridFS storage when above size threshold
+GRIDFS_CONTENT_FIELD_NAME = "content"
 # Metadata key for encoding when content was stored as string (utf-8)
 GRIDFS_METADATA_ENCODING = "encoding"
 
@@ -115,7 +125,7 @@ def _serialize_content_to_gridfs(
     """Recursively replace large 'content' values with GridFS references (mutates obj)."""
     if isinstance(obj, MutableMapping):
         for key, value in list(obj.items()):
-            if key == "content" and isinstance(value, (str, bytes)):
+            if key == GRIDFS_CONTENT_FIELD_NAME and isinstance(value, (str, bytes)):
                 size = len(value) if isinstance(value, bytes) else len(value.encode("utf-8"))
                 if size >= threshold_bytes:
                     file_id = store_content(
@@ -144,7 +154,7 @@ def _resolve_gridfs_refs(
     if isinstance(obj, MutableMapping):
         for key, value in list(obj.items()):
             if (
-                key == "content"
+                key == GRIDFS_CONTENT_FIELD_NAME
                 and isinstance(value, dict)
                 and GRIDFS_REF_KEY in value
                 and isinstance(value[GRIDFS_REF_KEY], ObjectId)

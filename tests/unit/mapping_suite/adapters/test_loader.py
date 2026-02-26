@@ -324,6 +324,35 @@ def test_resource_references_loader_loads_csv_files_with_irregular_formats():
         assert not any("empty.csv" in r["file_name"] for r in resources)
 
 
+def test_resource_references_loader_skips_csv_with_header_only():
+    """Test that loader skips CSV files with only a header and no data rows (covers branch for header-only CSV)."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+
+        # Create a CSV file with only a header
+        header_only_csv_content = 'col1,col2,col3\n'
+        (resources_dir / "header_only.csv").write_text(header_only_csv_content)
+
+        # Create a valid CSV file
+        valid_csv_content = 'name,value\nitem1,100\n'
+        (resources_dir / "valid.csv").write_text(valid_csv_content)
+
+        loader = ResourceReferencesLoader()
+        config = _create_dummy_config(file_paths=["resources/header_only.csv", "resources/valid.csv"])
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+
+        # Only the valid CSV should be loaded
+        assert resources is not None
+        assert len(resources) == 1
+        assert resources[0]["file_name"] == "resources/valid.csv"
+        assert resources[0]["object"]
+
+
 def test_resource_references_loader_handles_encoding_errors():
     """Test that loader handles encoding errors gracefully and continues loading valid files."""
     with tempfile.TemporaryDirectory() as temp_dir:

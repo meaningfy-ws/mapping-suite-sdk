@@ -107,15 +107,15 @@ or using poetry:
 poetry add mapping-suite-sdk
 ```
 
-Supported package versions: **v1**, **v2**, **v3**, and **v3L** (v3 lightweight). Besides the CLI, you can **load, convert, and validate** packages programmatically using the **`load_mapping_package_shortcut`** script (no CLI required): it auto-detects version, optionally converts to v3 or v3L, and can validate and/or persist to MongoDB. Version-specific loaders are also available.
+Supported package versions: **v1**, **v2**, **v3**, and **v3L** (v3 lightweight). Besides the CLI, you can **load, convert, and validate** packages programmatically using **`load_mapping_package`** (no CLI required): it auto-detects version, optionally converts to v3 or v3L, and can validate and/or persist to MongoDB. Version-specific loaders are also available.
 
 ### Loading a Mapping Package
 
-**Version-agnostic (recommended):** use the shortcut to load from folder with auto-detection; optionally convert to v3 or v3L and validate:
+**Version-agnostic (recommended):** use the version-agnostic loader to load from folder with auto-detection; optionally convert to v3 or v3L and validate:
 
 ```python
 from pathlib import Path
-from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import load_mapping_package
+from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
 
 # Auto-detect version, convert to v3 (full) or v3L (lightweight), optionally validate
 package = load_mapping_package(

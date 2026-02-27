@@ -21,11 +21,28 @@ mapping_package = load_mapping_package_v2_from_archive(
 )
 ----
 
-For version-agnostic loading (auto-detect, optional conversion), use `load_mapping_package` from `mapping_suite_sdk.tools.services.load_mapping_package_shortcut`; see xref:quick-start.adoc[Quick Start].
+For version-agnostic loading (auto-detect, optional conversion), use `load_mapping_package` from `mapping_suite_sdk.tools.services.load_mapping_package`; see xref:quick-start.adoc[Quick Start].
 
 === Custom loading
 
-Version-specific loaders (e.g. `MappingPackageV2Loader`) can be passed where the API accepts a loader parameter. See the version-specific load services for signatures.
+You can pass a custom loader to control how packages are loaded (e.g. which test data or resources to include). Version-specific load services accept an optional `mapping_package_loader` (or `mapping_suite_loader` for mapping suites). The loader must implement the `Loader` protocol from `mapping_suite_sdk.core.adapters.loader`. You can use or subclass the built-in loaders:
+
+[source,python]
+----
+from pathlib import Path
+from mapping_suite_sdk.core.adapters.loader import Loader
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
+
+# Use a customised built-in loader (e.g. skip test data)
+custom_loader = MappingPackageV2Loader(include_test_data=False, include_output=False)
+package = load_mapping_package_v2_from_folder(
+    mapping_package_folder_path=Path("/path/to/package"),
+    mapping_package_loader=custom_loader,
+)
+----
+
+For a fully custom strategy, implement the `Loader` protocol (define `load(self, package_folder_path: Path)`) and pass your instance as `mapping_package_loader`. See the version-specific load modules for full signatures.
 
 == Validation and Testing
 
@@ -66,7 +83,7 @@ Always implement proper error handling:
 [source,python]
 ----
 try:
-    from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import load_mapping_package
+    from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
     mapping_package = load_mapping_package(path)
 except FileNotFoundError:
     print("Mapping package folder not found")

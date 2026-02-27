@@ -56,16 +56,16 @@ poetry add mapping-suite-sdk
 
 == Core Functionalities
 
-The Mapping Suite SDK provides several key functionalities for handling mapping packages. Package versions (v1, v2, v3, v3L) use version-specific loaders; for version-agnostic loading with auto-detection and optional conversion/validation, use the shortcut (see xref:package-anatomy.adoc[Package Anatomy and Versions]).
+The Mapping Suite SDK provides several key functionalities for handling mapping packages. Package versions (v1, v2, v3, v3L) use version-specific loaders; for version-agnostic loading with auto-detection and optional conversion/validation, use the version-agnostic loader (see xref:package-anatomy.adoc[Package Anatomy and Versions]).
 
 === Loading Mapping Packages
 
-==== Version-agnostic (shortcut, recommended)
+==== Version-agnostic (recommended)
 
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import load_mapping_package
+from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
 
 package = load_mapping_package(
     Path("/path/to/mapping/package"),

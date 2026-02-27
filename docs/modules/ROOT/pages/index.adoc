@@ -64,7 +64,7 @@ Load and optionally convert/validate programmatically (version auto-detected):
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import load_mapping_package
+from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
 
 package = load_mapping_package(
     Path("/path/to/mapping/package"),

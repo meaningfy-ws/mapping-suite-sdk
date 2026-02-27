@@ -8,12 +8,12 @@ The SDK serialises mapping packages to file-based representations for storage, s
 
 == Core Workflow
 
-Load a package with the version-agnostic shortcut or a version-specific loader, then serialise with the matching version-specific function:
+Load a package with the version-agnostic loader or a version-specific loader, then serialise with the matching version-specific function:
 
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk.tools.services.load_mapping_package_shortcut import load_mapping_package
+from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
 from mapping_suite_sdk.mapping_package_v2.services.serialise_mapping_package_v2 import (
     serialise_mapping_package_v2_to_folder,
 )

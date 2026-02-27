@@ -47,7 +47,7 @@ add_span_processor_to_mssdk_tracer_provider(
 
 == Automatic Tracing
 
-SDK operations (loading, conversion, validation, etc.) are traced when tracing is enabled. Use the shortcut or version-specific loaders as usual; they are automatically traced.
+SDK operations (loading, conversion, validation, etc.) are traced when tracing is enabled. Use the version-agnostic loader or version-specific loaders as usual; they are automatically traced.
 
 == Custom Method Tracing
 

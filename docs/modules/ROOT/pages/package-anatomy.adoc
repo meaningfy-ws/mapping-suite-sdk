@@ -68,4 +68,4 @@ Only what is needed for transformation:
 
 == Loading and Converting Without the CLI
 
-You can load, convert, and validate packages programmatically using the **load_mapping_package_shortcut** (no CLI required): it auto-detects version, optionally converts to v3 or v3L, and can validate and/or persist to MongoDB. See xref:quick-start.adoc[Quick Start] for examples.
+You can load, convert, and validate packages programmatically using **load_mapping_package** (no CLI required): it auto-detects version, optionally converts to v3 or v3L, and can validate and/or persist to MongoDB. See xref:quick-start.adoc[Quick Start] for examples.

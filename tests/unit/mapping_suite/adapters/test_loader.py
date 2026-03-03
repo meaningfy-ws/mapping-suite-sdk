@@ -172,9 +172,16 @@ def test_resource_references_loader_loads_successfully():
         package_folder_path=TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
         config=config,
     )
-    assert resources is not None
-    assert isinstance(resources, list)
-    assert len(resources) > 0
+    assert len(resources) == 3
+    file_names = sorted([r["file_name"] for r in resources])
+    expected = sorted([
+        "/src/normalisation/sforms_mapping.csv",
+        "/src/normalisation/eforms_mapping.csv",
+        "/src/transformation/resources/winner-selection-status.json"
+    ])
+    assert file_names == expected
+    for r in resources:
+        assert r["object"]
 
 
 def test_resource_references_loader_finds_file_paths():
@@ -290,27 +297,60 @@ def test_resource_references_loader_loads_csv_files_with_irregular_formats():
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
-        
+
         # Create a CSV file with inconsistent columns (still valid for DictReader)
         irregular_csv_content = 'col1,col2,col3\nval1,val2\nval3,val4,val5,val6\n'
         (resources_dir / "irregular.csv").write_text(irregular_csv_content)
-        
+
         # Create a standard CSV file
         standard_csv_content = 'name,value\nitem1,100\nitem2,200\n'
         (resources_dir / "standard.csv").write_text(standard_csv_content)
-        
+
+        # Create an empty CSV file
+        (resources_dir / "empty.csv").write_text("")
+
         loader = ResourceReferencesLoader()
-        config = _create_dummy_config(file_paths=["resources/irregular.csv", "resources/standard.csv"])
+        config = _create_dummy_config(file_paths=["resources/irregular.csv", "resources/standard.csv", "resources/empty.csv"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
         )
-        
-        # Both files should load successfully - DictReader is tolerant of irregular formats
+
+        # Only non-empty CSVs should be loaded
         assert resources is not None
         assert len(resources) == 2
         assert any("irregular.csv" in r["file_name"] for r in resources)
         assert any("standard.csv" in r["file_name"] for r in resources)
+        assert not any("empty.csv" in r["file_name"] for r in resources)
+
+
+def test_resource_references_loader_skips_csv_with_header_only():
+    """Test that loader skips CSV files with only a header and no data rows (covers branch for header-only CSV)."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        resources_dir = temp_dir_path / "resources"
+        resources_dir.mkdir()
+
+        # Create a CSV file with only a header
+        header_only_csv_content = 'col1,col2,col3\n'
+        (resources_dir / "header_only.csv").write_text(header_only_csv_content)
+
+        # Create a valid CSV file
+        valid_csv_content = 'name,value\nitem1,100\n'
+        (resources_dir / "valid.csv").write_text(valid_csv_content)
+
+        loader = ResourceReferencesLoader()
+        config = _create_dummy_config(file_paths=["resources/header_only.csv", "resources/valid.csv"])
+        resources = loader.load(
+            package_folder_path=temp_dir_path,
+            config=config,
+        )
+
+        # Only the valid CSV should be loaded
+        assert resources is not None
+        assert len(resources) == 1
+        assert resources[0]["file_name"] == "resources/valid.csv"
+        assert resources[0]["object"]
 
 
 def test_resource_references_loader_handles_encoding_errors():

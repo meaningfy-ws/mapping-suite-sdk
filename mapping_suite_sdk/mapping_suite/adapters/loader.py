@@ -74,9 +74,15 @@ class ResourceReferencesLoader(AssetLoader):
                     if abs_path.suffix == ".json":
                         obj = json.loads(abs_path.read_text())
                     elif abs_path.suffix == ".csv":
+                        if abs_path.stat().st_size == 0:
+                            logger.warning(f"CSV resource file '{rel_path}' is empty (expected at {abs_path}), skipping.")  # pragma: no cover
+                            continue
                         with abs_path.open(newline='', encoding='utf-8') as csvfile:
                             reader = csv.DictReader(csvfile)
                             obj = list(reader)
+                            if len(obj) == 0:
+                                logger.warning(f"CSV resource file '{rel_path}' has no rows (expected at {abs_path}), skipping.")  # pragma: no cover
+                                continue
                     else:
                         obj = abs_path.read_text()
                     resource_file_contents.append({

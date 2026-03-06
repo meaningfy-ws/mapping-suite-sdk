@@ -2,6 +2,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+import logging
 
 from mapping_suite_sdk.core.models.collection_asset import (
     TestDataCollectionAsset,
@@ -151,7 +152,7 @@ def test_mp_v2_structural_validation_step_empty_sparql_suite():
         validator.validate(mock_package)
 
 
-def test_mp_v2_structural_validation_step_empty_test_results_suite():
+def test_mp_v2_structural_validation_step_empty_test_results_suite(caplog):
     mock_package = Mock(spec=MappingPackageV2)
 
     mock_package.test_data_suites = [
@@ -196,8 +197,12 @@ def test_mp_v2_structural_validation_step_empty_test_results_suite():
 
     validator = MPV2StructuralValidationStep()
 
-    with pytest.raises(MPStructuralValidationException):
-        validator.validate(mock_package)
+    caplog.set_level(logging.WARNING)
+
+    # Should not raise structural error for empty output suites
+    result = validator.validate(mock_package)
+    assert result is True
+    assert "empty test result suite" in caplog.text
 
 
 def test_mp_v2_structural_validation_step_none_test_data_suites():

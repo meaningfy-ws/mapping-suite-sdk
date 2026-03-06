@@ -1,3 +1,4 @@
+import logging
 from typing import final, Optional, NoReturn, Literal
 
 from mapping_suite_sdk.core.adapters.hasher import HasherABC
@@ -5,6 +6,8 @@ from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.adapters.validator import MPValidationException, MPValidationStepABC, validate_next
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_hasher import MappingPackageV2Hasher
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+
+logger = logging.getLogger(__name__)
 
 
 class MPStructuralValidationException(MPValidationException): pass
@@ -36,8 +39,16 @@ class MPV2StructuralValidationStep(MPValidationStepABC):
                 assert suite.files
 
             if mapping_package.test_results:
-                for suite in mapping_package.test_results.result_suites:
-                    assert suite.files
+                # Outputs (test results) are not required for a package to be loadable.
+                # Some production packages may contain unexpected/partial output structures.
+                suites = getattr(mapping_package.test_results, "result_suites", None) or []
+                for suite in suites:
+                    if not getattr(suite, "files", None):
+                        suite_path = getattr(suite, "path", "<unknown>")
+                        logger.warning(
+                            "Mapping Package structural warning: empty test result suite at %s",
+                            suite_path,
+                        )
 
         # TODO: structural validation also must check relation between test data and results
 

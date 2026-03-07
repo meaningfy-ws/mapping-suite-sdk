@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from types import FunctionType
-from typing import Optional, Literal, NoReturn
+from typing import Optional, Literal, NoReturn, Any
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
@@ -11,6 +11,28 @@ logger = logging.getLogger(__name__)
 
 
 class MPValidationException(Exception): pass
+
+
+def warn_on_empty_test_result_suites(mapping_package: Any) -> None:
+    """
+    Emit warnings (not errors) for empty/unexpected test result suites.
+
+    Outputs (test results) are not required for a mapping package to be loadable/processable.
+    Some production packages may contain partial or unexpected output structures; we warn
+    to surface the issue without blocking validation.
+    """
+    test_results = getattr(mapping_package, "test_results", None)
+    if not test_results:
+        return
+
+    suites = getattr(test_results, "result_suites", None) or []
+    for suite in suites:
+        if not getattr(suite, "files", None):
+            suite_path = getattr(suite, "path", "<unknown>")
+            logger.warning(
+                "Mapping Package structural warning: empty test result suite at %s",
+                suite_path,
+            )
 
 
 def validate_next(func: FunctionType):

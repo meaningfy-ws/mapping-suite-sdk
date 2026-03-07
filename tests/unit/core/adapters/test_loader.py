@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+import logging
 
 from mapping_suite_sdk.core.adapters.loader import (
     TechnicalMappingSuiteLoader,
@@ -13,6 +14,7 @@ from mapping_suite_sdk.core.adapters.loader import (
     TestResultSuiteLoader,
     ConceptualMappingFileLoader, load_file_by_extensions
 )
+from mapping_suite_sdk.core.adapters.validator import warn_on_empty_test_result_suites
 from mapping_suite_sdk.core.models.collection_asset import (
     TechnicalMappingCollectionAsset,
     VocabularyMappingCollectionAsset,
@@ -63,6 +65,21 @@ def test_load_file_by_extensions(tmp_path: Path):
     non_existent_file = test_dir / "non_existent.txt"
     non_existent_content = load_file_by_extensions(non_existent_file, str_extensions, bytes_extensions)
     assert non_existent_content is None
+
+
+class _DummyMappingPackage:
+    def __init__(self, test_results):
+        self.test_results = test_results
+
+
+def test_warn_on_empty_test_result_suites_returns_when_no_test_results(caplog):
+    """Covers early return branch in warn_on_empty_test_result_suites."""
+    caplog.set_level(logging.WARNING)
+
+    warn_on_empty_test_result_suites(_DummyMappingPackage(test_results=None))
+
+    # No warning should be emitted when test_results is absent/None
+    assert caplog.text == ""
 
 
 def test_technical_mapping_suite_loader(dummy_mapping_package_path: Path,

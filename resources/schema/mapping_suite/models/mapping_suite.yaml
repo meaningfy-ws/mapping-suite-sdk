@@ -42,11 +42,11 @@ classes:
   DocumentProbingSpec:
     description: |
       Specification for probing if a document matches the signature of this mapping suite.
-      Contains conditions that must exist and conditions that must not exist in the document.
       Used to determine if a document should be processed with this suite's configuration.
     slots:
-      - must_exist
-      - must_not_exist
+      - formal_expression
+      - formal_expression_type
+      - probing_method
 
   MappingSuiteMetadata:
     description: |
@@ -179,30 +179,13 @@ slots:
 
   # DocumentProbingSpec slots
   document_type_probing:
+    required: true
+    multivalued: true
     description: |
       Specification for probing if a document matches the signature of this mapping suite.
       Used to determine if a document should be processed with this suite's configuration.
       Optional; if not provided, the suite applies to all documents processed by this system.
     range: DocumentProbingSpec
-    inlined: true
-
-  must_exist:
-    multivalued: true
-    description: |
-      List of extraction specifications that must successfully match in the document.
-      All must_exist conditions must be satisfied for the document to be eligible for this suite.
-      Examples: presence of eForms specific markers, required XML namespaces, etc.
-    range: PropertyExtractionSpec
-    inlined: true
-    inlined_as_list: true
-
-  must_not_exist:
-    multivalued: true
-    description: |
-      List of extraction specifications that must NOT match in the document.
-      If any must_not_exist condition matches, the document is NOT eligible for this suite.
-      Examples: absence of Standard Forms markers, exclusion of specific XML elements, etc.
-    range: PropertyExtractionSpec
     inlined: true
     inlined_as_list: true
 
@@ -276,16 +259,18 @@ slots:
       Method used to extract the value from the located element.
     range: ExtractionMethod
     examples:
+      - value: "element"
       - value: "text"
       - value: "attribute_and_text"
 
   formal_expression_type:
     required: true
     description: |
-      Type of the formal expression: XPath (for XML), XQuery, or JSONPath (for JSON).
+      Type of the formal expression: XPath (for XML), XQuery (for XML), or JSONPath (for JSON).
     range: FormalExpressionType
     examples:
       - value: "xpath"
+      - value: "xquery"
       - value: "jsonpath"
 
   attribute_name:
@@ -325,6 +310,16 @@ slots:
       - value: "in_list"
       - value: "range"
       - value: "table_lookup"
+
+  probing_method:
+    required: true
+    description: |
+      Method used to probe if a document matches the signature of this mapping suite.
+      Used in DocumentProbingSpec to determine if a document should be processed with this suite's configuration.
+    range: ProbingMethod
+    examples:
+      - value: "must_exist"
+      - value: "must_not_exist"
 
   description:
     description: Human-readable description of this eligibility mapping
@@ -376,3 +371,12 @@ enums:
           Used for Standard Forms where subtypes need to be mapped via a lookup table.
       regex:
         description: Match the metadata property value against a regular expression pattern
+
+  ProbingMethod:
+    description: |
+      Enumeration of methods for probing if a document matches the signature of a mapping suite.
+    permissible_values:
+      must_exist:
+        description: Check for the presence of specific elements/attributes in the document
+      must_not_exist:
+        description: Check for the absence of specific elements/attributes in the document

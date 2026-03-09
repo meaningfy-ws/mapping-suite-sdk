@@ -89,6 +89,22 @@ class MatchingMethod(str, Enum):
     """
 
 
+class ProbingMethod(str, Enum):
+    """
+    Enumeration of methods for probing if a document matches the signature of a mapping suite.
+
+    """
+
+    must_exist = "must_exist"
+    """
+    Check for the presence of specific elements/attributes in the document
+    """
+    must_not_exist = "must_not_exist"
+    """
+    Check for the absence of specific elements/attributes in the document
+    """
+
+
 class MappingSuite(PydanticModel):
     """
     Root container for a complete mapping suite.
@@ -148,23 +164,25 @@ Used to select which mapping package applies to a given document.
 class DocumentProbingSpec(PydanticModel):
     """
     Specification for probing if a document matches the signature of this mapping suite.
-    Contains conditions that must exist and conditions that must not exist in the document.
     Used to determine if a document should be processed with this suite's configuration.
 
     """
 
-    must_exist: Optional[list[PropertyExtractionSpec]] = Field(
-        default=None,
-        description="""List of extraction specifications that must successfully match in the document.
-All must_exist conditions must be satisfied for the document to be eligible for this suite.
-Examples: presence of eForms specific markers, required XML namespaces, etc.
+    formal_expression: str = Field(
+        default=...,
+        description="""Formal expression to locate and extract the value from a source document.
+Can be an XPath expression (for XML), XQuery expression, or JSONPath expression (for JSON).
 """,
     )
-    must_not_exist: Optional[list[PropertyExtractionSpec]] = Field(
-        default=None,
-        description="""List of extraction specifications that must NOT match in the document.
-If any must_not_exist condition matches, the document is NOT eligible for this suite.
-Examples: absence of Standard Forms markers, exclusion of specific XML elements, etc.
+    formal_expression_type: FormalExpressionType = Field(
+        default=...,
+        description="""Type of the formal expression: XPath (for XML), XQuery (for XML), or JSONPath (for JSON).
+""",
+    )
+    probing_method: ProbingMethod = Field(
+        default=...,
+        description="""Method used to probe if a document matches the signature of this mapping suite.
+Used in DocumentProbingSpec to determine if a document should be processed with this suite's configuration.
 """,
     )
 
@@ -202,8 +220,8 @@ class DocumentMetadataConfig(PydanticModel):
         default=...,
         description="""List of metadata property definitions to extract from documents""",
     )
-    document_type_probing: Optional[DocumentProbingSpec] = Field(
-        default=None,
+    document_type_probing: list[DocumentProbingSpec] = Field(
+        default=...,
         description="""Specification for probing if a document matches the signature of this mapping suite.
 Used to determine if a document should be processed with this suite's configuration.
 Optional; if not provided, the suite applies to all documents processed by this system.
@@ -253,7 +271,7 @@ Can be an XPath expression (for XML), XQuery expression, or JSONPath expression 
     )
     formal_expression_type: FormalExpressionType = Field(
         default=...,
-        description="""Type of the formal expression: XPath (for XML), XQuery, or JSONPath (for JSON).
+        description="""Type of the formal expression: XPath (for XML), XQuery (for XML), or JSONPath (for JSON).
 """,
     )
     extraction_method: ExtractionMethod = Field(

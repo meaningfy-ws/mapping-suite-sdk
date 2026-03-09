@@ -224,7 +224,6 @@ class DocumentMetadataConfig(PydanticModel):
         default=...,
         description="""Specification for probing if a document matches the signature of this mapping suite.
 Used to determine if a document should be processed with this suite's configuration.
-Optional; if not provided, the suite applies to all documents processed by this system.
 """,
     )
 

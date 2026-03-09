@@ -37,7 +37,7 @@ def _create_dummy_config(file_paths: list[str]) -> MappingSuiteConfig:
         ),
         metadata_config=DocumentMetadataConfig(
             metadata_properties=[],
-            document_type_probing=None
+            document_type_probing=[]
         ),
         eligibility_constraint_config=EligibilityConstraintConfig(
             eligibility_mapping=[]
@@ -522,9 +522,11 @@ def test_mapping_suite_loader_complete_integration():
     assert len(config.eligibility_constraint_config.eligibility_mapping) > 0
 
     # Verify document probing
-    assert config.metadata_config.document_type_probing is not None
-    assert config.metadata_config.document_type_probing.must_exist is not None
-    assert config.metadata_config.document_type_probing.must_not_exist is not None
+    document_type_probing = config.metadata_config.document_type_probing
+    assert document_type_probing is not None
+    assert len(document_type_probing) == 2
+    assert document_type_probing[0].probing_method == "must_exist"
+    assert document_type_probing[1].probing_method == "must_not_exist"
 
     # Verify resources
     assert mapping_suite.resource_file_contents is not None

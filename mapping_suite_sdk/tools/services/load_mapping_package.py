@@ -27,7 +27,6 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
     UnsupportedVersionError,
     Version,
     convert_mapping_package_model,
-    load_mapping_package_from_folder,
 )
 
 logger = logging.getLogger(__name__)
@@ -57,16 +56,58 @@ def _normalize_version(version: str) -> Version:
     return _VERSION_MAP[normalized]
 
 
-def _load_source_package(version: Version, package_folder_path: Path):
+def _load_source_package(
+    version: Version,
+    package_folder_path: Path,
+    include_test_data: bool,
+    include_output: bool,
+):
     """Load a mapping package from folder using the version-specific loader."""
+    if version == Version.V1:
+        from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
+        from mapping_suite_sdk.mapping_package_v1.services.load_mapping_package_v1 import (
+            load_mapping_package_v1_from_folder,
+        )
+        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        return load_mapping_package_v1_from_folder(
+            mapping_package_folder_path=package_folder_path,
+            mapping_package_loader=loader,
+        )
+    if version == Version.V2:
+        from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+        from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+            load_mapping_package_v2_from_folder,
+        )
+        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        return load_mapping_package_v2_from_folder(
+            mapping_package_folder_path=package_folder_path,
+            mapping_package_loader=loader,
+        )
+    if version == Version.V3:
+        from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+        from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import (
+            load_mapping_package_v3_from_folder,
+        )
+        loader = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
+        return load_mapping_package_v3_from_folder(
+            mapping_package_folder_path=package_folder_path,
+            mapping_package_loader=loader,
+        )
     if version == Version.V3L:
+        from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import (
+            MappingPackageV3LightweightLoader,
+        )
         from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import (
             load_mapping_package_v3_lightweight_from_folder,
         )
+        loader = MappingPackageV3LightweightLoader(
+            include_test_data=include_test_data, include_output=include_output
+        )
         return load_mapping_package_v3_lightweight_from_folder(
             mapping_package_folder_path=package_folder_path,
+            mapping_package_loader=loader,
         )
-    return load_mapping_package_from_folder(version, package_folder_path)
+    raise UnsupportedVersionError(f"Unsupported source version: {version}")
 
 
 def _persist_to_mongodb(
@@ -173,6 +214,7 @@ def load_mapping_package(
     *,
     version: Optional[str] = None,
     include_test_data: bool = False,
+    include_output: bool = True,
     validate_package: bool = True,
     persist_to_mongodb: bool = False,
     mongo_client: Optional[MongoClient] = None,
@@ -192,6 +234,7 @@ def load_mapping_package(
             is detected from the package structure.
         include_test_data: If True, target v3 (full package); if False, target v3L (lightweight).
             Defaults to False.
+        include_output: If True, load output/results artefacts from the package. Defaults to True.
         validate_package: If True, validate the source package before conversion and the
             result after conversion. Validation before conversion fails on invalid hash (no update).
             Defaults to True.
@@ -220,7 +263,9 @@ def load_mapping_package(
     _validate_conversion_path(source_version, target_version)
     _validate_if_requested(package_folder_path, validate_package)
 
-    source_package = _load_source_package(source_version, package_folder_path)
+    source_package = _load_source_package(
+        source_version, package_folder_path, include_test_data=include_test_data, include_output=include_output
+    )
 
     converted = (
         convert_mapping_package_model(source_version, target_version, source_package)

@@ -24,6 +24,7 @@ from mapping_suite_sdk.tools.services.load_mapping_package import (
     UnsupportedConversionError,
     UnsupportedVersionError,
     VersionDetectionError,
+    _load_source_package,
     load_mapping_package,
 )
 
@@ -94,6 +95,15 @@ class TestLoadMappingPackageVersionHandling:
     def test_unsupported_version_string_raises(self, tmp_path: Path):
         with pytest.raises(UnsupportedVersionError, match="Unsupported version"):
             load_mapping_package(tmp_path, version="v99", validate_package=False)
+
+    def test_load_source_package_unsupported_source_version_raises(self, tmp_path: Path):
+        with pytest.raises(UnsupportedVersionError, match="Unsupported source version"):
+            _load_source_package(
+                "v99",
+                tmp_path,
+                include_test_data=False,
+                include_output=False,
+            )
 
     @patch(_V3L_LOAD)
     def test_version_normalized_case_insensitive_v3l(self, mock_v3l_load, tmp_path: Path):

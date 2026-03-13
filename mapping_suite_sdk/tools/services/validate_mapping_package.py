@@ -136,10 +136,8 @@ def _validate_folder_from_path(
         return validate_mapping_package_v2_from_folder(mapping_package_folder_path=path, mapping_package_loader=loader)
     if version == Version.V3:
         return validate_mapping_package_v3_from_folder(mapping_package_folder_path=path, mapping_package_loader=loader)
-    if version == Version.V3L:
-        return validate_mapping_package_v3_lightweight_from_folder(mapping_package_folder_path=path, mapping_package_loader=loader)
-
-    raise CrossVersionValidationError(f"Unsupported version: {version}")
+    # V3L is the only remaining valid version (invalid versions already rejected by _create_loader_for_version)
+    return validate_mapping_package_v3_lightweight_from_folder(mapping_package_folder_path=path, mapping_package_loader=loader)
 
 
 def _validate_archive_path(

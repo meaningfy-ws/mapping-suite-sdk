@@ -5,6 +5,10 @@ import pytest
 from typing import cast
 
 from mapping_suite_sdk.core.adapters.validator import MPValidationException
+from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.tools.services.convert_mapping_package import Version
 from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import (
     convert_mapping_package_v3_to_v3_lightweight,
@@ -19,6 +23,14 @@ from mapping_suite_sdk.tools.services.validate_mapping_package import (
 )
 
 
+def _assert_loader(mock_call, expected_loader_type, include_test_data=False, include_output=False):
+    """Assert loader type and configuration in mock call."""
+    loader = mock_call.call_args.kwargs["mapping_package_loader"]
+    assert isinstance(loader, expected_loader_type), f"Expected {expected_loader_type}, got {type(loader)}"
+    assert loader.include_test_data == include_test_data
+    assert loader.include_output == include_output
+
+
 def test_validate_mapping_package_auto_detects_version_for_folder_path(tmp_path: Path) -> None:
     """Test that version is auto-detected when validating a folder path without explicit version."""
     with (
@@ -27,7 +39,9 @@ def test_validate_mapping_package_auto_detects_version_for_folder_path(tmp_path:
     ):
         assert validate_mapping_package(tmp_path) is True
         mock_detect.assert_called_once_with(tmp_path)
-        mock_v2.assert_called_once_with(mapping_package_folder_path=tmp_path)
+        mock_v2.assert_called_once()
+        assert mock_v2.call_args.kwargs["mapping_package_folder_path"] == tmp_path
+        _assert_loader(mock_v2, MappingPackageV2Loader, include_test_data=False, include_output=False)
 
 
 def test_validate_mapping_package_explicit_version_skips_detection_for_folder_path(tmp_path: Path) -> None:
@@ -38,7 +52,9 @@ def test_validate_mapping_package_explicit_version_skips_detection_for_folder_pa
     ):
         assert validate_mapping_package(tmp_path, version="v3") is True
         mock_detect.assert_not_called()
-        mock_v3.assert_called_once_with(mapping_package_folder_path=tmp_path)
+        mock_v3.assert_called_once()
+        assert mock_v3.call_args.kwargs["mapping_package_folder_path"] == tmp_path
+        _assert_loader(mock_v3, MappingPackageV3Loader, include_test_data=False, include_output=False)
 
 
 def test_validate_mapping_package_raises_clear_error_for_unknown_version(tmp_path: Path) -> None:
@@ -207,7 +223,9 @@ def test_validate_folder_from_path_v1_calls_v1_from_folder(tmp_path: Path) -> No
         return_value=True,
     ) as mock_v1:
         assert _validate_folder_from_path(tmp_path, Version.V1) is True
-        mock_v1.assert_called_once_with(mapping_package_folder_path=tmp_path)
+        mock_v1.assert_called_once()
+        assert mock_v1.call_args.kwargs["mapping_package_folder_path"] == tmp_path
+        _assert_loader(mock_v1, MappingPackageV1Loader, include_test_data=False, include_output=False)
 
 
 def test_validate_folder_from_path_v2_calls_v2_from_folder(tmp_path: Path) -> None:
@@ -217,7 +235,9 @@ def test_validate_folder_from_path_v2_calls_v2_from_folder(tmp_path: Path) -> No
         return_value=True,
     ) as mock_v2:
         assert _validate_folder_from_path(tmp_path, Version.V2) is True
-        mock_v2.assert_called_once_with(mapping_package_folder_path=tmp_path)
+        mock_v2.assert_called_once()
+        assert mock_v2.call_args.kwargs["mapping_package_folder_path"] == tmp_path
+        _assert_loader(mock_v2, MappingPackageV2Loader, include_test_data=False, include_output=False)
 
 
 def test_validate_folder_from_path_v3_calls_v3_from_folder(tmp_path: Path) -> None:
@@ -227,7 +247,9 @@ def test_validate_folder_from_path_v3_calls_v3_from_folder(tmp_path: Path) -> No
         return_value=True,
     ) as mock_v3:
         assert _validate_folder_from_path(tmp_path, Version.V3) is True
-        mock_v3.assert_called_once_with(mapping_package_folder_path=tmp_path)
+        mock_v3.assert_called_once()
+        assert mock_v3.call_args.kwargs["mapping_package_folder_path"] == tmp_path
+        _assert_loader(mock_v3, MappingPackageV3Loader, include_test_data=False, include_output=False)
 
 
 def test_validate_folder_from_path_v3L_calls_v3_lightweight_from_folder(tmp_path: Path) -> None:
@@ -237,7 +259,49 @@ def test_validate_folder_from_path_v3L_calls_v3_lightweight_from_folder(tmp_path
         return_value=True,
     ) as mock_v3l:
         assert _validate_folder_from_path(tmp_path, Version.V3L) is True
-        mock_v3l.assert_called_once_with(mapping_package_folder_path=tmp_path)
+        mock_v3l.assert_called_once()
+        assert mock_v3l.call_args.kwargs["mapping_package_folder_path"] == tmp_path
+        _assert_loader(mock_v3l, MappingPackageV3LightweightLoader, include_test_data=False, include_output=False)
+
+
+def test_validate_folder_from_path_propagates_include_test_data(tmp_path: Path) -> None:
+    """Test that include_test_data is propagated to the loader."""
+    with patch(
+        "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3_from_folder",
+        return_value=True,
+    ) as mock_v3:
+        assert _validate_folder_from_path(tmp_path, Version.V3, include_test_data=True) is True
+        _assert_loader(mock_v3, MappingPackageV3Loader, include_test_data=True, include_output=False)
+
+
+def test_validate_folder_from_path_propagates_include_output(tmp_path: Path) -> None:
+    """Test that include_output is propagated to the loader."""
+    with patch(
+        "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3_from_folder",
+        return_value=True,
+    ) as mock_v3:
+        assert _validate_folder_from_path(tmp_path, Version.V3, include_output=True) is True
+        _assert_loader(mock_v3, MappingPackageV3Loader, include_test_data=False, include_output=True)
+
+
+def test_validate_folder_from_path_propagates_both_flags(tmp_path: Path) -> None:
+    """Test that both include_test_data and include_output are propagated to the loader."""
+    with patch(
+        "mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2.validate_mapping_package_v2_from_folder",
+        return_value=True,
+    ) as mock_v2:
+        assert _validate_folder_from_path(tmp_path, Version.V2, include_test_data=True, include_output=True) is True
+        _assert_loader(mock_v2, MappingPackageV2Loader, include_test_data=True, include_output=True)
+
+
+def test_validate_mapping_package_propagates_flags_to_folder_validation(tmp_path: Path) -> None:
+    """Test that validate_mapping_package propagates include_test_data and include_output to folder validation."""
+    with patch(
+        "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3_from_folder",
+        return_value=True,
+    ) as mock_v3:
+        assert validate_mapping_package(tmp_path, version="v3", include_test_data=True, include_output=True) is True
+        _assert_loader(mock_v3, MappingPackageV3Loader, include_test_data=True, include_output=True)
 
 
 # --- _detect_version_from_model ---
@@ -395,7 +459,9 @@ def test_validate_mapping_package_archive_succeeds_with_auto_detection(tmp_path:
         assert call_args[0] == archive_path
 
         mock_detect.assert_called_once_with(extracted_path)
-        mock_v2.assert_called_once_with(mapping_package_folder_path=extracted_path)
+        mock_v2.assert_called_once()
+        assert mock_v2.call_args.kwargs["mapping_package_folder_path"] == extracted_path
+        _assert_loader(mock_v2, MappingPackageV2Loader, include_test_data=False, include_output=False)
 
 
 def test_validate_mapping_package_archive_succeeds_with_explicit_version(tmp_path: Path) -> None:
@@ -426,7 +492,9 @@ def test_validate_mapping_package_archive_succeeds_with_explicit_version(tmp_pat
         assert call_args[0] == archive_path
 
         mock_detect.assert_not_called()
-        mock_v3.assert_called_once_with(mapping_package_folder_path=extracted_path)
+        mock_v3.assert_called_once()
+        assert mock_v3.call_args.kwargs["mapping_package_folder_path"] == extracted_path
+        _assert_loader(mock_v3, MappingPackageV3Loader, include_test_data=False, include_output=False)
 
 
 # --- validate_mapping_package: model validation ---

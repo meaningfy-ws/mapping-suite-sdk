@@ -178,13 +178,22 @@ def _validate_conversion_path(source_version: Version, target_version: Version) 
         )
 
 
-def _validate_if_requested(package, validate_package: bool) -> None:
+def _validate_if_requested(
+    package,
+    validate_package: bool,
+    include_test_data: bool = False,
+    include_output: bool = False,
+) -> None:
     """Validate package if validation is enabled."""
     if validate_package:
         from mapping_suite_sdk.tools.services.validate_mapping_package import (
             validate_mapping_package,
         )
-        validate_mapping_package(package)
+        validate_mapping_package(
+            package,
+            include_test_data=include_test_data,
+            include_output=include_output,
+        )
 
 
 def _persist_if_requested(
@@ -261,7 +270,12 @@ def load_mapping_package(
     target_version = Version.V3 if include_test_data else Version.V3L
 
     _validate_conversion_path(source_version, target_version)
-    _validate_if_requested(package_folder_path, validate_package)
+    _validate_if_requested(
+        package_folder_path,
+        validate_package,
+        include_test_data=include_test_data,
+        include_output=include_output,
+    )
 
     source_package = _load_source_package(
         source_version, package_folder_path, include_test_data=include_test_data, include_output=include_output
@@ -273,7 +287,12 @@ def load_mapping_package(
         else source_package
     )
 
-    _validate_if_requested(converted, validate_package)
+    _validate_if_requested(
+        converted,
+        validate_package,
+        include_test_data=include_test_data,
+        include_output=include_output,
+    )
 
     return _persist_if_requested(
         converted, persist_to_mongodb, mongo_client, database_name, collection_name

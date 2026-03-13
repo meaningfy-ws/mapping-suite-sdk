@@ -292,8 +292,12 @@ class TestLoadMappingPackageValidation:
             validate_package=True,
         )
         assert mock_validate.call_count == 2
-        assert mock_validate.call_args_list[0] == call(tmp_path)
-        assert mock_validate.call_args_list[1] == call(converted)
+        assert mock_validate.call_args_list[0] == call(
+            tmp_path, include_test_data=True, include_output=True
+        )
+        assert mock_validate.call_args_list[1] == call(
+            converted, include_test_data=True, include_output=True
+        )
 
     @patch(
         "mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package"

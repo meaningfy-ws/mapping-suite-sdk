@@ -243,7 +243,7 @@ class TestLoadMappingPackageLoaderFlags:
 
     @patch(_V3_LOAD)
     @patch(_V3_LOADER)
-    def test_include_output_defaults_to_true(
+    def test_include_output_defaults_to_false(
         self, mock_loader_cls, mock_load, tmp_path: Path
     ):
         mock_instance = Mock()
@@ -252,7 +252,7 @@ class TestLoadMappingPackageLoaderFlags:
         load_mapping_package(
             tmp_path, version="v3", include_test_data=True, validate_package=False
         )
-        mock_loader_cls.assert_called_once_with(include_test_data=True, include_output=True)
+        mock_loader_cls.assert_called_once_with(include_test_data=True, include_output=False)
 
     @patch(_V3_LOAD)
     @patch(_V3_LOADER)
@@ -293,10 +293,10 @@ class TestLoadMappingPackageValidation:
         )
         assert mock_validate.call_count == 2
         assert mock_validate.call_args_list[0] == call(
-            tmp_path, include_test_data=True, include_output=True
+            tmp_path, include_test_data=True, include_output=False
         )
         assert mock_validate.call_args_list[1] == call(
-            converted, include_test_data=True, include_output=True
+            converted, include_test_data=True, include_output=False
         )
 
     @patch(

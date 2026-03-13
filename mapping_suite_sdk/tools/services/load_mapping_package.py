@@ -223,7 +223,7 @@ def load_mapping_package(
     *,
     version: Optional[str] = None,
     include_test_data: bool = False,
-    include_output: bool = True,
+    include_output: bool = False,
     validate_package: bool = True,
     persist_to_mongodb: bool = False,
     mongo_client: Optional[MongoClient] = None,
@@ -243,7 +243,7 @@ def load_mapping_package(
             is detected from the package structure.
         include_test_data: If True, target v3 (full package); if False, target v3L (lightweight).
             Defaults to False.
-        include_output: If True, load output/results artefacts from the package. Defaults to True.
+        include_output: If True, load output/results artefacts from the package. Defaults to False.
         validate_package: If True, validate the source package before conversion and the
             result after conversion. Validation before conversion fails on invalid hash (no update).
             Defaults to True.

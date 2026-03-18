@@ -38,6 +38,8 @@ mapping-package/
 
 == Installation
 
+**Requires Python 3.10–3.12** (Python 3.13+ is not yet supported due to pandas 2.1.4 compatibility, which is currently needed by some of our users)
+
 Install the Mapping Suite SDK using your preferred package manager.
 
 === Using pip

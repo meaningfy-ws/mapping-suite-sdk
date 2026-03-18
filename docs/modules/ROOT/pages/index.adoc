@@ -41,10 +41,6 @@ The Mapping Suite SDK is a powerful software development kit designed to standar
 - Performance monitoring
 - Detailed error tracking
 
-=== In future
-* Validation service
-* Transformation capabilities
-
 == Quick Start
 
 === Installation
@@ -63,21 +59,20 @@ poetry add mapping-suite-sdk
 
 === Basic Usage
 
+Load and optionally convert/validate programmatically (version auto-detected):
+
 [source,python]
 ----
 from pathlib import Path
-import mapping_suite_sdk as mssdk
+from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
 
-# Load a mapping package
-package = mssdk.load_mapping_package_from_folder(
-    mapping_package_folder_path=Path("/path/to/mapping/package")
+package = load_mapping_package(
+    Path("/path/to/mapping/package"),
+    include_test_data=True,
+    validate_package=False,
 )
-
-# Serialise the package
-mssdk.serialise_mapping_package(
-    mapping_package=package,
-    serialisation_folder_path=Path("/output/path")
-)
+# Serialisation: use version-specific serialisers (e.g. serialise_mapping_package_v2_to_folder)
+# or convert in-place via CLI: mssdk convert --to-version v3 --from-version v2 from-package ...
 ----
 
 == Core Components
@@ -109,14 +104,14 @@ mssdk.serialise_mapping_package(
 === Custom Extraction
 [source,python]
 ----
-from mapping_suite_sdk.adapters.extractor import MappingPackageExtractorABC
+from mapping_suite_sdk.core.adapters.extractor import ExtractorABC
 
-class CustomPackageExtractor(MappingPackageExtractorABC):
-    def extract(self, source, destination, **kwargs):
+class CustomPackageExtractor(ExtractorABC):
+    def extract(self, *args, **kwargs):
         # Implement custom extraction logic
         pass
 
-    def extract_temporary(self, source, **kwargs):
+    def extract_temporary(self, *args, **kwargs):
         # Implement temporary extraction
         pass
 ----
@@ -124,15 +119,14 @@ class CustomPackageExtractor(MappingPackageExtractorABC):
 === Tracing and Monitoring
 [source,python]
 ----
-import mapping_suite_sdk as mssdk
-from opentelemetry.sdk.trace.export import ConsoleSpanExporter
+from mapping_suite_sdk.core.adapters.tracer import (
+    set_mssdk_tracing,
+    add_span_processor_to_mssdk_tracer_provider,
+)
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
 
-# Enable tracing
-mssdk.set_mssdk_tracing(True)
-
-# Add console exporter for trace details
-console_exporter = ConsoleSpanExporter()
-mssdk.add_span_processor_to_mssdk_tracer_provider(console_exporter)
+set_mssdk_tracing(True)
+add_span_processor_to_mssdk_tracer_provider(SimpleSpanProcessor(ConsoleSpanExporter()))
 ----
 
 == Performance and Scalability

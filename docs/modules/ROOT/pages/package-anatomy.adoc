@@ -1,0 +1,71 @@
+= Mapping Package Anatomy and Versions
+:description: Structure of mapping packages and differences between v1, v2, v3, and v3L
+:keywords: mapping-package, anatomy, v1, v2, v3, v3L, structure
+
+== Overview
+
+A mapping package is a standardised collection of files and directories for transforming data from XML to RDF using RML. The diagram below shows the **full** layout; not all packages include every part—structure varies by version.
+
+== Core Components
+
+* **Metadata** — Identifier, title, issue date, description, mapping/ontology version, type, eligibility constraints, signature (hash).
+* **Conceptual Mapping Asset** — Excel spreadsheets for high-level mapping concepts.
+* **Technical Mapping Suite** — RML mapping files (XML → RDF).
+* **Vocabulary Mapping Suite** — Value mappings (JSON, CSV, XML).
+* **Test Data Suites** — XML test inputs.
+* **SPARQL Test Suites** — Queries to validate transformed data.
+* **SHACL Test Suites** — RDF validation shapes.
+
+== Full Package Structure
+
+[source]
+----
+mapping-package/
+├── metadata.json
+├── transformation/
+│   ├── conceptual_mappings.xlsx
+│   ├── mappings/
+│   │   └── *.rml.ttl
+│   └── resources/
+│       └── (codelists, value mappings)
+├── validation/
+│   ├── shacl/
+│   └── sparql/
+└── test_data/
+    └── (test suites with input.xml, etc.)
+----
+
+== Version Variations
+
+Actual packages differ by format version. The SDK supports **v1**, **v2**, **v3**, and **v3L**.
+
+=== v3L (lightweight)
+
+Only what is needed for transformation:
+
+* Metadata
+* Technical mapping suite (RML)
+* Vocabulary mapping suite (resources)
+
+**Omitted:** conceptual mapping, `test_data/`, `validation/` (SHACL, SPARQL), `output/`.
+
+=== v1
+
+* `metadata.json` with XSD version constraints (`min_xsd_version` / `max_xsd_version`).
+* No `@context` (no JSON-LD).
+* Eligibility expressed via `metadata_constraints.constraints`.
+
+=== v2
+
+* `metadata.json` with eForms SDK constraints (`eforms_sdk_versions`).
+* No `@context` (no JSON-LD).
+* Same folder layout as the full structure where present.
+
+=== v3 (full)
+
+* Metadata as JSON-LD: `@context`, `project_identifier`.
+* Must include `transformation/conceptual_mappings.xlsx` and the full transformation/validation/test_data layout.
+
+== Loading and Converting Without the CLI
+
+You can load, convert, and validate packages programmatically using **load_mapping_package** (no CLI required): it auto-detects version, optionally converts to v3 or v3L, and can validate and/or persist to MongoDB. See xref:quick-start.adoc[Quick Start] for examples.

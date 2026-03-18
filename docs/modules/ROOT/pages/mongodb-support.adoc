@@ -20,18 +20,15 @@ The Mapping Suite SDK provides robust MongoDB integration through the `MongoDBRe
 [source,python]
 ----
 from pymongo import MongoClient
-from mapping_suite_sdk import MongoDBRepository
-from mapping_suite_sdk.models.mapping_package_v2 import MappingPackageABC
+from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 
-# Initialise MongoDB client
 mongo_client = MongoClient("mongodb://localhost:27017/")
-
-# Create a repository for mapping packages
 repository = MongoDBRepository(
-    model_class=MappingPackageABC,
+    model_class=MappingPackageV2,
     mongo_client=mongo_client,
     database_name="mapping_suites",
-    collection_name="packages"
+    collection_name="packages",
 )
 ----
 
@@ -42,14 +39,11 @@ repository = MongoDBRepository(
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk import load_mapping_package_from_folder
-
-# Load a mapping package
-package = load_mapping_package_from_folder(
-    mapping_package_folder_path=Path("/path/to/package")
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_folder,
 )
 
-# Store the package in MongoDB
+package = load_mapping_package_v2_from_folder(mapping_package_folder_path=Path("/path/to/package"))
 repository.create(package)
 print(f"Package stored with ID: {package.id}")
 ----
@@ -58,12 +52,13 @@ print(f"Package stored with ID: {package.id}")
 
 [source,python]
 ----
-from mapping_suite_sdk import load_mapping_package_from_mongo_db
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_mongo_db,
+)
 
-# Retrieve a package by its unique ID
-retrieved_package = load_mapping_package_from_mongo_db(
+retrieved_package = load_mapping_package_v2_from_mongo_db(
     mapping_package_id=package.id,
-    mapping_package_repository=repository
+    mapping_package_repository=repository,
 )
 ----
 
@@ -109,7 +104,7 @@ You can create repositories for custom models by implementing the `RepositoryABC
 ----
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel
-from mapping_suite_sdk.adapters.repository import RepositoryABC, MongoDBRepository
+from mapping_suite_sdk.core.adapters.repository import RepositoryABC, MongoDBRepository
 
 class CustomModel(BaseModel):
     name: str
@@ -134,7 +129,7 @@ custom_repo = CustomModelRepository(
 
 [source,python]
 ----
-from mapping_suite_sdk.adapters.repository import ModelNotFoundError, RepositoryError
+from mapping_suite_sdk.core.adapters.repository import ModelNotFoundError, RepositoryError
 
 def safe_repository_operation(repository, package_id):
     try:

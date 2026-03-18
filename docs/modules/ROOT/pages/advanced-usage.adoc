@@ -6,36 +6,43 @@
 
 === Loading from Archives
 
-The SDK supports loading mapping packages from ZIP archives:
+Load from a ZIP archive using a version-specific loader (e.g. v2):
 
 [source,python]
 ----
-from mssdk.services.load_mapping_package import load_mapping_package_from_archive
+from pathlib import Path
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_archive,
+)
 
-# Load from a ZIP archive
 archive_path = Path("path/to/package.zip")
-mapping_package = load_mapping_package_from_archive(archive_path)
-----
-
-=== Custom Loading Strategies
-
-You can implement custom loading behavior:
-
-[source,python]
-----
-from mssdk.adapters.loader import MappingPackageAssetLoader
-
-class CustomLoader(MappingPackageAssetLoader):
-    def load(self, path: Path):
-        # Custom loading logic here
-        pass
-
-# Use custom loader
-mapping_package = load_mapping_package_from_folder(
-    path,
-    mapping_package_loader=CustomLoader()
+mapping_package = load_mapping_package_v2_from_archive(
+    mapping_package_archive_path=archive_path,
 )
 ----
+
+For version-agnostic loading (auto-detect, optional conversion), use `load_mapping_package` from `mapping_suite_sdk.tools.services.load_mapping_package`; see xref:quick-start.adoc[Quick Start].
+
+=== Custom loading
+
+You can pass a custom loader to control how packages are loaded (e.g. which test data or resources to include). Version-specific load services accept an optional `mapping_package_loader` (or `mapping_suite_loader` for mapping suites). The loader must implement the `Loader` protocol from `mapping_suite_sdk.core.adapters.loader`. You can use or subclass the built-in loaders:
+
+[source,python]
+----
+from pathlib import Path
+from mapping_suite_sdk.core.adapters.loader import Loader
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder
+
+# Use a customised built-in loader (e.g. skip test data)
+custom_loader = MappingPackageV2Loader(include_test_data=False, include_output=False)
+package = load_mapping_package_v2_from_folder(
+    mapping_package_folder_path=Path("/path/to/package"),
+    mapping_package_loader=custom_loader,
+)
+----
+
+For a fully custom strategy, implement the `Loader` protocol (define `load(self, package_folder_path: Path)`) and pass your instance as `mapping_package_loader`. See the version-specific load modules for full signatures.
 
 == Validation and Testing
 
@@ -76,7 +83,8 @@ Always implement proper error handling:
 [source,python]
 ----
 try:
-    mapping_package = load_mapping_package_from_folder(path)
+    from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
+    mapping_package = load_mapping_package(path)
 except FileNotFoundError:
     print("Mapping package folder not found")
 except ValueError as e:

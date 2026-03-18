@@ -4,7 +4,7 @@
 
 == Introduction
 
-The Mapping Suite SDK provides a command-line interface (CLI) that allows users to interact with mapping packages directly from the terminal. The CLI offers validation capabilities for mapping packages from various sources including archives, GitHub repositories, and local folders.
+The Mapping Suite SDK provides a command-line interface (CLI) that allows users to interact with mapping packages directly from the terminal. The CLI offers conversion (between package versions v1/v2/v3/v3L) and validation of mapping packages from folders, archives, and GitHub.
 
 == Installation
 
@@ -33,9 +33,16 @@ Global options:
 
 === Available Commands
 
-Currently, the CLI provides the following commands:
+* `convert`: Convert mapping packages between versions (v1/v2 → v3, v1/v2/v3 → v3L). In-place conversion. Use `--to-version` (v3 or v3L) and `--from-version` (v1, v2, or v3). Subcommands: `from-package`, `from-folder`.
+* `validate`: Validate mapping packages from folder, archive, or GitHub.
 
-* `validate`: Commands for validating mapping packages from different sources
+== Convert Commands
+
+[source,bash]
+----
+mssdk convert --to-version v3 --from-version v2 from-package /path/to/package
+mssdk convert --to-version v3L --from-version v3 from-folder /path/to/folder
+----
 
 == Validation Commands
 

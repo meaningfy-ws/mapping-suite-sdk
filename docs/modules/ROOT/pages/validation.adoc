@@ -1,49 +1,44 @@
 = Mapping Package Validation
 
-The Mapping Suite SDK provides a comprehensive validation system to ensure the integrity and correctness of Mapping Packages.
+The Mapping Suite SDK provides validation to ensure the integrity and correctness of mapping packages (structure, hash signature). You can validate via the CLI (see xref:cli.adoc[CLI]) or programmatically.
 
-== Validation Process
+== Programmatic Validation
 
-The validation process is handled by the `MappingPackageValidator` class, which orchestrates a chain of validation steps:
+Use `validate_mapping_package` from `mapping_suite_sdk.tools.services.validate_mapping_package`. It accepts either a path (folder or archive) or an in-memory package model; version can be auto-detected or passed explicitly.
 
-* `MPStructuralValidationStep`: Validates the structural integrity of the Mapping Package, such as ensuring non-empty test suites.
-* `MPHashValidationStep`: Validates the hash-based signature of the Mapping Package to ensure its integrity.
-
-The `MappingPackageValidator` class allows you to validate a `MappingPackage` instance or a Mapping Package loaded from an archive file.
-
-== Example Usage
-
-To validate a Mapping Package:
-
-[source,python]
-----
-import mapping_suite_sdk
-from mapping_suite_sdk.models.mapping_package_v2 import MappingPackageABC
-
-mapping_package = MappingPackageABC(...)
-try:
-    mapping_suite_sdk.validate_mapping_package(mapping_package)
-    print("Mapping Package validation successful!")
-except Exception as e:
-    print(f"Mapping Package validation failed: {e}")
-----
-
-To validate a Mapping Package from an archive file:
+=== Validate by path (folder or archive)
 
 [source,python]
 ----
 from pathlib import Path
+from mapping_suite_sdk.tools.services.validate_mapping_package import validate_mapping_package
 
-import mapping_suite_sdk
+# Folder: version auto-detected or explicit
+validate_mapping_package(Path("/path/to/mapping/package"))
+validate_mapping_package(Path("/path/to/package"), version="v2")
 
-archive_path = Path("/path/to/mapping-package.zip")
-try:
-    mapping_suite_sdk.validate_mapping_package_from_archive(archive_path)
-    print("Mapping Package validation successful!")
-except Exception as e:
-    print(f"Mapping Package validation failed: {e}")
+# Archive: version is detected after extraction
+validate_mapping_package(Path("/path/to/mapping-package.zip"))
 ----
+
+=== Validate an in-memory package
+
+[source,python]
+----
+from mapping_suite_sdk.tools.services.validate_mapping_package import validate_mapping_package
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_folder,
+)
+from pathlib import Path
+
+package = load_mapping_package_v2_from_folder(mapping_package_folder_path=Path("/path/to/package"))
+validate_mapping_package(package)
+----
+
+== Version-specific validation
+
+Each version also exposes its own validators (e.g. `validate_mapping_package_v2_from_folder`, `validate_mapping_package_v2_from_archive`) in the corresponding `mapping_package_v1`, `mapping_package_v2`, `mapping_package_v3` services.
 
 == Error Handling
 
-If the validation fails, the `validate_mapping_package` and `validate_mapping_package_from_archive` functions will raise an appropriate exception, such as `MPStructuralValidationException` or `MPHashValidationException`. You can catch these exceptions and handle the errors accordingly in your application.
+On failure, validation raises exceptions such as `MPHashValidationException` or `MPStructuralValidationException`. Catch these to handle errors in your application.

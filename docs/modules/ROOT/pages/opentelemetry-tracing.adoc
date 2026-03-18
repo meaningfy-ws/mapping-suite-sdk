@@ -12,14 +12,10 @@ The Mapping Suite SDK provides built-in OpenTelemetry tracing support, allowing 
 
 [source,python]
 ----
-import mapping_suite_sdk as mssdk
+from mapping_suite_sdk.core.adapters.tracer import set_mssdk_tracing, get_mssdk_tracing
 
-# Enable tracing globally
-mssdk.set_mssdk_tracing(True)
-
-# Check tracing status
-is_tracing_enabled = mssdk.get_mssdk_tracing()
-print(f"Tracing is {'enabled' if is_tracing_enabled else 'disabled'}")
+set_mssdk_tracing(True)
+is_tracing_enabled = get_mssdk_tracing()
 ----
 
 == Span Processors and Exporters
@@ -29,53 +25,29 @@ print(f"Tracing is {'enabled' if is_tracing_enabled else 'disabled'}")
 [source,python]
 ----
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
-from mapping_suite_sdk import add_span_processor_to_mssdk_tracer_provider
+from mapping_suite_sdk.core.adapters.tracer import add_span_processor_to_mssdk_tracer_provider
 
-# Create a console exporter to print trace details
-console_exporter = ConsoleSpanExporter()
-span_processor = SimpleSpanProcessor(console_exporter)
-
-# Add the span processor to the SDK's tracer provider
-add_span_processor_to_mssdk_tracer_provider(span_processor)
+add_span_processor_to_mssdk_tracer_provider(
+    SimpleSpanProcessor(ConsoleSpanExporter())
+)
 ----
 
-=== OTLP Exporter (Advanced)
+=== OTLP Exporter
 
 [source,python]
 ----
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from mapping_suite_sdk.core.adapters.tracer import add_span_processor_to_mssdk_tracer_provider
 
-# Configure OTLP exporter for remote tracing
-otlp_exporter = OTLPSpanExporter(
-    endpoint="localhost:4317",  # OpenTelemetry Collector endpoint
-    insecure=True  # Use TLS in production
-)
-batch_processor = BatchSpanProcessor(otlp_exporter)
-
-# Add OTLP processor to tracer provider
-add_span_processor_to_mssdk_tracer_provider(batch_processor)
-----
-
-== Automatic Tracing of SDK Methods
-
-The SDK automatically traces many of its core methods:
-
-[source,python]
-----
-from pathlib import Path
-import mapping_suite_sdk as mssdk
-
-# These methods are automatically traced
-package = mssdk.load_mapping_package_from_folder(
-    mapping_package_folder_path=Path("/path/to/package")
-)
-
-mssdk.serialise_mapping_package(
-    mapping_package=package,
-    serialisation_folder_path=Path("/output/path")
+add_span_processor_to_mssdk_tracer_provider(
+    BatchSpanProcessor(OTLPSpanExporter(endpoint="localhost:4317", insecure=True))
 )
 ----
+
+== Automatic Tracing
+
+SDK operations (loading, conversion, validation, etc.) are traced when tracing is enabled. Use the version-agnostic loader or version-specific loaders as usual; they are automatically traced.
 
 == Custom Method Tracing
 
@@ -83,7 +55,7 @@ mssdk.serialise_mapping_package(
 
 [source,python]
 ----
-from mapping_suite_sdk.adapters.tracer import traced_routine, traced_class
+from mapping_suite_sdk.core.adapters.tracer import traced_routine, traced_class
 
 # Trace a single function
 @traced_routine

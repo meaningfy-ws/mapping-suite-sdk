@@ -89,6 +89,51 @@ def test_update_with_fails_on_non_existing_element(dummy_mongo_repository: Mongo
         dummy_mongo_repository.update(updated_sample_model)
 
 
+def test_upsert_creates_non_existing_element(dummy_mongo_repository: MongoDBRepository, sample_model: TestModel):
+    result = dummy_mongo_repository.upsert(sample_model)
+
+    assert result == sample_model
+    stored_model = TestModel.model_validate(
+        dummy_mongo_repository.collection.find_one({"_id": sample_model.id})
+    )
+    assert stored_model == sample_model
+
+
+def test_upsert_updates_existing_element(dummy_mongo_repository: MongoDBRepository,
+                                         sample_model: TestModel,
+                                         updated_sample_model: TestModel):
+    dummy_mongo_repository.create(sample_model)
+
+    result = dummy_mongo_repository.upsert(updated_sample_model)
+
+    assert result == updated_sample_model
+    stored_model = TestModel.model_validate(
+        dummy_mongo_repository.collection.find_one({"_id": updated_sample_model.id})
+    )
+    assert stored_model == updated_sample_model
+    assert stored_model != sample_model
+
+
+def test_upsert_replaces_existing_document_shape(dummy_mongo_repository: MongoDBRepository, sample_model: TestModel):
+    dummy_mongo_repository.collection.insert_one({
+        "_id": sample_model.id,
+        "name": "Legacy Model",
+        "description": "Legacy Description",
+        "count": 1,
+        "legacy_field": "stale-value"
+    })
+
+    dummy_mongo_repository.upsert(sample_model)
+
+    stored_document = dummy_mongo_repository.collection.find_one({"_id": sample_model.id})
+
+    assert stored_document is not None
+    assert stored_document["name"] == sample_model.name
+    assert stored_document["description"] == sample_model.description
+    assert stored_document["count"] == sample_model.count
+    assert "legacy_field" not in stored_document
+
+
 def test_delete_with_success_existing_element(dummy_mongo_repository: MongoDBRepository, sample_model: TestModel):
     result = dummy_mongo_repository.create(sample_model)
     stored_result = dummy_mongo_repository.collection.find_one({"_id": sample_model.id})

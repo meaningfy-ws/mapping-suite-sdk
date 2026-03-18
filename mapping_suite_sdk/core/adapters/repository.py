@@ -19,7 +19,7 @@ class ModelNotFoundError(RepositoryError):
 
 class RepositoryABC(Generic[T], ABC):
     @abstractmethod
-    def create(self, model: T) -> str:
+    def create(self, model: T) -> T:
         raise NotImplementedError
 
     @abstractmethod
@@ -32,6 +32,10 @@ class RepositoryABC(Generic[T], ABC):
 
     @abstractmethod
     def update(self, model: T) -> T:
+        raise NotImplementedError
+
+    @abstractmethod
+    def upsert(self, model: T) -> T:
         raise NotImplementedError
 
     @abstractmethod
@@ -113,6 +117,17 @@ class MongoDBRepository(RepositoryABC[T]):
         model_dict = model.model_dump(by_alias=True, mode="json")
         model_dict["_id"] = model_id
         self.collection.replace_one(query, model_dict)
+
+        return model
+
+    def upsert(self, model: T) -> T:
+        query = {'_id': model.id}
+        model_dict = model.model_dump(by_alias=True, mode="json")
+        model_dict["_id"] = model.id
+        # Use replace_one so the persisted document exactly matches the
+        # serialised model payload. update_one would require update
+        # operators (for example $set) and could leave stale fields behind.
+        self.collection.replace_one(query, model_dict, upsert=True)
 
         return model
 

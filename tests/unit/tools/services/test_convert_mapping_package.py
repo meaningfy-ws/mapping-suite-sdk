@@ -420,6 +420,22 @@ class TestSerialiseMappingPackage:
 class TestConvertMappingPackageFromFolder:
     """Tests for convert_mapping_package_from_folder orchestration function."""
 
+    def test_convert_package_invalid_path_not_exists(self, tmp_path: Path):
+        """Test that non-existent package path raises InvalidPackagePathError."""
+        invalid_path = tmp_path / "nonexistent"
+
+        with pytest.raises(InvalidPackagePathError, match="does not exist"):
+            convert_mapping_package_from_folder(Version.V2, Version.V3, invalid_path)
+
+    def test_convert_package_invalid_path_not_directory(self, tmp_path: Path):
+        """Test that file path (not directory) raises InvalidPackagePathError."""
+        file_path = tmp_path / "file.txt"
+        file_path.write_text("test")
+
+        with pytest.raises(InvalidPackagePathError, match="not a directory"):
+            convert_mapping_package_from_folder(Version.V2, Version.V3, file_path)
+
+    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
@@ -428,28 +444,50 @@ class TestConvertMappingPackageFromFolder:
         mock_load,
         mock_convert,
         mock_serialise,
+        mock_validate,
         tmp_path: Path
     ):
-        """Test complete conversion workflow: load -> convert -> serialize."""
+        """Test complete conversion workflow: validate -> load -> convert -> serialize -> validate."""
         mock_source = Mock()
         mock_converted = Mock()
         mock_load.return_value = mock_source
         mock_convert.return_value = mock_converted
+        mock_validate.return_value = True
 
         convert_mapping_package_from_folder(Version.V2, Version.V3, tmp_path)
 
+        assert mock_validate.call_count == 2
+        mock_validate.assert_any_call(tmp_path, version=Version.V2)
+        mock_validate.assert_any_call(mock_converted)
         mock_load.assert_called_once_with(Version.V2, tmp_path)
         mock_convert.assert_called_once_with(Version.V2, Version.V3, mock_source)
         mock_serialise.assert_called_once_with(Version.V3, tmp_path, mock_converted)
 
+    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
-    def test_convert_package_hard_fail_on_load_error(self, mock_load, tmp_path: Path):
+    def test_convert_package_fails_on_pre_validation_error(self, mock_load, mock_validate, tmp_path: Path):
+        """Test that invalid source package (e.g. wrong hash) aborts conversion."""
+        from mapping_suite_sdk.core.adapters.validator import MPValidationException
+
+        mock_validate.side_effect = MPValidationException("Hash validation failed")
+
+        with pytest.raises(MPValidationException, match="Hash validation failed"):
+            convert_mapping_package_from_folder(Version.V2, Version.V3, tmp_path)
+
+        mock_validate.assert_called_once_with(tmp_path, version=Version.V2)
+        mock_load.assert_not_called()
+
+    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    def test_convert_package_hard_fail_on_load_error(self, mock_load, mock_validate, tmp_path: Path):
         """Test that load errors propagate (hard fail)."""
+        mock_validate.return_value = True
         mock_load.side_effect = InvalidPackagePathError("Load failed")
 
         with pytest.raises(InvalidPackagePathError, match="Load failed"):
             convert_mapping_package_from_folder(Version.V2, Version.V3, tmp_path)
 
+    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
@@ -458,9 +496,11 @@ class TestConvertMappingPackageFromFolder:
         mock_load,
         mock_convert,
         mock_serialise,
+        mock_validate,
         tmp_path: Path
     ):
         """Test that convert errors propagate (hard fail)."""
+        mock_validate.return_value = True
         mock_load.return_value = Mock()
         mock_convert.side_effect = UnsupportedVersionError("Convert failed")
 
@@ -469,6 +509,7 @@ class TestConvertMappingPackageFromFolder:
 
         mock_serialise.assert_not_called()
 
+    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
     @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
@@ -477,15 +518,42 @@ class TestConvertMappingPackageFromFolder:
         mock_load,
         mock_convert,
         mock_serialise,
+        mock_validate,
         tmp_path: Path
     ):
         """Test that serialize errors propagate (hard fail)."""
+        mock_validate.return_value = True
         mock_load.return_value = Mock()
         mock_convert.return_value = Mock()
         mock_serialise.side_effect = FileNotFoundError("context.jsonld not found")
 
         with pytest.raises(FileNotFoundError, match="context.jsonld not found"):
             convert_mapping_package_from_folder(Version.V2, Version.V3, tmp_path)
+
+    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
+    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    def test_convert_package_hard_fail_on_post_validation_error(
+        self,
+        mock_load,
+        mock_convert,
+        mock_serialise,
+        mock_validate,
+        tmp_path: Path
+    ):
+        """Test that post-conversion validation failure propagates."""
+        from mapping_suite_sdk.core.adapters.validator import MPValidationException
+
+        mock_validate.side_effect = [True, MPValidationException("Hash mismatch after conversion")]
+        mock_load.return_value = Mock()
+        mock_convert.return_value = Mock()
+        mock_serialise.return_value = None
+
+        with pytest.raises(MPValidationException, match="Hash mismatch after conversion"):
+            convert_mapping_package_from_folder(Version.V2, Version.V3, tmp_path)
+
+        assert mock_validate.call_count == 2
 
 
 class TestConvertMappingPackagesFromFolder:

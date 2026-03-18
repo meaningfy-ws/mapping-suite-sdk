@@ -19,7 +19,7 @@ class ModelNotFoundError(RepositoryError):
 
 class RepositoryABC(Generic[T], ABC):
     @abstractmethod
-    def create(self, model: T) -> str:
+    def create(self, model: T) -> T:
         raise NotImplementedError
 
     @abstractmethod

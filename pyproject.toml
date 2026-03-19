@@ -6,7 +6,7 @@ authors = [
     { name = "meaningfy.ws", email = "hi@meaningfy.ws" }
 ]
 readme = "README.md"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "pydantic>=2.10.0,<3.0.0",
     "pandas==2.1.4",

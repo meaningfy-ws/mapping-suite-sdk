@@ -97,6 +97,8 @@ This structure supports consistent loading, validation, and conversion across ve
 
 ## Quick Start
 
+**Requires Python 3.10–3.12** (Python 3.13+ is not yet supported due to pandas 2.1.4 compatibility, which is currently needed by some of our users)
+
 Install the SDK using pip:
 ```bash
 pip install mapping-suite-sdk

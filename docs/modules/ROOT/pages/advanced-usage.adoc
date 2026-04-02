@@ -97,8 +97,8 @@ except ValueError as e:
 
 [source,python]
 ----
-# Access package constraints
-constraints = mapping_package.metadata.eligibility_constraints
+# Access package constraints (v1/v2)
+constraints = mapping_package.metadata.metadata_constraints
 print(f"Package constraints: {constraints}")
 ----
 

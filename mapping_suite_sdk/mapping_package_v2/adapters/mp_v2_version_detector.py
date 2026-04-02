@@ -24,8 +24,7 @@ V2_SPEC = VersionDetectionSpec(
     metadata_conditions=[
         # V2-specific differentiating field:
         # - V2 uses eforms_sdk_versions (V1 uses xsd versions instead)
-        # Note: In raw JSON, the field is "metadata_constraints" (not "eligibility_constraints")
-        # because the Pydantic model uses an alias. The version detector reads raw JSON.
+        # Note: In v1/v2, the applicability/eligibility fields are under "metadata_constraints.constraints"
         MetadataCondition("metadata_constraints.constraints.eforms_sdk_versions", must_exist=True),
 
         # - V2 does NOT have @context (JSON-LD marker used by V3)

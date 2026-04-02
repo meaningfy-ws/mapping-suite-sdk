@@ -183,7 +183,7 @@ def test_metadata_condition(tmp_path):
     """Test MetadataCondition."""
     metadata = {
         "identifier": "test-id",
-        "eligibility_constraints": {
+        "metadata_constraints": {
             "constraints": {
                 "min_xsd_version": "1.0"
             }
@@ -199,7 +199,7 @@ def test_metadata_condition(tmp_path):
     condition = MetadataCondition("missing_key", must_exist=False)
     assert condition.matches(metadata) is True
 
-    condition = MetadataCondition("eligibility_constraints.constraints.min_xsd_version", must_exist=True)
+    condition = MetadataCondition("metadata_constraints.constraints.min_xsd_version", must_exist=True)
     assert condition.matches(metadata) is True
 
     condition = MetadataCondition("identifier", must_exist=True, expected_value="test-id")

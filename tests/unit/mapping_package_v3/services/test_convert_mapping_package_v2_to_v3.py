@@ -57,12 +57,12 @@ def test_convert_mapping_package_v2_to_v3_with_date_intervals(dummy_mapping_pack
     
     assert isinstance(result, MappingPackageV3)
     # Verify that constraints are converted if they exist in the source model
-    if (dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints and
+    if (dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints and
         result.metadata.applicability_constraints):
         assert result.metadata.applicability_constraints is not None
         # If the source has date intervals, they should be converted
-        if (dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date or
-            dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date):
+        if (dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.start_date or
+            dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.end_date):
             if result.metadata.applicability_constraints.document_time_interval:
                 assert (result.metadata.applicability_constraints.document_time_interval.start is not None or
                        result.metadata.applicability_constraints.document_time_interval.end is not None)
@@ -81,8 +81,8 @@ def test_convert_mapping_package_v2_to_v3_handles_invalid_issue_date(dummy_mappi
 def test_convert_mapping_package_v2_to_v3_handles_invalid_start_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
     """Test that conversion fails hard with invalid start_date format."""
     # Set an invalid date format
-    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = ["invalid-date-format"]
+    if dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.start_date = ["invalid-date-format"]
     
     # Should raise an exception (hard fail) - Pydantic will fail to convert invalid date string
     with pytest.raises((ValueError, TypeError)):
@@ -92,8 +92,8 @@ def test_convert_mapping_package_v2_to_v3_handles_invalid_start_date(dummy_mappi
 def test_convert_mapping_package_v2_to_v3_handles_invalid_end_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
     """Test that conversion fails hard with invalid end_date format."""
     # Set an invalid date format
-    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = ["invalid-date-format"]
+    if dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.end_date = ["invalid-date-format"]
     
     # Should raise an exception (hard fail) - Pydantic will fail to convert invalid date string
     with pytest.raises((ValueError, TypeError)):
@@ -102,10 +102,10 @@ def test_convert_mapping_package_v2_to_v3_handles_invalid_end_date(dummy_mapping
 
 def test_convert_mapping_package_v2_to_v3_handles_empty_date_lists(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
     """Test that empty date lists result in no interval (empty list is falsy)."""
-    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
+    if dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints:
         # Set empty lists for dates
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = []
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = []
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.start_date = []
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.end_date = []
     
     result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
     
@@ -117,10 +117,10 @@ def test_convert_mapping_package_v2_to_v3_handles_empty_date_lists(dummy_mapping
 
 def test_convert_mapping_package_v2_to_v3_handles_none_date_values(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
     """Test that None date values result in no interval (None is falsy)."""
-    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
+    if dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints:
         # Set None for dates (Optional[List[str]] allows None)
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = None
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = None
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.start_date = None
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.end_date = None
     
     result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
     
@@ -132,9 +132,9 @@ def test_convert_mapping_package_v2_to_v3_handles_none_date_values(dummy_mapping
 
 def test_convert_mapping_package_v2_to_v3_handles_only_start_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
     """Test that only start_date creates an open-ended future interval."""
-    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = ["2024-01-01"]
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = []
+    if dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.start_date = ["2024-01-01"]
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.end_date = []
     
     result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
     
@@ -146,9 +146,9 @@ def test_convert_mapping_package_v2_to_v3_handles_only_start_date(dummy_mapping_
 
 def test_convert_mapping_package_v2_to_v3_handles_only_end_date(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
     """Test that only end_date creates an open-ended past interval."""
-    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = []
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = ["2024-12-31"]
+    if dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.start_date = []
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.end_date = ["2024-12-31"]
     
     result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
     
@@ -160,9 +160,9 @@ def test_convert_mapping_package_v2_to_v3_handles_only_end_date(dummy_mapping_pa
 
 def test_convert_mapping_package_v2_to_v3_handles_both_dates(dummy_mapping_package_v2_model: MappingPackageV2) -> None:
     """Test that both start_date and end_date create a closed interval."""
-    if dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints:
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.start_date = ["2024-01-01"]
-        dummy_mapping_package_v2_model.metadata.eligibility_constraints.constraints.end_date = ["2024-12-31"]
+    if dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints:
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.start_date = ["2024-01-01"]
+        dummy_mapping_package_v2_model.metadata.metadata_constraints.constraints.end_date = ["2024-12-31"]
     
     result = convert_mapping_package_v2_to_v3(dummy_mapping_package_v2_model)
     

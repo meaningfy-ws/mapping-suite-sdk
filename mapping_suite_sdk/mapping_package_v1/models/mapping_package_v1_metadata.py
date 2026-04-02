@@ -43,7 +43,5 @@ class MappingPackageV1Metadata(MappingPackageMetadata):
     ontology_version: str = Field(..., description="Version of target ontology")
     description: str = Field(..., description="Metadata description")
 
-    eligibility_constraints: MappingPackageV1EligibilityConstraints = Field(...,
-                                                                            description="Constraints defining package applicability",
-                                                                            alias="metadata_constraints")
+    metadata_constraints: MappingPackageV1EligibilityConstraints = Field(..., description="Constraints defining package applicability")
     signature: str = Field(..., alias="mapping_suite_hash_digest", description="Package integrity hash")

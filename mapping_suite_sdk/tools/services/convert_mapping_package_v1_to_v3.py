@@ -88,7 +88,7 @@ def convert_mapping_package_v1_to_v3(mpv1: MappingPackageV1) -> MappingPackageV3
         from the input package.
     """
     mpv1_metadata = mpv1.metadata
-    v1_constraints = mpv1_metadata.eligibility_constraints.constraints if mpv1_metadata.eligibility_constraints else None
+    v1_constraints = mpv1_metadata.metadata_constraints.constraints if mpv1_metadata.metadata_constraints else None
 
     applicability_constraints = _convert_v1_constraints_to_v3_applicability_constraints(v1_constraints)
 

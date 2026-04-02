@@ -170,10 +170,10 @@ class MetadataCondition(PydanticModel):
     """
     JSONPath/dot-notation key that must or must not exist in metadata.
 
-    Supports nested paths like "eligibility_constraints.constraints.min_xsd_version"
+    Supports nested paths like "metadata_constraints.constraints.min_xsd_version"
     and optional value matching.
     """
-    path: str = Field(..., description="Dot-notation path, e.g., 'eligibility_constraints.constraints.min_xsd_version'")
+    path: str = Field(..., description="Dot-notation path, e.g., 'metadata_constraints.constraints.min_xsd_version'")
     must_exist: bool = Field(default=True, description="Whether the key must exist (True) or must not exist (False)")
     expected_value: Optional[Any] = Field(default=None, description="Optional value to match if key exists")
 

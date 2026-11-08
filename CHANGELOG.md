@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
-## [2.1.0] - Unreleased
+## [2.1.0] - 2026-11-08
 
 ### Added
 - `load_mapping_package_from_bytes(data, *, target_version="v3", include_output=False, validate_package=True)`:

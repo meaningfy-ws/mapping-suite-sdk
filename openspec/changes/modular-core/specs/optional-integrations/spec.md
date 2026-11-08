@@ -23,12 +23,30 @@ feature and the `pip install mapping-suite-sdk[<extra>]` command (DEC-4).
 - **WHEN** the core-only consumer calls a `load_mapping_packages_*_from_github` function
 - **THEN** it raises `ImportError` with message containing `pip install mapping-suite-sdk[github]`
 
+#### Scenario: Mapping-suite save without its extra
+- **WHEN** the core-only consumer calls `save_mapping_suite_to_mongo_db`
+- **THEN** it raises `ImportError` with message containing `pip install mapping-suite-sdk[mongodb]`
+
+#### Scenario: Explicit tracing setup without its extra
+- **WHEN** the core-only consumer calls `add_span_processor_to_mssdk_tracer_provider`
+- **THEN** it raises `ImportError` with message containing `pip install mapping-suite-sdk[tracing]`
+
+#### Scenario: CLI without its extra
+- **WHEN** the core-only consumer runs the `mssdk` command
+- **THEN** it exits non-zero with a message containing `pip install mapping-suite-sdk[cli]`
+- **AND** prints no traceback
+
 ### Requirement: Tracing is optional
 Without the `tracing` extra, traced operations SHALL run unchanged and produce no spans (DEC-5).
 
 #### Scenario: Load without OpenTelemetry
 - **WHEN** the core-only consumer loads a package
 - **THEN** the call returns the same package as with tracing installed
+- **AND** no error or warning about tracing is emitted
+
+#### Scenario: Tracing switched on without OpenTelemetry
+- **WHEN** the core-only consumer sets `MSSDK_TRACE=true` and loads a package
+- **THEN** the call returns the package
 - **AND** no error or warning about tracing is emitted
 
 ### Requirement: The all extra restores full behaviour

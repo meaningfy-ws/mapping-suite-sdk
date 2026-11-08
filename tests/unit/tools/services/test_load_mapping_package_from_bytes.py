@@ -1,6 +1,8 @@
 """Scenarios of the requirement *Load a package from bytes or a stream* (in-memory-package-io)."""
 
+import builtins
 import io
+import os
 import tempfile
 import zipfile
 from pathlib import Path
@@ -19,6 +21,7 @@ from mapping_suite_sdk.tools.services.load_mapping_package import (
     load_mapping_package_from_bytes,
 )
 from tests import TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH
+from tests.test_helpers import assert_same_package
 
 
 def _zip_folder(folder: Path, wrapper: str | None = None) -> bytes:
@@ -46,6 +49,17 @@ def no_disk_writes(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(tempfile, "mkdtemp", forbidden)
     for name in ("mkdir", "write_text", "write_bytes"):
         monkeypatch.setattr(Path, name, forbidden)
+    monkeypatch.setattr(os, "mkdir", forbidden)
+    monkeypatch.setattr(os, "makedirs", forbidden)
+
+    real_open = builtins.open
+
+    def open_read_only(file, mode="r", *args, **kwargs):
+        if any(flag in mode for flag in "wax+"):
+            forbidden()
+        return real_open(file, mode, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "open", open_read_only)
 
 
 def test_v2_zip_bytes_load_to_valid_v3_and_write_nothing(v2_zip: bytes, no_disk_writes: None) -> None:
@@ -131,10 +145,10 @@ def test_invalid_source_is_rejected_unless_validation_is_off(dummy_mapping_packa
     assert load_mapping_package_from_bytes(tampered.getvalue(), validate_package=False) is not None
 
 
-def test_bytes_and_path_loaders_agree_on_metadata_and_hash(dummy_mapping_package_v2_archive_path: Path) -> None:
+def test_bytes_and_path_loaders_agree_on_the_whole_model(dummy_mapping_package_v2_archive_path: Path) -> None:
     with ArchiveExtractor().extract_temporary(dummy_mapping_package_v2_archive_path) as folder:
-        from_path = load_mapping_package(folder, include_test_data=True)
+        inner = next(child for child in folder.iterdir() if child.is_dir())
+        from_path = load_mapping_package(inner, include_test_data=True)
     from_bytes = load_mapping_package_from_bytes(dummy_mapping_package_v2_archive_path.read_bytes())
 
-    # file order inside a collection follows the directory listing, so compare the package identity, not the lists
-    assert from_bytes.metadata == from_path.metadata
+    assert_same_package(from_bytes, from_path)

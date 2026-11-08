@@ -1,5 +1,6 @@
 import io
 import zipfile
+import zlib
 from pathlib import Path, PurePosixPath
 
 import pytest
@@ -175,3 +176,51 @@ def test_to_zip_keys_have_no_leading_slash() -> None:
 
     with zipfile.ZipFile(io.BytesIO(root.to_zip())) as archive:
         assert archive.namelist() == ["d/a.txt"]
+
+
+@pytest.mark.parametrize("name", ["pkg/output/../../x.ttl", "../x.ttl", "/abs/x.ttl", "pkg\\..\\x.ttl", "a\\b.txt"])
+def test_from_zip_rejects_unsafe_entry_names(name: str) -> None:
+    with pytest.raises(ValueError, match="Failed to extract ZIP file"):
+        InMemoryPath.from_zip(_zip({"ok.txt": "x", name: "x"}))
+
+
+@pytest.mark.parametrize("path", ["../escape.ttl", "a/../../escape.ttl", "a\\b.ttl"])
+def test_write_bytes_rejects_unsafe_paths(path: str) -> None:
+    root = InMemoryPath.empty()
+
+    with pytest.raises(ValueError, match="Unsafe path"):
+        (root / path).write_bytes(b"x")
+    assert root.to_zip() == InMemoryPath.empty().to_zip()
+
+
+def test_from_zip_rejects_an_archive_above_the_size_cap(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("mapping_suite_sdk.core.adapters.in_memory_path.MAX_UNCOMPRESSED_BYTES", 10)
+
+    with pytest.raises(ValueError, match="Failed to extract ZIP file"):
+        InMemoryPath.from_zip(_zip({"a.txt": "x" * 6, "b.txt": "y" * 6}))
+    assert InMemoryPath.from_zip(_zip({"a.txt": "x" * 5, "b.txt": "y" * 5}))
+
+
+@pytest.mark.parametrize("error", [NotImplementedError, RuntimeError, EOFError, zlib.error, OSError])
+def test_from_zip_turns_read_errors_into_the_bad_archive_error(monkeypatch: pytest.MonkeyPatch, error) -> None:
+    def failing_read(*_args, **_kwargs):
+        raise error("boom")
+
+    monkeypatch.setattr(zipfile.ZipFile, "read", failing_read)
+
+    with pytest.raises(ValueError, match="Failed to extract ZIP file"):
+        InMemoryPath.from_zip(_zip({"a.txt": "x"}))
+
+
+def test_a_base_in_memory_path_has_no_usable_store() -> None:
+    with pytest.raises(AttributeError, match="_files"):
+        InMemoryPath("/x").write_bytes(b"x")
+    with pytest.raises(AttributeError, match="_files"):
+        InMemoryPath("/x").is_file()
+
+
+def test_files_returns_names_relative_to_the_root() -> None:
+    root = InMemoryPath.empty()
+    (root / "d" / "a.txt").write_bytes(b"a")
+
+    assert root.files() == {"d/a.txt": b"a"}

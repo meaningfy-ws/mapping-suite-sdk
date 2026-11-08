@@ -2,14 +2,25 @@
 
 The loaders, the version detector and the serialisers use a small part of the ``Path`` API; this class implements
 exactly that part on a ``dict[str, bytes]`` so a package can be loaded or written without touching the disk.
+
+Loaders and serialisers that run on it must not use ``isinstance(path, Path)``, the builtin ``open``, ``os`` or
+``shutil``, nor ``stat``/``resolve``: none of these are implemented here.
 """
 
 import io
 import zipfile
+import zlib
 from collections.abc import Iterator
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
 from typing import BinaryIO, ClassVar, TextIO
+
+MAX_UNCOMPRESSED_BYTES = 1024**3  # guard against ZIP bombs: the whole archive is held in memory
+
+
+def _is_unsafe(key: str) -> bool:
+    """True if an absolute archive key is not a plain path below the root (``..``, backslash, empty segment)."""
+    return "\\" in key or "//" in key or ".." in key.split("/")
 
 
 class InMemoryPath(PurePosixPath):
@@ -19,7 +30,8 @@ class InMemoryPath(PurePosixPath):
     on Python 3.10-3.13) keep sharing that archive's files.
     """
 
-    _files: ClassVar[dict[str, bytes]] = {}
+    # set per archive by from_zip/empty; the base class has no store, so using it directly fails with AttributeError
+    _files: ClassVar[dict[str, bytes]]
 
     @classmethod
     def from_zip(cls, data: bytes | BinaryIO) -> "InMemoryPath":
@@ -28,17 +40,20 @@ class InMemoryPath(PurePosixPath):
         ``__MACOSX/`` entries are skipped.
 
         Raises:
-            ValueError: If ``data`` is not a ZIP archive.
+            ValueError: If ``data`` is not a readable ZIP archive, an entry name is unsafe (absolute, ``..``,
+                backslash) or the files add up to more than ``MAX_UNCOMPRESSED_BYTES``.
         """
         try:
             with zipfile.ZipFile(io.BytesIO(data) if isinstance(data, bytes) else data) as archive:
-                files = {
-                    "/" + name: archive.read(name)
-                    for name in archive.namelist()
-                    # macOS Finder adds __MACOSX/ metadata next to the package folder
-                    if not name.endswith("/") and not name.startswith("__MACOSX/")
-                }
-        except zipfile.BadZipFile as e:
+                # macOS Finder adds __MACOSX/ metadata next to the package folder
+                infos = [i for i in archive.infolist() if not i.is_dir() and not i.filename.startswith("__MACOSX/")]
+                for info in infos:
+                    if _is_unsafe("/" + info.filename):
+                        raise ValueError(f"Failed to extract ZIP file: unsafe entry name {info.filename!r}")
+                if sum(i.file_size for i in infos) > MAX_UNCOMPRESSED_BYTES:
+                    raise ValueError(f"Failed to extract ZIP file: more than {MAX_UNCOMPRESSED_BYTES} bytes uncompressed")
+                files = {"/" + i.filename: archive.read(i) for i in infos}
+        except (zipfile.BadZipFile, NotImplementedError, RuntimeError, EOFError, zlib.error, OSError) as e:
             raise ValueError(f"Failed to extract ZIP file: {e}") from e
 
         archive_class = type(cls.__name__, (cls,), {"_files": files})
@@ -50,6 +65,10 @@ class InMemoryPath(PurePosixPath):
     def empty(cls) -> "InMemoryPath":
         """Return the root (``/``) of a new, empty archive to write into."""
         return type(cls.__name__, (cls,), {"_files": {}})("/")
+
+    def files(self) -> dict[str, bytes]:
+        """Return a copy of the archive's files, keyed by name relative to the root ``/``."""
+        return {name.lstrip("/"): content for name, content in self._files.items()}
 
     def to_zip(self) -> bytes:
         """Return the archive's files as the bytes of a ZIP."""
@@ -63,6 +82,8 @@ class InMemoryPath(PurePosixPath):
         """Do nothing: folders exist only as the prefix of a file."""
 
     def write_bytes(self, data: bytes) -> int:  # type: ignore[override]
+        if _is_unsafe(str(self)):
+            raise ValueError(f"Unsafe path in package: {str(self)!r}")
         self._files[str(self)] = data
         return len(data)
 

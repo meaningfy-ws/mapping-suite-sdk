@@ -192,6 +192,14 @@ def _detect_version_from_model(mapping_package) -> Version:
     raise VersionDetectionError(f"Cannot auto-detect version from mapping package type: {type(mapping_package)}")
 
 
+def _normalize_target_version(version: str) -> Version:
+    """Normalize a conversion target: only v3 (full) and v3L (lightweight) are allowed."""
+    target = _normalize_version(version)
+    if target not in (Version.V3, Version.V3L):
+        raise UnsupportedVersionError(f"Unsupported target version: {version}; use v3 or v3L")
+    return target
+
+
 @traced_routine
 def convert_mapping_package(mapping_package, to_version: str = "v3"):
     """Convert a loaded mapping package to v3 (full) or v3L (lightweight).
@@ -204,9 +212,7 @@ def convert_mapping_package(mapping_package, to_version: str = "v3"):
         VersionDetectionError: If ``mapping_package`` is not a v1, v2, v3 or v3-lightweight package.
         UnsupportedConversionError: If the source cannot become the target (v3L -> v3).
     """
-    target_version = _normalize_version(to_version)
-    if target_version not in (Version.V3, Version.V3L):
-        raise UnsupportedVersionError(f"Unsupported target version: {to_version}; use v3 or v3L")
+    target_version = _normalize_target_version(to_version)
     source_version = _detect_version_from_model(mapping_package)
     _validate_conversion_path(source_version, target_version)
     if source_version == target_version:

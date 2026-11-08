@@ -64,6 +64,14 @@ class UnsupportedVersionError(ConversionError):
     pass
 
 
+class VersionDetectionError(UnsupportedVersionError):
+    """Raised when package version cannot be detected from path."""
+
+
+class UnsupportedConversionError(UnsupportedVersionError):
+    """Raised when source version cannot be converted to the requested target (e.g. v3L -> v3)."""
+
+
 class InvalidPackagePathError(ConversionError):
     """Raised when package path is invalid."""
 

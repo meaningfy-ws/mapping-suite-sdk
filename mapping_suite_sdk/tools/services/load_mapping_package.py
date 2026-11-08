@@ -22,8 +22,10 @@ from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.tools.services.convert_mapping_package import (
     InvalidPackagePathError,
+    UnsupportedConversionError,
     UnsupportedVersionError,
     Version,
+    VersionDetectionError,
     convert_mapping_package_model,
 )
 
@@ -34,14 +36,6 @@ if TYPE_CHECKING:
     from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 logger = logging.getLogger(__name__)
-
-
-class VersionDetectionError(UnsupportedVersionError):
-    """Raised when package version cannot be detected from path."""
-
-
-class UnsupportedConversionError(UnsupportedVersionError):
-    """Raised when source version cannot be converted to the requested target (e.g. v3L -> v3)."""
 
 
 _VERSION_MAP = {

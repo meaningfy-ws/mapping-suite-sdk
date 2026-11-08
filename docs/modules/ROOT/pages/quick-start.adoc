@@ -92,6 +92,17 @@ package = load_mapping_package(
 )
 ----
 
+==== From ZIP bytes
+
+Load a package from the bytes (or a binary stream) of its ZIP, for example an upload, without touching the disk. The version is detected and the package is converted to v3 (`target_version="v3"`) or v3L (`"v3L"`). A ZIP with the package inside one top-level folder loads like one with the package at its root; `__MACOSX/` entries are ignored.
+
+[source,python]
+----
+from mapping_suite_sdk import load_mapping_package_from_bytes
+
+package = load_mapping_package_from_bytes(zip_bytes, target_version="v3")
+----
+
 ==== Version-specific (example: v2)
 
 [source,python]
@@ -140,3 +151,16 @@ retrieved = load_mapping_package_v2_from_mongo_db(
 === Serialising Mapping Packages
 
 Serialisation is version-specific: use functions such as `serialise_mapping_package_v2_to_folder` for a given version, or run the convert CLI to serialise in-place to v3/v3L.
+
+A v3 package can be exported to ZIP bytes, a ZIP file or a folder:
+
+[source,python]
+----
+from pathlib import Path
+from mapping_suite_sdk import mapping_package_to_zip_bytes, save_mapping_package_v3_to_archive
+
+zip_bytes = mapping_package_to_zip_bytes(package)
+save_mapping_package_v3_to_archive(package, Path("package.zip"))
+----
+
+See xref:serialisation.adoc[Serialisation] for the folder export and the hash behaviour.

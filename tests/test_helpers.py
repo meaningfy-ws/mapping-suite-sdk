@@ -262,3 +262,17 @@ def setup_temporary_test_git_repository(dummy_github_project_path: Path, dummy_g
             repo.create_tag(dummy_github_branch_name)
 
         yield repo_path
+
+
+def _canonical(value):
+    """Reduce a dumped model to plain data in which the order of the items of a list does not matter."""
+    if isinstance(value, dict):
+        return {key: _canonical(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return sorted((_canonical(item) for item in value), key=repr)
+    return value
+
+
+def assert_same_package(actual, expected) -> None:
+    """Assert that two packages are equal as whole models, ignoring file order within a collection."""
+    assert _canonical(actual.model_dump(mode="json")) == _canonical(expected.model_dump(mode="json"))

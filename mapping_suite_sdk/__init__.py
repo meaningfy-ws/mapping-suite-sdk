@@ -26,6 +26,11 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata imp
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import (  # noqa: E402
     MappingPackageV3MetadataJSONLD,
 )
+from mapping_suite_sdk.mapping_package_v3.services.serialise_mapping_package_v3 import (  # noqa: E402
+    mapping_package_to_zip_bytes,
+    save_mapping_package_v3_to_archive,
+    save_mapping_package_v3_to_folder,
+)
 from mapping_suite_sdk.mapping_suite.services.load_mapping_suite import load_mapping_suite_from_folder  # noqa: E402
 from mapping_suite_sdk.tools.services.convert_mapping_package import (  # noqa: E402
     ConversionError,
@@ -35,7 +40,10 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (  # noqa: 
     VersionDetectionError,
     convert_mapping_package,
 )
-from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package  # noqa: E402
+from mapping_suite_sdk.tools.services.load_mapping_package import (  # noqa: E402
+    load_mapping_package,
+    load_mapping_package_from_bytes,
+)
 from mapping_suite_sdk.tools.services.save_mapping_package import save_mapping_package_to_mongodb  # noqa: E402
 from mapping_suite_sdk.tools.services.validate_mapping_package import (  # noqa: E402
     CrossVersionValidationError,
@@ -47,6 +55,10 @@ __all__ = [
     "mssdk_config",
     "MSSDKConfigResolver",
     "load_mapping_package",
+    "load_mapping_package_from_bytes",
+    "mapping_package_to_zip_bytes",
+    "save_mapping_package_v3_to_folder",
+    "save_mapping_package_v3_to_archive",
     "validate_mapping_package",
     "convert_mapping_package",
     "detect_mapping_package_version",

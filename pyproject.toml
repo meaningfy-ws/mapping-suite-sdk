@@ -2,7 +2,7 @@
 # configured in its own root file: ruff.toml · mypy.ini · pytest.ini · .coveragerc · .importlinter
 [project]
 name = "mapping-suite-sdk"
-version = "2.0.0"
+version = "2.1.0"
 description = "Software development kit for XML-RML mapping rules packaging"
 authors = [
     { name = "meaningfy.ws", email = "hi@meaningfy.ws" }

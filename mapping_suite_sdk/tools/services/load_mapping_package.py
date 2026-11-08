@@ -15,7 +15,9 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import BinaryIO, cast
 
+from mapping_suite_sdk.core.adapters.in_memory_path import InMemoryPath
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.tools.services.convert_mapping_package import (
@@ -23,6 +25,7 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
     UnsupportedVersionError,
     Version,
     VersionDetectionError,
+    _normalize_target_version,
     _normalize_version,
     _validate_conversion_path,
     convert_mapping_package,
@@ -128,6 +131,31 @@ def _validate_if_requested(
         )
 
 
+def _convert_and_validate(
+    source_package,
+    target_version: Version,
+    *,
+    include_output: bool,
+    validate_package: bool,
+):
+    """Convert a loaded source package to ``target_version`` and validate the result; shared by both loaders.
+
+    The caller validates the source: the folder (path loader) or the loaded model (bytes loader, whose root is
+    not a filesystem path).
+    """
+    include_test_data = target_version == Version.V3
+    converted = convert_mapping_package(source_package, target_version)
+
+    _validate_if_requested(
+        converted,
+        validate_package,
+        include_test_data=include_test_data,
+        include_output=include_output,
+    )
+
+    return converted
+
+
 @traced_routine
 def load_mapping_package(
     package_folder_path: Path,
@@ -172,26 +200,55 @@ def load_mapping_package(
 
     source_version = _resolve_version(version, package_folder_path)
     target_version = Version.V3 if include_test_data else Version.V3L
-
     _validate_conversion_path(source_version, target_version)
     _validate_if_requested(
-        package_folder_path,
-        validate_package,
-        include_test_data=include_test_data,
-        include_output=include_output,
+        package_folder_path, validate_package, include_test_data=include_test_data, include_output=include_output
     )
-
     source_package = _load_source_package(
         source_version, package_folder_path, include_test_data=include_test_data, include_output=include_output
     )
-
-    converted = convert_mapping_package(source_package, target_version)
-
-    _validate_if_requested(
-        converted,
-        validate_package,
-        include_test_data=include_test_data,
-        include_output=include_output,
+    return _convert_and_validate(
+        source_package, target_version, include_output=include_output, validate_package=validate_package
     )
 
-    return converted
+
+@traced_routine
+def load_mapping_package_from_bytes(
+    data: bytes | BinaryIO,
+    *,
+    target_version: str = "v3",
+    include_output: bool = False,
+    validate_package: bool = True,
+):
+    """
+    Load a mapping package from the bytes (or a binary stream) of its ZIP, without touching the disk.
+
+    The version is detected from the archive. The package is converted to ``target_version`` ("v3" loads the
+    test data, "v3L" does not) and validated: the loaded source model before conversion, the result after it.
+    If the ZIP holds the package inside one top-level folder, that folder is the package root.
+
+    Args:
+        data: The package ZIP, as bytes or a binary stream.
+        target_version: "v3" (full package) or "v3L" (lightweight). Defaults to "v3".
+        include_output: If True, load output/results artefacts from the package. Defaults to False.
+        validate_package: If True, validate the source package and the result. Defaults to True.
+
+    Returns:
+        The loaded and converted package as MappingPackageV3 or MappingPackageV3Lightweight.
+
+    Raises:
+        ValueError: If ``data`` is not a ZIP archive.
+        VersionDetectionError: If the version could not be detected.
+        UnsupportedVersionError: If ``target_version`` is not "v3" or "v3L" (or the source is unsupported).
+        UnsupportedConversionError: If the source cannot be converted to the target.
+    """
+    target = _normalize_target_version(target_version)
+
+    root = cast(Path, InMemoryPath.from_zip(data))  # implements the Path API the loaders use; not a Path subclass
+    source_version = _resolve_version(None, root)
+    _validate_conversion_path(source_version, target)
+    source_package = _load_source_package(
+        source_version, root, include_test_data=target == Version.V3, include_output=include_output
+    )
+    _validate_if_requested(source_package, validate_package)
+    return _convert_and_validate(source_package, target, include_output=include_output, validate_package=validate_package)

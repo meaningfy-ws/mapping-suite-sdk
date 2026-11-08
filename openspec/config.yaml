@@ -9,8 +9,12 @@ context: |
   mapping packages (XML→RDF transformation rules: RML, conceptual mapping, vocabulary mappings,
   test data, SPARQL and SHACL suites).
   Archetype: library, published to PyPI as `mapping-suite-sdk`.
-  Consumers: TED-SWS (Airflow pipeline, uses MongoDB persistence) and Mapping Workbench 2
-  (web app; uses MSSDK in-process for import/export of v3 packages).
+  Install: the core (load, convert, validate, hash, serialise) needs pydantic only; extras
+  mongodb, github, tracing, cli, all (2.0.0, modular-core). Public API = root exports
+  (`mapping_suite_sdk.__all__`) + every `*.models` package; saving is
+  `save_mapping_package_to_mongodb`; the library never configures logging.
+  Consumers: TED-SWS (Airflow pipeline, uses MongoDB persistence; pinned `~=1.0.0`) and Mapping
+  Workbench 2 (web app; uses MSSDK in-process for import/export of v3 packages).
   Layout: one top-level package mapping_suite_sdk/ (no /src), split per package format:
   core/ (shared models, adapters: extractor, loader, serialiser, repository, tracer, version
   detection), mapping_package_v1/, mapping_package_v2/, mapping_package_v3/ (incl. lightweight),
@@ -20,7 +24,8 @@ context: |
   `make generate-models` (templates in resources/templates/); CI fails if they are out of sync.
   Layers enforced by .importlinter (`make check-architecture`).
   Tooling: Poetry (>=2.2, PEP 735 groups test/lint/model); one gate `make check-all` = Ruff,
-  mypy baseline, import-linter, codegen sync, pytest + coverage >=80%; each tool in its own root
+  mypy baseline, import-linter, codegen sync, pytest + coverage >=80%, and a core-only check (the
+  wheel without extras runs tests/core_only); each tool in its own root
   config file. CI (ci.yaml) runs it on Python 3.10-3.13; Codecov in CI; SonarQube Cloud free plan
   via Automatic Analysis (no CI step). Python >=3.10,<3.14.
   Docs: Antora in docs/ (`make build-docs`). Default/integration branch: develop.

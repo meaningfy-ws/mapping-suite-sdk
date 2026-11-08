@@ -17,35 +17,17 @@ class MappingPackageV3Metadata(PydanticModel):
     """
 
     id: str = Field(default=..., description="""Unique identifier of the package""")
-    title: str = Field(
-        default=..., description="""Human-readable name of the package"""
-    )
-    project_identifier: str = Field(
-        default=...,
-        description="""Name or identifier of the data transformation project""",
-    )
-    created_at: datetime = Field(
-        default=...,
-        description="""Timestamp of when the package/metadata was created""",
-    )
-    mapping_version: str = Field(
-        default=...,
-        description="""Version of the transformation rules in the package""",
-    )
-    model_version: str = Field(
-        default=..., description="""Version of the ontology this mapping aligns with"""
-    )
-    description: Optional[str] = Field(
-        default=None,
-        description="""A brief summary of what the package represents or maps.""",
-    )
+    title: str = Field(default=..., description="""Human-readable name of the package""")
+    project_identifier: str = Field(default=..., description="""Name or identifier of the data transformation project""")
+    created_at: datetime = Field(default=..., description="""Timestamp of when the package/metadata was created""")
+    mapping_version: str = Field(default=..., description="""Version of the transformation rules in the package""")
+    model_version: str = Field(default=..., description="""Version of the ontology this mapping aligns with""")
+    description: Optional[str] = Field(default=None, description="""A brief summary of what the package represents or maps.""")
     applicability_constraints: Optional[ApplicabilityConstraints] = Field(
-        default=None,
-        description="""Applicability constraints for when and where mapping rules of the package are valid""",
+        default=None, description="""Applicability constraints for when and where mapping rules of the package are valid"""
     )
     mapping_suite_hash_digest: str = Field(
-        default=...,
-        description="""Cryptographic hash of the mapping package for integrity verification""",
+        default=..., description="""Cryptographic hash of the mapping package for integrity verification"""
     )
     input_mime_types: Optional[list[str]] = Field(
         default=None,
@@ -66,19 +48,15 @@ class ApplicabilityConstraints(PydanticModel):
     Container for constraint types
     """
 
-    document_type_list: list[str] = Field(
-        default=..., description="""List of applicable document type identifiers"""
-    )
+    document_type_list: list[str] = Field(default=..., description="""List of applicable document type identifiers""")
     document_time_interval: Optional[DateTimeInterval] = Field(
-        default=None,
-        description="""Interval of starting and ending document datetime""",
+        default=None, description="""Interval of starting and ending document datetime"""
     )
     document_schema_version_list: Optional[list[str]] = Field(
         default=None, description="""List of supported document schema versions"""
     )
     document_version_range: Optional[VersionRange] = Field(
-        default=None,
-        description="""Range of (minimum and maximum) supported document versions""",
+        default=None, description="""Range of (minimum and maximum) supported document versions"""
     )
 
 
@@ -87,12 +65,8 @@ class VersionRange(PydanticModel):
     Container for minimum and maximum version values
     """
 
-    min: Optional[str] = Field(
-        default=None, description="""Minimum supported document version"""
-    )
-    max: Optional[str] = Field(
-        default=None, description="""Maximum supported document version"""
-    )
+    min: Optional[str] = Field(default=None, description="""Minimum supported document version""")
+    max: Optional[str] = Field(default=None, description="""Maximum supported document version""")
 
 
 class DateTimeInterval(PydanticModel):
@@ -100,12 +74,8 @@ class DateTimeInterval(PydanticModel):
     Container for starting and ending datetime values
     """
 
-    start: Optional[datetime] = Field(
-        default=None, description="""Earliest applicable datetime for the mapping"""
-    )
-    end: Optional[datetime] = Field(
-        default=None, description="""Latest applicable datetime for the mapping"""
-    )
+    start: Optional[datetime] = Field(default=None, description="""Earliest applicable datetime for the mapping""")
+    end: Optional[datetime] = Field(default=None, description="""Latest applicable datetime for the mapping""")
 
 
 # Model rebuild

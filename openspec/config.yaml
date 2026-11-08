@@ -20,7 +20,7 @@ context: |
   `make generate-models` (templates in resources/templates/); CI fails if they are out of sync.
   Layers enforced by .importlinter (`make check-architecture`).
   Tooling today (pre-modernisation): Poetry, tox, pylint, radon/xenon, pytest under tests/unit,
-  SonarCloud in CI. Python >=3.10,<3.13.
+  Codecov in CI; SonarQube Cloud free plan via Automatic Analysis (no CI step). Python >=3.10,<3.13.
   Docs: Antora in docs/ (`make build-docs`). Default/integration branch: develop.
   Commits: Conventional Commits (imperative, no trailing punctuation).
   Artifact vocabulary: EPIC ≡ proposal.md (Shape-Up work shape);

@@ -9,7 +9,9 @@ The Mapping Suite SDK provides two primary extractors for handling mapping packa
 - `ArchiveExtractor`: For working with ZIP archives
 - `GitHubExtractor`: For extracting packages from GitHub repositories
 
-Import from `mapping_suite_sdk.core.adapters.extractor`.
+`ArchiveExtractor` is in `mapping_suite_sdk.core.adapters.extractor`. `GitHubExtractor` is in
+`mapping_suite_sdk.core.adapters.github_extractor` and needs the `github` extra:
+`pip install "mapping-suite-sdk[github]"`.
 
 == Archive Extractor
 

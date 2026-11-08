@@ -8,12 +8,15 @@ The Mapping Suite SDK provides a command-line interface (CLI) that allows users 
 
 == Installation
 
-The CLI is automatically installed with the Mapping Suite SDK package:
+The CLI comes with the `cli` extra:
 
 [source,bash]
 ----
-pip install mapping-suite-sdk
+pip install "mapping-suite-sdk[cli]"
 ----
+
+Without it, `mssdk` exits with a one-line message naming the extra. The command configures logging
+(INFO, or DEBUG with `--verbose`); importing the library does not.
 
 After installation, you can access the CLI using the `mssdk` command.
 

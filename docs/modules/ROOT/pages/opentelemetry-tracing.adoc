@@ -6,6 +6,10 @@
 
 The Mapping Suite SDK provides built-in OpenTelemetry tracing support, allowing you to monitor and debug your mapping package operations with minimal configuration.
 
+Tracing needs the `tracing` extra: `pip install "mapping-suite-sdk[tracing]"`. Without it the
+traced operations run unchanged and produce no spans, even with `MSSDK_TRACE=true`;
+`add_span_processor_to_mssdk_tracer_provider` raises an `ImportError` naming the extra.
+
 == Tracing Fundamentals
 
 === Enabling Tracing

@@ -6,6 +6,26 @@
 
 The Mapping Suite SDK provides robust MongoDB integration through the `MongoDBRepository` class, enabling seamless storage, retrieval, and management of mapping packages in a MongoDB database.
 
+MongoDB support needs the `mongodb` extra: `pip install "mapping-suite-sdk[mongodb]"`.
+
+== Saving a Loaded Package
+
+`load_mapping_package` only loads. Save its result with `save_mapping_package_to_mongodb`, which
+upserts the v3 or v3-lightweight package by its id (saving again updates the stored document):
+
+[source,python]
+----
+from pathlib import Path
+from pymongo import MongoClient
+from mapping_suite_sdk import load_mapping_package, save_mapping_package_to_mongodb
+
+package = load_mapping_package(Path("/path/to/package"))
+save_mapping_package_to_mongodb(package, MongoClient("mongodb://localhost:27017/"), "mapping_suites")
+----
+
+NOTE: 1.x accepted `persist_to_mongodb=True, mongo_client=..., database_name=...` on
+`load_mapping_package`. 2.0 removed those parameters; use the call above.
+
 == Key Features
 
 - Create, read, update, and delete mapping packages

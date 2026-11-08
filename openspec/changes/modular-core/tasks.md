@@ -16,7 +16,7 @@
 
 - [x] 3.1 Run the one-off golden-capture script and commit `tests/test_data/mongodb_golden/{v3,v3L}.json` (P-13)
 - [x] 3.2 Add `save_mapping_package_to_mongodb` (P-7) with tests for "Same document as 1.x" (against the golden files) and "Saving twice updates in place"
-- [ ] 3.3 Remove `persist_to_mongodb`, `mongo_client`, `database_name`, `collection_name`, `_persist_to_mongodb`, `_persist_if_requested` from `load_mapping_package`; test "Old parameter rejected"; update callers and tests (DEC-1)
+- [x] 3.3 Remove `persist_to_mongodb`, `mongo_client`, `database_name`, `collection_name`, `_persist_to_mongodb`, `_persist_if_requested` from `load_mapping_package`; test "Old parameter rejected"; update callers and tests (DEC-1)
 
 ## 4. Public API, extras, gate
 
@@ -40,7 +40,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
+- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
 
 ## Verification
 

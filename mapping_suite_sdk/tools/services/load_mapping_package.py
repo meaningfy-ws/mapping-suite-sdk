@@ -6,7 +6,6 @@ This service provides a single, version-agnostic entry point that:
 - Routes to the appropriate version-specific loader
 - Converts to v3 (full) or v3L (lightweight) based on include_test_data
 - Optionally validates before and after conversion (hash is only updated by conversion)
-- Optionally persists the result to MongoDB
 
 Consumers (e.g. TEDSWS pipeline) can load mapping packages without
 version-specific imports. Version-specific concerns stay encapsulated in the SDK.
@@ -30,10 +29,7 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
 )
 
 if TYPE_CHECKING:
-    from pymongo import MongoClient
-
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -110,41 +106,6 @@ def _load_source_package(
     raise UnsupportedVersionError(f"Unsupported source version: {version}")
 
 
-def _persist_to_mongodb(
-    mapping_package: MappingPackageV3 | MappingPackageV3Lightweight,
-    mongo_client: MongoClient,
-    database_name: str,
-    collection_name: str,
-):
-    """Persist the package to MongoDB using the appropriate version-specific saver."""
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import (
-        MappingPackageV3Lightweight,
-    )
-    from mapping_suite_sdk.mapping_package_v3.services.save_mapping_package_v3 import (
-        save_mapping_package_v3_to_mongo_db,
-    )
-    from mapping_suite_sdk.mapping_package_v3.services.save_mapping_package_v3_lightweight import (
-        save_mapping_package_v3_lightweight_to_mongo_db,
-    )
-
-    if isinstance(mapping_package, MappingPackageV3):
-        return save_mapping_package_v3_to_mongo_db(
-            mapping_package=mapping_package,
-            mongo_client=mongo_client,
-            database_name=database_name,
-            collection_name=collection_name,
-        )
-    if isinstance(mapping_package, MappingPackageV3Lightweight):
-        return save_mapping_package_v3_lightweight_to_mongo_db(
-            mapping_package=mapping_package,
-            mongo_client=mongo_client,
-            database_name=database_name,
-            collection_name=collection_name,
-        )
-    raise UnsupportedConversionError(f"Cannot persist to MongoDB: unsupported package type {type(mapping_package)}")
-
-
 def _validate_package_path(package_folder_path: Path) -> None:
     """Validate that the package path exists and is a directory."""
     if not package_folder_path.exists():
@@ -191,23 +152,6 @@ def _validate_if_requested(
         )
 
 
-def _persist_if_requested(
-    mapping_package,
-    persist_to_mongodb: bool,
-    mongo_client: MongoClient | None,
-    database_name: str | None,
-    collection_name: str,
-):
-    """Persist package to MongoDB if requested."""
-    if not persist_to_mongodb:
-        return mapping_package
-
-    if mongo_client is None or database_name is None:
-        raise ValueError("persist_to_mongodb requires mongo_client and database_name")
-
-    return _persist_to_mongodb(mapping_package, mongo_client, database_name, collection_name)
-
-
 @traced_routine
 def load_mapping_package(
     package_folder_path: Path,
@@ -216,13 +160,11 @@ def load_mapping_package(
     include_test_data: bool = False,
     include_output: bool = False,
     validate_package: bool = True,
-    persist_to_mongodb: bool = False,
-    mongo_client: MongoClient | None = None,
-    database_name: str | None = None,
-    collection_name: str = "mapping_package",
 ):
     """
-    Load a mapping package from a folder with optional autoconversion and persistence.
+    Load a mapping package from a folder with optional autoconversion.
+
+    It never writes to a store; save the result with ``save_mapping_package_to_mongodb``.
 
     Version is auto-detected when not provided. The package is converted to v3 (full)
     when include_test_data is True, or to v3L (lightweight) when False. Hash is updated
@@ -238,11 +180,6 @@ def load_mapping_package(
         validate_package: If True, validate the source package before conversion and the
             result after conversion. Validation before conversion fails on invalid hash (no update).
             Defaults to True.
-        persist_to_mongodb: If True, persist the resulting package to MongoDB. Requires
-            mongo_client and database_name.
-        mongo_client: MongoDB client (required when persist_to_mongodb is True).
-        database_name: MongoDB database name (required when persist_to_mongodb is True).
-        collection_name: MongoDB collection name; default "mapping_package".
 
     Returns:
         The loaded (and optionally converted) package as MappingPackageV3 or
@@ -285,4 +222,4 @@ def load_mapping_package(
         include_output=include_output,
     )
 
-    return _persist_if_requested(converted, persist_to_mongodb, mongo_client, database_name, collection_name)
+    return converted

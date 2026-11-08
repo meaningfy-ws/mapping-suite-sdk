@@ -12,7 +12,9 @@ context: |
   Install: the core (load, convert, validate, hash, serialise) needs pydantic only; extras
   mongodb, github, tracing, cli, all (2.0.0, modular-core). Public API = root exports
   (`mapping_suite_sdk.__all__`) + every `*.models` package; saving is
-  `save_mapping_package_to_mongodb`; the library never configures logging.
+  `save_mapping_package_to_mongodb`; the library never configures logging. In-memory I/O
+  (2.1.0, in-memory-package-io): `load_mapping_package_from_bytes` and v3 export to ZIP bytes,
+  archive or folder, through `core/adapters/in_memory_path.py` (InMemoryPath).
   Consumers: TED-SWS (Airflow pipeline, uses MongoDB persistence; pinned `~=1.0.0`) and Mapping
   Workbench 2 (web app; uses MSSDK in-process for import/export of v3 packages).
   Layout: one top-level package mapping_suite_sdk/ (no /src), split per package format:

@@ -3,7 +3,7 @@
 
 ## 1. Guard helper
 
-- [ ] 1.1 Add `core/adapters/optional_dependency.py` with `require()` (P-1) and a unit test for both paths (module present; missing module → message names feature and extra)
+- [x] 1.1 Add `core/adapters/optional_dependency.py` with `require()` (P-1) and a unit test for both paths (module present; missing module → message names feature and extra)
 
 ## 2. Integration boundaries (existing suite green after each)
 
@@ -40,7 +40,7 @@
 
 ## Roadmap
 
-- [ ] 1.1 · [ ] 2.1 · [ ] 2.2 · [ ] 2.3 · [ ] 2.4 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
+- [x] 1.1 · [ ] 2.1 · [ ] 2.2 · [ ] 2.3 · [ ] 2.4 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
 
 ## Verification
 

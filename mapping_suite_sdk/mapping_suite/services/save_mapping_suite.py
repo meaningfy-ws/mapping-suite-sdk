@@ -7,6 +7,7 @@ to a MongoDB database using the MongoDBRepository pattern.
 
 import logging
 
+from mapping_suite_sdk.core.adapters.optional_dependency import require
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 
@@ -39,6 +40,7 @@ def save_mapping_suite_to_mongo_db(
         ValueError: If mapping suite or repository is missing/None.
         Exception: If database access fails (propagated from repository).
     """
+    require("pymongo", "mongodb", "MongoDB")
     if not mapping_suite:
         raise ValueError("Mapping suite must be provided")
 

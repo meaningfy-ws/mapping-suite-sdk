@@ -4,13 +4,17 @@ Adapter for saving MappingPackageV2 to MongoDB.
 This adapter saves v2 mapping package models to MongoDB.
 """
 
-import logging
+from __future__ import annotations
 
-from pymongo import MongoClient
+import logging
+from typing import TYPE_CHECKING
 
 from mapping_suite_sdk.core.adapters.package_repository import PackageRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+
+if TYPE_CHECKING:
+    from pymongo import MongoClient
 
 logger = logging.getLogger(__name__)
 

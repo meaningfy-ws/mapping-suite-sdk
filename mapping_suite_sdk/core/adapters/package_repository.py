@@ -5,13 +5,16 @@ This module provides PackageRepository, which extends MongoDBRepository
 with package-specific convenience methods.
 """
 
-from typing import TypeVar
+from __future__ import annotations
 
-from pymongo import MongoClient
+from typing import TYPE_CHECKING, TypeVar
 
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
+
+if TYPE_CHECKING:
+    from pymongo import MongoClient
 
 T = TypeVar("T", bound=PydanticModel)
 

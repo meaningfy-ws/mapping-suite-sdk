@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
-from pymongo import MongoClient
-
+from mapping_suite_sdk.core.adapters.optional_dependency import require
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
+
+if TYPE_CHECKING:
+    from pymongo import MongoClient
 
 T = TypeVar("T", bound=PydanticModel)
 
@@ -48,6 +52,7 @@ class MongoDBRepository(RepositoryABC[T]):
     def __init__(
         self, model_class: type[T], mongo_client: MongoClient, database_name: str, collection_name: str | None = None
     ):
+        require("pymongo", "mongodb", "MongoDB")
         self.model_class = model_class
         self.client = mongo_client
         self.database = self.client[database_name]

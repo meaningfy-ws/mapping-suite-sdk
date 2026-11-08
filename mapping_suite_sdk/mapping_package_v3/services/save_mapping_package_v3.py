@@ -5,15 +5,20 @@ This module provides a service to persist MappingPackageV3 models
 to a MongoDB database using the MappingPackageV3Saver adapter.
 """
 
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
-from pymongo import MongoClient
-
+from mapping_suite_sdk.core.adapters.optional_dependency import require
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_saver import MappingPackageV3Saver
 
 # Import from __init__ to ensure id property is patched
 from mapping_suite_sdk.mapping_package_v3.models import MappingPackageV3
+
+if TYPE_CHECKING:
+    from pymongo import MongoClient
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +51,7 @@ def save_mapping_package_v3_to_mongo_db(
         ValueError: If MongoDB client is not provided.
         Exception: If database access fails (propagated from repository).
     """
+    require("pymongo", "mongodb", "MongoDB")
     package_saver = package_saver or MappingPackageV3Saver()
 
     return package_saver.save(

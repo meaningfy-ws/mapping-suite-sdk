@@ -18,8 +18,6 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pymongo import MongoClient
-
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.tools.services.convert_mapping_package import (
@@ -30,6 +28,8 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
 )
 
 if TYPE_CHECKING:
+    from pymongo import MongoClient
+
     from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
     from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 

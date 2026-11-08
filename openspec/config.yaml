@@ -1,0 +1,38 @@
+schema: meaningfy
+
+# Project context — injected (wrapped in <context>) into every artifact's instructions.
+# This is OpenSpec's native project-context sink. The durable truth is openspec/specs/;
+# this string is the orientation index. Do NOT hand-curate a parallel MEMORY.md.
+context: |
+  Repo: Mapping Suite SDK (mapping-suite-sdk, "MSSDK").
+  Purpose: a library + `mssdk` CLI that loads, validates, converts, hashes, serialises and persists
+  mapping packages (XML→RDF transformation rules: RML, conceptual mapping, vocabulary mappings,
+  test data, SPARQL and SHACL suites).
+  Archetype: library, published to PyPI as `mapping-suite-sdk`.
+  Consumers: TED-SWS (Airflow pipeline, uses MongoDB persistence) and Mapping Workbench 2
+  (web app; uses MSSDK in-process for import/export of v3 packages).
+  Layout: one top-level package mapping_suite_sdk/ (no /src), split per package format:
+  core/ (shared models, adapters: extractor, loader, serialiser, repository, tracer, version
+  detection), mapping_package_v1/, mapping_package_v2/, mapping_package_v3/ (incl. lightweight),
+  mapping_suite/ — each with models/ adapters/ services/; tools/services (version-agnostic load,
+  convert vN→v3, validate) and tools/entrypoints/cli (`mssdk`, typer).
+  v3 and mapping_suite models are generated from LinkML in resources/schema/ via
+  `make generate-models` (templates in resources/templates/); CI fails if they are out of sync.
+  Layers enforced by .importlinter (`make check-architecture`).
+  Tooling today (pre-modernisation): Poetry, tox, pylint, radon/xenon, pytest under tests/unit,
+  SonarCloud in CI. Python >=3.10,<3.13.
+  Docs: Antora in docs/ (`make build-docs`). Default/integration branch: develop.
+  Commits: Conventional Commits (imperative, no trailing punctuation).
+  Artifact vocabulary: EPIC ≡ proposal.md (Shape-Up work shape);
+  PLAN ≡ design.md + tasks.md (clarity gate scores the pair ≥9/10);
+  normative requirements ≡ specs/ deltas (RFC-2119 SHALL + Given/When/Then, no EARS).
+
+# Per-artifact rules — THIN by design. Additive to the schema's built-in instructions.
+rules:
+  proposal:
+    - The EPIC MUST state an Appetite and a No-gos section (an EPIC without no-gos is unshaped).
+    - The EPIC MUST cite the GitHub issue(s) it addresses (e.g. "Closes #93").
+  specs:
+    - Use RFC-2119 SHALL/MUST; every requirement MUST have at least one #### Scenario (WHEN/THEN). No EARS.
+  tasks:
+    - The PLAN MUST cite its parent EPIC id on the first line (golden thread — cite your parent).

@@ -178,8 +178,7 @@ package.json
 package-lock.json
 /yes
 /yes.pub
-/.claude/
-/CLAUDE.md
+/.claude/settings.local.json
 /active_work_shape.md
 /temp/
 /tmp/

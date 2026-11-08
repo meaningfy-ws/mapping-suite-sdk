@@ -82,7 +82,7 @@ Divergence). Commit only on explicit developer consent.
   never stage or commit. Read-only agents (reviewers, Explore) may run in parallel freely. Use a
   separate worktree (`isolation: "worktree"`) only for overlapping parallel work or when another
   session holds this checkout.
-- **Run checks through make** (`make test-unit`, `make all-quality-checks`; `make check-all` once `modernise-tooling` lands); don't hand-roll pytest pipelines.
+- **Run checks through make** (`make check-all`, or one of its targets); don't hand-roll pytest pipelines.
 - **Temporary files** go in `temp/` (git-ignored), not `/tmp` or the session scratchpad.
 - **Branches:** `develop` is the default and integration branch (the PR target). Branch off it
   (`feature/…`, `fix/…`, `chore/…`); never commit to it directly. Releases are `X.Y.Z` tags
@@ -113,11 +113,11 @@ create parallel epic/plan files under `.claude/` or `docs/superpowers/`.
 - **Consumers:** TED-SWS (Airflow pipeline) and Mapping Workbench 2 (in-process import/export).
   Public API changes are breaking for them — call them out in the EPIC.
 - **Deployable?** no — released as a Python package.
-- **Make targets:** `make install`, `make test-unit` (regenerates models, runs tox → pytest +
-  coverage ≥80%), `make lint` (pylint), `make check-architecture` (import-linter),
-  `make check-clean-code` (radon/xenon), `make all-quality-checks`, `make generate-models`,
-  `make build-docs`. Tooling is pre-modernisation; the `modernise-tooling` change aligns it
-  (Ruff, mypy, `make check-all`).
+- **Make targets:** `make install` (all dependency groups, never re-locks), `make check-all` (the
+  gate CI runs on Python 3.10–3.13) = `make lint` (Ruff lint + format check) + `make typecheck`
+  (mypy baseline) + `make check-architecture` (import-linter) + `make check-codegen` (generated
+  models in sync) + `make test` (pytest, coverage ≥80%; `test-unit` is an alias); `make format`,
+  `make generate-models`, `make build-docs`.
 - **Commit messages give the why and the what.** Subject: Conventional Commit, imperative, no
   trailing period. Body: **Why** first, then **What** (one bullet per concern), then **Trace**
   (`Refs: <change-id>`, `Closes #<issue>`).

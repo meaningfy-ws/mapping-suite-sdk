@@ -152,3 +152,13 @@ def test_bytes_and_path_loaders_agree_on_the_whole_model(dummy_mapping_package_v
     from_bytes = load_mapping_package_from_bytes(dummy_mapping_package_v2_archive_path.read_bytes())
 
     assert_same_package(from_bytes, from_path)
+
+
+def test_unsafe_entry_name_is_rejected_by_the_public_loader() -> None:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("pkg/metadata.json", "{}")
+        archive.writestr("pkg/output/../../escape.ttl", "x")
+
+    with pytest.raises(ValueError, match="unsafe entry name"):
+        load_mapping_package_from_bytes(buffer.getvalue())

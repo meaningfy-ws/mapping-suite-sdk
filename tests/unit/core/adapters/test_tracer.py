@@ -222,3 +222,20 @@ def test_traced_class_with_tracing_disabled():
     # Verify no span was created
     spans = memory_exporter.get_finished_spans()
     assert len(spans) == 0
+
+
+def test_decorators_are_no_ops_without_opentelemetry(monkeypatch):
+    from mapping_suite_sdk.core.adapters import tracer
+
+    monkeypatch.setattr(tracer, "trace", None)
+
+    def func():
+        return 1
+
+    class Traced:
+        def method(self):
+            return 2
+
+    assert tracer.traced_routine(func) is func
+    assert tracer.traced_class(Traced) is Traced
+    assert Traced.__dict__["method"].__name__ == "method"

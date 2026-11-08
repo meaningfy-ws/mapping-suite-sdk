@@ -19,7 +19,7 @@ try:
     from opentelemetry import trace
     from opentelemetry.sdk.resources import SERVICE_NAME, Resource
     from opentelemetry.sdk.trace import TracerProvider
-except ImportError:  # the [tracing] extra is not installed: the decorators become no-ops
+except ImportError:  # pragma: no cover - runs in tests/core_only; without [tracing] the decorators are no-ops
     trace = None
 
 # Environment variable to control tracing state

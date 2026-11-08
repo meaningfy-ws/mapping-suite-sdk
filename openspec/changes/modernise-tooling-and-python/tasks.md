@@ -25,7 +25,7 @@
 
 ## 5. CI
 
-- [ ] 5.1 `.github/workflows/ci.yaml`: triggers per P-10; matrix 3.10–3.13 → `make install && make check-all`; wheel-install step per P-8 on every matrix job; Codecov upload on 3.12 only, no Sonar step (DEC-7); delete `code-quality.yaml` and `push-badges-update.yaml` (developer-tooling: CI runs the same gate; package-distribution: Install on Python 3.13 / 3.10)
+- [x] 5.1 `.github/workflows/ci.yaml`: triggers per P-10; matrix 3.10–3.13 → `make install && make check-all`; wheel-install step per P-8 on every matrix job; Codecov upload on 3.12 only, no Sonar step (DEC-7); delete `code-quality.yaml` and `push-badges-update.yaml` (developer-tooling: CI runs the same gate; package-distribution: Install on Python 3.13 / 3.10)
 - [ ] 5.2 One-off: on 3.13, `uv pip compile` a requirements file naming `mapping-suite-sdk` (this branch) and `rdf-persistence @ git+https://github.com/meaningfy-ws/rdf-persistence.git@develop`; paste the result in the PR (package-distribution: Resolves next to rdf-persistence)
 - [ ] 5.3 Update `develop` required status checks to the new job names (P-9)
 
@@ -35,7 +35,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [x] 1.2 · [x] 2.1 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [x] 4.3 · [x] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
+- [x] 1.1 · [x] 1.2 · [x] 2.1 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [x] 4.3 · [x] 4.4 · [x] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
 
 ## Verification
 

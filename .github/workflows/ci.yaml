@@ -1,0 +1,51 @@
+name: ci
+
+# One gate, every supported Python (developer-tooling spec). No paths filter: a gate that
+# skips docs-only PRs cannot be a required check (P-10).
+on:
+  pull_request:
+  push:
+    branches: [ develop ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check-all:
+    name: check-all (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          make install-poetry
+          poetry env use python
+          poetry check --lock
+          make install
+      - name: Gate (lint, types, architecture, codegen sync, tests + coverage)
+        run: make check-all
+      # Proves the package-distribution install scenarios: the built wheel, installed by pip
+      # into a fresh venv, imports on this Python (P-8).
+      - name: Install the wheel into a fresh venv
+        run: |
+          poetry build --format wheel
+          python -m venv "$RUNNER_TEMP/wheel-venv"
+          "$RUNNER_TEMP/wheel-venv/bin/pip" install dist/*.whl
+          "$RUNNER_TEMP/wheel-venv/bin/python" -c "import mapping_suite_sdk"
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml

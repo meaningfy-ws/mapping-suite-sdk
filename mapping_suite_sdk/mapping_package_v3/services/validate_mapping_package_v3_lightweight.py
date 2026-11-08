@@ -5,7 +5,7 @@ from typing import Literal, NoReturn
 
 from pydantic import ValidationError
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_routine

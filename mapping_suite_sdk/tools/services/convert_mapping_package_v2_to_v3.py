@@ -8,7 +8,7 @@ including conversion of metadata structures, constraints, and all package assets
 import logging
 from pathlib import Path
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import (

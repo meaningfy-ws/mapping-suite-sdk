@@ -4,7 +4,7 @@ from pathlib import Path
 from types import FunctionType
 from typing import Literal, NoReturn, Optional
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 
 logger = logging.getLogger(__name__)

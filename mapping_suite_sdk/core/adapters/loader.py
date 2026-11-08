@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Protocol
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.models.collection_asset import (
     SHACLShapesCollectionAsset,
     SHACLTestCollectionAsset,

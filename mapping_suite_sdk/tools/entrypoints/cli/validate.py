@@ -3,7 +3,7 @@ from pathlib import Path
 
 import typer
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
 from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import (
     validate_bulk_mapping_packages_v1_from_folder,

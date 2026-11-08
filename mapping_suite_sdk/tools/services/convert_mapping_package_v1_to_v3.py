@@ -8,7 +8,7 @@ and all package assets.
 
 from __future__ import annotations
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1_metadata import MappingPackageV1Constraints
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher

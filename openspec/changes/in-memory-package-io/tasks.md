@@ -2,9 +2,9 @@
 
 ## 1. Read from memory
 
-- [ ] 1.1 `core/adapters/in_memory_path.py`: `InMemoryPath` with the read API of design §Context, `from_zip` (P-1, P-6); unit tests incl. 3.10-safe `/` derivation and `glob` patterns
-- [ ] 1.2 `load_file_by_extensions` reads via `read_bytes` (P-2)
-- [ ] 1.3 `load_mapping_package_from_bytes` + shared `_load_and_convert` (P-3, P-4); tests for every scenario of *Load a package from bytes or a stream*, over v1, v2, v3 and v3L test data
+- [x] 1.1 `core/adapters/in_memory_path.py`: `InMemoryPath` with the read API of design §Context, `from_zip` (P-1, P-6); unit tests incl. 3.10-safe `/` derivation and `glob` patterns
+- [x] 1.2 `load_file_by_extensions` reads via `read_bytes` (P-2)
+- [x] 1.3 `load_mapping_package_from_bytes` + shared `_load_and_convert` (P-3, P-4); tests for every scenario of *Load a package from bytes or a stream*, over v1, v2, v3 and v3L test data
 
 ## 2. Write to memory and to disk
 
@@ -18,7 +18,7 @@
 
 ## Roadmap
 
-- [ ] 1.1 · [ ] 1.2 · [ ] 1.3 · [ ] 2.1 · [ ] 2.2 · [ ] 3.1 · [ ] 3.2
+- [x] 1.1 · [x] 1.2 · [x] 1.3 · [ ] 2.1 · [ ] 2.2 · [ ] 3.1 · [ ] 3.2
 
 ## Verification
 

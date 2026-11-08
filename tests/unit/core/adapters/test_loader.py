@@ -491,3 +491,18 @@ def test_conceptual_mapping_file_loader_with_root_folder(
             cm_file = loader.load(temp_mp_path, dummy_mapping_package_conceptual_mapping_path)
 
             assert isinstance(cm_file, ConceptualMappingFileAsset)
+
+
+def test_load_file_by_extensions_reads_bytes_through_the_path_not_the_builtin_open():
+    """Binary assets are read with Path.read_bytes, so a non-filesystem path works (P-2)."""
+    import io
+    import zipfile
+
+    from mapping_suite_sdk.core.adapters.in_memory_path import InMemoryPath
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("logo.bin", b"\x00\xff")
+    root = InMemoryPath.from_zip(buffer.getvalue())
+
+    assert load_file_by_extensions(root / "logo.bin", (".txt",), (".bin",)) == b"\x00\xff"

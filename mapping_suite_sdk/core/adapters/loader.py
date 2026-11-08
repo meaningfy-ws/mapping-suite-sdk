@@ -54,8 +54,7 @@ def load_file_by_extensions(
     if extension in str_extensions:
         return file_path.read_text()
     elif extension in bytes_extensions:
-        with open(file_path, "rb") as file:
-            return file.read()
+        return file_path.read_bytes()
     else:
         return None
 

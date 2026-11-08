@@ -37,7 +37,8 @@ settles the rabbit-hole in the EPIC: we add a small adapter rather than restrict
   `package.metadata.mapping_suite_hash_digest` to `MappingPackageV3Hasher(package).hash()` **on the passed
   package**, so the caller holds the hash that was written (documented in the docstrings).
 - **P-6 — Wrapping folder (DEC-4).** If every file in the ZIP sits under one top-level folder, that folder is the
-  package root; otherwise the ZIP root is.
+  package root; otherwise the ZIP root is. `__MACOSX/` entries (added by macOS Finder) are ignored; found by
+  the builder on the shipped v3L test ZIP.
 - **P-7 — Placement.** `load_mapping_package_from_bytes` in `tools/services/load_mapping_package.py`; the three
   export functions in a new `mapping_package_v3/services/serialise_mapping_package_v3.py` (mirrors the v2
   module). All four are exported from `mapping_suite_sdk`. No new dependency; works in the core-only install.

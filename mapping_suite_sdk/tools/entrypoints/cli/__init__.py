@@ -1,6 +1,11 @@
 import logging
 from enum import Enum
 
+try:
+    import typer  # noqa: F401  - the CLI modules need it; fail here with one line instead of a traceback
+except ImportError:
+    raise SystemExit("The mssdk command needs: pip install mapping-suite-sdk[cli]") from None
+
 
 class MappingPackageVersion(str, Enum):
     V1 = "v1"

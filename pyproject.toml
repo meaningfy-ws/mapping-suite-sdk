@@ -1,54 +1,57 @@
+# Only [project], [dependency-groups], [tool.poetry], [build-system] live here; every tool is
+# configured in its own root file: ruff.toml · mypy.ini · pytest.ini · .coveragerc · .importlinter
 [project]
 name = "mapping-suite-sdk"
-version = "1.0.0"
+version = "1.1.0"
 description = "Software development kit for XML-RML mapping rules packaging"
 authors = [
     { name = "meaningfy.ws", email = "hi@meaningfy.ws" }
 ]
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<3.14"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+# Only what mapping_suite_sdk/ imports, ranged to the next major (DEC-2, DEC-3).
 dependencies = [
-    "pydantic>=2.10.0,<3.0.0",
-    "pandas==2.1.4",
-    "opentelemetry-api==1.29.0",
-    "opentelemetry-sdk==1.29.0",
-    "opentelemetry-instrumentation==0.50b0",
-    "lxml>=5.3.0,<6.0.0",
-    "openpyxl>=3.1.0,<4.0.0",
-    "gitpython>=3.1.0,<4.0.0",
-    "pymongo>=4.11.0,<5.0.0",
-    "typer>=0.15.0,<0.16.0",
-    "click>=8.0,<8.2"
+    "pydantic>=2.10,<3",
+    "opentelemetry-api>=1.29,<2",
+    "opentelemetry-sdk>=1.29,<2",
+    "gitpython>=3.1,<4",
+    "pymongo>=4.11,<5",
+    "typer>=0.15,<1",
 ]
 
+[project.scripts]
+mssdk = "mapping_suite_sdk.tools.entrypoints.cli.mssdk:mssdk_cli_command"
 
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+test = [
+    "pytest>=8.3,<9",
+    "pytest-cov>=6.0,<7",
+    "mongomock>=4.3,<5",
+]
+lint = [
+    "ruff>=0.14,<0.15",
+    "mypy>=1.13,<2",
+    "import-linter>=2.6,<3",
+]
+# Development only: generates the v3 and mapping-suite models from resources/schema (make generate-models).
+model = [
+    "linkml>=1.9.2,<1.9.5",
+]
 
 [tool.poetry]
-name = "mapping-suite-sdk"
-package-mode = true
 packages = [{ include = "mapping_suite_sdk" }]
-
-# Add resources folder
 include = [
     { path = "resources", format = "sdist" },
     { path = "resources", format = "wheel" }
 ]
 
-[tool.poetry.scripts]
-mssdk = "mapping_suite_sdk.tools.entrypoints.cli.mssdk:mssdk_cli_command"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-tox = "^4.24.1"
-pytest-cov = "^6.0.0"
-coverage = "^7.6.12"
-pylint = "^3.3.4"
-mongomock = "^4.3.0"
-linkml = ">=1.9.2,<1.9.5"
-ruff = "^0.14.0"
-import-linter = "^2.6"
-radon = "^6.0.1"
-xenon = "^0.9.3"
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -24,7 +24,7 @@ GOLDEN = Path(__file__).parents[3] / "test_data" / "mongodb_golden"
 )
 def test_same_document_as_1x(golden, folder, include_test_data):
     client = mongomock.MongoClient()
-    package = load_mapping_package(folder, include_test_data=include_test_data, validate_package=False)
+    package = load_mapping_package(folder, include_test_data=include_test_data)
 
     save_mapping_package_to_mongodb(package, client, "golden")
 
@@ -34,7 +34,7 @@ def test_same_document_as_1x(golden, folder, include_test_data):
 
 def test_saving_twice_updates_in_place():
     client = mongomock.MongoClient()
-    package = load_mapping_package(TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH, validate_package=False)
+    package = load_mapping_package(TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH)
 
     save_mapping_package_to_mongodb(package, client, "db", "coll")
     save_mapping_package_to_mongodb(package, client, "db", "coll")

@@ -111,9 +111,8 @@ def test_every_source_version_loads_to_the_target(request, archive_fixture, targ
 
 
 def test_v3_lightweight_source_loads_to_v3_lightweight() -> None:
-    # validation off: the shipped v3L fixture has a stale hash, which load_mapping_package rejects as well
     package = load_mapping_package_from_bytes(
-        _zip_folder(TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH), target_version="v3L", validate_package=False
+        _zip_folder(TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH), target_version="v3L"
     )
 
     assert isinstance(package, MappingPackageV3Lightweight)

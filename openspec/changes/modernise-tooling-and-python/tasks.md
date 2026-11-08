@@ -8,7 +8,7 @@
 
 ## 2. Makefile gate
 
-- [ ] 2.1 Replace pylint/radon/xenon/tox targets with `install`, `lint`, `format`, `typecheck`, `check-architecture`, `check-codegen` (P-4), `test` (with xml report), `check-all`; `test-unit` aliases `test`; `install` no longer locks; `install-poetry` pins `poetry>=2.2,<3` (P-3)
+- [x] 2.1 Replace pylint/radon/xenon/tox targets with `install`, `lint`, `format`, `typecheck`, `check-architecture`, `check-codegen` (P-4), `test` (with xml report), `check-all`; `test-unit` aliases `test`; `install` no longer locks; `install-poetry` pins `poetry>=2.2,<3` (P-3)
 
 ## 3. Package metadata
 
@@ -35,7 +35,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [x] 1.2 · [ ] 2.1 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
+- [x] 1.1 · [x] 1.2 · [x] 2.1 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
 
 ## Verification
 

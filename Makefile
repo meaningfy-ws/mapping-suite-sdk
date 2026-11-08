@@ -27,78 +27,51 @@ build:
 
 install: install-poetry
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Installing MSSDK requirements$(END_BUILD_PRINT)"
-	@ poetry lock
 	@ poetry install --all-groups
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) MSSDK requirements are installed$(END_BUILD_PRINT)"
 
 install-poetry:
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Installing Poetry for MSSDK$(END_BUILD_PRINT)"
-	@ pip install "poetry==2.0.1"
+	@ pip install "poetry>=2.2,<3"
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Poetry for MSSDK is installed$(END_BUILD_PRINT)"
 
-test-unit: generate-models
-	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Running unit tests for MSSDK$(END_BUILD_PRINT)"
-	@ poetry run tox
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Running unit tests for MSSDK done$(END_BUILD_PRINT)"
-
-lint:
-	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Running Pylint checks for MSSDK$(END_BUILD_PRINT)"
-	@ poetry run pylint --rcfile=.pylintrc ./mapping_suite_sdk ./tests
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Running Pylint checks for MSSDK done$(END_BUILD_PRINT)"
-
-lint-report:
-	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Running Pylint checks and generating report for MSSDK$(END_BUILD_PRINT)"
-	@ poetry run pylint --rcfile=.pylintrc --recursive=y ./mapping_suite_sdk ./tests | tail -n 3 | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Running Pylint checks and generating report for MSSDK done$(END_BUILD_PRINT)"
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Report generated in pylint-report.txt$(END_BUILD_PRINT)"
-
-lint-full-report:
-	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Running full Pylint checks and generating report for MSSDK$(END_BUILD_PRINT)"
-	@ poetry run pylint --rcfile=.pylintrc ./mapping_suite_sdk ./tests | sed 's/^Your code/Pylint: Your code/' > pylint_report.txt || true
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Running full Pylint checks and generating report for MSSDK done$(END_BUILD_PRINT)"
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Report generated in pylint-report.txt$(END_BUILD_PRINT)"
-
 #-----------------------------------------------------------------------------
-# Local Quality Checks (for quick developer feedback before pushing)
-# Note: SonarCloud performs comprehensive quality checks in CI/CD
+# Quality gate — `make check-all` is what CI runs on every supported Python
 #-----------------------------------------------------------------------------
+.PHONY: check-all lint format typecheck check-architecture check-codegen test test-unit
 
-# Helper target: check cyclomatic complexity (used by check-clean-code)
-.PHONY: _check-complexity
-_check-complexity:
-	@ echo -e "$(BUILD_PRINT)=== Cyclomatic Complexity ===$(END_BUILD_PRINT)"
-	@ poetry run radon cc mapping_suite_sdk -a --total-average --show-complexity
-
-# Helper target: check maintainability (used by check-clean-code)
-.PHONY: _check-maintainability
-_check-maintainability:
-	@ echo -e "$(BUILD_PRINT)=== Maintainability Index ===$(END_BUILD_PRINT)"
-	@ poetry run radon mi mapping_suite_sdk --show --sort
-
-# Combined clean code check: complexity + maintainability + thresholds
-check-clean-code: _check-complexity _check-maintainability
-	@ echo ""
-	@ echo -e "$(BUILD_PRINT)=== Complexity Threshold Check ===$(END_BUILD_PRINT)"
-	@ poetry run xenon mapping_suite_sdk --max-absolute C --max-modules C --max-average A --exclude "*test*,*__pycache__*"
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Clean Code checks completed$(END_BUILD_PRINT)"
-
-# Generate quality reports in JSON/text format for historical tracking
-quality-report:
-	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating quality reports$(END_BUILD_PRINT)"
-	@ mkdir -p reports
-	@ poetry run radon cc mapping_suite_sdk -a --json > reports/complexity.json
-	@ poetry run radon mi mapping_suite_sdk --json > reports/maintainability.json
-	@ poetry run radon hal mapping_suite_sdk > reports/halstead.txt
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Reports generated in reports/ directory$(END_BUILD_PRINT)"
-
-check-architecture:
-	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Checking architectural boundaries$(END_BUILD_PRINT)"
-	@ poetry run lint-imports
-	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Architecture check completed$(END_BUILD_PRINT)"
-
-all-quality-checks: lint check-architecture check-clean-code test-unit
+check-all: lint typecheck check-architecture check-codegen test
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) All quality checks passed!$(END_BUILD_PRINT)"
 
+lint:
+	@ poetry run ruff check .
+	@ poetry run ruff format --check .
+
+format:
+	@ poetry run ruff check --fix .
+	@ poetry run ruff format .
+
+typecheck:
+	@ poetry run mypy mapping_suite_sdk
+
+check-architecture:
+	@ poetry run lint-imports
+
+# Regenerates the LinkML models and fails if that changes anything (P-4).
+check-codegen:
+	@ git diff --quiet -- mapping_suite_sdk resources/schema || { \
+		echo -e "$(BUILD_PRINT)$(ICON_ERROR) Uncommitted changes in mapping_suite_sdk/ or resources/schema/: commit or stash first$(END_BUILD_PRINT)"; \
+		exit 1; }
+	@ $(MAKE) --no-print-directory generate-models > /dev/null
+	@ git diff --exit-code --stat -- mapping_suite_sdk resources/schema || { \
+		echo -e "$(BUILD_PRINT)$(ICON_ERROR) Generated models are out of sync with the LinkML schemas: run make generate-models and commit the result$(END_BUILD_PRINT)"; \
+		exit 1; }
+	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) Generated models are in sync$(END_BUILD_PRINT)"
+
+test:
+	@ poetry run pytest --cov=mapping_suite_sdk --cov-report=term-missing:skip-covered --cov-report=xml --cov-fail-under=80
+
+test-unit: test
 
 #-----------------------------------------------------------------------------
 # Documentation commands
@@ -192,7 +165,7 @@ generate-models-recursive:
 		context_output_file="$$context_output_dir/context.jsonld"; \
 		if [ -f "$$yaml_file" ]; then \
 			echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Generating JSON-LD context: $$context_output_file$(END_BUILD_PRINT)"; \
-			poetry run gen-jsonld-context "$$yaml_file" > "$$context_output_file.tmp" && mv "$$context_output_file.tmp" "$$context_output_file" || { \
+			poetry run gen-jsonld-context --no-metadata "$$yaml_file" > "$$context_output_file.tmp" && mv "$$context_output_file.tmp" "$$context_output_file" || { \
 				echo -e "$(BUILD_PRINT)$(ICON_WARNING) Failed to generate context.jsonld for $$yaml_file$(END_BUILD_PRINT)"; \
 				rm -f "$$context_output_file.tmp"; \
 			}; \

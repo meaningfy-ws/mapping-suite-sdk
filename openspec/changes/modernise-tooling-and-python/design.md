@@ -61,7 +61,10 @@ New, made while planning:
 - **P-4 Codegen sync check** moves from inline CI shell into `make check-codegen`
   (`generate-models` then `git diff --exit-code -- mapping_suite_sdk resources/schema`), so it is
   part of `check-all` locally too. It first runs `git diff --quiet -- mapping_suite_sdk resources/schema`; on a dirty tree it
-  stops with "commit or stash first" before generating.
+  stops with "commit or stash first" before generating. `gen-jsonld-context` runs with
+  `--no-metadata` (found while applying): otherwise each `context.jsonld` carries a
+  `generation_date` and the check could never pass; the dropped `comments` block is not read by
+  any code.
 - **P-5 linkml on 3.13:** the `model` group must resolve on 3.10–3.13. If the current
   `linkml>=1.9.2,<1.9.5` cannot, widen it to the lowest version that installs on 3.13 and prove
   `make check-codegen` yields no diff; if a newer generator changes the output, regenerate in its

@@ -14,7 +14,7 @@
 
 - [x] 3.1 Normalise `pyproject.toml`: `requires-python >=3.10,<3.14`, trimmed ranged deps (DEC-2, P-6), `[dependency-groups]` (P-3), `[project.scripts]` (P-7), classifiers 3.10–3.13, version 1.1.0, `[tool.poetry]` the only tool table (package-distribution: both requirements)
 - [x] 3.2 Resolve `linkml` for 3.13 (P-5); `poetry lock`; delete `tox.ini`, `.pylintrc`, `requirements.txt`
-- [ ] 3.3 Add `tests/unit/test_package_metadata.py`: every runtime dependency is imported under `mapping_suite_sdk/` (distribution→import map: `gitpython`→`git`, `opentelemetry-api`/`opentelemetry-sdk`→`opentelemetry`, `pymongo`→`pymongo`, `pydantic`→`pydantic`, `typer`→`typer`), none uses `==`, each has an upper bound (package-distribution: No unused runtime dependency, No exact pin)
+- [x] 3.3 Add `tests/unit/test_package_metadata.py`: every runtime dependency is imported under `mapping_suite_sdk/` (distribution→import map: `gitpython`→`git`, `opentelemetry-api`/`opentelemetry-sdk`→`opentelemetry`, `pymongo`→`pymongo`, `pydantic`→`pydantic`, `typer`→`typer`), none uses `==`, each has an upper bound (package-distribution: No unused runtime dependency, No exact pin)
 
 ## 4. Lint and type debt
 
@@ -35,7 +35,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [x] 1.2 · [x] 2.1 · [x] 3.1 · [x] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
+- [x] 1.1 · [x] 1.2 · [x] 2.1 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
 
 ## Verification
 

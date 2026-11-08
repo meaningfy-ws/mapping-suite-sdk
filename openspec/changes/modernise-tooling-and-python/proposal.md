@@ -44,7 +44,11 @@ every supported Python.
   config in `tox.ini`.
 - **DEC-6**: mypy starts as a non-strict baseline (as in rdf-fingerprinter); tightening is a later
   change. Rejected: strict now (would swallow the appetite).
-- **DEC-7**: Keep SonarCloud and Codecov upload in CI (one Python only); the pylint PR-comment
+- **DEC-7** (re-shaped 2026-11-08, see `inputs/reshape-sonar-free-plan.md`): Codecov upload stays
+  in CI (one Python only) and owns coverage; SonarQube Cloud is on the free plan and analyses this
+  public repo by Automatic Analysis (Sonar GitHub app, `.sonarcloud.properties`), so CI has no
+  Sonar step and no `SONAR_TOKEN`. Rejected: a CI scan step (token rejected after the downgrade).
+  The pylint PR-comment
   bot and the static pylint badge are removed.
 - **DEC-8**: Release stays a patch-compatible minor: **1.1.0** (no API change; dropping
   undeclared-use dependencies is not breaking for importers of MSSDK).
@@ -91,4 +95,5 @@ every supported Python.
 
 - Consumers: TED-SWS unaffected (same API, wider ranges); MWB2 unblocked on 3.13.
 - Developers: `make check-all` replaces `make all-quality-checks` / `poetry run tox`.
-- CI: four Python jobs instead of one; SonarCloud keeps its token.
+- CI: four Python jobs instead of one; no Sonar step (DEC-7). Branch protection's required checks
+  are renamed to the new job names.

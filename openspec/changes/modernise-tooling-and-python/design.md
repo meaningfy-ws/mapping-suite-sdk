@@ -11,7 +11,8 @@ Baseline on `develop` @ `ff6a66a`, Python 3.12 (recorded 2026-11-08):
   `F821` 2 (string forward refs in `_persist_to_mongodb`, removed by `modular-core`); 445 safe fixes
   + 46 unsafe. `C901` passes even at max-complexity 10.
 - CI (`code-quality.yaml`): pylint report + PR comment, `make generate-models` + `git diff`
-  sync check, `make test-unit` (→ tox → pytest), Codecov, SonarCloud — all on Python 3.11 only.
+  sync check, `make test-unit` (→ tox → pytest), Codecov — all on Python 3.11 only.
+  SonarQube Cloud (free plan) analyses the repo by Automatic Analysis, outside CI (DEC-7).
 - Generated modules (by `make generate-models`): `mapping_suite_sdk/mapping_package_v3/models/mapping_package_v3*.py`
   and `mapping_suite_sdk/mapping_suite/models/mapping_suite.py`; it also rewrites `context.jsonld`
   next to each schema. `core/models` and the v1/v2 models are hand-written.
@@ -30,8 +31,8 @@ Reference style: `../rdf-fingerprinter/` — `ruff.toml`, `mypy.ini`, `pytest.in
 ## Decisions
 
 Settled in the EPIC: DEC-1 (floor 3.10), DEC-2 (drop unused deps), DEC-3 (ranges), DEC-4 (Ruff
-replaces pylint/radon/xenon/tox), DEC-5 (root config files), DEC-6 (mypy baseline), DEC-7 (keep
-Sonar/Codecov), DEC-8 (release 1.1.0).
+replaces pylint/radon/xenon/tox), DEC-5 (root config files), DEC-6 (mypy baseline), DEC-7 (Codecov in CI;
+Sonar outside CI), DEC-8 (release 1.1.0).
 
 New, made while planning:
 
@@ -52,7 +53,9 @@ New, made while planning:
   `pip`, and runs `python -c "import mapping_suite_sdk"` — this, not `poetry install`, proves the
   package-distribution install scenarios. The rdf-persistence co-resolution is a one-off local
   check recorded in the PR (`uv pip compile` of both on 3.13).
-- **P-9 Sonar:** stays blocking (`sonar.qualitygate.wait=true`), runs on the 3.12 job only.
+- **P-9 Required checks:** after `ci.yaml` replaces `code-quality.yaml`, update `develop`'s branch
+  protection so the required contexts are the four matrix jobs plus `GitGuardian Security Checks`,
+  `CodeQL`, `codecov/patch`; drop `Pylint` and `Unit Tests` (they no longer exist).
 - **P-10 CI triggers:** `pull_request` (any base) and `push` to `develop`, no paths filter (a
   gate that skips on docs-only PRs cannot be a required check).
 - **P-4 Codegen sync check** moves from inline CI shell into `make check-codegen`
@@ -97,7 +100,7 @@ test:          ; poetry run pytest --cov=mapping_suite_sdk --cov-report=term-mis
 Idempotency: `check-all` is read-only except `check-codegen`, which regenerates the generated
 modules and `context.jsonld` files and then fails on any diff; on a clean, in-sync tree it
 leaves no change, so re-running the gate is safe. `.coveragerc` keeps an `[xml]` section
-(`output = coverage.xml`) for Codecov and Sonar.
+(`output = coverage.xml`) for Codecov.
 
 ### Anti-patterns
 | Don't | Do instead | Why |
@@ -117,7 +120,7 @@ leaves no change, so re-running the gate is safe. `.coveragerc` keeps an `[xml]`
 | `ruff --fix` changes behaviour | Test suite fails after the mechanical commit | Revert that rule's autofix, ignore it with reason |
 | mypy baseline has many errors | `make typecheck` red | Per-module `ignore_errors` in `mypy.ini` with a `# shortcut:` note; tightening is later |
 | Coverage drops below 80% | `make test` fails | Not expected (no code removed); investigate, don't lower floor |
-| Sonar quality gate fails on the lint commits | Sonar job red (blocking, P-9) | Fix the reported issue; mechanical-fix commits should not add new issues |
+| Required check never reports (old job name still required) | PR stuck "Expected — waiting" | P-9: update required contexts in the same PR that renames the jobs |
 
 ## Risks / Trade-offs
 

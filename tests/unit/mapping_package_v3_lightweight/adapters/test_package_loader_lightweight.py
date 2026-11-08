@@ -10,9 +10,9 @@ def test_mp_v3_loader_loads_with_success(dummy_mapping_package_v3_path: Path) ->
     loader = MappingPackageV3LightweightLoader()
     mapping_package: MappingPackageV3Lightweight = loader.load(dummy_mapping_package_v3_path)
 
-    assert hasattr(mapping_package, 'metadata')
-    assert hasattr(mapping_package, 'technical_mapping_suite')
-    assert hasattr(mapping_package, 'vocabulary_mapping_suite')
+    assert hasattr(mapping_package, "metadata")
+    assert hasattr(mapping_package, "technical_mapping_suite")
+    assert hasattr(mapping_package, "vocabulary_mapping_suite")
 
 
 def test_mp_v3_loader_fails_on_wrong_path() -> None:

@@ -6,6 +6,7 @@ Tests focus on service layer responsibilities:
 - Exception handling and hard fails
 - File operations (context.jsonld, metadata cleanup)
 """
+
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
@@ -14,32 +15,31 @@ import pytest
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+
+# Import private helpers for testing
 from mapping_suite_sdk.tools.services.convert_mapping_package import (
     ConversionError,
     InvalidPackagePathError,
     UnsupportedVersionError,
     Version,
-    convert_mapping_package_from_folder,
-    convert_mapping_package_model,
-    convert_mapping_packages_from_folder,
-    load_mapping_package_from_folder,
-    serialise_mapping_package
-)
-# Import private helpers for testing
-from mapping_suite_sdk.tools.services.convert_mapping_package import (
     _copy_context_jsonld_to_package,
     _get_context_jsonld_path,
     _remove_conceptual_mapping_file,
     _remove_folder,
-    _remove_old_metadata_json
+    _remove_old_metadata_json,
+    convert_mapping_package_from_folder,
+    convert_mapping_package_model,
+    convert_mapping_packages_from_folder,
+    load_mapping_package_from_folder,
+    serialise_mapping_package,
 )
 
 
 class TestLoadMappingPackageFromFolder:
     """Tests for load_mapping_package_from_folder function."""
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v1_from_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV1Loader')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v1_from_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV1Loader")
     def test_load_v1_package_success(self, mock_loader_class, mock_load_service, tmp_path: Path):
         """Test loading V1 package successfully."""
         from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
@@ -53,13 +53,10 @@ class TestLoadMappingPackageFromFolder:
 
         assert result is mock_package
         mock_loader_class.assert_called_once()
-        mock_load_service.assert_called_once_with(
-            mapping_package_folder_path=tmp_path,
-            mapping_package_loader=mock_loader
-        )
+        mock_load_service.assert_called_once_with(mapping_package_folder_path=tmp_path, mapping_package_loader=mock_loader)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v2_from_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV2Loader')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v2_from_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV2Loader")
     def test_load_v2_package_success(self, mock_loader_class, mock_load_service, tmp_path: Path):
         """Test loading V2 package successfully."""
         mock_package = Mock(spec=MappingPackageV2)
@@ -71,13 +68,10 @@ class TestLoadMappingPackageFromFolder:
 
         assert result is mock_package
         mock_loader_class.assert_called_once()
-        mock_load_service.assert_called_once_with(
-            mapping_package_folder_path=tmp_path,
-            mapping_package_loader=mock_loader
-        )
+        mock_load_service.assert_called_once_with(mapping_package_folder_path=tmp_path, mapping_package_loader=mock_loader)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v3_from_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Loader')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_v3_from_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Loader")
     def test_load_v3_package_success(self, mock_loader_class, mock_load_service, tmp_path: Path):
         """Test loading V3 package successfully."""
         mock_package = Mock(spec=MappingPackageV3)
@@ -89,10 +83,7 @@ class TestLoadMappingPackageFromFolder:
 
         assert result is mock_package
         mock_loader_class.assert_called_once()
-        mock_load_service.assert_called_once_with(
-            mapping_package_folder_path=tmp_path,
-            mapping_package_loader=mock_loader
-        )
+        mock_load_service.assert_called_once_with(mapping_package_folder_path=tmp_path, mapping_package_loader=mock_loader)
 
     def test_load_package_invalid_path_not_exists(self, tmp_path: Path):
         """Test that non-existent path raises InvalidPackagePathError."""
@@ -118,7 +109,7 @@ class TestLoadMappingPackageFromFolder:
 class TestConvertMappingPackageModel:
     """Tests for convert_mapping_package_model function."""
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v1_to_v3')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v1_to_v3")
     def test_convert_v1_to_v3_success(self, mock_convert, fixture_mapping_package_v3_model: MappingPackageV3):
         """Test converting V1 to V3 model successfully."""
         from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
@@ -131,7 +122,7 @@ class TestConvertMappingPackageModel:
         assert result is fixture_mapping_package_v3_model
         mock_convert.assert_called_once_with(mock_v1_package)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v1_to_v3_lightweight')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v1_to_v3_lightweight")
     def test_convert_v1_to_v3l_success(self, mock_convert):
         """Test converting V1 to V3L model successfully."""
         from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
@@ -145,7 +136,7 @@ class TestConvertMappingPackageModel:
         assert result is mock_v3l_package
         mock_convert.assert_called_once_with(mock_v1_package)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v2_to_v3')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v2_to_v3")
     def test_convert_v2_to_v3_success(self, mock_convert, fixture_mapping_package_v3_model: MappingPackageV3):
         """Test converting V2 to V3 model successfully."""
         mock_v2_package = Mock(spec=MappingPackageV2)
@@ -156,7 +147,7 @@ class TestConvertMappingPackageModel:
         assert result is fixture_mapping_package_v3_model
         mock_convert.assert_called_once_with(mock_v2_package)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v3_to_v3_lightweight')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v3_to_v3_lightweight")
     def test_convert_v3_to_v3l_success(self, mock_convert, fixture_mapping_package_v3_model: MappingPackageV3):
         """Test converting V3 to V3L model successfully."""
         mock_v3l_package = Mock(spec=MappingPackageV3Lightweight)
@@ -167,7 +158,7 @@ class TestConvertMappingPackageModel:
         assert result is mock_v3l_package
         mock_convert.assert_called_once_with(fixture_mapping_package_v3_model)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v2_to_v3_lightweight')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_v2_to_v3_lightweight")
     def test_convert_v2_to_v3l_success(self, mock_convert):
         """Test converting V2 to V3L model successfully."""
         mock_v2_package = Mock(spec=MappingPackageV2)
@@ -190,16 +181,16 @@ class TestConvertMappingPackageModel:
 class TestSerialiseMappingPackage:
     """Tests for serialise_mapping_package function."""
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._copy_context_jsonld_to_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_old_metadata_json')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._copy_context_jsonld_to_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._remove_old_metadata_json")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser")
     def test_serialise_v3_package_success(
         self,
         mock_serialiser_class,
         mock_remove_metadata,
         mock_copy_context,
         tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        fixture_mapping_package_v3_model: MappingPackageV3,
     ):
         """Test serializing V3 package successfully."""
         mock_serialiser = Mock()
@@ -212,14 +203,10 @@ class TestSerialiseMappingPackage:
         mock_copy_context.assert_called_once_with(tmp_path, fixture_mapping_package_v3_model)
         mock_remove_metadata.assert_called_once_with(tmp_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser")
     def test_serialise_v3_package_copies_context_jsonld(
-        self,
-        mock_serialiser_class,
-        mock_get_context,
-        tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        self, mock_serialiser_class, mock_get_context, tmp_path: Path, fixture_mapping_package_v3_model: MappingPackageV3
     ):
         """Test that serializing V3 package copies context.jsonld."""
         # Create mock context file
@@ -243,16 +230,16 @@ class TestSerialiseMappingPackage:
         assert package_context.read_text() == '{"@context": {}}'
         mock_get_context.assert_called_once()
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser")
     def test_serialise_v3_package_removes_old_metadata_json(
         self,
         mock_serialiser_class,
         mock_get_context,
         mock_resolve,
         tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        fixture_mapping_package_v3_model: MappingPackageV3,
     ):
         """Test that serializing V3 package removes old metadata.json."""
         # Create mock context file
@@ -280,11 +267,11 @@ class TestSerialiseMappingPackage:
         # Package root may be resolved multiple times (serialization + context copy + cleanup).
         mock_resolve.assert_any_call(tmp_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_conceptual_mapping_file')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._copy_context_jsonld_to_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._remove_old_metadata_json')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._remove_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._remove_conceptual_mapping_file")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._copy_context_jsonld_to_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._remove_old_metadata_json")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser")
     def test_serialise_v3l_package_success(
         self,
         mock_serialiser_class,
@@ -293,7 +280,7 @@ class TestSerialiseMappingPackage:
         mock_remove_conceptual,
         mock_remove_folder,
         tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        fixture_mapping_package_v3_model: MappingPackageV3,
     ):
         """Test serializing V3L package successfully."""
         mock_v3l_package = Mock(spec=MappingPackageV3Lightweight)
@@ -310,20 +297,22 @@ class TestSerialiseMappingPackage:
         # Verify _remove_folder is called 3 times for test_data, output, and validation
         assert mock_remove_folder.call_count == 3
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser")
     def test_serialise_v3l_package_removes_conceptual_mapping_file(
         self,
         mock_serialiser_class,
         mock_get_context,
         mock_resolve,
         tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        fixture_mapping_package_v3_model: MappingPackageV3,
     ):
         """Test that serializing V3L package removes conceptual_mappings.xlsx."""
         from mapping_suite_sdk import mssdk_config
-        from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+        from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import (
+            convert_mapping_package_v3_to_v3_lightweight,
+        )
 
         # Create mock context file
         schema_context = tmp_path / "schema" / "context.jsonld"
@@ -352,20 +341,22 @@ class TestSerialiseMappingPackage:
         assert not conceptual_path.exists()
         mock_resolve.assert_called_with(tmp_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3LightweightSerialiser")
     def test_serialise_v3l_package_removes_folders(
         self,
         mock_serialiser_class,
         mock_get_context,
         mock_resolve,
         tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        fixture_mapping_package_v3_model: MappingPackageV3,
     ):
         """Test that serializing V3L package removes test_data, output, and validation folders."""
         from mapping_suite_sdk import mssdk_config
-        from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import convert_mapping_package_v3_to_v3_lightweight
+        from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import (
+            convert_mapping_package_v3_to_v3_lightweight,
+        )
 
         # Create mock context file
         schema_context = tmp_path / "schema" / "context.jsonld"
@@ -435,17 +426,12 @@ class TestConvertMappingPackageFromFolder:
         with pytest.raises(InvalidPackagePathError, match="not a directory"):
             convert_mapping_package_from_folder(Version.V2, Version.V3, file_path)
 
-    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder")
     def test_convert_package_full_workflow_success(
-        self,
-        mock_load,
-        mock_convert,
-        mock_serialise,
-        mock_validate,
-        tmp_path: Path
+        self, mock_load, mock_convert, mock_serialise, mock_validate, tmp_path: Path
     ):
         """Test complete conversion workflow: validate -> load -> convert -> serialize -> validate."""
         mock_source = Mock()
@@ -463,8 +449,8 @@ class TestConvertMappingPackageFromFolder:
         mock_convert.assert_called_once_with(Version.V2, Version.V3, mock_source)
         mock_serialise.assert_called_once_with(Version.V3, tmp_path, mock_converted)
 
-    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder")
     def test_convert_package_fails_on_pre_validation_error(self, mock_load, mock_validate, tmp_path: Path):
         """Test that invalid source package (e.g. wrong hash) aborts conversion."""
         from mapping_suite_sdk.core.adapters.validator import MPValidationException
@@ -477,8 +463,8 @@ class TestConvertMappingPackageFromFolder:
         mock_validate.assert_called_once_with(tmp_path, version=Version.V2)
         mock_load.assert_not_called()
 
-    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder")
     def test_convert_package_hard_fail_on_load_error(self, mock_load, mock_validate, tmp_path: Path):
         """Test that load errors propagate (hard fail)."""
         mock_validate.return_value = True
@@ -487,17 +473,12 @@ class TestConvertMappingPackageFromFolder:
         with pytest.raises(InvalidPackagePathError, match="Load failed"):
             convert_mapping_package_from_folder(Version.V2, Version.V3, tmp_path)
 
-    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder")
     def test_convert_package_hard_fail_on_convert_error(
-        self,
-        mock_load,
-        mock_convert,
-        mock_serialise,
-        mock_validate,
-        tmp_path: Path
+        self, mock_load, mock_convert, mock_serialise, mock_validate, tmp_path: Path
     ):
         """Test that convert errors propagate (hard fail)."""
         mock_validate.return_value = True
@@ -509,17 +490,12 @@ class TestConvertMappingPackageFromFolder:
 
         mock_serialise.assert_not_called()
 
-    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder")
     def test_convert_package_hard_fail_on_serialise_error(
-        self,
-        mock_load,
-        mock_convert,
-        mock_serialise,
-        mock_validate,
-        tmp_path: Path
+        self, mock_load, mock_convert, mock_serialise, mock_validate, tmp_path: Path
     ):
         """Test that serialize errors propagate (hard fail)."""
         mock_validate.return_value = True
@@ -530,17 +506,12 @@ class TestConvertMappingPackageFromFolder:
         with pytest.raises(FileNotFoundError, match="context.jsonld not found"):
             convert_mapping_package_from_folder(Version.V2, Version.V3, tmp_path)
 
-    @patch('mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder')
+    @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.serialise_mapping_package")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.load_mapping_package_from_folder")
     def test_convert_package_hard_fail_on_post_validation_error(
-        self,
-        mock_load,
-        mock_convert,
-        mock_serialise,
-        mock_validate,
-        tmp_path: Path
+        self, mock_load, mock_convert, mock_serialise, mock_validate, tmp_path: Path
     ):
         """Test that post-conversion validation failure propagates."""
         from mapping_suite_sdk.core.adapters.validator import MPValidationException
@@ -559,14 +530,9 @@ class TestConvertMappingPackageFromFolder:
 class TestConvertMappingPackagesFromFolder:
     """Tests for convert_mapping_packages_from_folder batch conversion function."""
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted')
-    def test_convert_multiple_packages_success(
-        self,
-        mock_is_converted,
-        mock_convert,
-        tmp_path: Path
-    ):
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted")
+    def test_convert_multiple_packages_success(self, mock_is_converted, mock_convert, tmp_path: Path):
         """Test converting multiple packages successfully."""
         # Create test directories
         pkg1 = tmp_path / "package1"
@@ -581,9 +547,9 @@ class TestConvertMappingPackagesFromFolder:
 
         result = convert_mapping_packages_from_folder(Version.V2, Version.V3, tmp_path)
 
-        assert result['converted'] == 2
-        assert result['skipped'] == 1
-        assert result['total'] == 3
+        assert result["converted"] == 2
+        assert result["skipped"] == 1
+        assert result["total"] == 3
         assert mock_convert.call_count == 2
         # Verify convert was called for pkg1 and pkg3, not pkg2
         converted_paths = [call[0][2] for call in mock_convert.call_args_list]
@@ -606,14 +572,9 @@ class TestConvertMappingPackagesFromFolder:
         with pytest.raises(InvalidPackagePathError, match="not a directory"):
             convert_mapping_packages_from_folder(Version.V2, Version.V3, file_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted')
-    def test_convert_packages_hard_fail_on_error(
-        self,
-        mock_is_converted,
-        mock_convert,
-        tmp_path: Path
-    ):
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted")
+    def test_convert_packages_hard_fail_on_error(self, mock_is_converted, mock_convert, tmp_path: Path):
         """Test that conversion errors propagate (hard fail) - stops batch processing."""
         pkg1 = tmp_path / "package1"
         pkg1.mkdir()
@@ -625,25 +586,20 @@ class TestConvertMappingPackagesFromFolder:
         with pytest.raises(ConversionError, match="Conversion failed"):
             convert_mapping_packages_from_folder(Version.V2, Version.V3, tmp_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted")
     def test_convert_packages_empty_folder(self, mock_is_converted, mock_convert, tmp_path: Path):
         """Test converting from empty folder returns zero counts."""
         result = convert_mapping_packages_from_folder(Version.V2, Version.V3, tmp_path)
 
-        assert result['converted'] == 0
-        assert result['skipped'] == 0
-        assert result['total'] == 0
+        assert result["converted"] == 0
+        assert result["skipped"] == 0
+        assert result["total"] == 0
         mock_convert.assert_not_called()
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted')
-    def test_convert_packages_all_already_converted(
-        self,
-        mock_is_converted,
-        mock_convert,
-        tmp_path: Path
-    ):
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_from_folder")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.is_mapping_package_already_converted")
+    def test_convert_packages_all_already_converted(self, mock_is_converted, mock_convert, tmp_path: Path):
         """Test that all packages already converted results in all skipped."""
         pkg1 = tmp_path / "package1"
         pkg2 = tmp_path / "package2"
@@ -654,21 +610,18 @@ class TestConvertMappingPackagesFromFolder:
 
         result = convert_mapping_packages_from_folder(Version.V2, Version.V3, tmp_path)
 
-        assert result['converted'] == 0
-        assert result['skipped'] == 2
-        assert result['total'] == 2
+        assert result["converted"] == 0
+        assert result["skipped"] == 2
+        assert result["total"] == 2
         mock_convert.assert_not_called()
 
 
 class TestHelperFunctions:
     """Tests for private helper functions in convert_mapping_package service."""
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path")
     def test_get_context_jsonld_path_called_when_copying(
-        self,
-        mock_get_context,
-        tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        self, mock_get_context, tmp_path: Path, fixture_mapping_package_v3_model: MappingPackageV3
     ):
         """Test _get_context_jsonld_path is called when copying context.jsonld."""
         # Create mock context file
@@ -698,19 +651,22 @@ class TestHelperFunctions:
         # Mock importlib.resources.files to return something that Path() can convert
         mock_package_ref = Mock()
         # Use a context manager to patch Path only for the specific call
-        with patch('mapping_suite_sdk.tools.services.convert_mapping_package.importlib.resources.files', return_value=mock_package_ref):
+        with patch(
+            "mapping_suite_sdk.tools.services.convert_mapping_package.importlib.resources.files", return_value=mock_package_ref
+        ):
             # Patch Path constructor to return our fake path
             original_path = Path
+
             def mock_path_constructor(path_arg):
                 if path_arg == mock_package_ref:
                     return fake_package_path
                 return original_path(path_arg)
 
-            with patch('mapping_suite_sdk.tools.services.convert_mapping_package.Path', side_effect=mock_path_constructor):
+            with patch("mapping_suite_sdk.tools.services.convert_mapping_package.Path", side_effect=mock_path_constructor):
                 with pytest.raises(FileNotFoundError, match="context.jsonld not found"):
                     _get_context_jsonld_path()
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.importlib.resources.files')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.importlib.resources.files")
     def test_get_context_jsonld_path_success_when_file_exists(self, mock_files, tmp_path: Path):
         """Test that _get_context_jsonld_path returns path when context.jsonld exists."""
         # Create the expected file structure
@@ -727,26 +683,23 @@ class TestHelperFunctions:
 
         # Mock Path() to return our test package path when called with mock_package_ref
         original_path = Path
+
         def mock_path_constructor(path_arg):
             if path_arg == mock_package_ref:
                 return package_path
             return original_path(path_arg)
 
-        with patch('mapping_suite_sdk.tools.services.convert_mapping_package.Path', side_effect=mock_path_constructor):
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.Path", side_effect=mock_path_constructor):
             result = _get_context_jsonld_path()
 
             assert result == context_path
             assert result.exists()
             mock_files.assert_called_once_with("mapping_suite_sdk")
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.shutil.copy2')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.shutil.copy2")
     def test_copy_context_jsonld_to_package_success(
-        self,
-        mock_copy,
-        mock_get_context,
-        tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        self, mock_copy, mock_get_context, tmp_path: Path, fixture_mapping_package_v3_model: MappingPackageV3
     ):
         """Test that _copy_context_jsonld_to_package copies context.jsonld correctly."""
         schema_context = tmp_path / "schema" / "context.jsonld"
@@ -768,12 +721,9 @@ class TestHelperFunctions:
         assert call_args[0] == schema_context
         assert call_args[1] == metadata_dir / "context.jsonld"
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path")
     def test_copy_context_jsonld_to_package_hard_fail_on_missing_file(
-        self,
-        mock_get_context,
-        tmp_path: Path,
-        fixture_mapping_package_v3_model: MappingPackageV3
+        self, mock_get_context, tmp_path: Path, fixture_mapping_package_v3_model: MappingPackageV3
     ):
         """Test that _copy_context_jsonld_to_package raises FileNotFoundError when context.jsonld missing."""
         mock_get_context.side_effect = FileNotFoundError("context.jsonld not found")
@@ -781,7 +731,7 @@ class TestHelperFunctions:
         with pytest.raises(FileNotFoundError, match="context.jsonld not found"):
             _copy_context_jsonld_to_package(tmp_path, fixture_mapping_package_v3_model)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
     def test_remove_old_metadata_json_when_exists(self, mock_resolve, tmp_path: Path):
         """Test that _remove_old_metadata_json removes metadata.json when it exists."""
         package_path = tmp_path / "package"
@@ -797,7 +747,7 @@ class TestHelperFunctions:
         assert not old_metadata.exists()
         mock_resolve.assert_called_once_with(package_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
     def test_remove_old_metadata_json_when_not_exists(self, mock_resolve, tmp_path: Path):
         """Test that _remove_old_metadata_json handles missing metadata.json gracefully."""
         package_path = tmp_path / "package"
@@ -809,10 +759,7 @@ class TestHelperFunctions:
 
         mock_resolve.assert_called_once_with(package_path)
 
-    def test_remove_old_metadata_json_uses_original_path_when_resolve_returns_none(
-        self,
-        tmp_path: Path
-    ):
+    def test_remove_old_metadata_json_uses_original_path_when_resolve_returns_none(self, tmp_path: Path):
         """Test that _remove_old_metadata_json uses original path when _resolve_package_root returns None."""
         package_path = tmp_path / "package"
         package_path.mkdir()
@@ -825,7 +772,7 @@ class TestHelperFunctions:
 
         assert not old_metadata.exists()
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
     def test_remove_conceptual_mapping_file_when_exists(self, mock_resolve, tmp_path: Path):
         """Test that _remove_conceptual_mapping_file removes conceptual_mappings.xlsx when it exists."""
         from mapping_suite_sdk import mssdk_config
@@ -844,7 +791,7 @@ class TestHelperFunctions:
         assert not conceptual_path.exists()
         mock_resolve.assert_called_once_with(package_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
     def test_remove_conceptual_mapping_file_when_not_exists(self, mock_resolve, tmp_path: Path):
         """Test that _remove_conceptual_mapping_file handles missing file gracefully."""
         package_path = tmp_path / "package"
@@ -856,10 +803,7 @@ class TestHelperFunctions:
 
         mock_resolve.assert_called_once_with(package_path)
 
-    def test_remove_conceptual_mapping_file_uses_original_path_when_resolve_returns_none(
-        self,
-        tmp_path: Path
-    ):
+    def test_remove_conceptual_mapping_file_uses_original_path_when_resolve_returns_none(self, tmp_path: Path):
         """Test that _remove_conceptual_mapping_file uses original path when _resolve_package_root returns None."""
         from mapping_suite_sdk import mssdk_config
 
@@ -875,7 +819,7 @@ class TestHelperFunctions:
 
         assert not conceptual_path.exists()
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
     def test_remove_folder_when_exists(self, mock_resolve, tmp_path: Path):
         """Test that _remove_folder removes folder when it exists."""
         package_path = tmp_path / "package"
@@ -892,7 +836,7 @@ class TestHelperFunctions:
         assert not test_folder.exists()
         mock_resolve.assert_called_once_with(package_path)
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
     def test_remove_folder_when_not_exists(self, mock_resolve, tmp_path: Path):
         """Test that _remove_folder handles missing folder gracefully."""
         package_path = tmp_path / "package"
@@ -904,10 +848,7 @@ class TestHelperFunctions:
 
         mock_resolve.assert_called_once_with(package_path)
 
-    def test_remove_folder_uses_original_path_when_resolve_returns_none(
-        self,
-        tmp_path: Path
-    ):
+    def test_remove_folder_uses_original_path_when_resolve_returns_none(self, tmp_path: Path):
         """Test that _remove_folder uses original path when _resolve_package_root returns None."""
         package_path = tmp_path / "package"
         package_path.mkdir()
@@ -921,12 +862,8 @@ class TestHelperFunctions:
 
         assert not test_folder.exists()
 
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
-    def test_copy_context_jsonld_uses_original_path_when_resolve_returns_none(
-        self,
-        mock_resolve,
-        tmp_path: Path
-    ):
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
+    def test_copy_context_jsonld_uses_original_path_when_resolve_returns_none(self, mock_resolve, tmp_path: Path):
         """Test that _copy_context_jsonld_to_package uses original path when _resolve_package_root returns None."""
         mock_resolve.return_value = None
 
@@ -938,7 +875,7 @@ class TestHelperFunctions:
         converted_package = MagicMock()
         converted_package.metadata.path = "metadata/metadata.jsonld"
 
-        with patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path') as mock_context:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path") as mock_context:
             mock_context.return_value = tmp_path / "context.jsonld"
             (tmp_path / "context.jsonld").write_text("{}")
 
@@ -947,14 +884,10 @@ class TestHelperFunctions:
         assert (metadata_dir / "context.jsonld").exists()
         mock_resolve.assert_called_once_with(package_path)
 
-
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root')
-    @patch('mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser')
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package._resolve_package_root")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.MappingPackageV3Serialiser")
     def test_serialise_mapping_package_uses_original_path_when_resolve_returns_none(
-        self,
-        mock_serialiser_class,
-        mock_resolve,
-        tmp_path: Path
+        self, mock_serialiser_class, mock_resolve, tmp_path: Path
     ):
         """Test that serialise_mapping_package uses original path when _resolve_package_root returns None."""
         mock_resolve.return_value = None
@@ -970,7 +903,7 @@ class TestHelperFunctions:
         mock_serialiser = MagicMock()
         mock_serialiser_class.return_value = mock_serialiser
 
-        with patch('mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path') as mock_context:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package._get_context_jsonld_path") as mock_context:
             mock_context.return_value = tmp_path / "context.jsonld"
             (tmp_path / "context.jsonld").write_text("{}")
 

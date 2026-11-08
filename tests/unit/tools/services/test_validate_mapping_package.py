@@ -1,8 +1,8 @@
 from pathlib import Path
+from typing import cast
 from unittest.mock import patch
 
 import pytest
-from typing import cast
 
 from mapping_suite_sdk.core.adapters.validator import MPValidationException
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
@@ -15,10 +15,10 @@ from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweig
 )
 from mapping_suite_sdk.tools.services.validate_mapping_package import (
     CrossVersionValidationError,
+    _detect_version_from_model,
     _normalize_version,
     _validate_folder_from_path,
     _validate_model,
-    _detect_version_from_model,
     validate_mapping_package,
 )
 
@@ -34,8 +34,13 @@ def _assert_loader(mock_call, expected_loader_type, include_test_data=False, inc
 def test_validate_mapping_package_auto_detects_version_for_folder_path(tmp_path: Path) -> None:
     """Test that version is auto-detected when validating a folder path without explicit version."""
     with (
-        patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version", return_value=Version.V2) as mock_detect,
-        patch("mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2.validate_mapping_package_v2_from_folder", return_value=True) as mock_v2,
+        patch(
+            "mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version", return_value=Version.V2
+        ) as mock_detect,
+        patch(
+            "mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2.validate_mapping_package_v2_from_folder",
+            return_value=True,
+        ) as mock_v2,
     ):
         assert validate_mapping_package(tmp_path) is True
         mock_detect.assert_called_once_with(tmp_path)
@@ -48,7 +53,10 @@ def test_validate_mapping_package_explicit_version_skips_detection_for_folder_pa
     """Test that explicit version parameter skips auto-detection for folder paths."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
-        patch("mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3_from_folder", return_value=True) as mock_v3,
+        patch(
+            "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3_from_folder",
+            return_value=True,
+        ) as mock_v3,
     ):
         assert validate_mapping_package(tmp_path, version="v3") is True
         mock_detect.assert_not_called()
@@ -72,8 +80,14 @@ def test_validate_mapping_package_archive_does_not_wrap_validation_errors(tmp_pa
     archive_path.write_text("dummy")  # just needs to exist as a file for this test
 
     with (
-        patch("mapping_suite_sdk.tools.services.validate_mapping_package.ArchiveExtractor.extract", return_value=tmp_path / "extracted") as mock_extract,
-        patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version", return_value=Version.V3L),
+        patch(
+            "mapping_suite_sdk.tools.services.validate_mapping_package.ArchiveExtractor.extract",
+            return_value=tmp_path / "extracted",
+        ) as mock_extract,
+        patch(
+            "mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version",
+            return_value=Version.V3L,
+        ),
         patch(
             "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_lightweight.validate_mapping_package_v3_lightweight_from_folder",
             side_effect=MPValidationException("Hash validation failed"),
@@ -88,7 +102,10 @@ def test_validate_mapping_package_auto_detects_version_from_model_type(dummy_map
     """Test that version is auto-detected from model type when validating a model instance."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
-        patch("mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1.validate_mapping_package_v1", return_value=True) as mock_v1,
+        patch(
+            "mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1.validate_mapping_package_v1",
+            return_value=True,
+        ) as mock_v1,
     ):
         assert validate_mapping_package(dummy_mapping_package_v1_model) is True
         mock_detect.assert_not_called()
@@ -99,7 +116,10 @@ def test_validate_mapping_package_explicit_version_skips_detection_for_model(fix
     """Test that explicit version parameter skips auto-detection for model instances."""
     with (
         patch("mapping_suite_sdk.tools.services.validate_mapping_package.detect_mapping_package_version") as mock_detect,
-        patch("mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3", return_value=True) as mock_v3,
+        patch(
+            "mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3.validate_mapping_package_v3",
+            return_value=True,
+        ) as mock_v3,
     ):
         assert validate_mapping_package(fixture_mapping_package_v3_model, version="v3") is True
         mock_detect.assert_not_called()
@@ -430,6 +450,7 @@ def test_validate_folder_from_path_raises_on_unsupported_version(tmp_path: Path)
     with pytest.raises(CrossVersionValidationError, match="Unsupported version"):
         _validate_folder_from_path(tmp_path, cast(Version, "v99"))
 
+
 def test_validate_mapping_package_archive_succeeds_with_auto_detection(tmp_path: Path) -> None:
     """Test that archive validation succeeds when auto-detection works and validation passes."""
     archive_path = tmp_path / "mp.zip"
@@ -555,14 +576,14 @@ def test_validate_mapping_package_raises_on_model_version_mismatch_v3L_to_v3(fix
 def test_validate_mapping_package_raises_on_nonexistent_folder_path(tmp_path: Path) -> None:
     """Test that validating a non-existent folder path raises."""
     nonexistent_path = tmp_path / "does_not_exist"
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         validate_mapping_package(nonexistent_path)
 
 
 def test_validate_mapping_package_raises_on_nonexistent_archive_path(tmp_path: Path) -> None:
     """Test that validating a non-existent archive path raises."""
     nonexistent_archive = tmp_path / "does_not_exist.zip"
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         validate_mapping_package(nonexistent_archive)
 
 
@@ -577,7 +598,7 @@ def test_validate_mapping_package_raises_on_file_when_folder_expected(tmp_path: 
             return_value=Version.V2,
         ),
     ):
-        with pytest.raises(Exception):  # validate_folder_path should raise
+        with pytest.raises(ValueError):  # validate_folder_path should raise
             validate_mapping_package(file_path)
 
 

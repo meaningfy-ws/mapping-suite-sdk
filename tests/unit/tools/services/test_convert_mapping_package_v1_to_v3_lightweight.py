@@ -8,7 +8,9 @@ from mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3_lightweig
 )
 
 
-@patch("mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3_lightweight.convert_mapping_package_v3_to_v3_lightweight")
+@patch(
+    "mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3_lightweight.convert_mapping_package_v3_to_v3_lightweight"
+)
 @patch("mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3_lightweight.convert_mapping_package_v1_to_v3")
 def test_convert_mapping_package_v1_to_v3_lightweight_composes_converters(
     mock_convert_v1_to_v3,
@@ -27,4 +29,3 @@ def test_convert_mapping_package_v1_to_v3_lightweight_composes_converters(
     assert result is mpv3l
     mock_convert_v1_to_v3.assert_called_once_with(mpv1)
     mock_convert_v3_to_v3l.assert_called_once_with(mpv3)
-

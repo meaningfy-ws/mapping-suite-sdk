@@ -9,20 +9,20 @@ from mapping_suite_sdk.core.adapters.validator import MPValidationException
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_lightweight import (
+    validate_bulk_mapping_packages_v3_lightweight_from_folder,
+    validate_bulk_mapping_packages_v3_lightweight_from_github,
     validate_mapping_package_v3_lightweight,
     validate_mapping_package_v3_lightweight_from_archive,
     validate_mapping_package_v3_lightweight_from_folder,
-    validate_bulk_mapping_packages_v3_lightweight_from_folder,
-    validate_bulk_mapping_packages_v3_lightweight_from_github
 )
 from tests.test_helpers import get_random_string, setup_temporary_test_git_repository
 
 
-def test_validate_mapping_package_v3_lightweight_runs_with_success(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_mapping_package_v3_lightweight_runs_with_success(dummy_mapping_package_v3_path: Path):
     """Test that lightweight validation succeeds with correct hash."""
-    from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import \
-        load_mapping_package_v3_lightweight_from_folder
+    from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import (
+        load_mapping_package_v3_lightweight_from_folder,
+    )
 
     lightweight_package = load_mapping_package_v3_lightweight_from_folder(dummy_mapping_package_v3_path)
     # Set correct hash
@@ -33,11 +33,11 @@ def test_validate_mapping_package_v3_lightweight_runs_with_success(
     assert is_valid is True
 
 
-def test_validate_mapping_package_v3_lightweight_fails_on_bad_hash(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_mapping_package_v3_lightweight_fails_on_bad_hash(dummy_mapping_package_v3_path: Path):
     """Test that lightweight validation fails with incorrect hash."""
-    from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import \
-        load_mapping_package_v3_lightweight_from_folder
+    from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import (
+        load_mapping_package_v3_lightweight_from_folder,
+    )
 
     lightweight_package = load_mapping_package_v3_lightweight_from_folder(dummy_mapping_package_v3_path)
     random_string = get_random_string()
@@ -47,8 +47,7 @@ def test_validate_mapping_package_v3_lightweight_fails_on_bad_hash(
         validate_mapping_package_v3_lightweight(mapping_package=lightweight_package)
 
 
-def test_validate_mapping_package_v3_lightweight_from_archive_runs_with_success(
-        dummy_mapping_package_v3_archive_path: Path):
+def test_validate_mapping_package_v3_lightweight_from_archive_runs_with_success(dummy_mapping_package_v3_archive_path: Path):
     """Test lightweight validation from archive succeeds."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -68,8 +67,7 @@ def test_validate_mapping_package_v3_lightweight_from_archive_fails_on_bad_archi
         validate_mapping_package_v3_lightweight_from_archive(wrong_path)
 
 
-def test_validate_mapping_package_v3_lightweight_from_archive_fails_on_folder_instead_of_archive(
-        tmp_path: Path):
+def test_validate_mapping_package_v3_lightweight_from_archive_fails_on_folder_instead_of_archive(tmp_path: Path):
     """Test lightweight validation from archive fails when path is a folder."""
     with pytest.raises(ValueError) as exc_info:
         validate_mapping_package_v3_lightweight_from_archive(tmp_path)
@@ -78,8 +76,7 @@ def test_validate_mapping_package_v3_lightweight_from_archive_fails_on_folder_in
     assert "Path is not a file" in str(exc_info.value)
 
 
-def test_validate_mapping_package_v3_lightweight_from_folder_runs_with_success(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_mapping_package_v3_lightweight_from_folder_runs_with_success(dummy_mapping_package_v3_path: Path):
     """Test lightweight validation from folder succeeds."""
     is_valid = validate_mapping_package_v3_lightweight_from_folder(dummy_mapping_package_v3_path)
     assert is_valid is True
@@ -103,8 +100,7 @@ def test_validate_mapping_package_v3_lightweight_from_folder_fails_on_non_direct
     temp_file.close()
 
 
-def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_runs_with_success(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_runs_with_success(dummy_mapping_package_v3_path: Path):
     """Test bulk lightweight validation from folder succeeds."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -114,8 +110,7 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_runs_with_suc
         validate_bulk_mapping_packages_v3_lightweight_from_folder(tmpdir_path)
 
 
-def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_updates_hash(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_updates_hash(dummy_mapping_package_v3_path: Path):
     """Test bulk lightweight validation updates hash when update_hash=True."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -152,7 +147,8 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_fails_on_non_
 
 
 def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_continues_on_package_failure(
-        dummy_mapping_package_v3_path: Path):
+    dummy_mapping_package_v3_path: Path,
+):
     """Test bulk lightweight validation continues when a package fails."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -170,33 +166,34 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_continues_on_
 
 
 def test_validate_bulk_mapping_packages_v3_lightweight_from_github_runs_with_success(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     """Test bulk lightweight validation from GitHub succeeds."""
     with setup_temporary_test_git_repository(fixture_mapping_package_v3_github_project_path) as repo_path:
         validate_bulk_mapping_packages_v3_lightweight_from_github(
-            github_repository_url=repo_path,
-            packages_path_pattern=dummy_get_all_packages_pattern)
+            github_repository_url=repo_path, packages_path_pattern=dummy_get_all_packages_pattern
+        )
 
 
 def test_validate_bulk_mapping_packages_v3_lightweight_from_github_fails_on_empty_repo_url():
     """Test bulk lightweight validation from GitHub fails on empty URL."""
     with pytest.raises(ValueError):
         validate_bulk_mapping_packages_v3_lightweight_from_github(
-            github_repository_url="",
-            packages_path_pattern="**/package.zip")
+            github_repository_url="", packages_path_pattern="**/package.zip"
+        )
 
 
 def test_validate_bulk_mapping_packages_v3_lightweight_from_github_fails_on_empty_pattern():
     """Test bulk lightweight validation from GitHub fails on empty pattern."""
     with pytest.raises(ValueError):
         validate_bulk_mapping_packages_v3_lightweight_from_github(
-            github_repository_url="https://github.com/test/repo",
-            packages_path_pattern="")
+            github_repository_url="https://github.com/test/repo", packages_path_pattern=""
+        )
 
 
 def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_returns_false_on_validation_failure(
-        dummy_mapping_package_v3_path: Path):
+    dummy_mapping_package_v3_path: Path,
+):
     """Test bulk lightweight validation returns False when validation fails."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -206,7 +203,7 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_returns_false
         metadata_file = package_dir / "metadata.jsonld"
         if metadata_file.exists():
             metadata = json.loads(metadata_file.read_text())
-            metadata['mapping_suite_hash_digest'] = "invalid_hash_value"
+            metadata["mapping_suite_hash_digest"] = "invalid_hash_value"
             metadata_file.write_text(json.dumps(metadata))
 
         result = validate_bulk_mapping_packages_v3_lightweight_from_folder(tmpdir_path)
@@ -214,7 +211,8 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_returns_false
 
 
 def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_skips_non_directory_files(
-        dummy_mapping_package_v3_path: Path):
+    dummy_mapping_package_v3_path: Path,
+):
     """Test bulk lightweight validation skips non-directory files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -227,32 +225,29 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_skips_non_dir
         assert result is True
 
 
-def test_validate_mapping_package_v3_lightweight_from_archive_with_custom_loader(
-        dummy_mapping_package_v3_archive_path: Path):
+def test_validate_mapping_package_v3_lightweight_from_archive_with_custom_loader(dummy_mapping_package_v3_archive_path: Path):
     """Test lightweight validation from archive with custom loader."""
     custom_loader = MappingPackageV3LightweightLoader(include_test_data=False, include_output=False)
 
     result = validate_mapping_package_v3_lightweight_from_archive(
-        mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
-        mapping_package_loader=custom_loader)
+        mapping_package_archive_path=dummy_mapping_package_v3_archive_path, mapping_package_loader=custom_loader
+    )
 
     assert result is True
 
 
-def test_validate_mapping_package_v3_lightweight_from_folder_with_custom_loader(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_mapping_package_v3_lightweight_from_folder_with_custom_loader(dummy_mapping_package_v3_path: Path):
     """Test lightweight validation from folder with custom loader."""
     custom_loader = MappingPackageV3LightweightLoader(include_test_data=True, include_output=True)
 
     result = validate_mapping_package_v3_lightweight_from_folder(
-        mapping_package_folder_path=dummy_mapping_package_v3_path,
-        mapping_package_loader=custom_loader)
+        mapping_package_folder_path=dummy_mapping_package_v3_path, mapping_package_loader=custom_loader
+    )
 
     assert result is True
 
 
-def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_with_custom_loader(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_with_custom_loader(dummy_mapping_package_v3_path: Path):
     """Test bulk lightweight validation from folder with custom loader."""
     custom_loader = MappingPackageV3LightweightLoader(include_test_data=False, include_output=False)
 
@@ -262,15 +257,15 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_folder_with_custom_l
         shutil.copytree(dummy_mapping_package_v3_path, package_dir)
 
         result = validate_bulk_mapping_packages_v3_lightweight_from_folder(
-            mapping_packages_folder_path=tmpdir_path,
-            mapping_package_loader=custom_loader)
+            mapping_packages_folder_path=tmpdir_path, mapping_package_loader=custom_loader
+        )
 
         assert result is True
 
 
 def test_validate_bulk_mapping_packages_v3_lightweight_from_github_with_custom_loader(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     """Test bulk lightweight validation from GitHub with custom loader."""
     custom_loader = MappingPackageV3LightweightLoader(include_test_data=True, include_output=True)
 
@@ -278,6 +273,7 @@ def test_validate_bulk_mapping_packages_v3_lightweight_from_github_with_custom_l
         result = validate_bulk_mapping_packages_v3_lightweight_from_github(
             github_repository_url=repo_path,
             packages_path_pattern=dummy_get_all_packages_pattern,
-            mapping_package_loader=custom_loader)
+            mapping_package_loader=custom_loader,
+        )
 
         assert isinstance(result, bool)

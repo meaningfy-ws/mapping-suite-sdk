@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 # Import config for backward compatibility
-from mapping_suite_sdk.core.config import MSSDKCoreConfig
+from mapping_suite_sdk.core.config import MSSDKCoreConfig as MSSDKCoreConfig
 
 if TYPE_CHECKING:
     from mapping_suite_sdk.core.adapters.version_detector import VersionDetectionRule
@@ -17,7 +17,7 @@ class VersionDetectionRegistry:
     Rules are stored with priorities and retrieved sorted by priority (highest first).
     """
 
-    _rules: Dict[str, tuple[VersionDetectionRule, int]] = {}
+    _rules: dict[str, tuple[VersionDetectionRule, int]] = {}
 
     @classmethod
     def register(cls, rule: VersionDetectionRule, priority: int) -> None:
@@ -57,10 +57,4 @@ class VersionDetectionRegistry:
             v3L will be tried
             v2 will be tried
         """
-        return [
-            rule for rule, priority in sorted(
-                cls._rules.values(),
-                key=lambda x: x[1],
-                reverse=True
-            )
-        ]
+        return [rule for rule, priority in sorted(cls._rules.values(), key=lambda x: x[1], reverse=True)]

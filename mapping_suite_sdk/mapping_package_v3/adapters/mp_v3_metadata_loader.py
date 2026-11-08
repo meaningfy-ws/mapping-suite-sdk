@@ -30,6 +30,6 @@ class MappingPackageV3MetadataLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
 
         model_dict: dict = json.loads(asset_path.read_text())
-        model_dict['path'] = asset_path.relative_to(package_folder_path)
+        model_dict["path"] = asset_path.relative_to(package_folder_path)
 
         return MappingPackageV3MetadataJSONLD.model_validate(model_dict)

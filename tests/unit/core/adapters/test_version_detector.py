@@ -7,29 +7,25 @@ Tests the version detection registry, rules, and detection orchestration.
 import json
 from pathlib import Path
 
+# these imports register the version detection rules and need not be "used" directly
+import mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_version_detector  # noqa: F401
+import mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_version_detector  # noqa: F401
+import mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_version_detector  # noqa: F401
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core import VersionDetectionRegistry
 from mapping_suite_sdk.core.adapters.version_detector import (
+    MetadataCondition,
+    PathCondition,
     VersionDetectionRule,
     VersionDetectionSpec,
-    PathCondition,
-    MetadataCondition,
-    detect_mapping_package_version,
+    _get_nested_value,
     _resolve_package_root,
     _try_load_json_metadata,
-    _get_nested_value
+    detect_mapping_package_version,
 )
-
-# these imports register the version detection rules and need not be "used" directly
-from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_version_detector import V1_SPEC
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_version_detector import V2_SPEC
-from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_version_detector import (
-    V3_FULL_SPEC,
-    V3_LIGHTWEIGHT_SPEC
-)
-
 
 # Registry tests
+
 
 def test_all_version_rules_registered():
     """Verify all expected versions are in registry."""
@@ -47,6 +43,7 @@ def test_registry_returns_rules_sorted_by_priority():
 
 
 # Helper utilities tests
+
 
 def test_resolve_package_root_simple(tmp_path):
     """Test resolving package root for simple structure."""
@@ -132,16 +129,10 @@ def test_try_load_json_metadata_invalid_json(tmp_path):
 
 # Declarative spec component tests
 
+
 def test_get_nested_value():
     """Test _get_nested_value helper."""
-    data = {
-        "a": {
-            "b": {
-                "c": 42
-            }
-        },
-        "x": "value"
-    }
+    data = {"a": {"b": {"c": 42}}, "x": "value"}
 
     assert _get_nested_value(data, "a.b.c") == 42
     assert _get_nested_value(data, "x") == "value"
@@ -181,14 +172,7 @@ def test_path_condition_glob_pattern(tmp_path):
 
 def test_metadata_condition(tmp_path):
     """Test MetadataCondition."""
-    metadata = {
-        "identifier": "test-id",
-        "eligibility_constraints": {
-            "constraints": {
-                "min_xsd_version": "1.0"
-            }
-        }
-    }
+    metadata = {"identifier": "test-id", "eligibility_constraints": {"constraints": {"min_xsd_version": "1.0"}}}
 
     condition = MetadataCondition("identifier", must_exist=True)
     assert condition.matches(metadata) is True
@@ -215,7 +199,7 @@ def test_version_detection_spec_to_rule(tmp_path):
         version_id="test",
         priority=10,
         path_conditions=[PathCondition("metadata.json", must_exist=True)],
-        metadata_conditions=[MetadataCondition("identifier", must_exist=True)]
+        metadata_conditions=[MetadataCondition("identifier", must_exist=True)],
     )
 
     rule = spec.to_rule()
@@ -231,6 +215,7 @@ def test_version_detection_spec_to_rule(tmp_path):
 
 # Integration tests for detect_mapping_package_version
 
+
 def test_detect_v2_package(tmp_path):
     """Test end-to-end detection of V2 package."""
     package_dir = tmp_path / "v2_package"
@@ -240,11 +225,7 @@ def test_detect_v2_package(tmp_path):
         "identifier": "test-v2",
         "mapping_version": "1.0",
         "ontology_version": "2.0",
-        "metadata_constraints": {
-            "constraints": {
-                "eforms_sdk_versions": ["1.0", "2.0"]
-            }
-        }
+        "metadata_constraints": {"constraints": {"eforms_sdk_versions": ["1.0", "2.0"]}},
     }
     (package_dir / "metadata.json").write_text(json.dumps(v2_metadata))
 
@@ -261,7 +242,7 @@ def test_detect_v3_full_package(tmp_path):
         "@context": "http://example.org",
         "id": "test-v3",
         "project_identifier": "eforms",
-        "applicability_constraints": {}
+        "applicability_constraints": {},
     }
     (package_dir / "metadata.jsonld").write_text(json.dumps(v3_metadata))
 
@@ -282,7 +263,7 @@ def test_detect_v3_lightweight_package(tmp_path):
         "@context": "http://example.org",
         "id": "test-v3-light",
         "project_identifier": "eforms",
-        "created_at": "2023-01-01T00:00:00Z"
+        "created_at": "2023-01-01T00:00:00Z",
     }
     (package_dir / "metadata.jsonld").write_text(json.dumps(v3_metadata))
 
@@ -304,11 +285,7 @@ def test_detect_unrecognized_package(tmp_path):
         "identifier": "test-v2",
         "mapping_version": "1.0",
         "ontology_version": "2.0",
-        "metadata_constraints": {
-            "constraints": {
-                "eforms_sdk_versions": ["1.0", "2.0"]
-            }
-        }
+        "metadata_constraints": {"constraints": {"eforms_sdk_versions": ["1.0", "2.0"]}},
     }
     (package_dir / "metadata.json").write_text(json.dumps(v2_metadata))
     (package_dir / "some_file.txt").write_text("not a package")
@@ -328,11 +305,7 @@ def test_detect_with_nested_structure(tmp_path):
         "identifier": "test-v2",
         "mapping_version": "1.0",
         "ontology_version": "2.0",
-        "metadata_constraints": {
-            "constraints": {
-                "eforms_sdk_versions": ["1.0", "2.0"]
-            }
-        }
+        "metadata_constraints": {"constraints": {"eforms_sdk_versions": ["1.0", "2.0"]}},
     }
     (nested_dir / "metadata.json").write_text(json.dumps(v2_metadata))
 
@@ -349,16 +322,14 @@ def test_detect_with_custom_rules(tmp_path):
     def custom_matcher(path: Path) -> bool:
         return (path / "custom.json").exists()
 
-    custom_rule = VersionDetectionRule(
-        version_id="custom",
-        matcher=custom_matcher
-    )
+    custom_rule = VersionDetectionRule(version_id="custom", matcher=custom_matcher)
 
     detected = detect_mapping_package_version(package_dir, rules=[custom_rule])
     assert detected == "custom"
 
 
 # Error handling tests
+
 
 def test_version_detection_rule_handles_matcher_exception(tmp_path):
     """Test that rule handles exceptions in matcher gracefully."""

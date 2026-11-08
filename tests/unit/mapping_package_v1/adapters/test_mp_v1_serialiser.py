@@ -7,7 +7,7 @@ import pytest
 
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser import (
     MappingPackageV1MetadataSerialiser,
-    MappingPackageV1Serialiser
+    MappingPackageV1Serialiser,
 )
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 
@@ -142,24 +142,24 @@ def test_mp_v1_serialiser_creates_all_components(dummy_mapping_package_v1_model)
         assert (temp_path / dummy_mapping_package_v1_model.vocabulary_mapping_suite.path).exists()
 
 
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.MappingPackageV1MetadataSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.ConceptualMappingFileAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.TechnicalMappingCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.VocabularyMappingCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.TestDataCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.SPARQLTestCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.SHACLTestCollectionAssetSerialiser')
-@patch('mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.TestResultCollectionAssetSerialiser')
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.MappingPackageV1MetadataSerialiser")
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.ConceptualMappingFileAssetSerialiser")
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.TechnicalMappingCollectionAssetSerialiser")
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.VocabularyMappingCollectionAssetSerialiser")
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.TestDataCollectionAssetSerialiser")
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.SPARQLTestCollectionAssetSerialiser")
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.SHACLTestCollectionAssetSerialiser")
+@patch("mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_serialiser.TestResultCollectionAssetSerialiser")
 def test_mp_v1_serialiser_calls_all_component_serialisers(
-        mock_test_result_serialiser,
-        mock_shacl_serialiser,
-        mock_sparql_serialiser,
-        mock_test_data_serialiser,
-        mock_vocab_serialiser,
-        mock_tech_serialiser,
-        mock_cm_serialiser,
-        mock_metadata_serialiser,
-        dummy_mapping_package_v1_model
+    mock_test_result_serialiser,
+    mock_shacl_serialiser,
+    mock_sparql_serialiser,
+    mock_test_data_serialiser,
+    mock_vocab_serialiser,
+    mock_tech_serialiser,
+    mock_cm_serialiser,
+    mock_metadata_serialiser,
+    dummy_mapping_package_v1_model,
 ):
     if not isinstance(dummy_mapping_package_v1_model, MappingPackageV1):
         pytest.skip("This test requires a V1 mapping package")
@@ -202,8 +202,8 @@ def test_mp_v1_serialiser_tracer_decoration():
     serialiser = MappingPackageV1Serialiser()
 
     # The traced_class decorator should add certain attributes/methods
-    assert hasattr(serialiser, '__class__')
-    assert serialiser.__class__.__name__ == 'MappingPackageV1Serialiser'
+    assert hasattr(serialiser, "__class__")
+    assert serialiser.__class__.__name__ == "MappingPackageV1Serialiser"
 
 
 def test_mp_v1_serialiser_preserves_file_content(dummy_mapping_package_v1_model):
@@ -314,12 +314,12 @@ def test_mp_v1_serialiser_handles_shacl_test_suite(dummy_mapping_package_v1_mode
         shacl_suite = dummy_mapping_package_v1_model.test_suites_shacl
 
         # Check SHACL result query
-        if hasattr(shacl_suite, 'shacl_result_query') and shacl_suite.shacl_result_query:
+        if hasattr(shacl_suite, "shacl_result_query") and shacl_suite.shacl_result_query:
             query_path = temp_path / shacl_suite.shacl_result_query.path
             assert query_path.exists()
 
         # Check SHACL collections
-        if hasattr(shacl_suite, 'shacl_collections'):
+        if hasattr(shacl_suite, "shacl_collections"):
             for collection in shacl_suite.shacl_collections:
                 collection_path = temp_path / collection.path
                 assert collection_path.exists()
@@ -347,8 +347,7 @@ def test_mp_v1_serialiser_handles_empty_collections(dummy_mapping_package_v1_mod
 
 
 def test_mp_v1_serialiser_reproduces_original_structure(
-        dummy_mapping_package_v1_model,
-        dummy_mapping_package_extracted_path: Path
+    dummy_mapping_package_v1_model, dummy_mapping_package_extracted_path: Path
 ):
     """Test that serialization produces the same structure as the original package"""
     if not isinstance(dummy_mapping_package_v1_model, MappingPackageV1):
@@ -398,5 +397,5 @@ def test_mp_v1_serialiser_protocol_implementation():
     serialiser = MappingPackageV1Serialiser()
 
     # Should have the required serialise method
-    assert hasattr(serialiser, 'serialise')
-    assert callable(getattr(serialiser, 'serialise'))
+    assert hasattr(serialiser, "serialise")
+    assert callable(serialiser.serialise)

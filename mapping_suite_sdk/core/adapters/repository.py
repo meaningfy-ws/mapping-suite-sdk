@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pymongo import MongoClient
 
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
-T = TypeVar('T', bound=PydanticModel)
+T = TypeVar("T", bound=PydanticModel)
 
 
 class RepositoryError(Exception):
@@ -27,7 +27,7 @@ class RepositoryABC(Generic[T], ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def read_many(self, filters: Optional[Dict[str, Any]] = None) -> List[T]:
+    def read_many(self, filters: dict[str, Any] | None = None) -> list[T]:
         raise NotImplementedError
 
     @abstractmethod
@@ -46,11 +46,7 @@ class RepositoryABC(Generic[T], ABC):
 @traced_class
 class MongoDBRepository(RepositoryABC[T]):
     def __init__(
-            self,
-            model_class: Type[T],
-            mongo_client: MongoClient,
-            database_name: str,
-            collection_name: Optional[str] = None
+        self, model_class: type[T], mongo_client: MongoClient, database_name: str, collection_name: str | None = None
     ):
         self.model_class = model_class
         self.client = mongo_client
@@ -84,15 +80,15 @@ class MongoDBRepository(RepositoryABC[T]):
                 result_dict.pop("_id")
         return self.model_class.model_validate(result_dict)
 
-    def read_many(self, filters: Optional[Dict[str, Any]] = None) -> List[T]:
+    def read_many(self, filters: dict[str, Any] | None = None) -> list[T]:
         query = filters or {}
         results = self.collection.find(query)
         models = []
-        
+
         # Check once if model has an 'id' field (with or without alias)
         model_fields = self.model_class.model_fields
         has_id_field = "id" in model_fields or any(field.alias == "_id" for field in model_fields.values())
-        
+
         for doc in results:
             # Convert MongoDB document to dict and handle _id appropriately
             doc_dict = dict(doc)
@@ -108,7 +104,7 @@ class MongoDBRepository(RepositoryABC[T]):
         return models
 
     def update(self, model: T) -> T:
-        query = {'_id': model.id}
+        query = {"_id": model.id}
         existing = self.collection.find_one(query)
         if existing is None:
             raise ModelNotFoundError(f"Asset with ID {model.id} not found")
@@ -121,7 +117,7 @@ class MongoDBRepository(RepositoryABC[T]):
         return model
 
     def upsert(self, model: T) -> T:
-        query = {'_id': model.id}
+        query = {"_id": model.id}
         model_dict = model.model_dump(by_alias=True, mode="json")
         model_dict["_id"] = model.id
         # Use replace_one so the persisted document exactly matches the
@@ -132,7 +128,7 @@ class MongoDBRepository(RepositoryABC[T]):
         return model
 
     def delete(self, model_id: str) -> None:
-        result = self.collection.delete_one({'_id': model_id})
+        result = self.collection.delete_one({"_id": model_id})
 
         if result.deleted_count < 1:
             raise ModelNotFoundError(f"Asset with ID {model_id} not found")

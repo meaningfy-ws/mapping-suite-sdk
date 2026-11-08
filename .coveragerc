@@ -1,0 +1,20 @@
+[run]
+branch = True
+source = mapping_suite_sdk
+
+[report]
+precision = 2
+show_missing = True
+skip_empty = True
+sort = Cover
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self\.debug
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+fail_under = 80
+
+[xml]
+output = coverage.xml

@@ -1,8 +1,7 @@
 from pathlib import Path
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.adapters.loader import Loader, TechnicalMappingSuiteLoader, \
-    VocabularyMappingSuiteLoader
+from mapping_suite_sdk.core.adapters.loader import Loader, TechnicalMappingSuiteLoader, VocabularyMappingSuiteLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_loader import MappingPackageV3MetadataLoader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
@@ -15,17 +14,17 @@ class MappingPackageV3LightweightLoader(Loader):
     Coordinates the loading of all components of a mapping package using specialized loaders.
     """
 
-    def __init__(self,
-                 include_test_data: bool = True,
-                 include_output: bool = True,
-                 ):
+    def __init__(
+        self,
+        include_test_data: bool = True,
+        include_output: bool = True,
+    ):
         self.include_test_data = include_test_data
         self.include_output = include_output
 
     def __eq__(self, other):
         if isinstance(other, MappingPackageV3LightweightLoader):
-            return (self.include_test_data == other.include_test_data and
-                    self.include_output == other.include_output)
+            return self.include_test_data == other.include_test_data and self.include_output == other.include_output
         return False
 
     def load(self, package_folder_path: Path) -> MappingPackageV3Lightweight:
@@ -43,18 +42,20 @@ class MappingPackageV3LightweightLoader(Loader):
             MappingPackageABC: Complete mapping package with all loaded components.
         """
 
-        metadata = MappingPackageV3MetadataLoader().load(package_folder_path=package_folder_path,
-                                                         relative_asset_path=mssdk_config.MPV3_METADATA_FILE_ASSET_PATH)
+        metadata = MappingPackageV3MetadataLoader().load(
+            package_folder_path=package_folder_path, relative_asset_path=mssdk_config.MPV3_METADATA_FILE_ASSET_PATH
+        )
 
+        technical_mapping_suite = TechnicalMappingSuiteLoader().load(
+            package_folder_path=package_folder_path, relative_asset_path=mssdk_config.MPV3_TECHNICAL_COLLECTION_ASSET_PATH
+        )
 
-        technical_mapping_suite = TechnicalMappingSuiteLoader().load(package_folder_path=package_folder_path,
-                                                                     relative_asset_path=mssdk_config.MPV3_TECHNICAL_COLLECTION_ASSET_PATH)
-
-        vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(package_folder_path=package_folder_path,
-                                                                       relative_asset_path=mssdk_config.MPV3_VOCABULARY_COLLECTION_ASSET_PATH)
+        vocabulary_mapping_suite = VocabularyMappingSuiteLoader().load(
+            package_folder_path=package_folder_path, relative_asset_path=mssdk_config.MPV3_VOCABULARY_COLLECTION_ASSET_PATH
+        )
 
         return MappingPackageV3Lightweight(
             metadata=metadata,
             technical_mapping_suite=technical_mapping_suite,
-            vocabulary_mapping_suite=vocabulary_mapping_suite
+            vocabulary_mapping_suite=vocabulary_mapping_suite,
         )

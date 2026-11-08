@@ -19,8 +19,10 @@ context: |
   v3 and mapping_suite models are generated from LinkML in resources/schema/ via
   `make generate-models` (templates in resources/templates/); CI fails if they are out of sync.
   Layers enforced by .importlinter (`make check-architecture`).
-  Tooling today (pre-modernisation): Poetry, tox, pylint, radon/xenon, pytest under tests/unit,
-  Codecov in CI; SonarQube Cloud free plan via Automatic Analysis (no CI step). Python >=3.10,<3.13.
+  Tooling: Poetry (>=2.2, PEP 735 groups test/lint/model); one gate `make check-all` = Ruff,
+  mypy baseline, import-linter, codegen sync, pytest + coverage >=80%; each tool in its own root
+  config file. CI (ci.yaml) runs it on Python 3.10-3.13; Codecov in CI; SonarQube Cloud free plan
+  via Automatic Analysis (no CI step). Python >=3.10,<3.14.
   Docs: Antora in docs/ (`make build-docs`). Default/integration branch: develop.
   Commits: Conventional Commits (imperative, no trailing punctuation).
   Artifact vocabulary: EPIC ≡ proposal.md (Shape-Up work shape);

@@ -10,10 +10,10 @@ from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_suite.adapters.loader import MappingSuiteLoader
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import MappingSuite
 from mapping_suite_sdk.mapping_suite.services.load_mapping_suite import (
-    load_mapping_suite_from_folder,
     load_mapping_suite_from_archive,
+    load_mapping_suite_from_folder,
+    load_mapping_suite_from_mongo_db,
     load_mapping_suites_from_github,
-    load_mapping_suite_from_mongo_db
 )
 
 
@@ -30,17 +30,11 @@ class TestLoadMappingSuiteFromFolder:
         assert result.mapping_suite_config.resource_references.file_paths is not None
         assert result.resource_file_contents is not None
 
-    def test_load_mapping_suite_from_folder_with_custom_loader(
-            self,
-            dummy_mapping_suite_folder_path: Path
-    ):
+    def test_load_mapping_suite_from_folder_with_custom_loader(self, dummy_mapping_suite_folder_path: Path):
         """Test loading with a custom loader instance."""
         custom_loader = MappingSuiteLoader(include_resources=False)
 
-        result = load_mapping_suite_from_folder(
-            dummy_mapping_suite_folder_path,
-            custom_loader
-        )
+        result = load_mapping_suite_from_folder(dummy_mapping_suite_folder_path, custom_loader)
 
         assert isinstance(result, MappingSuite)
         assert result.resource_file_contents is None
@@ -67,17 +61,14 @@ class TestLoadMappingSuiteFromFolder:
 
     def test_load_mapping_suite_from_folder_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""
-        assert hasattr(load_mapping_suite_from_folder, '__name__')
-        assert load_mapping_suite_from_folder.__name__ == 'load_mapping_suite_from_folder'
+        assert hasattr(load_mapping_suite_from_folder, "__name__")
+        assert load_mapping_suite_from_folder.__name__ == "load_mapping_suite_from_folder"
 
 
 class TestLoadMappingSuiteFromArchive:
     """Tests for loading mapping suites from archive files."""
 
-    def test_load_mapping_suite_from_archive_success(
-            self,
-            dummy_mapping_suite_archive_path: Path
-    ):
+    def test_load_mapping_suite_from_archive_success(self, dummy_mapping_suite_archive_path: Path):
         """Test successful loading of a mapping suite from an archive."""
         result = load_mapping_suite_from_archive(dummy_mapping_suite_archive_path)
 
@@ -85,32 +76,20 @@ class TestLoadMappingSuiteFromArchive:
         assert result.mapping_suite_config is not None
         assert result.mapping_suite_config.mapping_suite_metadata is not None
 
-    def test_load_mapping_suite_from_archive_with_custom_loader(
-            self,
-            dummy_mapping_suite_archive_path: Path
-    ):
+    def test_load_mapping_suite_from_archive_with_custom_loader(self, dummy_mapping_suite_archive_path: Path):
         """Test loading from archive with a custom loader instance."""
         custom_loader = MappingSuiteLoader(include_resources=False)
 
-        result = load_mapping_suite_from_archive(
-            dummy_mapping_suite_archive_path,
-            mapping_suite_loader=custom_loader
-        )
+        result = load_mapping_suite_from_archive(dummy_mapping_suite_archive_path, mapping_suite_loader=custom_loader)
 
         assert isinstance(result, MappingSuite)
         assert result.resource_file_contents is None
 
-    def test_load_mapping_suite_from_archive_with_custom_extractor(
-            self,
-            dummy_mapping_suite_archive_path: Path
-    ):
+    def test_load_mapping_suite_from_archive_with_custom_extractor(self, dummy_mapping_suite_archive_path: Path):
         """Test loading from archive with a custom extractor instance."""
         custom_extractor = ArchiveExtractor()
 
-        result = load_mapping_suite_from_archive(
-            dummy_mapping_suite_archive_path,
-            archive_unpacker=custom_extractor
-        )
+        result = load_mapping_suite_from_archive(dummy_mapping_suite_archive_path, archive_unpacker=custom_extractor)
 
         assert isinstance(result, MappingSuite)
 
@@ -135,8 +114,8 @@ class TestLoadMappingSuiteFromArchive:
 
     def test_load_mapping_suite_from_archive_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""
-        assert hasattr(load_mapping_suite_from_archive, '__name__')
-        assert load_mapping_suite_from_archive.__name__ == 'load_mapping_suite_from_archive'
+        assert hasattr(load_mapping_suite_from_archive, "__name__")
+        assert load_mapping_suite_from_archive.__name__ == "load_mapping_suite_from_archive"
 
 
 class TestLoadMappingSuitesFromGitHub:
@@ -152,22 +131,14 @@ class TestLoadMappingSuitesFromGitHub:
     def test_load_mapping_suites_from_github_empty_pattern(self):
         """Test error handling for empty path pattern."""
         with pytest.raises(ValueError) as exc_info:
-            load_mapping_suites_from_github(
-                "https://github.com/test/repo",
-                "",
-                "branch"
-            )
+            load_mapping_suites_from_github("https://github.com/test/repo", "", "branch")
 
         assert "Suites path pattern is required" in str(exc_info.value)
 
     def test_load_mapping_suites_from_github_no_pattern(self):
         """Test error handling when pattern is None."""
         with pytest.raises(ValueError) as exc_info:
-            load_mapping_suites_from_github(
-                "https://github.com/test/repo",
-                None,
-                "branch"
-            )
+            load_mapping_suites_from_github("https://github.com/test/repo", None, "branch")
 
         assert "Suites path pattern is required" in str(exc_info.value)
 
@@ -183,18 +154,12 @@ class TestLoadMappingSuitesFromGitHub:
 
         with pytest.raises(ValueError) as exc_info:
             load_mapping_suites_from_github(
-                "https://github.com/test/repo",
-                "suites/*",
-                "main",
-                github_suite_extractor=mock_extractor
+                "https://github.com/test/repo", "suites/*", "main", github_suite_extractor=mock_extractor
             )
 
         assert "No mapping suites found" in str(exc_info.value)
 
-    def test_load_mapping_suites_from_github_success_single_suite(
-            self,
-            dummy_mapping_suite_folder_path: Path
-    ):
+    def test_load_mapping_suites_from_github_success_single_suite(self, dummy_mapping_suite_folder_path: Path):
         """Test successful loading of a single suite from GitHub."""
         mock_extractor = Mock(spec=GitHubExtractor)
 
@@ -205,20 +170,14 @@ class TestLoadMappingSuitesFromGitHub:
         mock_extractor.extract_temporary = mock_extract_temporary
 
         result = load_mapping_suites_from_github(
-            "https://github.com/test/repo",
-            "suites/*",
-            "main",
-            github_suite_extractor=mock_extractor
+            "https://github.com/test/repo", "suites/*", "main", github_suite_extractor=mock_extractor
         )
 
         assert isinstance(result, list)
         assert len(result) == 1
         assert isinstance(result[0], MappingSuite)
 
-    def test_load_mapping_suites_from_github_with_custom_loader(
-            self,
-            dummy_mapping_suite_folder_path: Path
-    ):
+    def test_load_mapping_suites_from_github_with_custom_loader(self, dummy_mapping_suite_folder_path: Path):
         """Test loading from GitHub with a custom loader."""
         mock_extractor = Mock(spec=GitHubExtractor)
         custom_loader = MappingSuiteLoader(include_resources=False)
@@ -234,7 +193,7 @@ class TestLoadMappingSuitesFromGitHub:
             "suites/*",
             "main",
             github_suite_extractor=mock_extractor,
-            mapping_suite_loader=custom_loader
+            mapping_suite_loader=custom_loader,
         )
 
         assert isinstance(result, list)
@@ -244,8 +203,8 @@ class TestLoadMappingSuitesFromGitHub:
 
     def test_load_mapping_suites_from_github_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""
-        assert hasattr(load_mapping_suites_from_github, '__name__')
-        assert load_mapping_suites_from_github.__name__ == 'load_mapping_suites_from_github'
+        assert hasattr(load_mapping_suites_from_github, "__name__")
+        assert load_mapping_suites_from_github.__name__ == "load_mapping_suites_from_github"
 
 
 class TestLoadMappingSuiteFromMongoDB:
@@ -299,5 +258,5 @@ class TestLoadMappingSuiteFromMongoDB:
 
     def test_load_mapping_suite_from_mongo_db_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""
-        assert hasattr(load_mapping_suite_from_mongo_db, '__name__')
-        assert load_mapping_suite_from_mongo_db.__name__ == 'load_mapping_suite_from_mongo_db'
+        assert hasattr(load_mapping_suite_from_mongo_db, "__name__")
+        assert load_mapping_suite_from_mongo_db.__name__ == "load_mapping_suite_from_mongo_db"

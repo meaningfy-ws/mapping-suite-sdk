@@ -10,7 +10,7 @@ import os
 
 from opentelemetry import trace
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-from opentelemetry.sdk.trace import TracerProvider, SpanProcessor
+from opentelemetry.sdk.trace import SpanProcessor, TracerProvider
 
 # Environment variable to control tracing state
 _MSSDK_TRACE_VAR_NAME = "MSSDK_TRACE"
@@ -53,7 +53,7 @@ def get_mssdk_tracing() -> bool:
     Returns:
         The current tracing state (true or false)
     """
-    return os.getenv(_MSSDK_TRACE_VAR_NAME, 'false').casefold().strip() == 'true'
+    return os.getenv(_MSSDK_TRACE_VAR_NAME, "false").casefold().strip() == "true"
 
 
 def is_mssdk_tracing_enabled() -> bool:
@@ -84,7 +84,6 @@ def traced_routine(func):
     def wrapper(*args, **kwargs):
         if is_mssdk_tracing_enabled():
             with trace.get_tracer(__name__).start_as_current_span(f"{func.__module__}.{func.__name__}") as span:
-
                 span.set_attribute("function.name", func.__name__)
                 span.set_attribute("function.module", func.__module__)
                 span.set_attribute("function.args", args)
@@ -150,7 +149,7 @@ def traced_class(cls):
 
     for attr_name, attr_value in cls.__dict__.items():
         # Skip special methods and non-callable attributes
-        if callable(attr_value) and not attr_name.startswith('__'):
+        if callable(attr_value) and not attr_name.startswith("__"):
             setattr(cls, attr_name, class_traced_routine(attr_value))
 
     return cls

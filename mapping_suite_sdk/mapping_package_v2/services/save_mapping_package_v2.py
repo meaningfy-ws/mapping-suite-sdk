@@ -4,13 +4,14 @@ Service for saving MappingPackageV2 to MongoDB.
 This module provides a service to persist MappingPackageV2 models
 to a MongoDB database using the MappingPackageV2Saver adapter.
 """
+
 import logging
-from typing import Optional
 
 from pymongo import MongoClient
 
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_package_saver import MappingPackageV2Saver
+
 # Import from __init__ to ensure id property is patched
 from mapping_suite_sdk.mapping_package_v2.models import MappingPackageV2
 
@@ -19,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 @traced_routine
 def save_mapping_package_v2_to_mongo_db(
-        mapping_package: MappingPackageV2,
-        mongo_client: MongoClient,
-        database_name: str,
-        collection_name: str = "mapping_package",
-        package_saver: Optional[MappingPackageV2Saver] = None
+    mapping_package: MappingPackageV2,
+    mongo_client: MongoClient,
+    database_name: str,
+    collection_name: str = "mapping_package",
+    package_saver: MappingPackageV2Saver | None = None,
 ) -> MappingPackageV2:
     """Save a MappingPackageV2 model to MongoDB.
 
@@ -51,6 +52,5 @@ def save_mapping_package_v2_to_mongo_db(
         mapping_package=mapping_package,
         mongo_client=mongo_client,
         database_name=database_name,
-        collection_name=collection_name
+        collection_name=collection_name,
     )
-

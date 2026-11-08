@@ -1,6 +1,4 @@
-from typing import Optional
-
-from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
+from mapping_suite_sdk.core.adapters.hasher import HasherABC, MappingPackageHasher, SHA256Hasher, normalize_content
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 
 
@@ -16,11 +14,11 @@ class MappingPackageV1Hasher(MappingPackageHasher):
         hasher (HasherABC): The hasher implementation to use for generating hashes.
     """
 
-    def __init__(self, mapping_package: MappingPackageV1, hasher: Optional[HasherABC] = None):
+    def __init__(self, mapping_package: MappingPackageV1, hasher: HasherABC | None = None):
         self.mapping_package = mapping_package
         self.hasher = hasher or SHA256Hasher()
 
-    def hash(self, with_version: Optional[str] = None) -> str:
+    def hash(self, with_version: str | None = None) -> str:
         """
         Generate a comprehensive hash for the entire Mapping Package.
 

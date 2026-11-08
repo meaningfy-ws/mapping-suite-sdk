@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from mapping_suite_sdk.core.adapters.hasher import SHA256Hasher, HasherABC
+from mapping_suite_sdk.core.adapters.hasher import HasherABC, SHA256Hasher
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_hasher import MappingPackageV2Hasher
 
 
@@ -81,14 +81,14 @@ def test_mp_v2_hasher_hash_includes_all_components(dummy_mapping_package_v2_mode
 
     # Should be called multiple times:
     # - Once for each technical mapping file
-    # - Once for each vocabulary mapping file  
+    # - Once for each vocabulary mapping file
     # - Once for conceptual mapping
     # - Once for final signature combination
     expected_calls = (
-            len(dummy_mapping_package_v2_model.technical_mapping_suite.files) +
-            len(dummy_mapping_package_v2_model.vocabulary_mapping_suite.files) +
-            1 +  # conceptual mapping
-            1  # final hash
+        len(dummy_mapping_package_v2_model.technical_mapping_suite.files)
+        + len(dummy_mapping_package_v2_model.vocabulary_mapping_suite.files)
+        + 1  # conceptual mapping
+        + 1  # final hash
     )
 
     assert mock_hasher.hash.call_count == expected_calls
@@ -150,4 +150,4 @@ def test_mp_v2_hasher_real_sha256_hash_format(dummy_mapping_package_v2_model):
     # Real SHA256 hash should be 64 character hex string
     assert isinstance(result, str)
     assert len(result) == 64
-    assert all(c in '0123456789abcdef' for c in result.lower())
+    assert all(c in "0123456789abcdef" for c in result.lower())

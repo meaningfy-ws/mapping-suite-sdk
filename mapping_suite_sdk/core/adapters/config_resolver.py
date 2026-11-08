@@ -1,15 +1,16 @@
 import os
-from abc import abstractmethod, ABC
-from typing import Type, Optional, Callable, Any
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from typing import Any
 
 
 class ConfigResolverABC(ABC):
     """
-        This class defines a configuration resolution abstraction.
+    This class defines a configuration resolution abstraction.
     """
 
     @abstractmethod
-    def concrete_config_resolve(self, config_name: str, default_value: Optional[str]) -> str:
+    def concrete_config_resolve(self, config_name: str, default_value: str | None) -> str:
         """
             This abstract method is used to be able to define the configuration search in different environments.
         :param config_name: The name of the configuration
@@ -21,25 +22,26 @@ class ConfigResolverABC(ABC):
 
 class EnvConfigResolver(ConfigResolverABC):
     """
-        This class aims to search for configurations in environment variables.
+    This class aims to search for configurations in environment variables.
     """
 
-    def concrete_config_resolve(self, config_name: str, default_value: Optional[str]) -> str:
+    def concrete_config_resolve(self, config_name: str, default_value: str | None) -> str:
         value = os.environ.get(config_name, default=default_value)
         return value
 
 
 class DefaultValueConfigResolver(ConfigResolverABC):
     """
-        This class aims to return a default value for any configuration.
+    This class aims to return a default value for any configuration.
     """
 
     def concrete_config_resolve(self, config_name: str, default_value: str) -> str:
         return default_value
 
 
-def env_property(config_resolver_class: Type[ConfigResolverABC],
-                 default_value: Optional[str]) -> Callable[[Callable[..., str]], property]:
+def env_property(
+    config_resolver_class: type[ConfigResolverABC], default_value: str | None
+) -> Callable[[Callable[..., str]], property]:
     """
     Decorator for config properties. Converts a method (self, config_value: str) -> Any
     into a property returning Any.
@@ -48,8 +50,7 @@ def env_property(config_resolver_class: Type[ConfigResolverABC],
     def wrap(func: Callable[..., Any]) -> property:
         def wrapped_function(self) -> Any:
             config_value = config_resolver_class().concrete_config_resolve(
-                config_name=func.__name__,
-                default_value=default_value
+                config_name=func.__name__, default_value=default_value
             )
             return func(self, config_value)
 

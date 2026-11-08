@@ -1,4 +1,4 @@
-from typing import final, Optional, NoReturn, Literal
+from typing import Literal, NoReturn, final
 
 from mapping_suite_sdk.core.adapters.hasher import HasherABC
 from mapping_suite_sdk.core.adapters.tracer import traced_class
@@ -7,10 +7,12 @@ from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_hasher import MappingPa
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 
 
-class MPStructuralValidationException(MPValidationException): pass
+class MPStructuralValidationException(MPValidationException):
+    pass
 
 
-class MPHashValidationException(MPValidationException): pass
+class MPHashValidationException(MPValidationException):
+    pass
 
 
 class MPV1StructuralValidationStep(MPValidationStepABC):
@@ -41,8 +43,8 @@ class MPV1StructuralValidationStep(MPValidationStepABC):
 
         # TODO: structural validation also must check relation between test data and results
 
-        except AssertionError:
-            raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites")
+        except AssertionError as err:
+            raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites") from err
         return True
 
 
@@ -52,20 +54,18 @@ class MPV1HashValidationStep(MPValidationStepABC):
     """
 
     @validate_next
-    def validate(self,
-                 mapping_package: MappingPackageV1,
-                 hasher: Optional[HasherABC] = None) -> Literal[True] | NoReturn:
-
+    def validate(self, mapping_package: MappingPackageV1, hasher: HasherABC | None = None) -> Literal[True] | NoReturn:
         mp_hasher = MappingPackageV1Hasher(mapping_package=mapping_package, hasher=hasher)
         generated_hash: str = mp_hasher.hash()
 
         try:
             assert generated_hash == mapping_package.metadata.signature
-        except AssertionError:
+        except AssertionError as err:
             raise MPHashValidationException(
                 f"Mapping Package validation error: Package with identifier {mapping_package.metadata.identifier} has different signature:\n"
                 f"Expected  signature for {mapping_package.metadata.identifier}: {mapping_package.metadata.signature}\n"
-                f"Generated signature for {mapping_package.metadata.identifier}: {generated_hash}")
+                f"Generated signature for {mapping_package.metadata.identifier}: {generated_hash}"
+            ) from err
 
         return True
 
@@ -84,7 +84,7 @@ class MappingPackageV1Validator:
             Executes the validation chain to validate the given Mapping Package.
     """
 
-    def __init__(self, validation_chain: Optional[MPValidationStepABC] = None):
+    def __init__(self, validation_chain: MPValidationStepABC | None = None):
         self.validation_chain = validation_chain or MPV1StructuralValidationStep(MPV1HashValidationStep())
 
     def validate(self, mapping_package: MappingPackageV1) -> Literal[True] | NoReturn:

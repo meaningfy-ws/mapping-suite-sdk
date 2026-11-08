@@ -4,12 +4,14 @@ import pytest
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.tools.services.convert_mapping_package_v1_to_v3 import convert_mapping_package_v1_to_v3
 
 
-def test_convert_mapping_package_v1_to_v3_maps_metadata_constraints_and_assets(dummy_mapping_package_v1_model: MappingPackageV1):
+def test_convert_mapping_package_v1_to_v3_maps_metadata_constraints_and_assets(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+):
     mpv1 = dummy_mapping_package_v1_model
 
     # Make the test deterministic by overriding key inputs.
@@ -50,7 +52,10 @@ def test_convert_mapping_package_v1_to_v3_maps_metadata_constraints_and_assets(d
 
     assert result.metadata.applicability_constraints.document_time_interval is not None
     assert result.metadata.applicability_constraints.document_time_interval.start is not None
-    assert result.metadata.applicability_constraints.document_time_interval.start.date() == datetime.fromisoformat("2014-01-01").date()
+    assert (
+        result.metadata.applicability_constraints.document_time_interval.start.date()
+        == datetime.fromisoformat("2014-01-01").date()
+    )
 
     assert result.metadata.applicability_constraints.document_version_range is not None
     assert result.metadata.applicability_constraints.document_version_range.min == "R2.0.9.S01.E01"
@@ -80,27 +85,35 @@ def test_convert_mapping_package_v1_to_v3_fails_with_invalid_input() -> None:
         convert_mapping_package_v1_to_v3(None)  # type: ignore[arg-type]
 
 
-def test_convert_mapping_package_v1_to_v3_fails_with_invalid_issue_date(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_fails_with_invalid_issue_date(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.issue_date = "invalid-date-format"
     with pytest.raises((ValueError, TypeError)):
         convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
 
-def test_convert_mapping_package_v1_to_v3_fails_with_invalid_start_date(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_fails_with_invalid_start_date(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = ["invalid-date-format"]
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = []
     with pytest.raises((ValueError, TypeError)):
         convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
 
-def test_convert_mapping_package_v1_to_v3_fails_with_invalid_end_date(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_fails_with_invalid_end_date(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = []
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = ["invalid-date-format"]
     with pytest.raises((ValueError, TypeError)):
         convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
 
 
-def test_convert_mapping_package_v1_to_v3_empty_date_lists_result_in_no_interval(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_empty_date_lists_result_in_no_interval(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = []
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = []
 
@@ -111,7 +124,9 @@ def test_convert_mapping_package_v1_to_v3_empty_date_lists_result_in_no_interval
     assert result.metadata.applicability_constraints.document_time_interval is None
 
 
-def test_convert_mapping_package_v1_to_v3_only_start_date_creates_open_interval(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_only_start_date_creates_open_interval(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = ["2014-01-01"]
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = []
 
@@ -124,7 +139,9 @@ def test_convert_mapping_package_v1_to_v3_only_start_date_creates_open_interval(
     assert result.metadata.applicability_constraints.document_time_interval.end is None
 
 
-def test_convert_mapping_package_v1_to_v3_only_end_date_creates_open_interval(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_only_end_date_creates_open_interval(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.start_date = []
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.end_date = ["2014-12-31"]
 
@@ -137,7 +154,9 @@ def test_convert_mapping_package_v1_to_v3_only_end_date_creates_open_interval(du
     assert result.metadata.applicability_constraints.document_time_interval.end is not None
 
 
-def test_convert_mapping_package_v1_to_v3_empty_subtypes_kept_as_empty_list(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_empty_subtypes_kept_as_empty_list(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.eforms_subtype = []
 
     result = convert_mapping_package_v1_to_v3(dummy_mapping_package_v1_model)
@@ -147,7 +166,9 @@ def test_convert_mapping_package_v1_to_v3_empty_subtypes_kept_as_empty_list(dumm
     assert result.metadata.applicability_constraints.document_type_list == []
 
 
-def test_convert_mapping_package_v1_to_v3_empty_xsd_versions_result_in_no_version_range(dummy_mapping_package_v1_model: MappingPackageV1) -> None:
+def test_convert_mapping_package_v1_to_v3_empty_xsd_versions_result_in_no_version_range(
+    dummy_mapping_package_v1_model: MappingPackageV1,
+) -> None:
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.min_xsd_version = []
     dummy_mapping_package_v1_model.metadata.eligibility_constraints.constraints.max_xsd_version = []
 

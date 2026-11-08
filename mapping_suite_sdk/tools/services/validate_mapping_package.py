@@ -11,9 +11,9 @@ Consumers should not need to import version-specific validation modules.
 
 from __future__ import annotations
 
-from pathlib import Path
 import tempfile
-from typing import Optional, Literal, NoReturn
+from pathlib import Path
+from typing import Literal, NoReturn
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_class, traced_routine
@@ -62,12 +62,11 @@ def _normalize_version(version: str) -> Version:
 def _validate_model(mapping_package: MappingPackage, version: Version) -> Literal[True] | NoReturn:
     # Import lazily to avoid version-specific imports in consumer code.
     from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+    from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import validate_mapping_package_v1
     from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+    from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import validate_mapping_package_v2
     from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
     from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
-
-    from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import validate_mapping_package_v1
-    from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import validate_mapping_package_v2
     from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import validate_mapping_package_v3
     from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_lightweight import (
         validate_mapping_package_v3_lightweight,
@@ -99,17 +98,21 @@ def _create_loader_for_version(version: Version, include_test_data: bool, includ
     """Create a version-specific loader with the given flags."""
     if version == Version.V1:
         from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
+
         return MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
     if version == Version.V2:
         from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
+
         return MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
     if version == Version.V3:
         from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+
         return MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
     if version == Version.V3L:
         from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import (
             MappingPackageV3LightweightLoader,
         )
+
         return MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
     raise CrossVersionValidationError(f"Unsupported version: {version}")
 
@@ -121,9 +124,15 @@ def _validate_folder_from_path(
     include_output: bool = False,
 ) -> Literal[True] | NoReturn:
     """Call the appropriate version-specific folder validator."""
-    from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import validate_mapping_package_v1_from_folder
-    from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import validate_mapping_package_v2_from_folder
-    from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import validate_mapping_package_v3_from_folder
+    from mapping_suite_sdk.mapping_package_v1.services.validate_mapping_package_v1 import (
+        validate_mapping_package_v1_from_folder,
+    )
+    from mapping_suite_sdk.mapping_package_v2.services.validate_mapping_package_v2 import (
+        validate_mapping_package_v2_from_folder,
+    )
+    from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import (
+        validate_mapping_package_v3_from_folder,
+    )
     from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3_lightweight import (
         validate_mapping_package_v3_lightweight_from_folder,
     )
@@ -142,7 +151,7 @@ def _validate_folder_from_path(
 
 def _validate_archive_path(
     path: Path,
-    version: Optional[str],
+    version: str | None,
     include_test_data: bool = False,
     include_output: bool = False,
 ) -> Literal[True] | NoReturn:
@@ -160,7 +169,7 @@ def _validate_archive_path(
 
 def _validate_folder_path(
     path: Path,
-    version: Optional[str],
+    version: str | None,
     include_test_data: bool = False,
     include_output: bool = False,
 ) -> Literal[True] | NoReturn:
@@ -174,7 +183,7 @@ def _validate_folder_path(
 
 def _validate_path(
     path: Path,
-    version: Optional[str],
+    version: str | None,
     include_test_data: bool = False,
     include_output: bool = False,
 ) -> Literal[True] | NoReturn:
@@ -183,7 +192,7 @@ def _validate_path(
 
     if path.is_file():
         return _validate_archive_path(path, version, include_test_data, include_output)
-    
+
     return _validate_folder_path(path, version, include_test_data, include_output)
 
 
@@ -209,7 +218,7 @@ def _detect_version_from_model(mapping_package: MappingPackage) -> Version:
 @traced_routine
 def validate_mapping_package(
     mapping_package: Path | MappingPackage,
-    version: Optional[str] = None,
+    version: str | None = None,
     include_test_data: bool = False,
     include_output: bool = False,
 ) -> Literal[True] | NoReturn:

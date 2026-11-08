@@ -2,12 +2,11 @@ import hashlib
 import logging
 import re
 from abc import ABC, abstractmethod
-from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
 
-def normalize_content(content: Union[str, bytes]) -> bytes:
+def normalize_content(content: str | bytes) -> bytes:
     """
     Normalize content by removing different types of line endings.
 
@@ -20,12 +19,12 @@ def normalize_content(content: Union[str, bytes]) -> bytes:
     Returns:
         bytes: The normalized content as bytes with line endings removed.
     """
-    new_line_pattern = re.compile(b'\r\n|\r|\n')
+    new_line_pattern = re.compile(b"\r\n|\r|\n")
 
     if isinstance(content, str):
-        return re.sub(new_line_pattern, b'', content.encode('utf-8'))
+        return re.sub(new_line_pattern, b"", content.encode("utf-8"))
     else:
-        return re.sub(new_line_pattern, b'', content)
+        return re.sub(new_line_pattern, b"", content)
 
 
 class HasherABC(ABC):
@@ -77,7 +76,7 @@ class MappingPackageHasher(ABC):
     """
 
     @abstractmethod
-    def hash(self, with_version: Optional[str] = None) -> str:
+    def hash(self, with_version: str | None = None) -> str:
         """
         Generate a comprehensive hash for a mapping package.
 

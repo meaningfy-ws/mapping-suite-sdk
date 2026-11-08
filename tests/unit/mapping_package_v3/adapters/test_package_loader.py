@@ -10,14 +10,14 @@ def test_mp_v3_loader_loads_with_success(dummy_mapping_package_v3_path: Path) ->
     loader = MappingPackageV3Loader()
     mapping_package: MappingPackageV3 = loader.load(dummy_mapping_package_v3_path)
 
-    assert hasattr(mapping_package, 'metadata')
-    assert hasattr(mapping_package, 'conceptual_mapping_asset')
-    assert hasattr(mapping_package, 'technical_mapping_suite')
-    assert hasattr(mapping_package, 'vocabulary_mapping_suite')
-    assert hasattr(mapping_package, 'test_data_suites')
-    assert hasattr(mapping_package, 'test_suites_sparql')
-    assert hasattr(mapping_package, 'test_suites_shacl')
-    assert hasattr(mapping_package, 'test_results')
+    assert hasattr(mapping_package, "metadata")
+    assert hasattr(mapping_package, "conceptual_mapping_asset")
+    assert hasattr(mapping_package, "technical_mapping_suite")
+    assert hasattr(mapping_package, "vocabulary_mapping_suite")
+    assert hasattr(mapping_package, "test_data_suites")
+    assert hasattr(mapping_package, "test_suites_sparql")
+    assert hasattr(mapping_package, "test_suites_shacl")
+    assert hasattr(mapping_package, "test_results")
 
 
 def test_mp_v3_loader_fails_on_wrong_path() -> None:

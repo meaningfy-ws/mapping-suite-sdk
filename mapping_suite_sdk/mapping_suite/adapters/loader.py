@@ -75,25 +75,28 @@ class ResourceReferencesLoader(AssetLoader):
                         obj = json.loads(abs_path.read_text())
                     elif abs_path.suffix == ".csv":
                         if abs_path.stat().st_size == 0:
-                            logger.warning(f"CSV resource file '{rel_path}' is empty (expected at {abs_path}), skipping.")  # pragma: no cover
+                            logger.warning(
+                                f"CSV resource file '{rel_path}' is empty (expected at {abs_path}), skipping."
+                            )  # pragma: no cover
                             continue
-                        with abs_path.open(newline='', encoding='utf-8') as csvfile:
+                        with abs_path.open(newline="", encoding="utf-8") as csvfile:
                             reader = csv.DictReader(csvfile)
                             obj = list(reader)
                             if len(obj) == 0:
-                                logger.warning(f"CSV resource file '{rel_path}' has no rows (expected at {abs_path}), skipping.")  # pragma: no cover
+                                logger.warning(
+                                    f"CSV resource file '{rel_path}' has no rows (expected at {abs_path}), skipping."
+                                )  # pragma: no cover
                                 continue
                     else:
                         obj = abs_path.read_text()
-                    resource_file_contents.append({
-                        "file_name": rel_path,
-                        "object": obj
-                    })
+                    resource_file_contents.append({"file_name": rel_path, "object": obj})
                 except (json.JSONDecodeError, UnicodeDecodeError, csv.Error) as e:
                     logger.warning(f"Failed to load resource file '{rel_path}': {type(e).__name__}: {e}")  # pragma: no cover
                     continue
                 except Exception as e:
-                    logger.error(f"Unexpected error loading resource file '{rel_path}': {type(e).__name__}: {e}")  # pragma: no cover
+                    logger.error(
+                        f"Unexpected error loading resource file '{rel_path}': {type(e).__name__}: {e}"
+                    )  # pragma: no cover
                     continue
             else:
                 logger.warning(f"Resource file not found: '{rel_path}' (expected at {abs_path})")  # pragma: no cover
@@ -111,8 +114,8 @@ class MappingSuiteLoader(Loader):
     """
 
     def __init__(
-            self,
-            include_resources: bool = True,
+        self,
+        include_resources: bool = True,
     ):
         """Initialize the mapping suite loader.
 

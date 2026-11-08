@@ -3,6 +3,7 @@ Adapter for saving MappingPackageV1 to MongoDB.
 
 This adapter saves v1 mapping package models to MongoDB.
 """
+
 import logging
 
 from pymongo import MongoClient
@@ -19,11 +20,11 @@ class MappingPackageV1Saver:
     """Saver for MappingPackageV1 to MongoDB."""
 
     def save(
-            self,
-            mapping_package: MappingPackageV1,
-            mongo_client: MongoClient,
-            database_name: str,
-            collection_name: str = "mapping_package"
+        self,
+        mapping_package: MappingPackageV1,
+        mongo_client: MongoClient,
+        database_name: str,
+        collection_name: str = "mapping_package",
     ) -> MappingPackageV1:
         """Save a v1 mapping package model to MongoDB.
 
@@ -43,8 +44,7 @@ class MappingPackageV1Saver:
             model_class=MappingPackageV1,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
         return repository.create_package(mapping_package)
-

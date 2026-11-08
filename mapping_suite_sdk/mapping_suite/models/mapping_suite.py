@@ -120,8 +120,7 @@ Loaded from: mapping_suite_config.json
 """,
     )
     resource_file_contents: Optional[list[Any]] = Field(
-        default=None,
-        description="""List of loaded file objects, modelled elsewhere as FileAsset""",
+        default=None, description="""List of loaded file objects, modelled elsewhere as FileAsset"""
     )
 
 
@@ -217,8 +216,7 @@ class DocumentMetadataConfig(PydanticModel):
     """
 
     metadata_properties: list[PropertyDefinition] = Field(
-        default=...,
-        description="""List of metadata property definitions to extract from documents""",
+        default=..., description="""List of metadata property definitions to extract from documents"""
     )
     document_type_probing: list[DocumentProbingSpec] = Field(
         default=...,
@@ -250,8 +248,7 @@ Multiple specifications are tried in order (fallback logic).
 """,
     )
     property_description: Optional[str] = Field(
-        default=None,
-        description="""Human-readable description of what this property represents""",
+        default=None, description="""Human-readable description of what this property represents"""
     )
 
 
@@ -326,10 +323,7 @@ This is the property in the package metadata that the extracted property will be
         description="""Method used to match the extracted property value against the constraint property.
 """,
     )
-    description: Optional[str] = Field(
-        default=None,
-        description="""Human-readable description of this eligibility mapping""",
-    )
+    description: Optional[str] = Field(default=None, description="""Human-readable description of this eligibility mapping""")
 
 
 class ResourceReferences(PydanticModel):
@@ -339,9 +333,7 @@ class ResourceReferences(PydanticModel):
 
     """
 
-    file_paths: Optional[list[str]] = Field(
-        default=None, description="""List of relative file paths within the project"""
-    )
+    file_paths: Optional[list[str]] = Field(default=None, description="""List of relative file paths within the project""")
 
 
 # Model rebuild

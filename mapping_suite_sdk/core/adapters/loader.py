@@ -1,19 +1,35 @@
 from pathlib import Path
-from typing import Any, List, Protocol, Tuple
+from typing import Any, Protocol
 
 from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.models.collection_asset import TestDataCollectionAsset, SPARQLTestCollectionAsset, \
-    SHACLTestCollectionAsset, \
-    TestResultCollectionAsset, TestDataResultCollectionAsset, TechnicalMappingCollectionAsset, \
-    VocabularyMappingCollectionAsset, SHACLShapesCollectionAsset
-from mapping_suite_sdk.core.models.file_asset import RMLMappingFileAsset, VocabularyMappingFileAsset, TestDataFileAsset, \
-    SPARQLQueryFileAsset, SHACLShapesFileAsset, ReportFileAsset, TestDataResultFileAsset, ConceptualMappingFileAsset, \
-    SHACLShapesResultQueryFileAsset
+from mapping_suite_sdk.core.models.collection_asset import (
+    SHACLShapesCollectionAsset,
+    SHACLTestCollectionAsset,
+    SPARQLTestCollectionAsset,
+    TechnicalMappingCollectionAsset,
+    TestDataCollectionAsset,
+    TestDataResultCollectionAsset,
+    TestResultCollectionAsset,
+    VocabularyMappingCollectionAsset,
+)
+from mapping_suite_sdk.core.models.file_asset import (
+    ConceptualMappingFileAsset,
+    ReportFileAsset,
+    RMLMappingFileAsset,
+    SHACLShapesFileAsset,
+    SHACLShapesResultQueryFileAsset,
+    SPARQLQueryFileAsset,
+    TestDataFileAsset,
+    TestDataResultFileAsset,
+    VocabularyMappingFileAsset,
+)
 
 
-def load_file_by_extensions(file_path: Path,
-                            str_extensions: Tuple = mssdk_config.MSSDK_SUPPORTED_TEXT_FILE_EXTENSIONS,
-                            bytes_extensions: Tuple = mssdk_config.MSSDK_SUPPORTED_BYTES_FILE_EXTENSIONS) -> str | bytes | None:
+def load_file_by_extensions(
+    file_path: Path,
+    str_extensions: tuple = mssdk_config.MSSDK_SUPPORTED_TEXT_FILE_EXTENSIONS,
+    bytes_extensions: tuple = mssdk_config.MSSDK_SUPPORTED_BYTES_FILE_EXTENSIONS,
+) -> str | bytes | None:
     """
     Load content from a file based on its extension.
 
@@ -37,7 +53,7 @@ def load_file_by_extensions(file_path: Path,
     if extension in str_extensions:
         return file_path.read_text()
     elif extension in bytes_extensions:
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             return file.read()
     else:
         return None
@@ -112,12 +128,13 @@ class TechnicalMappingSuiteLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
             package_folder_path = root_folder
 
-        tm_files: List[RMLMappingFileAsset] = []
+        tm_files: list[RMLMappingFileAsset] = []
 
         for tm_file in asset_path.iterdir():
             if tm_file.is_file():
                 tm_files.append(
-                    RMLMappingFileAsset(path=tm_file.relative_to(package_folder_path), content=tm_file.read_text()))
+                    RMLMappingFileAsset(path=tm_file.relative_to(package_folder_path), content=tm_file.read_text())
+                )
 
         return TechnicalMappingCollectionAsset(path=asset_path.relative_to(package_folder_path), files=tm_files)
 
@@ -146,12 +163,11 @@ class VocabularyMappingSuiteLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
             package_folder_path = root_folder
 
-        files: List[VocabularyMappingFileAsset] = []
+        files: list[VocabularyMappingFileAsset] = []
 
         for file in asset_path.iterdir():
             if file.is_file():
-                files.append(
-                    VocabularyMappingFileAsset(path=file.relative_to(package_folder_path), content=file.read_text()))
+                files.append(VocabularyMappingFileAsset(path=file.relative_to(package_folder_path), content=file.read_text()))
 
         return VocabularyMappingCollectionAsset(path=asset_path.relative_to(package_folder_path), files=files)
 
@@ -163,7 +179,7 @@ class TestDataSuitesLoader(AssetLoader):
     Handles loading of test data files organized in test suites.
     """
 
-    def load(self, package_folder_path: Path, relative_asset_path: Path) -> List[TestDataCollectionAsset]:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> list[TestDataCollectionAsset]:
         """Load test data suites from the package.
 
         Args:
@@ -181,15 +197,19 @@ class TestDataSuitesLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
             package_folder_path = root_folder
 
-        test_data_suites: List[TestDataCollectionAsset] = []
+        test_data_suites: list[TestDataCollectionAsset] = []
         for ts_suite in asset_path.iterdir():
             if ts_suite.is_dir():
-                test_data_suites.append(TestDataCollectionAsset(path=ts_suite.relative_to(package_folder_path),
-                                                                files=[
-                                                                    TestDataFileAsset(
-                                                                        path=ts_file.relative_to(package_folder_path),
-                                                                        content=ts_file.read_text()) for ts_file in
-                                                                    ts_suite.iterdir() if ts_file.is_file()]))
+                test_data_suites.append(
+                    TestDataCollectionAsset(
+                        path=ts_suite.relative_to(package_folder_path),
+                        files=[
+                            TestDataFileAsset(path=ts_file.relative_to(package_folder_path), content=ts_file.read_text())
+                            for ts_file in ts_suite.iterdir()
+                            if ts_file.is_file()
+                        ],
+                    )
+                )
         return test_data_suites
 
 
@@ -199,7 +219,7 @@ class SPARQLTestSuitesLoader(AssetLoader):
     Handles loading of SPARQL query files organized in validation suites.
     """
 
-    def load(self, package_folder_path: Path, relative_asset_path: Path) -> List[SPARQLTestCollectionAsset]:
+    def load(self, package_folder_path: Path, relative_asset_path: Path) -> list[SPARQLTestCollectionAsset]:
         """Load SPARQL validation suites from the package.
 
         Args:
@@ -217,16 +237,19 @@ class SPARQLTestSuitesLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
             package_folder_path = root_folder
 
-        sparql_validation_suites: List[SPARQLTestCollectionAsset] = []
+        sparql_validation_suites: list[SPARQLTestCollectionAsset] = []
         for sparql_suite in asset_path.iterdir():
             if sparql_suite.is_dir():
                 sparql_validation_suites.append(
-                    SPARQLTestCollectionAsset(path=sparql_suite.relative_to(package_folder_path),
-                                              files=[SPARQLQueryFileAsset(
-                                                  path=ts_file.relative_to(package_folder_path),
-                                                  content=ts_file.read_text()) for ts_file
-                                                  in
-                                                  sparql_suite.iterdir() if ts_file.is_file()]))
+                    SPARQLTestCollectionAsset(
+                        path=sparql_suite.relative_to(package_folder_path),
+                        files=[
+                            SPARQLQueryFileAsset(path=ts_file.relative_to(package_folder_path), content=ts_file.read_text())
+                            for ts_file in sparql_suite.iterdir()
+                            if ts_file.is_file()
+                        ],
+                    )
+                )
         return sparql_validation_suites
 
 
@@ -255,24 +278,27 @@ class SHACLTestSuitesLoader(AssetLoader):
         else:
             root_folder = package_folder_path
 
-        shacl_validation_suites: List[SHACLShapesCollectionAsset] = []
+        shacl_validation_suites: list[SHACLShapesCollectionAsset] = []
         for shacl_suite in asset_path.iterdir():
             if shacl_suite.is_dir():
                 shacl_validation_suites.append(
-                    SHACLShapesCollectionAsset(path=shacl_suite.relative_to(package_folder_path),
-                                               files=[SHACLShapesFileAsset(
-                                                   path=ts_file.relative_to(package_folder_path),
-                                                   content=ts_file.read_text()) for ts_file
-                                                   in
-                                                   shacl_suite.iterdir() if ts_file.is_file()]))
+                    SHACLShapesCollectionAsset(
+                        path=shacl_suite.relative_to(package_folder_path),
+                        files=[
+                            SHACLShapesFileAsset(path=ts_file.relative_to(package_folder_path), content=ts_file.read_text())
+                            for ts_file in shacl_suite.iterdir()
+                            if ts_file.is_file()
+                        ],
+                    )
+                )
 
         return SHACLTestCollectionAsset(
             path=relative_asset_path,
             shacl_result_query=SHACLShapesResultQueryFileAsset(
                 path=mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH,
-                content=(root_folder / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH).read_text()
+                content=(root_folder / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH).read_text(),
             ),
-            shacl_collections=shacl_validation_suites
+            shacl_collections=shacl_validation_suites,
         )
 
 
@@ -283,32 +309,32 @@ class TestResultSuiteLoader(AssetLoader):
     Handles loading of test execution results.
     """
 
-    def _load_report_files(self, directory: Path, package_folder_path: Path) -> List[ReportFileAsset]:
+    def _load_report_files(self, directory: Path, package_folder_path: Path) -> list[ReportFileAsset]:
         """Load report files from a directory."""
         return [
-            ReportFileAsset(
-                path=report_path.relative_to(package_folder_path),
-                content=load_file_by_extensions(report_path)
-            )
+            ReportFileAsset(path=report_path.relative_to(package_folder_path), content=load_file_by_extensions(report_path))
             for report_path in directory.iterdir()
             if report_path.is_file()
         ]
 
-    def _load_test_data_result(self, test_data_suites_result: Path, package_folder_path: Path) -> TestDataResultCollectionAsset | None:
+    def _load_test_data_result(
+        self, test_data_suites_result: Path, package_folder_path: Path
+    ) -> TestDataResultCollectionAsset | None:
         """Load a single test data result collection."""
-        ttl_file = next(test_data_suites_result.glob('*.ttl'), None)
+        ttl_file = next(test_data_suites_result.glob("*.ttl"), None)
         if ttl_file is None:
             return None
 
         report_dir = test_data_suites_result / "test_suite_report"
-        report_files = self._load_report_files(report_dir, package_folder_path) if report_dir.exists() and report_dir.is_dir() else []
+        report_files = (
+            self._load_report_files(report_dir, package_folder_path) if report_dir.exists() and report_dir.is_dir() else []
+        )
 
         return TestDataResultCollectionAsset(
             path=test_data_suites_result.relative_to(package_folder_path),
             files=report_files,
             test_data_output=TestDataResultFileAsset(
-                path=ttl_file.relative_to(package_folder_path),
-                content=load_file_by_extensions(ttl_file)
+                path=ttl_file.relative_to(package_folder_path), content=load_file_by_extensions(ttl_file)
             ),
         )
 
@@ -324,9 +350,7 @@ class TestResultSuiteLoader(AssetLoader):
                     test_data_results.append(test_data_result)
 
         return TestResultCollectionAsset(
-            path=suite_path.relative_to(package_folder_path),
-            files=suite_files,
-            result_suites=test_data_results
+            path=suite_path.relative_to(package_folder_path), files=suite_files, result_suites=test_data_results
         )
 
     def load(self, package_folder_path: Path, relative_asset_path: Path) -> TestResultCollectionAsset:
@@ -377,8 +401,4 @@ class ConceptualMappingFileLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
             package_folder_path = root_folder
 
-        return ConceptualMappingFileAsset(
-            path=asset_path.relative_to(package_folder_path),
-            content=asset_path.read_bytes()
-        )
-
+        return ConceptualMappingFileAsset(path=asset_path.relative_to(package_folder_path), content=asset_path.read_bytes())

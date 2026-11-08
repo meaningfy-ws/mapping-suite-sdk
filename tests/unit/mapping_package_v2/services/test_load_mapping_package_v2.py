@@ -8,8 +8,12 @@ from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
-from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import load_mapping_package_v2_from_folder, \
-    load_mapping_package_v2_from_archive, load_mapping_packages_v2_from_github, load_mapping_package_v2_from_mongo_db
+from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
+    load_mapping_package_v2_from_archive,
+    load_mapping_package_v2_from_folder,
+    load_mapping_package_v2_from_mongo_db,
+    load_mapping_packages_v2_from_github,
+)
 
 
 def test_load_mapping_package_v2_from_folder_success(dummy_mapping_package_v2_path: Path):
@@ -73,10 +77,7 @@ def test_load_mapping_package_v2_from_archive_with_custom_loader(dummy_mapping_p
 def test_load_mapping_package_v2_from_archive_with_custom_extractor(dummy_mapping_package_v2_archive_path: Path):
     custom_extractor = ArchiveExtractor()
 
-    result = load_mapping_package_v2_from_archive(
-        dummy_mapping_package_v2_archive_path,
-        archive_unpacker=custom_extractor
-    )
+    result = load_mapping_package_v2_from_archive(dummy_mapping_package_v2_archive_path, archive_unpacker=custom_extractor)
 
     assert isinstance(result, MappingPackageV2)
 
@@ -162,23 +163,23 @@ def test_load_mapping_package_v2_from_mongo_db_repository_exception():
 
 def test_load_mapping_package_v2_from_folder_tracer_decoration():
     # Verify function is decorated with @traced_routine
-    assert hasattr(load_mapping_package_v2_from_folder, '__name__')
-    assert load_mapping_package_v2_from_folder.__name__ == 'load_mapping_package_v2_from_folder'
+    assert hasattr(load_mapping_package_v2_from_folder, "__name__")
+    assert load_mapping_package_v2_from_folder.__name__ == "load_mapping_package_v2_from_folder"
 
 
 def test_load_mapping_package_v2_from_archive_tracer_decoration():
     # Verify function is decorated with @traced_routine
-    assert hasattr(load_mapping_package_v2_from_archive, '__name__')
-    assert load_mapping_package_v2_from_archive.__name__ == 'load_mapping_package_v2_from_archive'
+    assert hasattr(load_mapping_package_v2_from_archive, "__name__")
+    assert load_mapping_package_v2_from_archive.__name__ == "load_mapping_package_v2_from_archive"
 
 
 def test_load_mapping_packages_v2_from_github_tracer_decoration():
     # Verify function is decorated with @traced_routine
-    assert hasattr(load_mapping_packages_v2_from_github, '__name__')
-    assert load_mapping_packages_v2_from_github.__name__ == 'load_mapping_packages_v2_from_github'
+    assert hasattr(load_mapping_packages_v2_from_github, "__name__")
+    assert load_mapping_packages_v2_from_github.__name__ == "load_mapping_packages_v2_from_github"
 
 
 def test_load_mapping_package_v2_from_mongo_db_tracer_decoration():
     # Verify function is decorated with @traced_routine
-    assert hasattr(load_mapping_package_v2_from_mongo_db, '__name__')
-    assert load_mapping_package_v2_from_mongo_db.__name__ == 'load_mapping_package_v2_from_mongo_db'
+    assert hasattr(load_mapping_package_v2_from_mongo_db, "__name__")
+    assert load_mapping_package_v2_from_mongo_db.__name__ == "load_mapping_package_v2_from_mongo_db"

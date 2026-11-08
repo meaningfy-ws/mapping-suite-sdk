@@ -1,13 +1,18 @@
 from pathlib import Path
-from typing import Protocol, Any, List, Union, Optional, NoReturn
+from typing import Any, NoReturn, Protocol
 
-from mapping_suite_sdk.core.models.collection_asset import TechnicalMappingCollectionAsset, \
-    VocabularyMappingCollectionAsset, TestDataCollectionAsset, SPARQLTestCollectionAsset, SHACLTestCollectionAsset, \
-    TestResultCollectionAsset
+from mapping_suite_sdk.core.models.collection_asset import (
+    SHACLTestCollectionAsset,
+    SPARQLTestCollectionAsset,
+    TechnicalMappingCollectionAsset,
+    TestDataCollectionAsset,
+    TestResultCollectionAsset,
+    VocabularyMappingCollectionAsset,
+)
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
 
 
-def write_file_by_content_type(file_path: Path, content: Union[str, bytes]) -> Optional[NoReturn]:
+def write_file_by_content_type(file_path: Path, content: str | bytes) -> NoReturn | None:
     """
     Write content to a file based on its content type (str or bytes).
     Raises exceptions if any errors occur during the process.
@@ -84,7 +89,7 @@ class TestDataCollectionAssetSerialiser(MappingPackageAssetSerialiser):
     __test__ = False
     """Serialiser for test data suites."""
 
-    def serialise(self, package_folder_path: Path, asset: List[TestDataCollectionAsset]) -> None:
+    def serialise(self, package_folder_path: Path, asset: list[TestDataCollectionAsset]) -> None:
         for suite in asset:
             suite_path = package_folder_path / suite.path
             suite_path.mkdir(parents=True, exist_ok=True)
@@ -97,7 +102,7 @@ class TestDataCollectionAssetSerialiser(MappingPackageAssetSerialiser):
 class SPARQLTestCollectionAssetSerialiser(MappingPackageAssetSerialiser):
     """Serialiser for SPARQL test suites."""
 
-    def serialise(self, package_folder_path: Path, asset: List[SPARQLTestCollectionAsset]) -> None:
+    def serialise(self, package_folder_path: Path, asset: list[SPARQLTestCollectionAsset]) -> None:
         for suite in asset:
             suite_path = package_folder_path / suite.path
             suite_path.mkdir(parents=True, exist_ok=True)
@@ -137,6 +142,7 @@ class ConceptualMappingFileAssetSerialiser(MappingPackageAssetSerialiser):
 class TestResultCollectionAssetSerialiser(MappingPackageAssetSerialiser):
     __test__ = False
     """Serialiser for test result suites."""
+
     def serialise(self, package_folder_path: Path, asset: TestResultCollectionAsset) -> None:
         folder_path = package_folder_path
         for report in asset.files:
@@ -144,7 +150,6 @@ class TestResultCollectionAssetSerialiser(MappingPackageAssetSerialiser):
             write_file_by_content_type(file_path=report_path, content=report.content)
 
         for test_data_suite in asset.result_suites:
-
             # Could be, if output and test data are together
             # TestDataCollectionAssetSerialiser().serialise(folder_path, [test_data_suite])
 
@@ -154,10 +159,12 @@ class TestResultCollectionAssetSerialiser(MappingPackageAssetSerialiser):
 
             for test_data_result_collection in test_data_suite.result_suites:
                 test_data_result_path = folder_path / test_data_result_collection.test_data_output.path
-                write_file_by_content_type(file_path=test_data_result_path,
-                                           content=test_data_result_collection.test_data_output.content)
+                write_file_by_content_type(
+                    file_path=test_data_result_path, content=test_data_result_collection.test_data_output.content
+                )
 
                 for test_data_result_reports in test_data_result_collection.files:
                     test_data_result_reports_path = folder_path / test_data_result_reports.path
-                    write_file_by_content_type(file_path=test_data_result_reports_path,
-                                               content=test_data_result_reports.content)
+                    write_file_by_content_type(
+                        file_path=test_data_result_reports_path, content=test_data_result_reports.content
+                    )

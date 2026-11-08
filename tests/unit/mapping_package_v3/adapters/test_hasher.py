@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from mapping_suite_sdk.core.adapters.hasher import SHA256Hasher, HasherABC
+from mapping_suite_sdk.core.adapters.hasher import HasherABC, SHA256Hasher
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 
@@ -16,7 +16,6 @@ def test_mp_v3_hasher_has_the_same_hash(fixture_mapping_package_v3_model: Mappin
     hasher = MappingPackageV3Hasher(fixture_mapping_package_v3_model)
     generated_hash: str = hasher.hash()
     assert fixture_mapping_package_v3_model.metadata.mapping_suite_hash_digest == generated_hash
-
 
 
 def test_mp_v3_hasher_initialization_with_custom_hasher(fixture_mapping_package_v3_model):
@@ -118,7 +117,7 @@ def test_mp_v3_hasher_real_sha256_hash_format(fixture_mapping_package_v3_model):
 
     assert isinstance(result, str)
     assert len(result) == 64
-    assert all(c in '0123456789abcdef' for c in result.lower())
+    assert all(c in "0123456789abcdef" for c in result.lower())
 
 
 def test_mp_v3_hasher_uses_only_package_metadata_for_hashing(fixture_mapping_package_v3_model: MappingPackageV3):
@@ -137,7 +136,7 @@ def test_mp_v3_hasher_with_applicability_constraints(fixture_mapping_package_v3_
     """Test that hashing works correctly when applicability_constraints is present."""
     hasher = MappingPackageV3Hasher(fixture_mapping_package_v3_model)
     hash_result = hasher.hash()
-    
+
     assert hash_result is not None
     assert isinstance(hash_result, str)
     assert len(hash_result) == 64
@@ -147,10 +146,10 @@ def test_mp_v3_hasher_without_applicability_constraints(fixture_mapping_package_
     """Test that hashing works correctly when applicability_constraints is absent or None."""
     # Clear applicability_constraints to test the absence branch
     fixture_mapping_package_v3_model.metadata.applicability_constraints = None
-    
+
     hasher = MappingPackageV3Hasher(fixture_mapping_package_v3_model)
     hash_result = hasher.hash()
-    
+
     assert hash_result is not None
     assert isinstance(hash_result, str)
     assert len(hash_result) == 64

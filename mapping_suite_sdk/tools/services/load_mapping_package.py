@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING
 
 from pymongo import MongoClient
 
@@ -28,6 +28,10 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
     Version,
     convert_mapping_package_model,
 )
+
+if TYPE_CHECKING:
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +72,7 @@ def _load_source_package(
         from mapping_suite_sdk.mapping_package_v1.services.load_mapping_package_v1 import (
             load_mapping_package_v1_from_folder,
         )
+
         loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v1_from_folder(
             mapping_package_folder_path=package_folder_path,
@@ -78,6 +83,7 @@ def _load_source_package(
         from mapping_suite_sdk.mapping_package_v2.services.load_mapping_package_v2 import (
             load_mapping_package_v2_from_folder,
         )
+
         loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v2_from_folder(
             mapping_package_folder_path=package_folder_path,
@@ -88,6 +94,7 @@ def _load_source_package(
         from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import (
             load_mapping_package_v3_from_folder,
         )
+
         loader = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v3_from_folder(
             mapping_package_folder_path=package_folder_path,
@@ -100,9 +107,8 @@ def _load_source_package(
         from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import (
             load_mapping_package_v3_lightweight_from_folder,
         )
-        loader = MappingPackageV3LightweightLoader(
-            include_test_data=include_test_data, include_output=include_output
-        )
+
+        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v3_lightweight_from_folder(
             mapping_package_folder_path=package_folder_path,
             mapping_package_loader=loader,
@@ -111,7 +117,7 @@ def _load_source_package(
 
 
 def _persist_to_mongodb(
-    mapping_package: Union["MappingPackageV3", "MappingPackageV3Lightweight"],
+    mapping_package: MappingPackageV3 | MappingPackageV3Lightweight,
     mongo_client: MongoClient,
     database_name: str,
     collection_name: str,
@@ -142,9 +148,7 @@ def _persist_to_mongodb(
             database_name=database_name,
             collection_name=collection_name,
         )
-    raise UnsupportedConversionError(
-        f"Cannot persist to MongoDB: unsupported package type {type(mapping_package)}"
-    )
+    raise UnsupportedConversionError(f"Cannot persist to MongoDB: unsupported package type {type(mapping_package)}")
 
 
 def _validate_package_path(package_folder_path: Path) -> None:
@@ -152,21 +156,17 @@ def _validate_package_path(package_folder_path: Path) -> None:
     if not package_folder_path.exists():
         raise InvalidPackagePathError(f"Package path does not exist: {package_folder_path}")
     if not package_folder_path.is_dir():
-        raise InvalidPackagePathError(
-            f"Package path is not a directory: {package_folder_path}"
-        )
+        raise InvalidPackagePathError(f"Package path is not a directory: {package_folder_path}")
 
 
-def _resolve_version(version: Optional[str], package_folder_path: Path) -> Version:
+def _resolve_version(version: str | None, package_folder_path: Path) -> Version:
     """Resolve the package version from explicit input or auto-detection."""
     if version is not None:
         return _normalize_version(version)
 
     detected = detect_mapping_package_version(package_folder_path)
     if detected is None:
-        raise VersionDetectionError(
-            f"Could not detect mapping package version for: {package_folder_path}"
-        )
+        raise VersionDetectionError(f"Could not detect mapping package version for: {package_folder_path}")
     return _normalize_version(detected)
 
 
@@ -189,6 +189,7 @@ def _validate_if_requested(
         from mapping_suite_sdk.tools.services.validate_mapping_package import (
             validate_mapping_package,
         )
+
         validate_mapping_package(
             package,
             include_test_data=include_test_data,
@@ -199,8 +200,8 @@ def _validate_if_requested(
 def _persist_if_requested(
     mapping_package,
     persist_to_mongodb: bool,
-    mongo_client: Optional[MongoClient],
-    database_name: Optional[str],
+    mongo_client: MongoClient | None,
+    database_name: str | None,
     collection_name: str,
 ):
     """Persist package to MongoDB if requested."""
@@ -208,26 +209,22 @@ def _persist_if_requested(
         return mapping_package
 
     if mongo_client is None or database_name is None:
-        raise ValueError(
-            "persist_to_mongodb requires mongo_client and database_name"
-        )
+        raise ValueError("persist_to_mongodb requires mongo_client and database_name")
 
-    return _persist_to_mongodb(
-        mapping_package, mongo_client, database_name, collection_name
-    )
+    return _persist_to_mongodb(mapping_package, mongo_client, database_name, collection_name)
 
 
 @traced_routine
 def load_mapping_package(
     package_folder_path: Path,
     *,
-    version: Optional[str] = None,
+    version: str | None = None,
     include_test_data: bool = False,
     include_output: bool = False,
     validate_package: bool = True,
     persist_to_mongodb: bool = False,
-    mongo_client: Optional[MongoClient] = None,
-    database_name: Optional[str] = None,
+    mongo_client: MongoClient | None = None,
+    database_name: str | None = None,
     collection_name: str = "mapping_package",
 ):
     """
@@ -294,6 +291,4 @@ def load_mapping_package(
         include_output=include_output,
     )
 
-    return _persist_if_requested(
-        converted, persist_to_mongodb, mongo_client, database_name, collection_name
-    )
+    return _persist_if_requested(converted, persist_to_mongodb, mongo_client, database_name, collection_name)

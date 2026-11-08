@@ -1,16 +1,16 @@
 import json
-from typing import Optional, List, Tuple
 
-from mapping_suite_sdk.core.adapters.hasher import (
-    MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
-)
+from mapping_suite_sdk.core.adapters.hasher import HasherABC, MappingPackageHasher, SHA256Hasher, normalize_content
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import MappingPackageV3Metadata, ApplicabilityConstraints
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import (
+    ApplicabilityConstraints,
+    MappingPackageV3Metadata,
+)
 
 
-def _hash_file_assets(file_assets: List, hasher: HasherABC) -> List[Tuple[str, str]]:
+def _hash_file_assets(file_assets: list, hasher: HasherABC) -> list[tuple[str, str]]:
     """
     Hash a list of file assets and return sorted list of (path, hash) tuples.
 
@@ -46,11 +46,11 @@ class MappingPackageV3Hasher(MappingPackageHasher):
         hasher (HasherABC): The hasher implementation to use for generating hashes.
     """
 
-    def __init__(self, mapping_package: MappingPackageV3 | MappingPackageV3Lightweight, hasher: Optional[HasherABC] = None):
+    def __init__(self, mapping_package: MappingPackageV3 | MappingPackageV3Lightweight, hasher: HasherABC | None = None):
         self.mapping_package = mapping_package
         self.hasher = hasher or SHA256Hasher()
 
-    def hash(self, with_version: Optional[str] = None) -> str:
+    def hash(self, with_version: str | None = None) -> str:
         """
         Generate a comprehensive hash for an Mapping Package V3.
 
@@ -68,9 +68,8 @@ class MappingPackageV3Hasher(MappingPackageHasher):
         """
         # Step 1: Hash all critical files
         # Combine all file assets from technical and vocabulary mapping suites
-        all_file_assets = (
-            list(self.mapping_package.technical_mapping_suite.files) +
-            list(self.mapping_package.vocabulary_mapping_suite.files)
+        all_file_assets = list(self.mapping_package.technical_mapping_suite.files) + list(
+            self.mapping_package.vocabulary_mapping_suite.files
         )
         file_hashes = _hash_file_assets(all_file_assets, self.hasher)
 
@@ -79,20 +78,19 @@ class MappingPackageV3Hasher(MappingPackageHasher):
 
         # Step 3: Add metadata (only package specific metadata, without Linked Data part)
         metadata_dict = self.mapping_package.metadata.model_dump(
-            by_alias=True,
-            exclude={fields(MappingPackageV3Metadata).mapping_suite_hash_digest}
+            by_alias=True, exclude={fields(MappingPackageV3Metadata).mapping_suite_hash_digest}
         )
 
         # Reconstruct nested models to avoid serialization warnings
-        if 'applicability_constraints' in metadata_dict and metadata_dict['applicability_constraints']:
-            metadata_dict['applicability_constraints'] = ApplicabilityConstraints.model_validate(
-                metadata_dict['applicability_constraints']
+        if "applicability_constraints" in metadata_dict and metadata_dict["applicability_constraints"]:
+            metadata_dict["applicability_constraints"] = ApplicabilityConstraints.model_validate(
+                metadata_dict["applicability_constraints"]
             )
 
         only_metadata = MappingPackageV3Metadata.model_construct(**metadata_dict)
 
         model_str = only_metadata.model_dump_json(by_alias=True)
-        metadata_hash = self.hasher.hash(json.dumps(model_str).encode('utf-8'))
+        metadata_hash = self.hasher.hash(json.dumps(model_str).encode("utf-8"))
         signatures.append(metadata_hash)
 
         # Step 4: Add version information

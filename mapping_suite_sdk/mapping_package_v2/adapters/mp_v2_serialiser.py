@@ -1,9 +1,15 @@
 from pathlib import Path
 
-from mapping_suite_sdk.core.adapters.serialiser import MappingPackageAssetSerialiser, \
-    ConceptualMappingFileAssetSerialiser, TechnicalMappingCollectionAssetSerialiser, \
-    VocabularyMappingCollectionAssetSerialiser, TestDataCollectionAssetSerialiser, SPARQLTestCollectionAssetSerialiser, \
-    SHACLTestCollectionAssetSerialiser, TestResultCollectionAssetSerialiser
+from mapping_suite_sdk.core.adapters.serialiser import (
+    ConceptualMappingFileAssetSerialiser,
+    MappingPackageAssetSerialiser,
+    SHACLTestCollectionAssetSerialiser,
+    SPARQLTestCollectionAssetSerialiser,
+    TechnicalMappingCollectionAssetSerialiser,
+    TestDataCollectionAssetSerialiser,
+    TestResultCollectionAssetSerialiser,
+    VocabularyMappingCollectionAssetSerialiser,
+)
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
@@ -16,10 +22,14 @@ class MappingPackageV2MetadataSerialiser(MappingPackageAssetSerialiser):
     def serialise(self, package_folder_path: Path, asset: MappingPackageV2Metadata) -> None:
         metadata_path = package_folder_path / asset.path
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
-        metadata_path.write_text(asset.model_dump_json(by_alias=True,
-                                                       exclude={fields(MappingPackageV2Metadata).path},
-                                                       # For V2 (eForms)
-                                                       indent=4))
+        metadata_path.write_text(
+            asset.model_dump_json(
+                by_alias=True,
+                exclude={fields(MappingPackageV2Metadata).path},
+                # For V2 (eForms)
+                indent=4,
+            )
+        )
 
 
 @traced_class

@@ -6,15 +6,14 @@ Tests focus on service layer responsibilities:
 - Exception handling and validation
 - Integration with MongoDBRepository
 """
+
 from unittest.mock import Mock
 
 import pytest
 
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import MappingSuite
-from mapping_suite_sdk.mapping_suite.services.save_mapping_suite import (
-    save_mapping_suite_to_mongo_db
-)
+from mapping_suite_sdk.mapping_suite.services.save_mapping_suite import save_mapping_suite_to_mongo_db
 
 
 class TestSaveMappingSuiteToMongoDB:
@@ -63,16 +62,15 @@ class TestSaveMappingSuiteToMongoDB:
 
     def test_save_mapping_suite_to_mongo_db_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""
-        assert hasattr(save_mapping_suite_to_mongo_db, '__name__')
-        assert save_mapping_suite_to_mongo_db.__name__ == 'save_mapping_suite_to_mongo_db'
+        assert hasattr(save_mapping_suite_to_mongo_db, "__name__")
+        assert save_mapping_suite_to_mongo_db.__name__ == "save_mapping_suite_to_mongo_db"
 
     def test_save_mapping_suite_to_mongo_db_uses_suite_id(self, dummy_mapping_suite_folder_path):
         """Test that save uses the suite's identifier for MongoDB _id."""
-        from mapping_suite_sdk.mapping_suite.services.load_mapping_suite import (
-            load_mapping_suite_from_folder
-        )
         import mongomock
+
         from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
+        from mapping_suite_sdk.mapping_suite.services.load_mapping_suite import load_mapping_suite_from_folder
 
         # Load a real mapping suite
         suite = load_mapping_suite_from_folder(dummy_mapping_suite_folder_path)
@@ -81,10 +79,7 @@ class TestSaveMappingSuiteToMongoDB:
         # Create a real MongoDB repository with mongomock
         mongo_client = mongomock.MongoClient()
         repository = MongoDBRepository(
-            model_class=MappingSuite,
-            mongo_client=mongo_client,
-            database_name="test_db",
-            collection_name="mapping_suites"
+            model_class=MappingSuite, mongo_client=mongo_client, database_name="test_db", collection_name="mapping_suites"
         )
 
         # Save the suite
@@ -95,4 +90,3 @@ class TestSaveMappingSuiteToMongoDB:
         stored_doc = repository.collection.find_one({"_id": expected_id})
         assert stored_doc is not None
         assert stored_doc["_id"] == expected_id
-

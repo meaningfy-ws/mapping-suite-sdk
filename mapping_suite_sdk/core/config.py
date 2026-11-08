@@ -6,9 +6,8 @@ by the main MSSDKConfigResolver.
 """
 
 import json
-from typing import Tuple, Dict
 
-from mapping_suite_sdk.core.adapters.config_resolver import env_property, DefaultValueConfigResolver
+from mapping_suite_sdk.core.adapters.config_resolver import DefaultValueConfigResolver, env_property
 
 
 class MSSDKCoreConfig:
@@ -24,13 +23,17 @@ class MSSDKCoreConfig:
     def MSSDK_DEFAULT_STR_ENCODE(self, config_value: str) -> str:
         return config_value
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="%(asctime)s | %(levelname)s | %(filename)s | Line: %(lineno)d | %(message)s")
+    @env_property(
+        config_resolver_class=DefaultValueConfigResolver,
+        default_value="%(asctime)s | %(levelname)s | %(filename)s | Line: %(lineno)d | %(message)s",
+    )
     def MSSDK_LOGGING_STRING_FORMAT(self, config_value: str) -> str:
         return config_value
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="%(asctime)s | %(levelname)s | %(name)s | %(filename)s | %(funcName)s | Line: %(lineno)d | %(message)s")
+    @env_property(
+        config_resolver_class=DefaultValueConfigResolver,
+        default_value="%(asctime)s | %(levelname)s | %(name)s | %(filename)s | %(funcName)s | Line: %(lineno)d | %(message)s",
+    )
     def MSSDK_LOGGING_EXTENDED_STRING_FORMAT(self, config_value: str) -> str:
         return config_value
 
@@ -43,19 +46,20 @@ class MSSDKCoreConfig:
         return config_value
 
     @env_property(config_resolver_class=DefaultValueConfigResolver, default_value=".html .json .csv .ttl")
-    def MSSDK_SUPPORTED_TEXT_FILE_EXTENSIONS(self, config_value: str) -> Tuple:
+    def MSSDK_SUPPORTED_TEXT_FILE_EXTENSIONS(self, config_value: str) -> tuple:
         return tuple(config_value.split(" "))
 
     @env_property(config_resolver_class=DefaultValueConfigResolver, default_value=".zip")
-    def MSSDK_SUPPORTED_BYTES_FILE_EXTENSIONS(self, config_value: str) -> Tuple:
+    def MSSDK_SUPPORTED_BYTES_FILE_EXTENSIONS(self, config_value: str) -> tuple:
         return tuple(config_value.split(" "))
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value='{"no_args_is_help": true, "pretty_exceptions_enable": true, "pretty_exceptions_show_locals": false, "pretty_exceptions_short": true, "add_completion": false}')
-    def MSSDK_TYPER_DEFAULT_ARGS(self, config_value: str) -> Dict:
+    @env_property(
+        config_resolver_class=DefaultValueConfigResolver,
+        default_value='{"no_args_is_help": true, "pretty_exceptions_enable": true, "pretty_exceptions_show_locals": false, "pretty_exceptions_short": true, "add_completion": false}',
+    )
+    def MSSDK_TYPER_DEFAULT_ARGS(self, config_value: str) -> dict:
         return json.loads(config_value)
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value='{"no_args_is_help": true}')
-    def MSSDK_TYPER_COMMANDS_DEFAULT_ARGS(self, config_value: str) -> Dict:
+    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value='{"no_args_is_help": true}')
+    def MSSDK_TYPER_COMMANDS_DEFAULT_ARGS(self, config_value: str) -> dict:
         return json.loads(config_value)

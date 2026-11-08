@@ -1,6 +1,6 @@
 from mapping_suite_sdk.mapping_suite.adapters.loader import (
-    MappingSuiteLoader,
     MappingSuiteConfigLoader,
+    MappingSuiteLoader,
     ResourceReferencesLoader,
 )
 

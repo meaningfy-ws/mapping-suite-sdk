@@ -4,8 +4,8 @@ This module contains pytest fixtures that are shared across multiple test packag
 
 For shared helper utilities, see tests/test_helpers.py.
 """
+
 from pathlib import Path
-from typing import Optional
 
 import mongomock
 import pytest
@@ -18,34 +18,28 @@ from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_validator import MappingPackageV1Validator
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
-from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1_metadata import (
-    MappingPackageV1Metadata
-)
+from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1_metadata import MappingPackageV1Metadata
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_validator import MappingPackageV2Validator
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
-from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import (
-    MappingPackageV2Metadata
-)
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3MetadataJSONLD
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
+from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3, MappingPackageV3MetadataJSONLD
 from tests import (
     TEST_DATA_CORRUPTED_MAPPING_PACKAGE_PATH,
-    TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH,
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH,
-    TEST_DATA_MAPPING_PACKAGES_REPO_PATH,
-    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH,
-    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
+    TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH,
     TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH,
+    TEST_DATA_EXAMPLE_MAPPING_SUITE_ARCHIVE_PATH,
+    TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
+    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
+    TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH,
     TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
-    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_MODEL_PATH,
+    TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
     TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_PATH,
+    TEST_DATA_MAPPING_PACKAGES_REPO_PATH,
     TEST_DATA_MAPPING_PACKAGES_V3_REPO_PATH,
-    TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH,
-    TEST_DATA_EXAMPLE_MAPPING_SUITE_ARCHIVE_PATH,
 )
-
 
 # ============================================================================
 # Shared Fixtures (used across multiple test packages)
@@ -61,53 +55,53 @@ def dummy_corrupted_mapping_package_path() -> Path:
 @pytest.fixture(
     params=[
         pytest.param(
-            ((MappingPackageV2Metadata, TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH),
-             TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH,
-             TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH,
-
-             mssdk_config.MPV2_METADATA_FILE_ASSET_PATH,
-             mssdk_config.MPV2_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
-             mssdk_config.MPV2_VOCABULARY_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV2_TECHNICAL_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV2_TEST_DATA_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV2_SPARQL_TEST_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV2_SHACL_TEST_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV2_TEST_RESULT_COLLECTION_ASSET_PATH,
-             ),
-            id="eForms_V2"
+            (
+                (MappingPackageV2Metadata, TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_MODEL_PATH),
+                TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_FOLDER_PATH,
+                TEST_DATA_EXAMPLE_EFORMS_MAPPING_PACKAGE_PATH,
+                mssdk_config.MPV2_METADATA_FILE_ASSET_PATH,
+                mssdk_config.MPV2_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
+                mssdk_config.MPV2_VOCABULARY_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV2_TECHNICAL_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV2_TEST_DATA_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV2_SPARQL_TEST_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV2_SHACL_TEST_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV2_TEST_RESULT_COLLECTION_ASSET_PATH,
+            ),
+            id="eForms_V2",
         ),
         pytest.param(
-            ((MappingPackageV1Metadata, TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH),
-             TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
-             TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH,
-
-             mssdk_config.MPV1_METADATA_FILE_ASSET_PATH,
-             mssdk_config.MPV1_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
-             mssdk_config.MPV1_VOCABULARY_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV1_TECHNICAL_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV1_TEST_DATA_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV1_SPARQL_TEST_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV1_SHACL_TEST_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV1_TEST_RESULT_COLLECTION_ASSET_PATH,
-             ),
-            id="SF_V1"
+            (
+                (MappingPackageV1Metadata, TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_MODEL_PATH),
+                TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_FOLDER_PATH,
+                TEST_DATA_EXAMPLE_SF_MAPPING_PACKAGE_PATH,
+                mssdk_config.MPV1_METADATA_FILE_ASSET_PATH,
+                mssdk_config.MPV1_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
+                mssdk_config.MPV1_VOCABULARY_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV1_TECHNICAL_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV1_TEST_DATA_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV1_SPARQL_TEST_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV1_SHACL_TEST_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV1_TEST_RESULT_COLLECTION_ASSET_PATH,
+            ),
+            id="SF_V1",
         ),
         pytest.param(
-            ((MappingPackageV3MetadataJSONLD, None),
-             TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
-             TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
-
-             mssdk_config.MPV3_METADATA_FILE_ASSET_PATH,
-             mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
-             mssdk_config.MPV3_VOCABULARY_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV3_TECHNICAL_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV3_TEST_DATA_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV3_SPARQL_TEST_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV3_SHACL_TEST_COLLECTION_ASSET_PATH,
-             mssdk_config.MPV3_TEST_RESULT_COLLECTION_ASSET_PATH,
-             ),
-            id="Unified_V3"
-        )
+            (
+                (MappingPackageV3MetadataJSONLD, None),
+                TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
+                TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_PATH,
+                mssdk_config.MPV3_METADATA_FILE_ASSET_PATH,
+                mssdk_config.MPV3_CONCEPTUAL_MAPPING_FILE_ASSET_PATH,
+                mssdk_config.MPV3_VOCABULARY_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV3_TECHNICAL_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV3_TEST_DATA_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV3_SPARQL_TEST_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV3_SHACL_TEST_COLLECTION_ASSET_PATH,
+                mssdk_config.MPV3_TEST_RESULT_COLLECTION_ASSET_PATH,
+            ),
+            id="Unified_V3",
+        ),
     ]
 )
 def dummy_mapping_package_params(request):
@@ -251,10 +245,12 @@ def dummy_github_project_path() -> Path:
     """Path to dummy GitHub project for testing."""
     return TEST_DATA_MAPPING_PACKAGES_REPO_PATH
 
+
 @pytest.fixture
 def fixture_mapping_package_v3_github_project_path() -> Path:
     """Path to dummy GitHub project for testing."""
     return TEST_DATA_MAPPING_PACKAGES_V3_REPO_PATH
+
 
 @pytest.fixture
 def dummy_github_branch_name() -> str:
@@ -313,7 +309,8 @@ def dummy_mapping_package_v2_validator() -> MappingPackageV2Validator:
 @pytest.fixture
 def typer_cli_runner() -> CliRunner:
     """CLI runner for testing command-line interfaces."""
-    return CliRunner()
+    # Plain help text: under GITHUB_ACTIONS typer forces rich styling, whose escape codes split option names.
+    return CliRunner(env={"TERM": "dumb"})
 
 
 # ============================================================================
@@ -340,11 +337,12 @@ def dummy_mapping_suite_archive_path() -> Path:
 
 class TestModel(PydanticModel):
     """Test model for repository and general testing purposes."""
+
     __test__ = False  # Tell pytest this is not a test class
 
     id: str = Field(default="dummy_id", alias="_id")
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     count: int = 0
 
 
@@ -357,11 +355,7 @@ def mongo_client() -> mongomock.MongoClient:
 @pytest.fixture
 def dummy_mongo_repository(mongo_client: mongomock.MongoClient) -> MongoDBRepository:
     """MongoDB repository fixture for testing."""
-    return MongoDBRepository(
-        model_class=TestModel,
-        mongo_client=mongo_client,
-        database_name="test_db"
-    )
+    return MongoDBRepository(model_class=TestModel, mongo_client=mongo_client, database_name="test_db")
 
 
 @pytest.fixture

@@ -15,39 +15,23 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.tools.services.convert_mapping_package import (
     InvalidPackagePathError,
-    UnsupportedConversionError,
     UnsupportedVersionError,
     Version,
     VersionDetectionError,
-    convert_mapping_package_model,
+    _normalize_version,
+    _validate_conversion_path,
+    convert_mapping_package,
+)
+from mapping_suite_sdk.tools.services.convert_mapping_package import (
+    UnsupportedConversionError as UnsupportedConversionError,  # re-exported: 1.x import path
 )
 
-if TYPE_CHECKING:
-    pass
-
 logger = logging.getLogger(__name__)
-
-
-_VERSION_MAP = {
-    "v1": Version.V1,
-    "v2": Version.V2,
-    "v3": Version.V3,
-    "v3l": Version.V3L,
-}
-
-
-def _normalize_version(version: str) -> Version:
-    """Normalize version string to Version enum (case-insensitive, strips whitespace)."""
-    normalized = version.strip().lower()
-    if normalized not in _VERSION_MAP:
-        raise UnsupportedVersionError(f"Unsupported version: {version}")
-    return _VERSION_MAP[normalized]
 
 
 def _load_source_package(
@@ -123,14 +107,6 @@ def _resolve_version(version: str | None, package_folder_path: Path) -> Version:
     if detected is None:
         raise VersionDetectionError(f"Could not detect mapping package version for: {package_folder_path}")
     return _normalize_version(detected)
-
-
-def _validate_conversion_path(source_version: Version, target_version: Version) -> None:
-    """Validate that conversion from source to target is supported."""
-    if source_version == Version.V3L and target_version == Version.V3:
-        raise UnsupportedConversionError(
-            "Cannot produce v3 (full) from a v3L source; v3L has no test data or validation assets."
-        )
 
 
 def _validate_if_requested(
@@ -209,11 +185,7 @@ def load_mapping_package(
         source_version, package_folder_path, include_test_data=include_test_data, include_output=include_output
     )
 
-    converted = (
-        convert_mapping_package_model(source_version, target_version, source_package)
-        if source_version != target_version
-        else source_package
-    )
+    converted = convert_mapping_package(source_package, target_version)
 
     _validate_if_requested(
         converted,

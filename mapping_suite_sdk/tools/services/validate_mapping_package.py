@@ -20,7 +20,7 @@ from mapping_suite_sdk.core.adapters.tracer import traced_class, traced_routine
 from mapping_suite_sdk.core.adapters.validator import MPValidationException, MPValidationStepABC
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
-from mapping_suite_sdk.tools.services.convert_mapping_package import Version
+from mapping_suite_sdk.tools.services.convert_mapping_package import Version, VersionDetectionError, _detect_version_from_model
 
 
 @traced_class
@@ -196,25 +196,6 @@ def _validate_path(
     return _validate_folder_path(path, version, include_test_data, include_output)
 
 
-def _detect_version_from_model(mapping_package: MappingPackage) -> Version:
-    """Auto-detect version from model instance type."""
-    from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
-    from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
-
-    if isinstance(mapping_package, MappingPackageV1):
-        return Version.V1
-    if isinstance(mapping_package, MappingPackageV2):
-        return Version.V2
-    if isinstance(mapping_package, MappingPackageV3Lightweight):
-        return Version.V3L
-    if isinstance(mapping_package, MappingPackageV3):
-        return Version.V3
-
-    raise CrossVersionValidationError(f"Cannot auto-detect version from mapping package type: {type(mapping_package)}")
-
-
 @traced_routine
 def validate_mapping_package(
     mapping_package: Path | MappingPackage,
@@ -243,5 +224,11 @@ def validate_mapping_package(
         return _validate_path(mapping_package, version, include_test_data, include_output)
 
     # Model instance case
-    detected = _normalize_version(version) if version else _detect_version_from_model(mapping_package)
+    if version:
+        detected = _normalize_version(version)
+    else:
+        try:
+            detected = _detect_version_from_model(mapping_package)
+        except VersionDetectionError as err:
+            raise CrossVersionValidationError(str(err)) from err
     return _validate_model(mapping_package, detected)

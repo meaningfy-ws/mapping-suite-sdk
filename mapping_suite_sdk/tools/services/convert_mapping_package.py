@@ -148,6 +148,71 @@ def convert_mapping_package_model(from_version: str, to_version: str, source_pac
         raise UnsupportedVersionError(f"Unsupported conversion: {from_version} -> {to_version}")
 
 
+_VERSION_MAP = {
+    "v1": Version.V1,
+    "v2": Version.V2,
+    "v3": Version.V3,
+    "v3l": Version.V3L,
+}
+
+
+def _normalize_version(version: str) -> Version:
+    """Normalize version string to Version enum (case-insensitive, strips whitespace)."""
+    normalized = version.strip().lower()
+    if normalized not in _VERSION_MAP:
+        raise UnsupportedVersionError(f"Unsupported version: {version}")
+    return _VERSION_MAP[normalized]
+
+
+def _validate_conversion_path(source_version: Version, target_version: Version) -> None:
+    """Validate that conversion from source to target is supported."""
+    if source_version == Version.V3L and target_version == Version.V3:
+        raise UnsupportedConversionError(
+            "Cannot produce v3 (full) from a v3L source; v3L has no test data or validation assets."
+        )
+
+
+def _detect_version_from_model(mapping_package) -> Version:
+    """Detect the version of a loaded mapping package from its type."""
+    from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
+    from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
+
+    if isinstance(mapping_package, MappingPackageV1):
+        return Version.V1
+    if isinstance(mapping_package, MappingPackageV2):
+        return Version.V2
+    if isinstance(mapping_package, MappingPackageV3Lightweight):
+        return Version.V3L
+    if isinstance(mapping_package, MappingPackageV3):
+        return Version.V3
+
+    raise VersionDetectionError(f"Cannot auto-detect version from mapping package type: {type(mapping_package)}")
+
+
+@traced_routine
+def convert_mapping_package(mapping_package, to_version: str = "v3"):
+    """Convert a loaded mapping package to v3 (full) or v3L (lightweight).
+
+    The source version is detected from the package type. A package already at the target version
+    is returned as is.
+
+    Raises:
+        UnsupportedVersionError: If ``to_version`` is not "v3" or "v3L".
+        VersionDetectionError: If ``mapping_package`` is not a v1, v2, v3 or v3-lightweight package.
+        UnsupportedConversionError: If the source cannot become the target (v3L -> v3).
+    """
+    target_version = _normalize_version(to_version)
+    if target_version not in (Version.V3, Version.V3L):
+        raise UnsupportedVersionError(f"Unsupported target version: {to_version}; use v3 or v3L")
+    source_version = _detect_version_from_model(mapping_package)
+    _validate_conversion_path(source_version, target_version)
+    if source_version == target_version:
+        return mapping_package
+    return convert_mapping_package_model(source_version, target_version, mapping_package)
+
+
 def _get_context_jsonld_path() -> Path:
     """
     Get the path to context.jsonld file using importlib.resources.

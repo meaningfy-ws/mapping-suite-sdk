@@ -15,6 +15,7 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import (
     MappingPackageV3Lightweight,
@@ -73,7 +74,7 @@ class TestLoadMappingPackageVersionHandling:
     def test_no_version_triggers_detection(self, mock_detect, mock_load, tmp_path: Path):
         mock_detect.return_value = "v2"
         mock_load.return_value = Mock(spec=MappingPackageV3)
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
             load_mapping_package(tmp_path, include_test_data=True, validate_package=False)
         mock_detect.assert_called_once_with(tmp_path)
@@ -111,9 +112,9 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
     """Target version (v3 vs v3L) and conversion routing."""
 
     @patch(_V2_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_include_test_data_true_targets_v3(self, mock_convert, mock_load, tmp_path: Path):
-        source = Mock(spec=MappingPackageV3)
+        source = Mock(spec=MappingPackageV2)
         converted = Mock(spec=MappingPackageV3)
         mock_load.return_value = source
         mock_convert.return_value = converted
@@ -122,7 +123,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
         assert result is converted
 
     @patch(_V3_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_include_test_data_false_targets_v3l(self, mock_convert, mock_load, tmp_path: Path):
         source = Mock(spec=MappingPackageV3)
         converted = Mock(spec=MappingPackageV3Lightweight)
@@ -145,7 +146,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
     def test_v3l_source_with_include_test_data_false_returns_without_conversion(self, mock_v3l_load, tmp_path: Path):
         pkg = Mock(spec=MappingPackageV3Lightweight)
         mock_v3l_load.return_value = pkg
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             result = load_mapping_package(tmp_path, version="v3L", include_test_data=False, validate_package=False)
             mock_convert.assert_not_called()
         assert result is pkg
@@ -160,7 +161,7 @@ class TestLoadMappingPackageLoaderFlags:
         mock_instance = Mock()
         mock_loader_cls.return_value = mock_instance
         mock_load.return_value = Mock(spec=MappingPackageV3)
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
             load_mapping_package(tmp_path, version="v1", include_test_data=True, include_output=False, validate_package=False)
         mock_loader_cls.assert_called_once_with(include_test_data=True, include_output=False)
@@ -171,7 +172,7 @@ class TestLoadMappingPackageLoaderFlags:
         mock_instance = Mock()
         mock_loader_cls.return_value = mock_instance
         mock_load.return_value = Mock(spec=MappingPackageV3)
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
             load_mapping_package(tmp_path, version="v2", include_test_data=True, include_output=False, validate_package=False)
         mock_loader_cls.assert_called_once_with(include_test_data=True, include_output=False)
@@ -218,9 +219,9 @@ class TestLoadMappingPackageValidation:
 
     @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
     @patch(_V2_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_validate_package_true_validates_before_and_after(self, mock_convert, mock_load, mock_validate, tmp_path: Path):
-        source = Mock(spec=MappingPackageV3)
+        source = Mock(spec=MappingPackageV2)
         converted = Mock(spec=MappingPackageV3)
         mock_load.return_value = source
         mock_convert.return_value = converted
@@ -254,7 +255,7 @@ class TestLoadMappingPackageV3NoConversion:
     """When source is already target version, no conversion."""
 
     @patch(_V3_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_v3_source_target_v3_returns_same_instance(self, mock_convert, mock_load, tmp_path: Path):
         pkg = Mock(spec=MappingPackageV3)
         mock_load.return_value = pkg

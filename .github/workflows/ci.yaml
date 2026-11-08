@@ -33,16 +33,8 @@ jobs:
           poetry env use python
           poetry check --lock
           make install
-      - name: Gate (lint, types, architecture, codegen sync, tests + coverage)
+      - name: Gate (lint, types, architecture, codegen sync, tests + coverage, core-only wheel)
         run: make check-all
-      # Proves the package-distribution install scenarios: the built wheel, installed by pip
-      # into a fresh venv, imports on this Python (P-8).
-      - name: Install the wheel into a fresh venv
-        run: |
-          poetry build --format wheel
-          python -m venv "$RUNNER_TEMP/wheel-venv"
-          "$RUNNER_TEMP/wheel-venv/bin/pip" install dist/*.whl
-          "$RUNNER_TEMP/wheel-venv/bin/python" -c "import mapping_suite_sdk"
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.12'
         uses: codecov/codecov-action@v5

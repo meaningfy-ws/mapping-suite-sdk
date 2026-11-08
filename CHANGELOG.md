@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
-## [1.1.0] - unreleased
+## [1.1.0] - 2026-11-08
 
 ### Added
 - Python 3.13 support; the package installs and imports on Python 3.10, 3.11, 3.12 and 3.13 (#93).

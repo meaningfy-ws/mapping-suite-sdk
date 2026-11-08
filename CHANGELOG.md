@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-11-08
 
 A major release: the core needs `pydantic` only, every integration is an extra, and saving is a separate
 call (#94). TED-SWS and other 1.x consumers should pin `mapping-suite-sdk<2` until they migrate.

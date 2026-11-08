@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.mapping_suite.adapters.loader import (
@@ -139,7 +140,7 @@ def test_mapping_suite_config_loader_handles_invalid_schema():
 
         loader = MappingSuiteConfigLoader()
 
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(ValidationError):
             loader.load(
                 project_folder_path=temp_dir_path,
                 relative_asset_path=Path("invalid_schema.json"),

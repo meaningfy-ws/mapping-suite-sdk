@@ -111,7 +111,7 @@ class ArchiveExtractor(ExtractorABC):
             return destination_path
 
         except Exception as e:
-            raise ValueError(f"Failed to extract ZIP file: {e}")
+            raise ValueError(f"Failed to extract ZIP file: {e}") from e
 
     @contextmanager
     def extract_temporary(self, source_path: Path) -> Generator[Path, None, None]:
@@ -146,7 +146,7 @@ class ArchiveExtractor(ExtractorABC):
             except FileNotFoundError as e:
                 raise e
             except Exception as e:
-                raise ValueError(f"Failed to extract ZIP file {source_path}: {e}")
+                raise ValueError(f"Failed to extract ZIP file {source_path}: {e}") from e
 
     def pack_directory(self, source_dir: Path, output_path: Path) -> Path:
         """Pack a directory's contents into a ZIP file without including the root directory name.
@@ -201,7 +201,7 @@ class ArchiveExtractor(ExtractorABC):
             return output_path
 
         except Exception as e:
-            raise ValueError(f"Failed to create ZIP file: {e}")
+            raise ValueError(f"Failed to create ZIP file: {e}") from e
 
 
 @traced_class
@@ -290,7 +290,7 @@ class GitHubExtractor(ExtractorABC):
                 Repo.clone_from(repository_url, destination_path, depth=1)
             return destination_path / package_path
         except Exception as e:
-            raise ValueError(f"Failed to clone repository: {e}")
+            raise ValueError(f"Failed to clone repository: {e}") from e
 
     @contextmanager
     def extract_temporary(
@@ -353,4 +353,4 @@ class GitHubExtractor(ExtractorABC):
                     Repo.clone_from(repository_url, temp_dir_path, depth=1)
                 yield [package_path for package_path in temp_dir_path.glob(packages_path_pattern) if package_path.is_dir()]
             except Exception as e:
-                raise ValueError(f"Failed to get packages from repository: {e}")
+                raise ValueError(f"Failed to get packages from repository: {e}") from e

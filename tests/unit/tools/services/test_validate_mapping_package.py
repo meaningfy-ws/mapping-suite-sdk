@@ -576,14 +576,14 @@ def test_validate_mapping_package_raises_on_model_version_mismatch_v3L_to_v3(fix
 def test_validate_mapping_package_raises_on_nonexistent_folder_path(tmp_path: Path) -> None:
     """Test that validating a non-existent folder path raises."""
     nonexistent_path = tmp_path / "does_not_exist"
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         validate_mapping_package(nonexistent_path)
 
 
 def test_validate_mapping_package_raises_on_nonexistent_archive_path(tmp_path: Path) -> None:
     """Test that validating a non-existent archive path raises."""
     nonexistent_archive = tmp_path / "does_not_exist.zip"
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         validate_mapping_package(nonexistent_archive)
 
 
@@ -598,7 +598,7 @@ def test_validate_mapping_package_raises_on_file_when_folder_expected(tmp_path: 
             return_value=Version.V2,
         ),
     ):
-        with pytest.raises(Exception):  # validate_folder_path should raise
+        with pytest.raises(ValueError):  # validate_folder_path should raise
             validate_mapping_package(file_path)
 
 

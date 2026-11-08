@@ -20,13 +20,13 @@ from tests.test_helpers import get_random_string, setup_temporary_test_git_repos
 def test_validate_mapping_package_v1_runs_with_success(dummy_mapping_package_v1_model: MappingPackageV1):
     is_valid: bool = validate_mapping_package_v1(mapping_package=dummy_mapping_package_v1_model)
 
-    assert is_valid == True
+    assert is_valid is True
 
     is_valid: bool = validate_mapping_package_v1(
         mapping_package=dummy_mapping_package_v1_model, mp_validator=MappingPackageV1Validator()
     )
 
-    assert is_valid == True
+    assert is_valid is True
 
 
 def test_validate_mapping_package_v1_fails_on_bad_package(dummy_mapping_package_v1_model: MappingPackageV1):
@@ -65,7 +65,7 @@ def test_validate_mapping_package_v1_from_archive_fails_on_folder_instead_of_arc
 def test_validate_mapping_package_v1_from_folder_runs_with_success(dummy_mapping_package_v1_path: Path):
     is_valid: bool = validate_mapping_package_v1_from_folder(dummy_mapping_package_v1_path)
 
-    assert is_valid == True
+    assert is_valid is True
 
 
 def test_validate_mapping_package_v1_from_folder_fails_on_bad_folder_path():

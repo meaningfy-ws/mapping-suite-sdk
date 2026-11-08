@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 # Import config for backward compatibility
-from mapping_suite_sdk.core.config import MSSDKCoreConfig
+from mapping_suite_sdk.core.config import MSSDKCoreConfig as MSSDKCoreConfig
 
 if TYPE_CHECKING:
     from mapping_suite_sdk.core.adapters.version_detector import VersionDetectionRule

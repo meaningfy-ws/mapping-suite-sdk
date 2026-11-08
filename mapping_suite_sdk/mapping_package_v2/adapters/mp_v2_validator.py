@@ -43,8 +43,8 @@ class MPV2StructuralValidationStep(MPValidationStepABC):
 
         # TODO: structural validation also must check relation between test data and results
 
-        except AssertionError:
-            raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites")
+        except AssertionError as err:
+            raise MPStructuralValidationException("Mapping Package validation error:\nThere are empty suites") from err
         return True
 
 
@@ -60,12 +60,12 @@ class MPV2HashValidationStep(MPValidationStepABC):
 
         try:
             assert generated_hash == mapping_package.metadata.signature
-        except AssertionError:
+        except AssertionError as err:
             raise MPHashValidationException(
                 f"Mapping Package validation error: Package with identifier {mapping_package.metadata.identifier} has different signature:\n"
                 f"Expected  signature for {mapping_package.metadata.identifier}: {mapping_package.metadata.signature}\n"
                 f"Generated signature for {mapping_package.metadata.identifier}: {generated_hash}"
-            )
+            ) from err
 
         return True
 

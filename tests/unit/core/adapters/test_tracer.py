@@ -36,16 +36,16 @@ def test_get_mssdk_tracing():
     """Test getting the trace state."""
     # Test with ON state
     os.environ[_MSSDK_TRACE_VAR_NAME] = "true"
-    assert get_mssdk_tracing() == True
+    assert get_mssdk_tracing() is True
 
     # Test with OFF state
     os.environ[_MSSDK_TRACE_VAR_NAME] = "false"
-    assert get_mssdk_tracing() == False
+    assert get_mssdk_tracing() is False
 
     # Test default state (when environment variable isn't set)
     if _MSSDK_TRACE_VAR_NAME in os.environ:
         del os.environ[_MSSDK_TRACE_VAR_NAME]
-    assert get_mssdk_tracing() == False
+    assert get_mssdk_tracing() is False
 
 
 def test_add_span_processor_to_mssdk_tracer_provider_gets_invalid_value():

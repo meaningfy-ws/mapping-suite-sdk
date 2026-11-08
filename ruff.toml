@@ -17,6 +17,13 @@ select = [
     "B",   # flake8-bugbear
     "C90", # mccabe complexity
 ]
+# The formatter enforces line-length on code; what E501 still flags are long strings,
+# comments and docstrings it cannot wrap.
+ignore = ["E501"]
+
+[lint.per-file-ignores]
+# typer.Argument/Option in defaults is typer's documented idiom, not a mutable default.
+"mapping_suite_sdk/tools/entrypoints/cli/*.py" = ["B008"]
 
 [lint.mccabe]
 max-complexity = 15

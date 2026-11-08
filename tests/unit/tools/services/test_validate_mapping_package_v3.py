@@ -23,13 +23,13 @@ from tests.test_helpers import get_random_string, setup_temporary_test_git_repos
 def test_validate_mapping_package_v3_runs_with_success(fixture_mapping_package_v3_model: MappingPackageV3):
     is_valid: bool = validate_mapping_package_v3(mapping_package=fixture_mapping_package_v3_model)
 
-    assert is_valid == True
+    assert is_valid is True
 
     is_valid: bool = validate_mapping_package_v3(
         mapping_package=fixture_mapping_package_v3_model, mp_validator=MappingPackageV3Validator()
     )
 
-    assert is_valid == True
+    assert is_valid is True
 
 
 def test_validate_mapping_package_v3_fails_on_bad_package(fixture_mapping_package_v3_model: MappingPackageV3):
@@ -68,7 +68,7 @@ def test_validate_mapping_package_v3_from_archive_fails_on_folder_instead_of_arc
 def test_validate_mapping_package_v3_from_folder_runs_with_success(dummy_mapping_package_v3_path: Path):
     is_valid: bool = validate_mapping_package_v3_from_folder(dummy_mapping_package_v3_path)
 
-    assert is_valid == True
+    assert is_valid is True
 
 
 def test_validate_mapping_package_v3_from_folder_fails_on_bad_folder_path():
@@ -189,7 +189,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_multiple_valid_packa
 
     result = validate_bulk_mapping_packages_v3_from_folder(mappings_folder)
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_returns_false_on_validation_failure(
@@ -211,7 +211,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_returns_false_on_validati
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings)
 
-        assert result == False
+        assert result is False
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_validation_error(
@@ -233,7 +233,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_validation_e
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings)
 
-        assert result == False
+        assert result is False
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_generic_exception(
@@ -252,7 +252,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_generic_exce
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings)
 
-        assert result == False
+        assert result is False
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_hash_update_with_invalid_hash(
@@ -278,7 +278,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_hash_update_with_invalid_
         metadata_updated = json.loads(metadata_file.read_text())
         assert metadata_updated["mapping_suite_hash_digest"] != "wrong_hash_12345"
         assert metadata_updated["mapping_suite_hash_digest"] == original_hash
-        assert result == True
+        assert result is True
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_returns_false_on_validation_failure(
@@ -300,7 +300,7 @@ def test_validate_bulk_mapping_packages_v3_from_github_returns_false_on_validati
                 github_repository_url=repo_path, packages_path_pattern=dummy_get_all_packages_pattern
             )
 
-            assert result == False
+            assert result is False
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_with_multiple_packages(
@@ -338,7 +338,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_mix_of_valid_and_inv
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings)
 
-        assert result == False
+        assert result is False
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_dont_skip_files_in_folder(
@@ -355,7 +355,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_dont_skip_files_in_folder
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings)
 
-        assert result == False
+        assert result is False
 
 
 def test_validate_mapping_package_v3_with_custom_validator(fixture_mapping_package_v3_model: MappingPackageV3):
@@ -363,7 +363,7 @@ def test_validate_mapping_package_v3_with_custom_validator(fixture_mapping_packa
 
     result = validate_mapping_package_v3(mapping_package=fixture_mapping_package_v3_model, mp_validator=custom_validator)
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_mapping_package_v3_from_archive_with_custom_validator(dummy_mapping_package_v3_archive_path: Path):
@@ -373,7 +373,7 @@ def test_validate_mapping_package_v3_from_archive_with_custom_validator(dummy_ma
         mapping_package_archive_path=dummy_mapping_package_v3_archive_path, mp_validator=custom_validator
     )
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_mapping_package_v3_from_archive_with_custom_loader(dummy_mapping_package_v3_archive_path: Path):
@@ -385,7 +385,7 @@ def test_validate_mapping_package_v3_from_archive_with_custom_loader(dummy_mappi
         mapping_package_archive_path=dummy_mapping_package_v3_archive_path, mapping_package_loader=custom_loader
     )
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_mapping_package_v3_from_archive_with_custom_extractor(dummy_mapping_package_v3_archive_path: Path):
@@ -397,7 +397,7 @@ def test_validate_mapping_package_v3_from_archive_with_custom_extractor(dummy_ma
         mapping_package_archive_path=dummy_mapping_package_v3_archive_path, archive_unpacker=custom_extractor
     )
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_mapping_package_v3_from_folder_with_custom_validator(dummy_mapping_package_v3_path: Path):
@@ -407,7 +407,7 @@ def test_validate_mapping_package_v3_from_folder_with_custom_validator(dummy_map
         mapping_package_folder_path=dummy_mapping_package_v3_path, mp_validator=custom_validator
     )
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_mapping_package_v3_from_folder_with_custom_loader(dummy_mapping_package_v3_path: Path):
@@ -419,7 +419,7 @@ def test_validate_mapping_package_v3_from_folder_with_custom_loader(dummy_mappin
         mapping_package_folder_path=dummy_mapping_package_v3_path, mapping_package_loader=custom_loader
     )
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_validator(
@@ -432,7 +432,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_validator(
         mapping_packages_folder_path=mappings_folder, mp_validator=custom_validator
     )
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_loader(
@@ -447,7 +447,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_loader(
         mapping_packages_folder_path=mappings_folder, mapping_package_loader=custom_loader
     )
 
-    assert result == True
+    assert result is True
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_with_custom_validator(
@@ -519,7 +519,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_updates_hash_and_returns_
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings, update_hash=True)
 
-        assert result == True
+        assert result is True
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_continues_on_unexpected_exception(

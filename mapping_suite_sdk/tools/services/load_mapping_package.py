@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pymongo import MongoClient
 
@@ -27,6 +28,10 @@ from mapping_suite_sdk.tools.services.convert_mapping_package import (
     Version,
     convert_mapping_package_model,
 )
+
+if TYPE_CHECKING:
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
+    from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,7 @@
 [importlinter]
 root_package = mapping_suite_sdk
+include_external_packages = True
+exclude_type_checking_imports = True
 
 # Contract 1: Core Models Independence (but allow config imports)
 [importlinter:contract:core-models-independence]
@@ -91,3 +93,20 @@ source_modules =
     mapping_suite_sdk.mapping_package_v3
 forbidden_modules =
     mapping_suite_sdk.tools
+
+# Contract 6: Optional integrations stay at their boundary (modular-core DEC-8, P-9).
+# MongoDB and GitHub need no line: pymongo/git are reached only under TYPE_CHECKING or via require().
+[importlinter:contract:optional-integrations]
+name = Only the tracer and the CLI import an optional library at module level
+type = forbidden
+source_modules =
+    mapping_suite_sdk
+forbidden_modules =
+    pymongo
+    git
+    opentelemetry
+    typer
+ignore_imports =
+    mapping_suite_sdk.core.adapters.tracer -> opentelemetry
+    mapping_suite_sdk.tools.entrypoints.cli -> typer
+    mapping_suite_sdk.tools.entrypoints.cli.** -> typer

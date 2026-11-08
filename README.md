@@ -11,7 +11,6 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=bugs)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=coverage)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=meaningfy-ws_mapping-suite-sdk&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=meaningfy-ws_mapping-suite-sdk)

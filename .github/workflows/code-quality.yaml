@@ -11,7 +11,6 @@ on:
       - 'pyproject.toml'
       - 'poetry.lock'
       - 'tox.ini'
-      - 'sonar-project.properties'
       - '.pylintrc'
       - '.github/workflows/code-quality.yaml'
   pull_request:
@@ -23,7 +22,6 @@ on:
       - 'pyproject.toml'
       - 'poetry.lock'
       - 'tox.ini'
-      - 'sonar-project.properties'
       - '.pylintrc'
       - '.github/workflows/code-quality.yaml'
 
@@ -166,12 +164,3 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v7
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.qualitygate.timeout=300

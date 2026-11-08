@@ -29,7 +29,7 @@
 ## 5. Core-only proof
 
 - [x] 5.1 `tests/core_only/` scenarios: core-only round trip (v2 folder → load → convert → validate); ImportError messages for `save_mapping_package_to_mongodb`, a `load_mapping_packages_*_from_github` function, `save_mapping_suite_to_mongo_db` (repository argument `None`; `require` runs first) and `add_span_processor_to_mssdk_tracer_provider`; `mssdk` without `[cli]` (subprocess, exit ≠ 0, message, no `Traceback` in stderr); load with and without `MSSDK_TRACE=true` emits no warning (`warnings.catch_warnings(record=True)` list empty, and no `caplog` record at WARNING or above); "Model modules stay importable by path" (optional-integrations, public-api)
-- [ ] 5.2 `make check-all` green on 3.10 and 3.13 locally
+- [x] 5.2 `make check-all` green on 3.10 and 3.13 locally
 
 ## 6. Type debt, docs, release notes
 
@@ -40,7 +40,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [x] 4.3 · [x] 4.4 · [x] 4.5 · [x] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
+- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [x] 4.3 · [x] 4.4 · [x] 4.5 · [x] 5.1 · [x] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
 
 ## Verification
 

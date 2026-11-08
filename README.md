@@ -281,10 +281,6 @@ Each tool is configured in its own root file: `ruff.toml`, `mypy.ini`, `pytest.i
 
 Python models are generated from LinkML schemas in `resources/schema/`. After a schema change, run `make generate-models` and commit the result, or `make check-codegen` fails.
 
-### Dependency Restrictions
-
-- LinkML 1.9.5 onwards introduces breaking changes in our data (development only: the `model` group)
-
 ## Get in Touch
 
 - **Issues**: Report bugs and feature requests on our [GitHub Issues](https://github.com/meaningfy-ws/mapping-suite-sdk/issues)

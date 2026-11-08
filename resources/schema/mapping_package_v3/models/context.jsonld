@@ -5,7 +5,7 @@
       "mfy": "http://meaningfy.ws/mssdk/ontology#",
       "@vocab": "http://meaningfy.ws/mssdk/ontology#",
       "applicability_constraints": {
-         "@type": "mfy:ApplicabilityConstraints",
+         "@type": "@id",
          "@id": "applicability_constraints"
       },
       "created_at": {
@@ -19,14 +19,14 @@
          "@id": "document_schema_version_list"
       },
       "document_time_interval": {
-         "@type": "mfy:DateTimeInterval",
+         "@type": "@id",
          "@id": "document_time_interval"
       },
       "document_type_list": {
          "@id": "document_type_list"
       },
       "document_version_range": {
-         "@type": "mfy:VersionRange",
+         "@type": "@id",
          "@id": "document_version_range"
       },
       "end": {

@@ -42,7 +42,7 @@ lint = [
 ]
 # Development only: generates the v3 and mapping-suite models from resources/schema (make generate-models).
 model = [
-    "linkml>=1.9.2,<1.9.5",
+    "linkml>=1.12,<1.13",
 ]
 
 [tool.poetry]

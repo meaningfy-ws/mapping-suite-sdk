@@ -33,7 +33,7 @@ def test_same_version_returns_the_package_unchanged():
 
 
 def test_lightweight_cannot_become_full():
-    lightweight = load_mapping_package(TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH, validate_package=False)
+    lightweight = load_mapping_package(TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH)
 
     with pytest.raises(UnsupportedConversionError):
         convert_mapping_package(lightweight, to_version="v3")

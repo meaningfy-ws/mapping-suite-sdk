@@ -65,7 +65,7 @@
     "description": "This is the mapping suite for all eForm subtypes except X01 and X02, SDK version 1.13, ePO version 4.0.0",
     "id": "https://meaningfy.ws/mapping/package_eforms_sdk1.13_epo4.0",
     "input_mime_types": null,
-    "mapping_suite_hash_digest": "f60adfe781ba80d3202a59b6f2b7320c46fbcf8c72e231ca1b621e3055335d15",
+    "mapping_suite_hash_digest": "262763a136dd25057173d4cea73034fa57de7764ce58023199de7b7dfbf16ace",
     "mapping_version": "1.1.0",
     "model_version": "4.0.0",
     "mssdk_version": null,

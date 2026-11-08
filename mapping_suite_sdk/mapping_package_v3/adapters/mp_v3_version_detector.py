@@ -7,9 +7,9 @@ including both full and lightweight variants, using declarative specifications.
 
 from mapping_suite_sdk.core import VersionDetectionRegistry
 from mapping_suite_sdk.core.adapters.version_detector import (
-    VersionDetectionSpec,
-    PathCondition,
     MetadataCondition,
+    PathCondition,
+    VersionDetectionSpec,
 )
 
 # V3 path constants (stable configuration constants)
@@ -34,15 +34,14 @@ V3_FULL_SPEC = VersionDetectionSpec(
         # Note: This is NOT a differentiator between V3L and V3 Full - both have @context
         # The differentiation between V3L and V3 Full is via path conditions above
         MetadataCondition("@context", must_exist=True),
-        MetadataCondition("project_identifier", must_exist=True)
-    ]
+        MetadataCondition("project_identifier", must_exist=True),
+    ],
 )
 
 # Declarative V3 Lightweight specification
 V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
     version_id="v3L",
     priority=1,
-
     path_conditions=[
         # V3 Lightweight MUST have (essential for transformation):
         # - Technical mapping suite (RML files)
@@ -60,14 +59,13 @@ V3_LIGHTWEIGHT_SPEC = VersionDetectionSpec(
         # - Output path for v3L is not needed
         PathCondition(_OUTPUT_PATH, must_exist=False),
     ],
-
     metadata_conditions=[
         # V3 JSON-LD marker: @context distinguishes V3 (both Full and Lightweight) from V1/V2
         # Note: This is NOT a differentiator between V3L and V3 Full - both have @context
         # The differentiation between V3L and V3 Full is via path conditions above
         MetadataCondition("@context", must_exist=True),
-        MetadataCondition("project_identifier", must_exist=True)
-    ]
+        MetadataCondition("project_identifier", must_exist=True),
+    ],
 )
 
 # Convert specs to rules

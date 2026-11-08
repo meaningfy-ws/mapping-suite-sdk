@@ -4,7 +4,8 @@ Repository implementation specifically for mapping packages.
 This module provides PackageRepository, which extends MongoDBRepository
 with package-specific convenience methods.
 """
-from typing import Type, TypeVar
+
+from typing import TypeVar
 
 from pymongo import MongoClient
 
@@ -12,7 +13,7 @@ from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
-T = TypeVar('T', bound=PydanticModel)
+T = TypeVar("T", bound=PydanticModel)
 
 
 @traced_class
@@ -24,11 +25,7 @@ class PackageRepository(MongoDBRepository[T]):
     """
 
     def __init__(
-            self,
-            model_class: Type[T],
-            mongo_client: MongoClient,
-            database_name: str,
-            collection_name: str = "mapping_package"
+        self, model_class: type[T], mongo_client: MongoClient, database_name: str, collection_name: str = "mapping_package"
     ):
         """Initialize a PackageRepository.
 
@@ -39,10 +36,7 @@ class PackageRepository(MongoDBRepository[T]):
             collection_name: Name of the MongoDB collection. Defaults to "mapping_package".
         """
         super().__init__(
-            model_class=model_class,
-            mongo_client=mongo_client,
-            database_name=database_name,
-            collection_name=collection_name
+            model_class=model_class, mongo_client=mongo_client, database_name=database_name, collection_name=collection_name
         )
 
     def create_package(self, model: T) -> T:
@@ -58,4 +52,3 @@ class PackageRepository(MongoDBRepository[T]):
             The saved mapping package model.
         """
         return self.create(model)
-

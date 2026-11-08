@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Optional, Literal, NoReturn, List
+from typing import Literal, NoReturn
 
 from pydantic import ValidationError
 
@@ -12,17 +12,17 @@ from mapping_suite_sdk.core.adapters.validator import MPValidationException
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
-from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import \
-    load_mapping_package_v3_lightweight_from_archive, \
-    load_mapping_package_v3_lightweight_from_folder, \
-    load_mapping_packages_v3_lightweight_from_github
+from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3_lightweight import (
+    load_mapping_package_v3_lightweight_from_archive,
+    load_mapping_package_v3_lightweight_from_folder,
+    load_mapping_packages_v3_lightweight_from_github,
+)
 
 logger = logging.getLogger(__name__)
 
 
 @traced_routine
-def validate_mapping_package_v3_lightweight(
-        mapping_package: MappingPackageV3Lightweight) -> Literal[True] | NoReturn:
+def validate_mapping_package_v3_lightweight(mapping_package: MappingPackageV3Lightweight) -> Literal[True] | NoReturn:
     """
     Validates the given Mapping Package V3 Lightweight by checking the hash.
 
@@ -44,35 +44,30 @@ def validate_mapping_package_v3_lightweight(
 
 @traced_routine
 def validate_mapping_package_v3_lightweight_from_archive(
-        mapping_package_archive_path: Path,
-        mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
-        archive_unpacker: Optional[ArchiveExtractor] = None
+    mapping_package_archive_path: Path,
+    mapping_package_loader: MappingPackageV3LightweightLoader | None = None,
+    archive_unpacker: ArchiveExtractor | None = None,
 ) -> Literal[True] | NoReturn:
     from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
-    MPValidationStepABC.validate_archive_path(
-        path=mapping_package_archive_path,
-        context="validate package from archive"
-    )
+    MPValidationStepABC.validate_archive_path(path=mapping_package_archive_path, context="validate package from archive")
 
     mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_lightweight_from_archive(
         mapping_package_archive_path=mapping_package_archive_path,
         mapping_package_loader=mapping_package_loader,
-        archive_unpacker=archive_unpacker)
+        archive_unpacker=archive_unpacker,
+    )
 
     return validate_mapping_package_v3_lightweight(mapping_package=mapping_package)
 
 
 @traced_routine
 def validate_mapping_package_v3_lightweight_from_folder(
-        mapping_package_folder_path: Path,
-        mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None) -> Literal[True] | NoReturn:
+    mapping_package_folder_path: Path, mapping_package_loader: MappingPackageV3LightweightLoader | None = None
+) -> Literal[True] | NoReturn:
     from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
-    MPValidationStepABC.validate_folder_path(
-        path=mapping_package_folder_path,
-        context="validate package from folder"
-    )
+    MPValidationStepABC.validate_folder_path(path=mapping_package_folder_path, context="validate package from folder")
 
     mapping_package: MappingPackageV3Lightweight = load_mapping_package_v3_lightweight_from_folder(
         mapping_package_folder_path=mapping_package_folder_path,
@@ -84,16 +79,13 @@ def validate_mapping_package_v3_lightweight_from_folder(
 
 @traced_routine
 def validate_bulk_mapping_packages_v3_lightweight_from_folder(
-        mapping_packages_folder_path: Path,
-        mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
-        update_hash: bool = False,
+    mapping_packages_folder_path: Path,
+    mapping_package_loader: MappingPackageV3LightweightLoader | None = None,
+    update_hash: bool = False,
 ) -> bool | NoReturn:
     from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
-    MPValidationStepABC.validate_folder_path(
-        path=mapping_packages_folder_path,
-        context="bulk validate packages from folder"
-    )
+    MPValidationStepABC.validate_folder_path(path=mapping_packages_folder_path, context="bulk validate packages from folder")
 
     all_valid: bool = True
     for mp_folder in mapping_packages_folder_path.iterdir():
@@ -101,8 +93,9 @@ def validate_bulk_mapping_packages_v3_lightweight_from_folder(
             if not mp_folder.is_dir():
                 continue
 
-            validate_mapping_package_v3_lightweight_from_folder(mapping_package_folder_path=mp_folder,
-                                                                mapping_package_loader=mapping_package_loader)
+            validate_mapping_package_v3_lightweight_from_folder(
+                mapping_package_folder_path=mp_folder, mapping_package_loader=mapping_package_loader
+            )
         except MPValidationException as hash_validation_exception:
             message: str = f"Mapping package is not valid: {hash_validation_exception}"
             if update_hash:
@@ -111,61 +104,69 @@ def validate_bulk_mapping_packages_v3_lightweight_from_folder(
                 if metadata_file.exists():
                     metadata = json.loads(metadata_file.read_text())
                     lightweight_package = load_mapping_package_v3_lightweight_from_folder(mp_folder)
-                    metadata['mapping_suite_hash_digest'] = MappingPackageV3Hasher(lightweight_package).hash()
+                    metadata["mapping_suite_hash_digest"] = MappingPackageV3Hasher(lightweight_package).hash()
                     metadata_file.write_text(json.dumps(metadata, indent=4))
             else:
                 all_valid = False
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
-                                                                          message=message))
+            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder, message=message))
             continue
-        except (ValidationError) as validation_exception:
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
-                                                                          message=f"Mapping package is not valid: {validation_exception}"))
+        except ValidationError as validation_exception:
+            logger.error(
+                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                    package_source=mp_folder, message=f"Mapping package is not valid: {validation_exception}"
+                )
+            )
             all_valid = False
             continue
         except Exception as other_exception:
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
-                                                                          message=f"Cannot validate mapping package: {other_exception}\n skipping"))
+            logger.error(
+                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                    package_source=mp_folder, message=f"Cannot validate mapping package: {other_exception}\n skipping"
+                )
+            )
             all_valid = False
             continue
         else:
-            logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mp_folder,
-                                                                         message="Mapping package is valid ✅"))
+            logger.info(
+                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                    package_source=mp_folder, message="Mapping package is valid ✅"
+                )
+            )
     return all_valid
 
 
 @traced_routine
 def validate_bulk_mapping_packages_v3_lightweight_from_github(
-        github_repository_url: str,
-        packages_path_pattern: str,
-        branch_or_tag_name: Optional[str] = None,
-        github_package_extractor: Optional[GitHubExtractor] = None,
-        mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
+    github_repository_url: str,
+    packages_path_pattern: str,
+    branch_or_tag_name: str | None = None,
+    github_package_extractor: GitHubExtractor | None = None,
+    mapping_package_loader: MappingPackageV3LightweightLoader | None = None,
 ) -> bool | NoReturn:
     from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
     MPValidationStepABC.validate_string_parameter(
-        value=github_repository_url,
-        param_name="Repository URL",
-        context="validate packages from github"
+        value=github_repository_url, param_name="Repository URL", context="validate packages from github"
     )
 
     MPValidationStepABC.validate_string_parameter(
-        value=packages_path_pattern,
-        param_name="Packages path pattern",
-        context="validate packages from github"
+        value=packages_path_pattern, param_name="Packages path pattern", context="validate packages from github"
     )
 
-    logger.info(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-        package_source=f"URL: {github_repository_url} | branch_or_tag_name: {branch_or_tag_name} | pattern: {packages_path_pattern}",
-        message="Validating bulk mapping packages from Github"))
+    logger.info(
+        mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=f"URL: {github_repository_url} | branch_or_tag_name: {branch_or_tag_name} | pattern: {packages_path_pattern}",
+            message="Validating bulk mapping packages from Github",
+        )
+    )
 
-    mapping_packages: List[MappingPackageV3Lightweight] = load_mapping_packages_v3_lightweight_from_github(
+    mapping_packages: list[MappingPackageV3Lightweight] = load_mapping_packages_v3_lightweight_from_github(
         github_repository_url=github_repository_url,
         packages_path_pattern=packages_path_pattern,
         branch_or_tag_name=branch_or_tag_name,
         github_package_extractor=github_package_extractor,
-        mapping_package_loader=mapping_package_loader)
+        mapping_package_loader=mapping_package_loader,
+    )
 
     all_valid: bool = True
     for mapping_package in mapping_packages:
@@ -173,20 +174,24 @@ def validate_bulk_mapping_packages_v3_lightweight_from_github(
             validate_mapping_package_v3_lightweight(mapping_package=mapping_package)
         except MPValidationException as validation_exception:
             logger.error(
-                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.id,
-                                                                 message=f"Mapping package is not valid: {validation_exception}"))
+                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                    package_source=mapping_package.metadata.id, message=f"Mapping package is not valid: {validation_exception}"
+                )
+            )
             all_valid = False
             continue
         except Exception as unexpected_exception:
             logger.error(
-                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.id,
-                                                                 message=f"Unexpected exception raised: {unexpected_exception}"))
+                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                    package_source=mapping_package.metadata.id, message=f"Unexpected exception raised: {unexpected_exception}"
+                )
+            )
             all_valid = False
             continue
         else:
             logger.info(
-                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package.metadata.id,
-                                                                 message="✅ The package is valid!"))
+                mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                    package_source=mapping_package.metadata.id, message="✅ The package is valid!"
+                )
+            )
     return all_valid
-
-

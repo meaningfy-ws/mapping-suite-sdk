@@ -2,7 +2,7 @@ import hashlib
 
 import pytest
 
-from mapping_suite_sdk.core.adapters.hasher import HasherABC, SHA256Hasher, MappingPackageHasher
+from mapping_suite_sdk.core.adapters.hasher import HasherABC, MappingPackageHasher, SHA256Hasher
 
 
 def test_sha256_hasher_hash_returns_correct_hash():
@@ -62,7 +62,7 @@ def test_sha256_hasher_hash_large_content():
 
 def test_sha256_hasher_hash_unicode_content():
     hasher = SHA256Hasher()
-    content = "test unicode content: 你好世界".encode('utf-8')
+    content = "test unicode content: 你好世界".encode()
 
     result = hasher.hash(content)
 
@@ -76,8 +76,7 @@ def test_hasher_abc_cannot_be_instantiated():
 
 
 def test_hasher_abc_subclass_must_implement_hash():
-    class IncompleteHasher(HasherABC):
-        ...
+    class IncompleteHasher(HasherABC): ...
 
     with pytest.raises(TypeError):
         IncompleteHasher()
@@ -100,8 +99,7 @@ def test_mapping_package_hasher_abc_cannot_be_instantiated():
 
 
 def test_mapping_package_hasher_abc_subclass_must_implement_hash():
-    class IncompleteMappingPackageHasher(MappingPackageHasher):
-        ...
+    class IncompleteMappingPackageHasher(MappingPackageHasher): ...
 
     with pytest.raises(TypeError):
         IncompleteMappingPackageHasher()

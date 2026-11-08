@@ -9,10 +9,10 @@ from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.services.load_mapping_package_v3 import (
-    load_mapping_package_v3_from_folder,
     load_mapping_package_v3_from_archive,
+    load_mapping_package_v3_from_folder,
+    load_mapping_package_v3_from_mongo_db,
     load_mapping_packages_v3_from_github,
-    load_mapping_package_v3_from_mongo_db
 )
 
 
@@ -77,10 +77,7 @@ def test_load_mapping_package_v3_from_archive_with_custom_loader(dummy_mapping_p
 def test_load_mapping_package_v3_from_archive_with_custom_extractor(dummy_mapping_package_v3_archive_path: Path):
     custom_extractor = ArchiveExtractor()
 
-    result = load_mapping_package_v3_from_archive(
-        dummy_mapping_package_v3_archive_path,
-        archive_unpacker=custom_extractor
-    )
+    result = load_mapping_package_v3_from_archive(dummy_mapping_package_v3_archive_path, archive_unpacker=custom_extractor)
 
     assert isinstance(result, MappingPackageV3)
 
@@ -165,20 +162,20 @@ def test_load_mapping_package_v3_from_mongo_db_repository_exception():
 
 
 def test_load_mapping_package_v3_from_folder_tracer_decoration():
-    assert hasattr(load_mapping_package_v3_from_folder, '__name__')
-    assert load_mapping_package_v3_from_folder.__name__ == 'load_mapping_package_v3_from_folder'
+    assert hasattr(load_mapping_package_v3_from_folder, "__name__")
+    assert load_mapping_package_v3_from_folder.__name__ == "load_mapping_package_v3_from_folder"
 
 
 def test_load_mapping_package_v3_from_archive_tracer_decoration():
-    assert hasattr(load_mapping_package_v3_from_archive, '__name__')
-    assert load_mapping_package_v3_from_archive.__name__ == 'load_mapping_package_v3_from_archive'
+    assert hasattr(load_mapping_package_v3_from_archive, "__name__")
+    assert load_mapping_package_v3_from_archive.__name__ == "load_mapping_package_v3_from_archive"
 
 
 def test_load_mapping_packages_v3_from_github_tracer_decoration():
-    assert hasattr(load_mapping_packages_v3_from_github, '__name__')
-    assert load_mapping_packages_v3_from_github.__name__ == 'load_mapping_packages_v3_from_github'
+    assert hasattr(load_mapping_packages_v3_from_github, "__name__")
+    assert load_mapping_packages_v3_from_github.__name__ == "load_mapping_packages_v3_from_github"
 
 
 def test_load_mapping_package_v3_from_mongo_db_tracer_decoration():
-    assert hasattr(load_mapping_package_v3_from_mongo_db, '__name__')
-    assert load_mapping_package_v3_from_mongo_db.__name__ == 'load_mapping_package_v3_from_mongo_db'
+    assert hasattr(load_mapping_package_v3_from_mongo_db, "__name__")
+    assert load_mapping_package_v3_from_mongo_db.__name__ == "load_mapping_package_v3_from_mongo_db"

@@ -5,16 +5,15 @@ from pathlib import Path
 import pytest
 
 from mapping_suite_sdk.core.models.collection_asset import (
-    TechnicalMappingCollectionAsset,
-    VocabularyMappingCollectionAsset,
-    TestDataCollectionAsset,
-    SPARQLTestCollectionAsset,
     SHACLTestCollectionAsset,
-    TestResultCollectionAsset
+    SPARQLTestCollectionAsset,
+    TechnicalMappingCollectionAsset,
+    TestDataCollectionAsset,
+    TestResultCollectionAsset,
+    VocabularyMappingCollectionAsset,
 )
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2MetadataLoader, \
-    MappingPackageV2Loader
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader, MappingPackageV2MetadataLoader
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
 
 
@@ -72,8 +71,8 @@ def test_mp_v2_loader_tracer_decoration():
 
     # The traced_class decorator should add certain attributes/methods
     # This test verifies the decorator is applied
-    assert hasattr(loader, '__class__')
-    assert loader.__class__.__name__ == 'MappingPackageV2Loader'
+    assert hasattr(loader, "__class__")
+    assert loader.__class__.__name__ == "MappingPackageV2Loader"
 
 
 def test_mp_v2_loader_handles_nonexistent_path():
@@ -86,14 +85,14 @@ def test_mp_v2_loader_handles_nonexistent_path():
 def test_mp_v2_loader_validates_package_structure(dummy_mapping_package_v2_model):
     # This is more of an integration test to ensure the loaded package
     # has the same structure as our test fixtures
-    assert hasattr(dummy_mapping_package_v2_model, 'metadata')
-    assert hasattr(dummy_mapping_package_v2_model, 'conceptual_mapping_asset')
-    assert hasattr(dummy_mapping_package_v2_model, 'technical_mapping_suite')
-    assert hasattr(dummy_mapping_package_v2_model, 'vocabulary_mapping_suite')
-    assert hasattr(dummy_mapping_package_v2_model, 'test_data_suites')
-    assert hasattr(dummy_mapping_package_v2_model, 'test_suites_sparql')
-    assert hasattr(dummy_mapping_package_v2_model, 'test_suites_shacl')
-    assert hasattr(dummy_mapping_package_v2_model, 'test_results')
+    assert hasattr(dummy_mapping_package_v2_model, "metadata")
+    assert hasattr(dummy_mapping_package_v2_model, "conceptual_mapping_asset")
+    assert hasattr(dummy_mapping_package_v2_model, "technical_mapping_suite")
+    assert hasattr(dummy_mapping_package_v2_model, "vocabulary_mapping_suite")
+    assert hasattr(dummy_mapping_package_v2_model, "test_data_suites")
+    assert hasattr(dummy_mapping_package_v2_model, "test_suites_sparql")
+    assert hasattr(dummy_mapping_package_v2_model, "test_suites_shacl")
+    assert hasattr(dummy_mapping_package_v2_model, "test_results")
 
 
 def test_mp_v2_loader_component_types(dummy_mapping_package_v2_model):
@@ -108,9 +107,7 @@ def test_mp_v2_loader_component_types(dummy_mapping_package_v2_model):
 
     # Verify list contents
     if dummy_mapping_package_v2_model.test_data_suites:
-        assert all(
-            isinstance(suite, TestDataCollectionAsset) for suite in dummy_mapping_package_v2_model.test_data_suites)
+        assert all(isinstance(suite, TestDataCollectionAsset) for suite in dummy_mapping_package_v2_model.test_data_suites)
 
     if dummy_mapping_package_v2_model.test_suites_sparql:
-        assert all(
-            isinstance(suite, SPARQLTestCollectionAsset) for suite in dummy_mapping_package_v2_model.test_suites_sparql)
+        assert all(isinstance(suite, SPARQLTestCollectionAsset) for suite in dummy_mapping_package_v2_model.test_suites_sparql)

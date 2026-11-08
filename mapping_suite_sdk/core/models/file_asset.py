@@ -14,6 +14,7 @@ class FileAsset(PydanticModel):
     both the location and content of a file, ensuring consistent file handling
     across different file types in the mapping package.
     """
+
     path: Path = Field(..., description="Path within a mapping package")
     content: str | bytes = Field(..., description="Content of the file")
 
@@ -39,6 +40,7 @@ class ConceptualMappingFileAsset(FileAsset):
     typically describe the logical connections between different data elements without
     implementation details.
     """
+
     path: Path = Field(..., description="Path within a mapping package")
 
     content: bytes = Field(..., description="xlsx file content in bytes")
@@ -52,6 +54,7 @@ class VocabularyMappingFileAsset(FileAsset):
     individual data values should be transformed, converted, or mapped to different
     formats or vocabularies.
     """
+
     content: str = Field(..., description="Content of the file")
 
 
@@ -62,6 +65,7 @@ class SPARQLQueryFileAsset(FileAsset):
     RDF data. ASK queries return a boolean result (true/false) indicating whether
     a given pattern exists in the data used for validation checks.
     """
+
     content: str = Field(..., description="Content of the file")
 
 
@@ -74,13 +78,13 @@ class SHACLShapesFileAsset(FileAsset):
     data types, and structural patterns. SHACL shapes can be used to validate
     instance data against predefined constraints and ensure data quality.
     """
+
     content: str = Field(..., description="Content of the file")
 
 
 class SHACLShapesResultQueryFileAsset(SPARQLQueryFileAsset):
-    """
+    """ """
 
-    """
     content: str = Field(..., description="Content of the file")
     path: Path = Field(..., description="Path within a mapping package")
 
@@ -118,6 +122,7 @@ class TechnicalMappingFileAsset(FileAsset, ABC):
     transforming data from one format to another. This abstract class defines
     the common interface that all technical mapping implementations must follow.
     """
+
     content: str = Field(..., description="Content of the file")
 
 
@@ -129,6 +134,7 @@ class RMLMappingFileAsset(TechnicalMappingFileAsset):
     the RDF data model. RML is an extension of R2RML that enables mapping from
     various  tree-shaped data formats (CSV, XML, JSON) to RDF.
     """
+
     content: str = Field(..., description="Content of the file")
 
 
@@ -139,11 +145,11 @@ class YARRRMLMappingFileAsset(TechnicalMappingFileAsset):
     representations of RML mappings written in YAML syntax. YARRRML provides a more
     accessible way to write RML mappings while maintaining the same expressive power.
     """
+
     content: str = Field(..., description="Content of the file")
 
 
 class ReportFileAsset(FileAsset):
-    """
+    """ """
 
-    """
     content: str | bytes = Field(..., description="Content of the file")

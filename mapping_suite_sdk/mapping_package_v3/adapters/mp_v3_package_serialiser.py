@@ -1,9 +1,15 @@
 from pathlib import Path
 
-from mapping_suite_sdk.core.adapters.serialiser import MappingPackageAssetSerialiser, \
-    ConceptualMappingFileAssetSerialiser, TechnicalMappingCollectionAssetSerialiser, \
-    VocabularyMappingCollectionAssetSerialiser, TestDataCollectionAssetSerialiser, SPARQLTestCollectionAssetSerialiser, \
-    SHACLTestCollectionAssetSerialiser, TestResultCollectionAssetSerialiser
+from mapping_suite_sdk.core.adapters.serialiser import (
+    ConceptualMappingFileAssetSerialiser,
+    MappingPackageAssetSerialiser,
+    SHACLTestCollectionAssetSerialiser,
+    SPARQLTestCollectionAssetSerialiser,
+    TechnicalMappingCollectionAssetSerialiser,
+    TestDataCollectionAssetSerialiser,
+    TestResultCollectionAssetSerialiser,
+    VocabularyMappingCollectionAssetSerialiser,
+)
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_serialiser import MappingPackageV3MetadataSerialiser
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3

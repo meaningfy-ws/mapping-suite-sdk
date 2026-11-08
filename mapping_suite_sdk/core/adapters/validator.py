@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from types import FunctionType
-from typing import Optional, Literal, NoReturn
+from typing import Literal, NoReturn, Optional
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
@@ -10,7 +10,8 @@ from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 logger = logging.getLogger(__name__)
 
 
-class MPValidationException(Exception): pass
+class MPValidationException(Exception):
+    pass
 
 
 def validate_next(func: FunctionType):
@@ -25,6 +26,7 @@ def validate_next(func: FunctionType):
         ... )
         >>> hash_validator.validate(package)  # Runs both validators in sequence
     """
+
     def wrapper(self, mapping_package: MappingPackage):
         result = func(self, mapping_package)
         if self.next_validator:
@@ -86,8 +88,7 @@ class MPValidationStepABC(ABC):
         """
         if not path.exists():
             message = f"Cannot process {context}. Path does not exist: {path}"
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-                package_source=path, message=message))
+            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=path, message=message))
             raise FileNotFoundError(message)
 
     @staticmethod
@@ -106,8 +107,7 @@ class MPValidationStepABC(ABC):
         """
         if not path.is_file():
             message = f"Cannot process {context}. Path is not a file: {path}"
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-                package_source=path, message=message))
+            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=path, message=message))
             raise ValueError(message)
 
     @staticmethod
@@ -126,8 +126,7 @@ class MPValidationStepABC(ABC):
         """
         if not path.is_dir():
             message = f"Cannot process {context}. Path is not a directory: {path}"
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-                package_source=path, message=message))
+            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=path, message=message))
             raise NotADirectoryError(message)
 
     @staticmethod
@@ -187,6 +186,5 @@ class MPValidationStepABC(ABC):
         """
         if not value:
             message = f"Cannot {context}. {param_name} is empty"
-            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
-                package_source=context, message=message))
+            logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=context, message=message))
             raise ValueError(message)

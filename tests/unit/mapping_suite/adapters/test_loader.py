@@ -6,43 +6,35 @@ import pytest
 
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.mapping_suite.adapters.loader import (
-    MappingSuiteLoader,
     MappingSuiteConfigLoader,
+    MappingSuiteLoader,
     ResourceReferencesLoader,
 )
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
-    MappingSuite,
-    MappingSuiteConfig,
-    ResourceReferences,
-    MappingSuiteMetadata,
     DocumentMetadataConfig,
     EligibilityConstraintConfig,
+    MappingSuite,
+    MappingSuiteConfig,
+    MappingSuiteMetadata,
+    ResourceReferences,
 )
 from tests import TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH
 
 
 def _create_dummy_config(file_paths: list[str]) -> MappingSuiteConfig:
     """Helper function to create a minimal MappingSuiteConfig for testing.
-    
+
     Args:
         file_paths: List of file paths for resource references.
-        
+
     Returns:
         MappingSuiteConfig with dummy values for testing.
     """
     return MappingSuiteConfig(
-        mapping_suite_metadata=MappingSuiteMetadata(
-            mapping_suite_identifier="dummy",
-            mapping_suite_description="dummy"
-        ),
-        metadata_config=DocumentMetadataConfig(
-            metadata_properties=[],
-            document_type_probing=[]
-        ),
-        eligibility_constraint_config=EligibilityConstraintConfig(
-            eligibility_mapping=[]
-        ),
-        resource_references=ResourceReferences(file_paths=file_paths)
+        mapping_suite_metadata=MappingSuiteMetadata(mapping_suite_identifier="dummy", mapping_suite_description="dummy"),
+        metadata_config=DocumentMetadataConfig(metadata_properties=[], document_type_probing=[]),
+        eligibility_constraint_config=EligibilityConstraintConfig(eligibility_mapping=[]),
+        resource_references=ResourceReferences(file_paths=file_paths),
     )
 
 
@@ -140,9 +132,7 @@ def test_mapping_suite_config_loader_handles_invalid_schema():
 
         # Valid JSON but missing required fields
         invalid_config = {
-            "mapping_suite_metadata": {
-                "mapping_suite_identifier": "test"
-            }
+            "mapping_suite_metadata": {"mapping_suite_identifier": "test"}
             # Missing metadata_config and eligibility_constraint_config
         }
         config_path.write_text(json.dumps(invalid_config))
@@ -174,11 +164,13 @@ def test_resource_references_loader_loads_successfully():
     )
     assert len(resources) == 3
     file_names = sorted([r["file_name"] for r in resources])
-    expected = sorted([
-        "/src/normalisation/sforms_mapping.csv",
-        "/src/normalisation/eforms_mapping.csv",
-        "/src/transformation/resources/winner-selection-status.json"
-    ])
+    expected = sorted(
+        [
+            "/src/normalisation/sforms_mapping.csv",
+            "/src/normalisation/eforms_mapping.csv",
+            "/src/transformation/resources/winner-selection-status.json",
+        ]
+    )
     assert file_names == expected
     for r in resources:
         assert r["object"]
@@ -265,19 +257,19 @@ def test_resource_references_loader_handles_malformed_json():
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
-        
+
         # Create a malformed JSON file
         (resources_dir / "malformed.json").write_text("{ invalid json content {{")
         # Create a valid JSON file
         (resources_dir / "valid.json").write_text('{"key": "value"}')
-        
+
         loader = ResourceReferencesLoader()
         config = _create_dummy_config(file_paths=["resources/malformed.json", "resources/valid.json"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
         )
-        
+
         # Should only contain the valid file, malformed file should be skipped
         assert resources is not None
         assert len(resources) == 1
@@ -287,7 +279,7 @@ def test_resource_references_loader_handles_malformed_json():
 
 def test_resource_references_loader_loads_csv_files_with_irregular_formats():
     """Test that loader successfully loads CSV files with various formats.
-    
+
     Note: This test verifies successful CSV loading rather than error handling.
     csv.DictReader is extremely tolerant and rarely raises csv.Error in practice,
     even with irregular column counts or formatting. The loader's csv.Error handling
@@ -299,11 +291,11 @@ def test_resource_references_loader_loads_csv_files_with_irregular_formats():
         resources_dir.mkdir()
 
         # Create a CSV file with inconsistent columns (still valid for DictReader)
-        irregular_csv_content = 'col1,col2,col3\nval1,val2\nval3,val4,val5,val6\n'
+        irregular_csv_content = "col1,col2,col3\nval1,val2\nval3,val4,val5,val6\n"
         (resources_dir / "irregular.csv").write_text(irregular_csv_content)
 
         # Create a standard CSV file
-        standard_csv_content = 'name,value\nitem1,100\nitem2,200\n'
+        standard_csv_content = "name,value\nitem1,100\nitem2,200\n"
         (resources_dir / "standard.csv").write_text(standard_csv_content)
 
         # Create an empty CSV file
@@ -332,11 +324,11 @@ def test_resource_references_loader_skips_csv_with_header_only():
         resources_dir.mkdir()
 
         # Create a CSV file with only a header
-        header_only_csv_content = 'col1,col2,col3\n'
+        header_only_csv_content = "col1,col2,col3\n"
         (resources_dir / "header_only.csv").write_text(header_only_csv_content)
 
         # Create a valid CSV file
-        valid_csv_content = 'name,value\nitem1,100\n'
+        valid_csv_content = "name,value\nitem1,100\n"
         (resources_dir / "valid.csv").write_text(valid_csv_content)
 
         loader = ResourceReferencesLoader()
@@ -359,22 +351,22 @@ def test_resource_references_loader_handles_encoding_errors():
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
-        
+
         # Create a file with invalid UTF-8 encoding
         invalid_encoding_file = resources_dir / "invalid_encoding.json"
         # Write bytes that are invalid UTF-8
         invalid_encoding_file.write_bytes(b'{"key": "\xff\xfe invalid utf-8"}')
-        
+
         # Create a valid file
         (resources_dir / "valid.json").write_text('{"key": "value"}')
-        
+
         loader = ResourceReferencesLoader()
         config = _create_dummy_config(file_paths=["resources/invalid_encoding.json", "resources/valid.json"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
         )
-        
+
         # Should only contain the valid file, file with encoding error should be skipped
         assert resources is not None
         assert len(resources) == 1
@@ -388,18 +380,18 @@ def test_resource_references_loader_handles_all_files_failing():
         temp_dir_path = Path(temp_dir)
         resources_dir = temp_dir_path / "resources"
         resources_dir.mkdir()
-        
+
         # Create only malformed files
         (resources_dir / "malformed1.json").write_text("{ invalid json")
         (resources_dir / "malformed2.json").write_text("not json at all {{")
-        
+
         loader = ResourceReferencesLoader()
         config = _create_dummy_config(file_paths=["resources/malformed1.json", "resources/malformed2.json"])
         resources = loader.load(
             package_folder_path=temp_dir_path,
             config=config,
         )
-        
+
         # Should return None when all files fail to load
         assert resources is None
 
@@ -450,10 +442,7 @@ def test_mapping_suite_loader_loads_config_correctly():
     mapping_suite = loader.load(TEST_DATA_EXAMPLE_MAPPING_SUITE_FOLDER_PATH)
 
     assert isinstance(mapping_suite.mapping_suite_config, MappingSuiteConfig)
-    assert (
-        mapping_suite.mapping_suite_config.mapping_suite_metadata.mapping_suite_identifier
-        == "eForms"
-    )
+    assert mapping_suite.mapping_suite_config.mapping_suite_metadata.mapping_suite_identifier == "eForms"
 
 
 def test_mapping_suite_loader_loads_resources_when_enabled():

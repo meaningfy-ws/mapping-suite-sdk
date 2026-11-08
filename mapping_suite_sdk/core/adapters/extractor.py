@@ -1,9 +1,10 @@
 import tempfile
 import zipfile
 from abc import ABC, abstractmethod
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, Any, List, Optional
+from typing import Any
 
 from git import Repo
 
@@ -184,13 +185,13 @@ class ArchiveExtractor(ExtractorABC):
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Ensure the output path has .zip extension
-        if not str(output_path).endswith('.zip'):
-            output_path = output_path.with_suffix('.zip')
+        if not str(output_path).endswith(".zip"):
+            output_path = output_path.with_suffix(".zip")
 
         try:
-            with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zip_ref:
+            with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zip_ref:
                 # Get all files in the directory
-                for file_path in source_dir.rglob('*'):
+                for file_path in source_dir.rglob("*"):
                     if file_path.is_file():  # Skip directories, they're created automatically
                         # Calculate the path relative to the source directory
                         relative_path = file_path.relative_to(source_dir)
@@ -239,11 +240,11 @@ class GitHubExtractor(ExtractorABC):
     """
 
     def extract(
-            self,
-            repository_url: str,
-            destination_path: Path,
-            package_path: Path,  # Relative to repo folder. Example: /mappings/package_can_v1.3
-            branch_or_tag_name: Optional[str] = None
+        self,
+        repository_url: str,
+        destination_path: Path,
+        package_path: Path,  # Relative to repo folder. Example: /mappings/package_can_v1.3
+        branch_or_tag_name: str | None = None,
     ) -> Path:
         """Extract a specific package from a GitHub repository.
 
@@ -293,11 +294,11 @@ class GitHubExtractor(ExtractorABC):
 
     @contextmanager
     def extract_temporary(
-            self,
-            repository_url: str,
-            packages_path_pattern: str,  # Example: /mappings/package* or /mappings/*_can_*
-            branch_or_tag_name: Optional[str] = None
-    ) -> Generator[List[Path], None, None]:
+        self,
+        repository_url: str,
+        packages_path_pattern: str,  # Example: /mappings/package* or /mappings/*_can_*
+        branch_or_tag_name: str | None = None,
+    ) -> Generator[list[Path], None, None]:
         """Temporarily extract matching packages from a GitHub repository.
 
         This context manager clones a GitHub repository to a temporary location and yields
@@ -350,7 +351,6 @@ class GitHubExtractor(ExtractorABC):
                     Repo.clone_from(repository_url, temp_dir_path, branch=branch_or_tag_name, depth=1)
                 else:
                     Repo.clone_from(repository_url, temp_dir_path, depth=1)
-                yield [package_path for package_path in temp_dir_path.glob(packages_path_pattern) if
-                       package_path.is_dir()]
+                yield [package_path for package_path in temp_dir_path.glob(packages_path_pattern) if package_path.is_dir()]
             except Exception as e:
                 raise ValueError(f"Failed to get packages from repository: {e}")

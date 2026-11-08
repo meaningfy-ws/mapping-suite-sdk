@@ -14,23 +14,23 @@ def typer_version_callback(show_version: bool) -> None:
         raise typer.Exit()
 
 
-mssdk_cli_command = typer.Typer(
-    **mssdk_config.MSSDK_TYPER_DEFAULT_ARGS,
-    name="mssdk",
-    help="Mapping suite SDK CLI"
-)
+mssdk_cli_command = typer.Typer(**mssdk_config.MSSDK_TYPER_DEFAULT_ARGS, name="mssdk", help="Mapping suite SDK CLI")
 mssdk_cli_command.add_typer(validate.mssdk_cli_validate_subcommand)
 mssdk_cli_command.add_typer(convert.mssdk_cli_convert_subcommand)
 
 
 @mssdk_cli_command.callback()
 def common(
-        ctx: typer.Context,
-        version: bool = typer.Option(None, "--version", is_eager=True, callback=typer_version_callback,
-                                     help="Mapping Suite SDK version"),
+    ctx: typer.Context,
+    version: bool = typer.Option(
+        None, "--version", is_eager=True, callback=typer_version_callback, help="Mapping Suite SDK version"
+    ),
 ):
-    logger.debug(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=None,
-                                                                  message=f"Running MSSDK CLI with version: {__version__}"))
+    logger.debug(
+        mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+            package_source=None, message=f"Running MSSDK CLI with version: {__version__}"
+        )
+    )
 
 
 if __name__ == "__main__":

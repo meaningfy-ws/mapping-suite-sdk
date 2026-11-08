@@ -4,13 +4,12 @@ Unit tests for MappingPackageV3LightweightSaver.
 Tests focus on adapter responsibilities:
 - Saving package models to MongoDB
 """
+
 import mongomock
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
-from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import (
-    MappingPackageV3LightweightLoader
-)
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_saver import MappingPackageV3LightweightSaver
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import MappingPackageV3Lightweight
 
@@ -42,7 +41,7 @@ class TestMappingPackageV3LightweightSaver:
             mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
         assert isinstance(result, MappingPackageV3Lightweight)
@@ -53,7 +52,7 @@ class TestMappingPackageV3LightweightSaver:
             model_class=MappingPackageV3Lightweight,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
@@ -83,7 +82,7 @@ class TestMappingPackageV3LightweightSaver:
             mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=custom_collection_name
+            collection_name=custom_collection_name,
         )
 
         # Verify it was saved to the custom collection
@@ -91,7 +90,7 @@ class TestMappingPackageV3LightweightSaver:
             model_class=MappingPackageV3Lightweight,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=custom_collection_name
+            collection_name=custom_collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
@@ -122,7 +121,7 @@ class TestMappingPackageV3LightweightSaver:
             mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
         # Verify the package was saved with the correct _id
@@ -130,7 +129,7 @@ class TestMappingPackageV3LightweightSaver:
             model_class=MappingPackageV3Lightweight,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": expected_id})
         assert stored_doc is not None

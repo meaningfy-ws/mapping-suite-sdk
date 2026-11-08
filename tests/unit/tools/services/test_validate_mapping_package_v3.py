@@ -5,12 +5,18 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_validator import MPV3HashValidationException, \
-    MappingPackageV3Validator
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_validator import (
+    MappingPackageV3Validator,
+    MPV3HashValidationException,
+)
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
-from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import validate_mapping_package_v3, \
-    validate_mapping_package_v3_from_archive, validate_mapping_package_v3_from_folder, \
-    validate_bulk_mapping_packages_v3_from_folder, validate_bulk_mapping_packages_v3_from_github
+from mapping_suite_sdk.mapping_package_v3.services.validate_mapping_package_v3 import (
+    validate_bulk_mapping_packages_v3_from_folder,
+    validate_bulk_mapping_packages_v3_from_github,
+    validate_mapping_package_v3,
+    validate_mapping_package_v3_from_archive,
+    validate_mapping_package_v3_from_folder,
+)
 from tests.test_helpers import get_random_string, setup_temporary_test_git_repository
 
 
@@ -19,8 +25,9 @@ def test_validate_mapping_package_v3_runs_with_success(fixture_mapping_package_v
 
     assert is_valid == True
 
-    is_valid: bool = validate_mapping_package_v3(mapping_package=fixture_mapping_package_v3_model,
-                                                 mp_validator=MappingPackageV3Validator())
+    is_valid: bool = validate_mapping_package_v3(
+        mapping_package=fixture_mapping_package_v3_model, mp_validator=MappingPackageV3Validator()
+    )
 
     assert is_valid == True
 
@@ -121,8 +128,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_fails_on_non_directory():
         validate_bulk_mapping_packages_v3_from_folder(file_path)
 
 
-def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_package_failure(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_package_failure(dummy_mapping_package_v3_path: Path):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
 
@@ -138,45 +144,46 @@ def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_package_fail
         validate_bulk_mapping_packages_v3_from_folder(tmpdir_path)
 
 
-def test_validate_bulk_mapping_packages_v3_from_github_runs_with_success(dummy_github_project_path: Path,
-                                                                         dummy_get_all_packages_pattern: str):
+def test_validate_bulk_mapping_packages_v3_from_github_runs_with_success(
+    dummy_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     with setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
         validate_bulk_mapping_packages_v3_from_github(
-            github_repository_url=repo_path,
-            packages_path_pattern=dummy_get_all_packages_pattern)
+            github_repository_url=repo_path, packages_path_pattern=dummy_get_all_packages_pattern
+        )
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_fails_on_empty_repo_url():
     with pytest.raises(ValueError):
-        validate_bulk_mapping_packages_v3_from_github(
-            github_repository_url="",
-            packages_path_pattern="**/package.zip")
+        validate_bulk_mapping_packages_v3_from_github(github_repository_url="", packages_path_pattern="**/package.zip")
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_fails_on_bad_url(dummy_invalid_github_repo_url: str):
     with pytest.raises(ValueError):
         validate_bulk_mapping_packages_v3_from_github(
-            github_repository_url=dummy_invalid_github_repo_url,
-            packages_path_pattern="**/package.zip")
+            github_repository_url=dummy_invalid_github_repo_url, packages_path_pattern="**/package.zip"
+        )
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_fails_on_empty_pattern():
     with pytest.raises(ValueError):
         validate_bulk_mapping_packages_v3_from_github(
-            github_repository_url="https://github.com/test/repo",
-            packages_path_pattern="")
+            github_repository_url="https://github.com/test/repo", packages_path_pattern=""
+        )
 
 
-def test_validate_bulk_mapping_packages_v3_from_github_continues_on_package_failure(dummy_github_project_path: Path,
-                                                                                    dummy_get_all_packages_pattern: str):
+def test_validate_bulk_mapping_packages_v3_from_github_continues_on_package_failure(
+    dummy_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     with setup_temporary_test_git_repository(dummy_github_project_path) as repo_path:
         validate_bulk_mapping_packages_v3_from_github(
-            github_repository_url=repo_path,
-            packages_path_pattern=dummy_get_all_packages_pattern)
+            github_repository_url=repo_path, packages_path_pattern=dummy_get_all_packages_pattern
+        )
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_with_multiple_valid_packages(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
     assert mappings_folder.exists()
 
@@ -186,7 +193,8 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_multiple_valid_packa
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_returns_false_on_validation_failure(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
@@ -198,7 +206,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_returns_false_on_validati
         metadata_file = first_package / "metadata.jsonld"
         if metadata_file.exists():
             metadata = json.loads(metadata_file.read_text())
-            metadata['mapping_suite_hash_digest'] = "invalid_hash_value"
+            metadata["mapping_suite_hash_digest"] = "invalid_hash_value"
             metadata_file.write_text(json.dumps(metadata))
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings)
@@ -207,7 +215,8 @@ def test_validate_bulk_mapping_packages_v3_from_folder_returns_false_on_validati
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_validation_error(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
@@ -219,7 +228,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_validation_e
         metadata_file = first_package / "metadata.jsonld"
         if metadata_file.exists():
             metadata = json.loads(metadata_file.read_text())
-            del metadata['id']
+            del metadata["id"]
             metadata_file.write_text(json.dumps(metadata))
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings)
@@ -228,7 +237,8 @@ def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_validation_e
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_generic_exception(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
@@ -246,7 +256,8 @@ def test_validate_bulk_mapping_packages_v3_from_folder_continues_on_generic_exce
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_hash_update_with_invalid_hash(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
@@ -271,8 +282,8 @@ def test_validate_bulk_mapping_packages_v3_from_folder_hash_update_with_invalid_
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_returns_false_on_validation_failure(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
 
@@ -281,30 +292,31 @@ def test_validate_bulk_mapping_packages_v3_from_github_returns_false_on_validati
 
         for metadata_file in repo_dir.rglob("metadata.jsonld"):
             metadata = json.loads(metadata_file.read_text())
-            metadata['mapping_suite_hash_digest'] = "invalid_hash"
+            metadata["mapping_suite_hash_digest"] = "invalid_hash"
             metadata_file.write_text(json.dumps(metadata))
 
         with setup_temporary_test_git_repository(repo_dir) as repo_path:
             result = validate_bulk_mapping_packages_v3_from_github(
-                github_repository_url=repo_path,
-                packages_path_pattern=dummy_get_all_packages_pattern)
+                github_repository_url=repo_path, packages_path_pattern=dummy_get_all_packages_pattern
+            )
 
             assert result == False
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_with_multiple_packages(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     with setup_temporary_test_git_repository(fixture_mapping_package_v3_github_project_path) as repo_path:
         result = validate_bulk_mapping_packages_v3_from_github(
-            github_repository_url=repo_path,
-            packages_path_pattern=dummy_get_all_packages_pattern)
+            github_repository_url=repo_path, packages_path_pattern=dummy_get_all_packages_pattern
+        )
 
         assert isinstance(result, bool)
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_with_mix_of_valid_and_invalid(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
@@ -317,7 +329,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_mix_of_valid_and_inv
             metadata_file = packages[0] / "metadata.jsonld"
             if metadata_file.exists():
                 metadata = json.loads(metadata_file.read_text())
-                metadata['mapping_suite_hash_digest'] = "bad_hash"
+                metadata["mapping_suite_hash_digest"] = "bad_hash"
                 metadata_file.write_text(json.dumps(metadata))
 
             invalid_json_file = packages[1] / "metadata.jsonld"
@@ -330,7 +342,8 @@ def test_validate_bulk_mapping_packages_v3_from_folder_with_mix_of_valid_and_inv
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_dont_skip_files_in_folder(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
@@ -348,153 +361,147 @@ def test_validate_bulk_mapping_packages_v3_from_folder_dont_skip_files_in_folder
 def test_validate_mapping_package_v3_with_custom_validator(fixture_mapping_package_v3_model: MappingPackageV3):
     custom_validator = MappingPackageV3Validator()
 
-    result = validate_mapping_package_v3(
-        mapping_package=fixture_mapping_package_v3_model,
-        mp_validator=custom_validator
-    )
+    result = validate_mapping_package_v3(mapping_package=fixture_mapping_package_v3_model, mp_validator=custom_validator)
 
     assert result == True
 
 
-def test_validate_mapping_package_v3_from_archive_with_custom_validator(
-        dummy_mapping_package_v3_archive_path: Path):
+def test_validate_mapping_package_v3_from_archive_with_custom_validator(dummy_mapping_package_v3_archive_path: Path):
     custom_validator = MappingPackageV3Validator()
 
     result = validate_mapping_package_v3_from_archive(
-        mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
-        mp_validator=custom_validator
+        mapping_package_archive_path=dummy_mapping_package_v3_archive_path, mp_validator=custom_validator
     )
 
     assert result == True
 
 
-def test_validate_mapping_package_v3_from_archive_with_custom_loader(
-        dummy_mapping_package_v3_archive_path: Path):
+def test_validate_mapping_package_v3_from_archive_with_custom_loader(dummy_mapping_package_v3_archive_path: Path):
     from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+
     custom_loader = MappingPackageV3Loader(include_test_data=False, include_output=False)
 
     result = validate_mapping_package_v3_from_archive(
-        mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
-        mapping_package_loader=custom_loader
+        mapping_package_archive_path=dummy_mapping_package_v3_archive_path, mapping_package_loader=custom_loader
     )
 
     assert result == True
 
 
-def test_validate_mapping_package_v3_from_archive_with_custom_extractor(
-        dummy_mapping_package_v3_archive_path: Path):
+def test_validate_mapping_package_v3_from_archive_with_custom_extractor(dummy_mapping_package_v3_archive_path: Path):
     from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+
     custom_extractor = ArchiveExtractor()
 
     result = validate_mapping_package_v3_from_archive(
-        mapping_package_archive_path=dummy_mapping_package_v3_archive_path,
-        archive_unpacker=custom_extractor
+        mapping_package_archive_path=dummy_mapping_package_v3_archive_path, archive_unpacker=custom_extractor
     )
 
     assert result == True
 
 
-def test_validate_mapping_package_v3_from_folder_with_custom_validator(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_mapping_package_v3_from_folder_with_custom_validator(dummy_mapping_package_v3_path: Path):
     custom_validator = MappingPackageV3Validator()
 
     result = validate_mapping_package_v3_from_folder(
-        mapping_package_folder_path=dummy_mapping_package_v3_path,
-        mp_validator=custom_validator
+        mapping_package_folder_path=dummy_mapping_package_v3_path, mp_validator=custom_validator
     )
 
     assert result == True
 
 
-def test_validate_mapping_package_v3_from_folder_with_custom_loader(
-        dummy_mapping_package_v3_path: Path):
+def test_validate_mapping_package_v3_from_folder_with_custom_loader(dummy_mapping_package_v3_path: Path):
     from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+
     custom_loader = MappingPackageV3Loader(include_test_data=True, include_output=True)
 
     result = validate_mapping_package_v3_from_folder(
-        mapping_package_folder_path=dummy_mapping_package_v3_path,
-        mapping_package_loader=custom_loader
+        mapping_package_folder_path=dummy_mapping_package_v3_path, mapping_package_loader=custom_loader
     )
 
     assert result == True
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_validator(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
     custom_validator = MappingPackageV3Validator()
 
     result = validate_bulk_mapping_packages_v3_from_folder(
-        mapping_packages_folder_path=mappings_folder,
-        mp_validator=custom_validator
+        mapping_packages_folder_path=mappings_folder, mp_validator=custom_validator
     )
 
     assert result == True
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_with_custom_loader(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+
     mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
     custom_loader = MappingPackageV3Loader(include_test_data=False, include_output=False)
 
     result = validate_bulk_mapping_packages_v3_from_folder(
-        mapping_packages_folder_path=mappings_folder,
-        mapping_package_loader=custom_loader
+        mapping_packages_folder_path=mappings_folder, mapping_package_loader=custom_loader
     )
 
     assert result == True
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_with_custom_validator(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     custom_validator = MappingPackageV3Validator()
 
     with setup_temporary_test_git_repository(fixture_mapping_package_v3_github_project_path) as repo_path:
         result = validate_bulk_mapping_packages_v3_from_github(
             github_repository_url=repo_path,
             packages_path_pattern=dummy_get_all_packages_pattern,
-            mp_validator=custom_validator
+            mp_validator=custom_validator,
         )
 
         assert isinstance(result, bool)
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_with_custom_loader(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
+
     custom_loader = MappingPackageV3Loader(include_test_data=True, include_output=True)
 
     with setup_temporary_test_git_repository(fixture_mapping_package_v3_github_project_path) as repo_path:
         result = validate_bulk_mapping_packages_v3_from_github(
             github_repository_url=repo_path,
             packages_path_pattern=dummy_get_all_packages_pattern,
-            mapping_package_loader=custom_loader
+            mapping_package_loader=custom_loader,
         )
 
         assert isinstance(result, bool)
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_with_custom_extractor(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     from mapping_suite_sdk.core.adapters.extractor import GitHubExtractor
+
     custom_extractor = GitHubExtractor()
 
     with setup_temporary_test_git_repository(fixture_mapping_package_v3_github_project_path) as repo_path:
         result = validate_bulk_mapping_packages_v3_from_github(
             github_repository_url=repo_path,
             packages_path_pattern=dummy_get_all_packages_pattern,
-            github_package_extractor=custom_extractor
+            github_package_extractor=custom_extractor,
         )
 
         assert isinstance(result, bool)
 
 
 def test_validate_bulk_mapping_packages_v3_from_folder_updates_hash_and_returns_true(
-        fixture_mapping_package_v3_github_project_path: Path):
+    fixture_mapping_package_v3_github_project_path: Path,
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         mappings_folder = fixture_mapping_package_v3_github_project_path / "mappings"
@@ -507,7 +514,7 @@ def test_validate_bulk_mapping_packages_v3_from_folder_updates_hash_and_returns_
             metadata_file = package / "metadata.jsonld"
             if metadata_file.exists():
                 metadata = json.loads(metadata_file.read_text())
-                metadata['mapping_suite_hash_digest'] = "wrong_hash"
+                metadata["mapping_suite_hash_digest"] = "wrong_hash"
                 metadata_file.write_text(json.dumps(metadata))
 
         result = validate_bulk_mapping_packages_v3_from_folder(temp_mappings, update_hash=True)
@@ -516,8 +523,8 @@ def test_validate_bulk_mapping_packages_v3_from_folder_updates_hash_and_returns_
 
 
 def test_validate_bulk_mapping_packages_v3_from_github_continues_on_unexpected_exception(
-        fixture_mapping_package_v3_github_project_path: Path,
-        dummy_get_all_packages_pattern: str):
+    fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
 
@@ -529,7 +536,7 @@ def test_validate_bulk_mapping_packages_v3_from_github_continues_on_unexpected_e
 
         with setup_temporary_test_git_repository(repo_dir) as repo_path:
             result = validate_bulk_mapping_packages_v3_from_github(
-                github_repository_url=repo_path,
-                packages_path_pattern=dummy_get_all_packages_pattern)
+                github_repository_url=repo_path, packages_path_pattern=dummy_get_all_packages_pattern
+            )
 
             assert isinstance(result, bool)

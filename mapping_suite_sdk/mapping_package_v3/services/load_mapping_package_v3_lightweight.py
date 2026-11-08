@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Optional, List
 
 from pydantic import ValidationError
 
@@ -16,15 +15,11 @@ logger = logging.getLogger(__name__)
 
 @traced_routine
 def load_mapping_package_v3_lightweight_from_folder(
-        mapping_package_folder_path: Path,
-        mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None
+    mapping_package_folder_path: Path, mapping_package_loader: MappingPackageV3LightweightLoader | None = None
 ) -> MappingPackageV3Lightweight:
     from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
-    MPValidationStepABC.validate_folder_path(
-        path=mapping_package_folder_path,
-        context="load package from folder"
-    )
+    MPValidationStepABC.validate_folder_path(path=mapping_package_folder_path, context="load package from folder")
 
     mapping_package_loader = mapping_package_loader or MappingPackageV3LightweightLoader()
 
@@ -33,62 +28,63 @@ def load_mapping_package_v3_lightweight_from_folder(
 
 @traced_routine
 def load_mapping_package_v3_lightweight_from_archive(
-        mapping_package_archive_path: Path,
-        mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
-        archive_unpacker: Optional[ArchiveExtractor] = None
+    mapping_package_archive_path: Path,
+    mapping_package_loader: MappingPackageV3LightweightLoader | None = None,
+    archive_unpacker: ArchiveExtractor | None = None,
 ) -> MappingPackageV3Lightweight:
     from mapping_suite_sdk.core.adapters.validator import MPValidationStepABC
 
-    MPValidationStepABC.validate_archive_path(
-        path=mapping_package_archive_path,
-        context="load package from archive"
-    )
+    MPValidationStepABC.validate_archive_path(path=mapping_package_archive_path, context="load package from archive")
 
     archive_unpacker: ArchiveExtractor = archive_unpacker or ArchiveExtractor()
 
     with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
-
-        return load_mapping_package_v3_lightweight_from_folder(mapping_package_folder_path=temp_mapping_package_folder_path,
-                                                               mapping_package_loader=mapping_package_loader)
+        return load_mapping_package_v3_lightweight_from_folder(
+            mapping_package_folder_path=temp_mapping_package_folder_path, mapping_package_loader=mapping_package_loader
+        )
 
 
 @traced_routine
 def load_mapping_packages_v3_lightweight_from_github(
-        github_repository_url: str,
-        packages_path_pattern: str,
-        branch_or_tag_name: Optional[str] = None,
-        github_package_extractor: Optional[GitHubExtractor] = None,
-        mapping_package_loader: Optional[MappingPackageV3LightweightLoader] = None,
-) -> List[MappingPackageV3Lightweight]:
+    github_repository_url: str,
+    packages_path_pattern: str,
+    branch_or_tag_name: str | None = None,
+    github_package_extractor: GitHubExtractor | None = None,
+    mapping_package_loader: MappingPackageV3LightweightLoader | None = None,
+) -> list[MappingPackageV3Lightweight]:
     github_extractor = github_package_extractor or GitHubExtractor()
 
-    with github_extractor.extract_temporary(repository_url=github_repository_url,
-                                            packages_path_pattern=packages_path_pattern,
-                                            branch_or_tag_name=branch_or_tag_name
-                                            ) as package_paths:
+    with github_extractor.extract_temporary(
+        repository_url=github_repository_url,
+        packages_path_pattern=packages_path_pattern,
+        branch_or_tag_name=branch_or_tag_name,
+    ) as package_paths:
         if len(package_paths) < 1:
             raise ValueError(
                 f"No mapping packages found matching pattern '{packages_path_pattern}' "
-                f"in repository {github_repository_url} at {branch_or_tag_name}")
+                f"in repository {github_repository_url} at {branch_or_tag_name}"
+            )
 
-        mapping_packages: List[MappingPackageV3Lightweight] = []
+        mapping_packages: list[MappingPackageV3Lightweight] = []
         for package_path in package_paths:
             try:
                 package = load_mapping_package_v3_lightweight_from_folder(
-                    mapping_package_folder_path=package_path,
-                    mapping_package_loader=mapping_package_loader
+                    mapping_package_folder_path=package_path, mapping_package_loader=mapping_package_loader
                 )
                 mapping_packages.append(package)
-            except (ValidationError) as pydantic_validation_error:
-                logger.warning(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=package_path,
-                                                                                message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}"))
+            except ValidationError as pydantic_validation_error:
+                logger.warning(
+                    mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                        package_source=package_path,
+                        message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}",
+                    )
+                )
         return mapping_packages
 
 
 @traced_routine
 def load_mapping_package_v3_lightweight_from_mongo_db(
-        mapping_package_id: str,
-        mapping_package_repository: MongoDBRepository[MappingPackageV3Lightweight]
+    mapping_package_id: str, mapping_package_repository: MongoDBRepository[MappingPackageV3Lightweight]
 ) -> MappingPackageV3Lightweight:
     if not mapping_package_id:
         raise ValueError("Mapping package ID must be provided")

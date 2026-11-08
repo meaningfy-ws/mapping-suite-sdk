@@ -1,7 +1,6 @@
 import json
-from typing import Optional
 
-from mapping_suite_sdk.core.adapters.hasher import MappingPackageHasher, HasherABC, SHA256Hasher, normalize_content
+from mapping_suite_sdk.core.adapters.hasher import HasherABC, MappingPackageHasher, SHA256Hasher, normalize_content
 from mapping_suite_sdk.core.models.pydantic import fields
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import MappingPackageV2Metadata
@@ -19,11 +18,11 @@ class MappingPackageV2Hasher(MappingPackageHasher):
         hasher (HasherABC): The hasher implementation to use for generating hashes.
     """
 
-    def __init__(self, mapping_package: MappingPackageV2, hasher: Optional[HasherABC] = None):
+    def __init__(self, mapping_package: MappingPackageV2, hasher: HasherABC | None = None):
         self.mapping_package = mapping_package
         self.hasher = hasher or SHA256Hasher()
 
-    def hash(self, with_version: Optional[str] = None) -> str:
+    def hash(self, with_version: str | None = None) -> str:
         """
         Generate a comprehensive hash for an eforms Mapping Package.
 
@@ -62,10 +61,9 @@ class MappingPackageV2Hasher(MappingPackageHasher):
 
         # Step 3: Add metadata hash (specific to eforms)
         model_dict = self.mapping_package.metadata.model_dump(
-            by_alias=True,
-            exclude={fields(MappingPackageV2Metadata).signature, fields(MappingPackageV2Metadata).path}
+            by_alias=True, exclude={fields(MappingPackageV2Metadata).signature, fields(MappingPackageV2Metadata).path}
         )
-        metadata_hash = self.hasher.hash(json.dumps(model_dict).encode('utf-8'))
+        metadata_hash = self.hasher.hash(json.dumps(model_dict).encode("utf-8"))
         signatures.append(metadata_hash)
 
         # Step 4: Add version information

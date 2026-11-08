@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Optional, List
 
 from pydantic import ValidationError
 
@@ -16,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 @traced_routine
 def load_mapping_package_v1_from_folder(
-        mapping_package_folder_path: Path,
-        mapping_package_loader: Optional[MappingPackageV1Loader] = None
+    mapping_package_folder_path: Path, mapping_package_loader: MappingPackageV1Loader | None = None
 ) -> MappingPackageV1:
     """
     Load a mapping package from a folder path.
@@ -54,9 +52,9 @@ def load_mapping_package_v1_from_folder(
 
 @traced_routine
 def load_mapping_package_v1_from_archive(
-        mapping_package_archive_path: Path,
-        mapping_package_loader: Optional[MappingPackageV1Loader] = None,
-        archive_unpacker: Optional[ArchiveExtractor] = None
+    mapping_package_archive_path: Path,
+    mapping_package_loader: MappingPackageV1Loader | None = None,
+    archive_unpacker: ArchiveExtractor | None = None,
 ) -> MappingPackageV1:
     """Load a mapping package from an archive file.
 
@@ -90,19 +88,19 @@ def load_mapping_package_v1_from_archive(
     archive_unpacker: ArchiveExtractor = archive_unpacker or ArchiveExtractor()
 
     with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
-
-        return load_mapping_package_v1_from_folder(mapping_package_folder_path=temp_mapping_package_folder_path,
-                                                   mapping_package_loader=mapping_package_loader)
+        return load_mapping_package_v1_from_folder(
+            mapping_package_folder_path=temp_mapping_package_folder_path, mapping_package_loader=mapping_package_loader
+        )
 
 
 @traced_routine
 def load_mapping_packages_v1_from_github(
-        github_repository_url: str,
-        packages_path_pattern: str,
-        branch_or_tag_name: Optional[str] = None,
-        github_package_extractor: Optional[GitHubExtractor] = None,
-        mapping_package_loader: Optional[MappingPackageV1Loader] = None,
-) -> List[MappingPackageV1]:
+    github_repository_url: str,
+    packages_path_pattern: str,
+    branch_or_tag_name: str | None = None,
+    github_package_extractor: GitHubExtractor | None = None,
+    mapping_package_loader: MappingPackageV1Loader | None = None,
+) -> list[MappingPackageV1]:
     """Load mapping packages from a GitHub repository.
 
     This function downloads mapping packages from a GitHub repository and loads them.
@@ -170,33 +168,37 @@ def load_mapping_packages_v1_from_github(
 
     github_extractor = github_package_extractor or GitHubExtractor()
 
-    with github_extractor.extract_temporary(repository_url=github_repository_url,
-                                            packages_path_pattern=packages_path_pattern,
-                                            branch_or_tag_name=branch_or_tag_name
-                                            ) as package_paths:
+    with github_extractor.extract_temporary(
+        repository_url=github_repository_url,
+        packages_path_pattern=packages_path_pattern,
+        branch_or_tag_name=branch_or_tag_name,
+    ) as package_paths:
         if len(package_paths) < 1:
             raise ValueError(
                 f"No mapping packages found matching pattern '{packages_path_pattern}' "
-                f"in repository {github_repository_url} at {branch_or_tag_name}")
+                f"in repository {github_repository_url} at {branch_or_tag_name}"
+            )
 
-        mapping_packages: List[MappingPackageV1] = []
+        mapping_packages: list[MappingPackageV1] = []
         for package_path in package_paths:
             try:
                 package = load_mapping_package_v1_from_folder(
-                    mapping_package_folder_path=package_path,
-                    mapping_package_loader=mapping_package_loader
+                    mapping_package_folder_path=package_path, mapping_package_loader=mapping_package_loader
                 )
                 mapping_packages.append(package)
             except (ValidationError, Exception) as pydantic_validation_error:
-                logger.warning(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=package_path,
-                                                                                message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}"))
+                logger.warning(
+                    mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
+                        package_source=package_path,
+                        message=f"Cannot load package {package_path} from GitHub:\n{pydantic_validation_error}\nSkipping {package_path}",
+                    )
+                )
         return mapping_packages
 
 
 @traced_routine
 def load_mapping_package_v1_from_mongo_db(
-        mapping_package_id: str,
-        mapping_package_repository: MongoDBRepository[MappingPackageV1]
+    mapping_package_id: str, mapping_package_repository: MongoDBRepository[MappingPackageV1]
 ) -> MappingPackageV1:
     """
     Load a mapping package from a MongoDB database.

@@ -29,4 +29,3 @@ def convert_mapping_package_v2_to_v3_lightweight(mpv2: MappingPackageV2) -> Mapp
     """
     mpv3 = convert_mapping_package_v2_to_v3(mpv2)
     return convert_mapping_package_v3_to_v3_lightweight(mpv3)
-

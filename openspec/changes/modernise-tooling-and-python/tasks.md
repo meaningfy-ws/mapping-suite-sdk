@@ -18,7 +18,7 @@
 
 ## 4. Lint and type debt
 
-- [ ] 4.1 Mechanical commit: `ruff check --fix` + `ruff format`; tests green (P-2a)
+- [x] 4.1 Mechanical commit: `ruff check --fix` + `ruff format`; tests green (P-2a)
 - [ ] 4.2 Hand-fix or justify-ignore remaining Ruff findings; `make lint` green (P-2b)
 - [ ] 4.3 mypy baseline green (`make typecheck`), ignores scoped and commented
 - [ ] 4.4 `make check-all` green on 3.10 and 3.13 locally (developer-tooling: Gate passes on a clean checkout; lint/codegen/coverage failure scenarios checked by hand once and noted in the PR)
@@ -35,7 +35,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [x] 1.2 · [x] 2.1 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
+- [x] 1.1 · [x] 1.2 · [x] 2.1 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
 
 ## Verification
 

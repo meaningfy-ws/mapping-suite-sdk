@@ -8,11 +8,10 @@ and all package assets.
 
 from __future__ import annotations
 
-from typing import Optional
-
 from mapping_suite_sdk import mssdk_config
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1 import MappingPackageV1
 from mapping_suite_sdk.mapping_package_v1.models.mapping_package_v1_metadata import MappingPackageV1Constraints
+from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import (
     ApplicabilityConstraints,
@@ -20,12 +19,11 @@ from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata imp
     VersionRange,
 )
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata_jsonld import MappingPackageV3MetadataJSONLD
-from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_hasher import MappingPackageV3Hasher
 
 
 def _convert_v1_constraints_to_v3_applicability_constraints(
-        v1_constraints: Optional[MappingPackageV1Constraints]
-) -> Optional[ApplicabilityConstraints]:
+    v1_constraints: MappingPackageV1Constraints | None,
+) -> ApplicabilityConstraints | None:
     """
     Convert V1 eligibility constraints to V3 applicability constraints.
 
@@ -125,4 +123,3 @@ def convert_mapping_package_v1_to_v3(mpv1: MappingPackageV1) -> MappingPackageV3
     mpv3.metadata.mapping_suite_hash_digest = MappingPackageV3Hasher(mpv3).hash()
 
     return mpv3
-

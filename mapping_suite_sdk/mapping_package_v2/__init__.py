@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from mapping_suite_sdk.core.adapters.config_resolver import env_property, DefaultValueConfigResolver
+from mapping_suite_sdk.core.adapters.config_resolver import DefaultValueConfigResolver, env_property
 
 
 class MPV2AssetsPathsConfig:
@@ -8,13 +8,11 @@ class MPV2AssetsPathsConfig:
     def MPV2_METADATA_FILE_ASSET_PATH(self, config_value: str) -> Path:
         return Path(config_value)
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="transformation/conceptual_mappings.xlsx")
+    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value="transformation/conceptual_mappings.xlsx")
     def MPV2_CONCEPTUAL_MAPPING_FILE_ASSET_PATH(self, config_value: str) -> Path:
         return Path(config_value)
 
-    @env_property(config_resolver_class=DefaultValueConfigResolver,
-                  default_value="validation/shacl/shacl_result_query.rq")
+    @env_property(config_resolver_class=DefaultValueConfigResolver, default_value="validation/shacl/shacl_result_query.rq")
     def MPV2_SHACL_SHAPES_QUERY_FILE_ASSET_PATH(self, config_value: str) -> Path:
         return Path(config_value)
 

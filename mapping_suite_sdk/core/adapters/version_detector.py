@@ -6,8 +6,9 @@ based on file structure and metadata content.
 """
 
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, List, Optional
+from typing import Any
 
 from pydantic import Field
 
@@ -24,6 +25,7 @@ class VersionDetectionRule(PydanticModel):
 
     Priority is assigned at registry level, not here.
     """
+
     version_id: str
     matcher: Callable[[Path], bool]
 
@@ -46,7 +48,8 @@ class VersionDetectionRule(PydanticModel):
 
 # Helper utilities for matchers
 
-def _resolve_package_root(package_path: Path) -> Optional[Path]:
+
+def _resolve_package_root(package_path: Path) -> Path | None:
     """
     Resolve the actual package root path.
 
@@ -75,7 +78,7 @@ def _resolve_package_root(package_path: Path) -> Optional[Path]:
     return package_path
 
 
-def _try_load_json_metadata(package_root: Path) -> Optional[dict]:
+def _try_load_json_metadata(package_root: Path) -> dict | None:
     """
     Try loading metadata from metadata.json or metadata.jsonld.
 
@@ -92,14 +95,14 @@ def _try_load_json_metadata(package_root: Path) -> Optional[dict]:
         metadata_file = package_root / filename
         if metadata_file.exists():
             try:
-                with metadata_file.open(encoding='utf-8') as f:
+                with metadata_file.open(encoding="utf-8") as f:
                     return json.load(f)
             except (json.JSONDecodeError, OSError):
                 continue
     return None
 
 
-def _get_nested_value(obj: dict, path: str) -> Optional[Any]:
+def _get_nested_value(obj: dict, path: str) -> Any | None:
     """
     Get nested value using dot notation.
 
@@ -117,7 +120,7 @@ def _get_nested_value(obj: dict, path: str) -> Optional[Any]:
         >>> _get_nested_value(data, "a.b.missing")
         None
     """
-    parts = path.split('.')
+    parts = path.split(".")
     current = obj
 
     for part in parts:
@@ -136,6 +139,7 @@ class PathCondition(PydanticModel):
 
     Supports both simple file paths and glob patterns.
     """
+
     pattern: str = Field(..., description="Path pattern, e.g., 'metadata.json', 'test_data/*/*.xml'")
     must_exist: bool = Field(default=True, description="Whether the path must exist (True) or must not exist (False)")
 
@@ -154,9 +158,9 @@ class PathCondition(PydanticModel):
             True if condition is met, False otherwise
         """
         # Strip leading slash for consistency
-        pattern = self.pattern.lstrip('/')
+        pattern = self.pattern.lstrip("/")
 
-        if '*' in pattern or '?' in pattern:
+        if "*" in pattern or "?" in pattern:
             # Glob pattern
             matches = list(package_root.glob(pattern))
             return (len(matches) > 0) == self.must_exist
@@ -173,11 +177,12 @@ class MetadataCondition(PydanticModel):
     Supports nested paths like "eligibility_constraints.constraints.min_xsd_version"
     and optional value matching.
     """
+
     path: str = Field(..., description="Dot-notation path, e.g., 'eligibility_constraints.constraints.min_xsd_version'")
     must_exist: bool = Field(default=True, description="Whether the key must exist (True) or must not exist (False)")
-    expected_value: Optional[Any] = Field(default=None, description="Optional value to match if key exists")
+    expected_value: Any | None = Field(default=None, description="Optional value to match if key exists")
 
-    def __init__(self, path: str, must_exist: bool = True, expected_value: Optional[Any] = None, **kwargs):
+    def __init__(self, path: str, must_exist: bool = True, expected_value: Any | None = None, **kwargs):
         """Initialize with positional arguments for backward compatibility with dataclass-style usage."""
         super().__init__(path=path, must_exist=must_exist, expected_value=expected_value, **kwargs)
 
@@ -216,10 +221,13 @@ class VersionDetectionSpec(PydanticModel):
     - Path patterns (files/folders that must/must not exist)
     - Metadata conditions (keys that must/must not exist, with optional value checks)
     """
+
     version_id: str = Field(..., description="Version identifier, e.g., 'v2', 'v3', 'v3L'")
     priority: int = Field(..., description="Priority for rule matching (higher priority checked first)")
-    path_conditions: List[PathCondition] = Field(default_factory=list, description="List of path conditions to check")
-    metadata_conditions: List[MetadataCondition] = Field(default_factory=list, description="List of metadata conditions to check")
+    path_conditions: list[PathCondition] = Field(default_factory=list, description="List of path conditions to check")
+    metadata_conditions: list[MetadataCondition] = Field(
+        default_factory=list, description="List of metadata conditions to check"
+    )
 
     def build_matcher(self) -> Callable[[Path], bool]:
         """
@@ -228,6 +236,7 @@ class VersionDetectionSpec(PydanticModel):
         Returns:
             Matcher function that can be used in VersionDetectionRule
         """
+
         def matcher(package_root: Path) -> bool:
             # Check all path conditions
             for condition in self.path_conditions:
@@ -255,10 +264,7 @@ class VersionDetectionSpec(PydanticModel):
         Returns:
             VersionDetectionRule with generated matcher
         """
-        return VersionDetectionRule(
-            version_id=self.version_id,
-            matcher=self.build_matcher()
-        )
+        return VersionDetectionRule(version_id=self.version_id, matcher=self.build_matcher())
 
 
 def _ensure_version_detection_initialized():
@@ -280,10 +286,7 @@ def _ensure_version_detection_initialized():
     from mapping_suite_sdk.mapping_package_v3.adapters import mp_v3_version_detector as _  # noqa: F401, F811
 
 
-def detect_mapping_package_version(
-    package_path: Path,
-    rules: Optional[list[VersionDetectionRule]] = None
-) -> Optional[str]:
+def detect_mapping_package_version(package_path: Path, rules: list[VersionDetectionRule] | None = None) -> str | None:
     """
     Detect mapping package version using registered detection rules.
 
@@ -307,6 +310,7 @@ def detect_mapping_package_version(
         _ensure_version_detection_initialized()
 
         from mapping_suite_sdk.core import VersionDetectionRegistry
+
         rules = VersionDetectionRegistry.get_rules()
 
     package_root = _resolve_package_root(package_path)

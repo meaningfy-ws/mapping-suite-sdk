@@ -3,6 +3,7 @@
 This module contains utility functions used across multiple test packages
 for validating mapping packages, comparing files, and setting up test environments.
 """
+
 import json
 import random
 import shutil
@@ -10,17 +11,16 @@ import string
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Set
 
 from git import Repo
 
 from mapping_suite_sdk.core.adapters.loader import AssetLoader
 from mapping_suite_sdk.core.models.collection_asset import (
-    TechnicalMappingCollectionAsset,
-    VocabularyMappingCollectionAsset,
-    TestDataCollectionAsset,
+    SHACLTestCollectionAsset,
     SPARQLTestCollectionAsset,
-    SHACLTestCollectionAsset
+    TechnicalMappingCollectionAsset,
+    TestDataCollectionAsset,
+    VocabularyMappingCollectionAsset,
 )
 from mapping_suite_sdk.core.models.file_asset import ConceptualMappingFileAsset
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
@@ -37,13 +37,11 @@ def get_random_string(length: int = 20) -> str:
         Random string of specified length
     """
     characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(length))
+    return "".join(random.choice(characters) for _ in range(length))
 
 
 def validate_mapping_package_asset_loader(
-        dummy_mapping_package_path: Path,
-        loader_class: AssetLoader,
-        expected_relative_path: str
+    dummy_mapping_package_path: Path, loader_class: AssetLoader, expected_relative_path: str
 ) -> None:
     """Generic test utility for mapping package asset loaders.
 
@@ -65,10 +63,12 @@ def validate_mapping_package_asset_loader(
 
         assert mapping_suite is not None
         assert mapping_suite.path is not None
-        assert any([
-            mapping_suite.path == expected_relative_path,
-            mapping_suite.path == Path(temp_mp_path.name) / expected_relative_path
-        ])
+        assert any(
+            [
+                mapping_suite.path == expected_relative_path,
+                mapping_suite.path == Path(temp_mp_path.name) / expected_relative_path,
+            ]
+        )
         assert (temp_mp_path / mapping_suite.path).exists()
         assert len(mapping_suite.files) > 0
         for file in mapping_suite.files:
@@ -78,9 +78,7 @@ def validate_mapping_package_asset_loader(
 
 
 def validate_mapping_suites_asset_loader(
-        dummy_mapping_package_path: Path,
-        loader_class: AssetLoader,
-        expected_relative_path: str
+    dummy_mapping_package_path: Path, loader_class: AssetLoader, expected_relative_path: str
 ) -> None:
     """Generic test utility for mapping suites asset loaders.
 
@@ -103,10 +101,12 @@ def validate_mapping_suites_asset_loader(
         for mapping_suite in mapping_suites:
             assert mapping_suite is not None
             assert mapping_suite.path is not None
-            assert any([
-                mapping_suite.path.is_relative_to(expected_relative_path),
-                mapping_suite.path.is_relative_to(Path(temp_mp_path.name) / expected_relative_path)
-            ])
+            assert any(
+                [
+                    mapping_suite.path.is_relative_to(expected_relative_path),
+                    mapping_suite.path.is_relative_to(Path(temp_mp_path.name) / expected_relative_path),
+                ]
+            )
             assert (temp_mp_path / mapping_suite.path).exists()
             assert len(mapping_suite.files) > 0
             for file in mapping_suite.files:
@@ -124,54 +124,60 @@ def assert_valid_mapping_package(mapping_package: MappingPackage) -> None:
     Raises:
         AssertionError: If validation fails
     """
-    assert isinstance(mapping_package, MappingPackage), \
-        f"Expected MappingPackage instance, got {type(mapping_package)}"
+    assert isinstance(mapping_package, MappingPackage), f"Expected MappingPackage instance, got {type(mapping_package)}"
 
     # Metadata validation
-    assert isinstance(mapping_package.metadata, MappingPackageMetadata), \
+    assert isinstance(mapping_package.metadata, MappingPackageMetadata), (
         f"metadata must be MappingPackageMetadata, got {type(mapping_package.metadata)}"
+    )
 
     # Conceptual Mapping File validation
-    assert isinstance(mapping_package.conceptual_mapping_asset, ConceptualMappingFileAsset), \
+    assert isinstance(mapping_package.conceptual_mapping_asset, ConceptualMappingFileAsset), (
         f"conceptual_mapping_asset must be ConceptualMappingFileAsset, got {type(mapping_package.conceptual_mapping_asset)}"
+    )
 
     # Technical Mapping Suite validation
-    assert isinstance(mapping_package.technical_mapping_suite, TechnicalMappingCollectionAsset), \
+    assert isinstance(mapping_package.technical_mapping_suite, TechnicalMappingCollectionAsset), (
         f"technical_mapping_suite must be TechnicalMappingCollectionAsset, got {type(mapping_package.technical_mapping_suite)}"
+    )
 
     # Vocabulary Mapping Suite validation
-    assert isinstance(mapping_package.vocabulary_mapping_suite, VocabularyMappingCollectionAsset), \
+    assert isinstance(mapping_package.vocabulary_mapping_suite, VocabularyMappingCollectionAsset), (
         f"vocabulary_mapping_suite must be VocabularyMappingCollectionAsset, got {type(mapping_package.vocabulary_mapping_suite)}"
+    )
 
     # Test Data Suites validation
-    assert isinstance(mapping_package.test_data_suites, list), \
+    assert isinstance(mapping_package.test_data_suites, list), (
         f"test_data_suites must be a list, got {type(mapping_package.test_data_suites)}"
-    assert len(mapping_package.test_data_suites) > 0, \
-        "test_data_suites list cannot be empty"
+    )
+    assert len(mapping_package.test_data_suites) > 0, "test_data_suites list cannot be empty"
     for suite in mapping_package.test_data_suites:
-        assert isinstance(suite, TestDataCollectionAsset), \
+        assert isinstance(suite, TestDataCollectionAsset), (
             f"All test_data_suites elements must be TestDataCollectionAsset, got {type(suite)}"
+        )
 
     # SPARQL Test Suites validation
-    assert isinstance(mapping_package.test_suites_sparql, list), \
+    assert isinstance(mapping_package.test_suites_sparql, list), (
         f"test_suites_sparql must be a list, got {type(mapping_package.test_suites_sparql)}"
-    assert len(mapping_package.test_suites_sparql) > 0, \
-        "test_suites_sparql list cannot be empty"
+    )
+    assert len(mapping_package.test_suites_sparql) > 0, "test_suites_sparql list cannot be empty"
     for suite in mapping_package.test_suites_sparql:
-        assert isinstance(suite, SPARQLTestCollectionAsset), \
+        assert isinstance(suite, SPARQLTestCollectionAsset), (
             f"All test_suites_sparql elements must be SPARQLTestCollectionAsset, got {type(suite)}"
+        )
 
     # SHACL Test Suites validation
-    assert isinstance(mapping_package.test_suites_shacl, list), \
+    assert isinstance(mapping_package.test_suites_shacl, list), (
         f"test_suites_shacl must be a list, got {type(mapping_package.test_suites_shacl)}"
-    assert len(mapping_package.test_suites_shacl) > 0, \
-        "test_suites_shacl list cannot be empty"
+    )
+    assert len(mapping_package.test_suites_shacl) > 0, "test_suites_shacl list cannot be empty"
     for suite in mapping_package.test_suites_shacl:
-        assert isinstance(suite, SHACLTestCollectionAsset), \
+        assert isinstance(suite, SHACLTestCollectionAsset), (
             f"All test_suites_shacl elements must be SHACLTestCollectionAsset, got {type(suite)}"
+        )
 
 
-def get_all_files(directory: Path) -> Set[str]:
+def get_all_files(directory: Path) -> set[str]:
     """Get all files in directory recursively, returning relative paths.
 
     Args:
@@ -218,7 +224,7 @@ def compare_directories(source_dir: Path, target_dir: Path) -> tuple[bool, str]:
         source_file = source_dir / rel_path
         target_file = target_dir / rel_path
 
-        if source_file.suffix.lower() == '.json':
+        if source_file.suffix.lower() == ".json":
             try:
                 if not compare_json_files(source_file, target_file):
                     return False, f"JSON content differs in {rel_path}"
@@ -226,18 +232,16 @@ def compare_directories(source_dir: Path, target_dir: Path) -> tuple[bool, str]:
                 return False, f"Invalid JSON in {rel_path}: {str(e)}"
         else:
             # Binary comparison for other files
-            if not source_file.read_text(encoding='utf-8', errors="ignore") == target_file.read_text(encoding='utf-8',
-                                                                                                     errors="ignore"):
+            if not source_file.read_text(encoding="utf-8", errors="ignore") == target_file.read_text(
+                encoding="utf-8", errors="ignore"
+            ):
                 return False, f"Content differs in {rel_path}"
 
     return True, ""
 
 
 @contextmanager
-def setup_temporary_test_git_repository(
-        dummy_github_project_path: Path,
-        dummy_github_branch_name: str = None
-):
+def setup_temporary_test_git_repository(dummy_github_project_path: Path, dummy_github_branch_name: str = None):
     """Create a temporary git repository for testing purposes.
 
     Args:

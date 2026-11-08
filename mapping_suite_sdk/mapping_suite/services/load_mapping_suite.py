@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Optional
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
@@ -13,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 @traced_routine
 def load_mapping_suite_from_folder(
-        mapping_suite_folder_path: Path,
-        mapping_suite_loader: Optional[MappingSuiteLoader] = None
+    mapping_suite_folder_path: Path, mapping_suite_loader: MappingSuiteLoader | None = None
 ) -> MappingSuite:
     """Load a mapping suite (project-level configuration) from a folder.
 
@@ -50,9 +48,9 @@ def load_mapping_suite_from_folder(
 
 @traced_routine
 def load_mapping_suite_from_archive(
-        mapping_suite_archive_path: Path,
-        mapping_suite_loader: Optional[MappingSuiteLoader] = None,
-        archive_unpacker: Optional[ArchiveExtractor] = None
+    mapping_suite_archive_path: Path,
+    mapping_suite_loader: MappingSuiteLoader | None = None,
+    archive_unpacker: ArchiveExtractor | None = None,
 ) -> MappingSuite:
     """Load a mapping suite (project-level configuration) from an archive file.
 
@@ -84,18 +82,17 @@ def load_mapping_suite_from_archive(
 
     with archive_unpacker.extract_temporary(mapping_suite_archive_path) as temp_mapping_suite_folder_path:
         return load_mapping_suite_from_folder(
-            mapping_suite_folder_path=temp_mapping_suite_folder_path,
-            mapping_suite_loader=mapping_suite_loader
+            mapping_suite_folder_path=temp_mapping_suite_folder_path, mapping_suite_loader=mapping_suite_loader
         )
 
 
 @traced_routine
 def load_mapping_suites_from_github(
-        github_repository_url: str,
-        suites_path_pattern: str,
-        branch_or_tag_name: Optional[str] = None,
-        github_suite_extractor: Optional[GitHubExtractor] = None,
-        mapping_suite_loader: Optional[MappingSuiteLoader] = None,
+    github_repository_url: str,
+    suites_path_pattern: str,
+    branch_or_tag_name: str | None = None,
+    github_suite_extractor: GitHubExtractor | None = None,
+    mapping_suite_loader: MappingSuiteLoader | None = None,
 ) -> list[MappingSuite]:
     """Load mapping suites (project-level configurations) from a GitHub repository.
 
@@ -132,9 +129,9 @@ def load_mapping_suites_from_github(
     # extractors or a more generic path_pattern parameter to properly distinguish packages
     # from suites.
     with github_extractor.extract_temporary(
-            repository_url=github_repository_url,
-            packages_path_pattern=suites_path_pattern,  # Note: parameter name suggests packages, but used for suites
-            branch_or_tag_name=branch_or_tag_name
+        repository_url=github_repository_url,
+        packages_path_pattern=suites_path_pattern,  # Note: parameter name suggests packages, but used for suites
+        branch_or_tag_name=branch_or_tag_name,
     ) as suite_paths:
         if len(suite_paths) < 1:
             raise ValueError(
@@ -152,8 +149,7 @@ def load_mapping_suites_from_github(
 
 @traced_routine
 def load_mapping_suite_from_mongo_db(
-        mapping_suite_id: str,
-        mapping_suite_repository: MongoDBRepository[MappingSuite]
+    mapping_suite_id: str, mapping_suite_repository: MongoDBRepository[MappingSuite]
 ) -> MappingSuite:
     """Load a mapping suite from MongoDB.
 

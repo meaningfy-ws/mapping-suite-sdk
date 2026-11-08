@@ -4,6 +4,7 @@ Unit tests for MappingPackageV2Saver.
 Tests focus on adapter responsibilities:
 - Saving package models to MongoDB
 """
+
 import mongomock
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
@@ -40,7 +41,7 @@ class TestMappingPackageV2Saver:
             mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
         assert isinstance(result, MappingPackageV2)
@@ -51,7 +52,7 @@ class TestMappingPackageV2Saver:
             model_class=MappingPackageV2,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
@@ -81,7 +82,7 @@ class TestMappingPackageV2Saver:
             mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=custom_collection_name
+            collection_name=custom_collection_name,
         )
 
         # Verify it was saved to the custom collection
@@ -89,7 +90,7 @@ class TestMappingPackageV2Saver:
             model_class=MappingPackageV2,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=custom_collection_name
+            collection_name=custom_collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
@@ -120,7 +121,7 @@ class TestMappingPackageV2Saver:
             mapping_package=mapping_package,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
         # Verify the package was saved with the correct _id
@@ -128,7 +129,7 @@ class TestMappingPackageV2Saver:
             model_class=MappingPackageV2,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": expected_id})
         assert stored_doc is not None

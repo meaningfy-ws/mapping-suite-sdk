@@ -4,18 +4,26 @@ from unittest.mock import Mock
 import pytest
 
 from mapping_suite_sdk.core.models.collection_asset import (
-    TestDataCollectionAsset,
-    SPARQLTestCollectionAsset,
+    SHACLShapesCollectionAsset,
     SHACLTestCollectionAsset,
-    TestResultCollectionAsset, SHACLShapesCollectionAsset
+    SPARQLTestCollectionAsset,
+    TestDataCollectionAsset,
+    TestResultCollectionAsset,
 )
 from mapping_suite_sdk.core.models.file_asset import (
-    TestDataFileAsset,
+    ReportFileAsset,
+    SHACLShapesFileAsset,
+    SHACLShapesResultQueryFileAsset,
     SPARQLQueryFileAsset,
-    SHACLShapesFileAsset, ReportFileAsset, SHACLShapesResultQueryFileAsset,
+    TestDataFileAsset,
 )
-from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_validator import MPStructuralValidationException, \
-    MPV2HashValidationStep, MPHashValidationException, MappingPackageV2Validator, MPV2StructuralValidationStep
+from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_validator import (
+    MappingPackageV2Validator,
+    MPHashValidationException,
+    MPStructuralValidationException,
+    MPV2HashValidationStep,
+    MPV2StructuralValidationStep,
+)
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 
 
@@ -33,7 +41,7 @@ def test_mp_v2_structural_validation_step_empty_test_data_suite():
     # Create test data suite with empty files
     empty_test_suite = TestDataCollectionAsset(
         path=Path("test_data/empty_suite"),
-        files=[]  # Empty files list
+        files=[],  # Empty files list
     )
 
     mock_package.test_data_suites = [empty_test_suite]
@@ -41,29 +49,26 @@ def test_mp_v2_structural_validation_step_empty_test_data_suite():
         path=Path("validation/shacl"),
         shacl_collections=[
             SHACLShapesCollectionAsset(
-                path=Path("validation/shacl/epo"),
-                files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
+                path=Path("validation/shacl/epo"), files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
             )
         ],
-        shacl_result_query=SHACLShapesResultQueryFileAsset(
-            content="dummy_content",
-            path=Path("validation/shacl/epo"))
+        shacl_result_query=SHACLShapesResultQueryFileAsset(content="dummy_content", path=Path("validation/shacl/epo")),
     )
     mock_package.test_suites_sparql = [
         SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
-            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
+            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")],
         )
     ]
     mock_package.test_results = TestResultCollectionAsset(
         files=[],
         result_suites=[
             TestResultCollectionAsset(
-                path=Path("output/test_suite"),
-                files=[ReportFileAsset(path=Path("report.html"), content="test")]
+                path=Path("output/test_suite"), files=[ReportFileAsset(path=Path("report.html"), content="test")]
             )
         ],
-        path=Path("output/test_suite"))
+        path=Path("output/test_suite"),
+    )
 
     validator = MPV2StructuralValidationStep()
 
@@ -78,15 +83,14 @@ def test_mp_v2_structural_validation_step_empty_shacl_collection():
 
     mock_package.test_data_suites = [
         TestDataCollectionAsset(
-            path=Path("test_data/suite"),
-            files=[TestDataFileAsset(path=Path("test.xml"), content="<test/>")]
+            path=Path("test_data/suite"), files=[TestDataFileAsset(path=Path("test.xml"), content="<test/>")]
         )
     ]
 
     # Create SHACL suite with empty collection
     empty_shacl_collection = SHACLShapesCollectionAsset(
         path=Path("validation/shacl/epo"),
-        files=[]  # Empty files list
+        files=[],  # Empty files list
     )
 
     mock_package.test_suites_shacl = SHACLTestCollectionAsset(
@@ -95,13 +99,13 @@ def test_mp_v2_structural_validation_step_empty_shacl_collection():
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
             path=Path("validation/shacl/epo"),
-        )
+        ),
     )
 
     mock_package.test_suites_sparql = [
         SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
-            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
+            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")],
         )
     ]
     mock_package.test_results = TestResultCollectionAsset(files=[], result_suites=[], path=Path("output/test_suite"))
@@ -117,8 +121,7 @@ def test_mp_v2_structural_validation_step_empty_sparql_suite():
 
     mock_package.test_data_suites = [
         TestDataCollectionAsset(
-            path=Path("test_data/suite"),
-            files=[TestDataFileAsset(path=Path("test.xml"), content="<test/>")]
+            path=Path("test_data/suite"), files=[TestDataFileAsset(path=Path("test.xml"), content="<test/>")]
         )
     ]
 
@@ -126,20 +129,19 @@ def test_mp_v2_structural_validation_step_empty_sparql_suite():
         path=Path("validation/shacl"),
         shacl_collections=[
             SHACLShapesCollectionAsset(
-                path=Path("validation/shacl/epo"),
-                files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
+                path=Path("validation/shacl/epo"), files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
             )
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
             path=Path("validation/shacl/epo"),
-        )
+        ),
     )
 
     # Create SPARQL suite with empty files
     empty_sparql_suite = SPARQLTestCollectionAsset(
         path=Path("validation/sparql/cm_assertions"),
-        files=[]  # Empty files list
+        files=[],  # Empty files list
     )
 
     mock_package.test_suites_sparql = [empty_sparql_suite]
@@ -156,8 +158,7 @@ def test_mp_v2_structural_validation_step_empty_test_results_suite():
 
     mock_package.test_data_suites = [
         TestDataCollectionAsset(
-            path=Path("test_data/suite"),
-            files=[TestDataFileAsset(path=Path("test.xml"), content="<test/>")]
+            path=Path("test_data/suite"), files=[TestDataFileAsset(path=Path("test.xml"), content="<test/>")]
         )
     ]
 
@@ -165,33 +166,30 @@ def test_mp_v2_structural_validation_step_empty_test_results_suite():
         path=Path("validation/shacl"),
         shacl_collections=[
             SHACLShapesCollectionAsset(
-                path=Path("validation/shacl/epo"),
-                files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
+                path=Path("validation/shacl/epo"), files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
             )
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
             path=Path("validation/shacl/epo"),
-        )
+        ),
     )
 
     mock_package.test_suites_sparql = [
         SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
-            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
+            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")],
         )
     ]
 
     # Create test results with empty suite
     empty_result_suite = TestResultCollectionAsset(
         path=Path("output/test_suite"),
-        files=[]  # Empty files list
+        files=[],  # Empty files list
     )
 
     mock_package.test_results = TestResultCollectionAsset(
-        files=[],
-        result_suites=[empty_result_suite],
-        path=Path("output/test_suite")
+        files=[], result_suites=[empty_result_suite], path=Path("output/test_suite")
     )
 
     validator = MPV2StructuralValidationStep()
@@ -209,20 +207,19 @@ def test_mp_v2_structural_validation_step_none_test_data_suites():
         path=Path("validation/shacl"),
         shacl_collections=[
             SHACLShapesCollectionAsset(
-                path=Path("validation/shacl/epo"),
-                files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
+                path=Path("validation/shacl/epo"), files=[SHACLShapesFileAsset(path=Path("test.ttl"), content="test")]
             )
         ],
         shacl_result_query=SHACLShapesResultQueryFileAsset(
             content="dummy_content",
             path=Path("validation/shacl/epo"),
-        )
+        ),
     )
 
     mock_package.test_suites_sparql = [
         SPARQLTestCollectionAsset(
             path=Path("validation/sparql/cm_assertions"),
-            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")]
+            files=[SPARQLQueryFileAsset(path=Path("test.rq"), content="SELECT * WHERE { ?s ?p ?o }")],
         )
     ]
 
@@ -310,8 +307,8 @@ def test_mp_v2_validator_tracer_decoration():
     # Test that the validator is properly decorated with @traced_class
     validator = MappingPackageV2Validator()
 
-    assert hasattr(validator, '__class__')
-    assert validator.__class__.__name__ == 'MappingPackageV2Validator'
+    assert hasattr(validator, "__class__")
+    assert validator.__class__.__name__ == "MappingPackageV2Validator"
 
 
 def test_mp_v2_validator_final_class():
@@ -353,8 +350,8 @@ def test_mp_v2_structural_validation_step_validate_next_decorator():
     validator = MPV2StructuralValidationStep()
 
     # Should have the validate method
-    assert hasattr(validator, 'validate')
-    assert callable(getattr(validator, 'validate'))
+    assert hasattr(validator, "validate")
+    assert callable(validator.validate)
 
 
 def test_mp_v2_hash_validation_step_validate_next_decorator():
@@ -362,8 +359,8 @@ def test_mp_v2_hash_validation_step_validate_next_decorator():
     validator = MPV2HashValidationStep()
 
     # Should have the validate method
-    assert hasattr(validator, 'validate')
-    assert callable(getattr(validator, 'validate'))
+    assert hasattr(validator, "validate")
+    assert callable(validator.validate)
 
 
 def test_mp_v2_validation_chain_ordering():
@@ -375,5 +372,5 @@ def test_mp_v2_validation_chain_ordering():
 
     # The next validator in chain should be hash validation
     # This is set up in the constructor: MPV2StructuralValidationStep(MPV2HashValidationStep())
-    if hasattr(validator.validation_chain, 'next_step'):
+    if hasattr(validator.validation_chain, "next_step"):
         assert isinstance(validator.validation_chain.next_step, MPV2HashValidationStep)

@@ -1,6 +1,5 @@
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
@@ -9,9 +8,9 @@ from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import Mappi
 
 
 @traced_routine
-def serialise_mapping_package_v2(mapping_package: MappingPackageV2,
-                                 serialisation_folder_path: Path,
-                                 archive_unpacker: Optional[ArchiveExtractor] = None) -> None:
+def serialise_mapping_package_v2(
+    mapping_package: MappingPackageV2, serialisation_folder_path: Path, archive_unpacker: ArchiveExtractor | None = None
+) -> None:
     """Serializes a MappingPackage object and packages it into an archive.
 
     This function takes a MappingPackage object, serializes its contents to a temporary
@@ -49,8 +48,7 @@ def serialise_mapping_package_v2(mapping_package: MappingPackageV2,
 
 
 @traced_routine
-def serialise_mapping_package_v2_to_folder(mapping_package: MappingPackageV2,
-                                           serialisation_folder_path: Path) -> None:
+def serialise_mapping_package_v2_to_folder(mapping_package: MappingPackageV2, serialisation_folder_path: Path) -> None:
     """
     Serialises a MappingPackageABC instance to a specified folder path.
 

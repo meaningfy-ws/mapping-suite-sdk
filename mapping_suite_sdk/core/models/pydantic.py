@@ -1,18 +1,18 @@
 from dataclasses import dataclass
-from typing import Optional, Any, TypeVar, cast
+from typing import Any, TypeVar, cast
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PydanticModel(BaseModel):
     """
-        A base model class providing core configurations for all project-related models.
+    A base model class providing core configurations for all project-related models.
     """
 
-    object_description: Optional[str] = Field(
+    object_description: str | None = Field(
         default=None,
         exclude=True,
-        description="Optional descriptive text providing additional information about the model instance."
+        description="Optional descriptive text providing additional information about the model instance.",
     )
 
     model_config = ConfigDict(
@@ -24,7 +24,7 @@ class PydanticModel(BaseModel):
         str_strip_whitespace=False,
         validate_default=True,
         populate_by_name=True,
-        ser_json_bytes='base64'
+        ser_json_bytes="base64",
     )
 
 

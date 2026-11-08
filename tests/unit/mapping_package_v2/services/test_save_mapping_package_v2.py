@@ -5,14 +5,13 @@ Tests focus on service layer responsibilities:
 - Simple dump-to-mongo functionality
 - Integration with PackageRepository
 """
+
 import mongomock
 import pytest
 
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
-from mapping_suite_sdk.mapping_package_v2.services.save_mapping_package_v2 import (
-    save_mapping_package_v2_to_mongo_db
-)
+from mapping_suite_sdk.mapping_package_v2.services.save_mapping_package_v2 import save_mapping_package_v2_to_mongo_db
 
 
 class TestSaveMappingPackageV2ToMongoDB:
@@ -28,7 +27,7 @@ class TestSaveMappingPackageV2ToMongoDB:
             mapping_package=dummy_mapping_package_v2_model,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
         assert isinstance(result, MappingPackageV2)
@@ -39,7 +38,7 @@ class TestSaveMappingPackageV2ToMongoDB:
             model_class=MappingPackageV2,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
@@ -49,9 +48,7 @@ class TestSaveMappingPackageV2ToMongoDB:
         """Test error handling for None MongoDB client."""
         with pytest.raises(ValueError) as exc_info:
             save_mapping_package_v2_to_mongo_db(
-                mapping_package=dummy_mapping_package_v2_model,
-                mongo_client=None,
-                database_name="test_db"
+                mapping_package=dummy_mapping_package_v2_model, mongo_client=None, database_name="test_db"
             )
 
         assert "MongoDB client must be provided" in str(exc_info.value)
@@ -66,7 +63,7 @@ class TestSaveMappingPackageV2ToMongoDB:
             mapping_package=dummy_mapping_package_v2_model,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=custom_collection_name
+            collection_name=custom_collection_name,
         )
 
         # Verify it was saved to the custom collection
@@ -74,15 +71,15 @@ class TestSaveMappingPackageV2ToMongoDB:
             model_class=MappingPackageV2,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=custom_collection_name
+            collection_name=custom_collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": result.id})
         assert stored_doc is not None
 
     def test_save_mapping_package_v2_tracer_decoration(self):
         """Test that the function is properly decorated with tracer."""
-        assert hasattr(save_mapping_package_v2_to_mongo_db, '__name__')
-        assert save_mapping_package_v2_to_mongo_db.__name__ == 'save_mapping_package_v2_to_mongo_db'
+        assert hasattr(save_mapping_package_v2_to_mongo_db, "__name__")
+        assert save_mapping_package_v2_to_mongo_db.__name__ == "save_mapping_package_v2_to_mongo_db"
 
     def test_save_mapping_package_v2_uses_package_id(self, dummy_mapping_package_v2_model):
         """Test that save uses the package's identifier for MongoDB _id."""
@@ -94,7 +91,7 @@ class TestSaveMappingPackageV2ToMongoDB:
             mapping_package=dummy_mapping_package_v2_model,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
 
         expected_id = result.id
@@ -104,9 +101,8 @@ class TestSaveMappingPackageV2ToMongoDB:
             model_class=MappingPackageV2,
             mongo_client=mongo_client,
             database_name=database_name,
-            collection_name=collection_name
+            collection_name=collection_name,
         )
         stored_doc = repository.collection.find_one({"_id": expected_id})
         assert stored_doc is not None
         assert stored_doc["_id"] == expected_id
-

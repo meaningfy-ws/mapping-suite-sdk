@@ -15,15 +15,15 @@
          "@id": "description"
       },
       "document_type_probing": {
-         "@type": "mfy:DocumentProbingSpec",
+         "@type": "@id",
          "@id": "document_type_probing"
       },
       "eligibility_constraint_config": {
-         "@type": "mfy:EligibilityConstraintConfig",
+         "@type": "@id",
          "@id": "eligibility_constraint_config"
       },
       "eligibility_mapping": {
-         "@type": "mfy:PropertyEligibilityMapping",
+         "@type": "@id",
          "@id": "eligibility_mapping"
       },
       "extraction_method": {
@@ -49,7 +49,7 @@
          "@id": "formal_expression_type"
       },
       "mapping_suite_config": {
-         "@type": "mfy:MappingSuiteConfig",
+         "@type": "@id",
          "@id": "mapping_suite_config"
       },
       "mapping_suite_description": {
@@ -57,7 +57,7 @@
       },
       "mapping_suite_identifier": "@id",
       "mapping_suite_metadata": {
-         "@type": "mfy:MappingSuiteMetadata",
+         "@type": "@id",
          "@id": "mapping_suite_metadata"
       },
       "matching_method": {
@@ -69,11 +69,11 @@
          "@id": "matching_method"
       },
       "metadata_config": {
-         "@type": "mfy:DocumentMetadataConfig",
+         "@type": "@id",
          "@id": "metadata_config"
       },
       "metadata_properties": {
-         "@type": "mfy:PropertyDefinition",
+         "@type": "@id",
          "@id": "metadata_properties"
       },
       "probing_method": {
@@ -91,15 +91,15 @@
          "@id": "property_description"
       },
       "property_extractors": {
-         "@type": "mfy:PropertyExtractionSpec",
+         "@type": "@id",
          "@id": "property_extractors"
       },
       "resource_file_contents": {
-         "@type": "linkml:Any",
+         "@type": "@id",
          "@id": "resource_file_contents"
       },
       "resource_references": {
-         "@type": "mfy:ResourceReferences",
+         "@type": "@id",
          "@id": "resource_references"
       },
       "Any": {

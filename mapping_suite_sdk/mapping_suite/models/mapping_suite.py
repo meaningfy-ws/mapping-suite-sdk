@@ -3,11 +3,13 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import Field
+from pydantic import (
+    Field,
+)
 
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
-metamodel_version = "None"
+metamodel_version = "1.12.0"
 version = "0.1.0"
 
 

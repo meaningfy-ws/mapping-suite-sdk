@@ -94,7 +94,7 @@ def _validate_model(mapping_package: MappingPackage, version: Version) -> Litera
     raise CrossVersionValidationError(f"Unsupported version: {version}")
 
 
-def _create_loader_for_version(version: Version, include_test_data: bool, include_output: bool):
+def _create_loader_for_version(version: str, include_test_data: bool, include_output: bool):
     """Create a version-specific loader with the given flags."""
     if version == Version.V1:
         from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPackageV1Loader
@@ -119,7 +119,7 @@ def _create_loader_for_version(version: Version, include_test_data: bool, includ
 
 def _validate_folder_from_path(
     path: Path,
-    version: Version,
+    version: str,
     include_test_data: bool = False,
     include_output: bool = False,
 ) -> Literal[True] | NoReturn:

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.models.collection_asset import (
@@ -19,6 +19,7 @@ from mapping_suite_sdk.core.models.file_asset import (
     SHACLShapesFileAsset,
     SHACLShapesResultQueryFileAsset,
     SPARQLQueryFileAsset,
+    TechnicalMappingFileAsset,
     TestDataFileAsset,
     TestDataResultFileAsset,
     VocabularyMappingFileAsset,
@@ -128,7 +129,7 @@ class TechnicalMappingSuiteLoader(AssetLoader):
             asset_path = root_folder / relative_asset_path
             package_folder_path = root_folder
 
-        tm_files: list[RMLMappingFileAsset] = []
+        tm_files: list[TechnicalMappingFileAsset] = []
 
         for tm_file in asset_path.iterdir():
             if tm_file.is_file():
@@ -312,7 +313,10 @@ class TestResultSuiteLoader(AssetLoader):
     def _load_report_files(self, directory: Path, package_folder_path: Path) -> list[ReportFileAsset]:
         """Load report files from a directory."""
         return [
-            ReportFileAsset(path=report_path.relative_to(package_folder_path), content=load_file_by_extensions(report_path))
+            ReportFileAsset(
+                path=report_path.relative_to(package_folder_path),
+                content=cast(str | bytes, load_file_by_extensions(report_path)),
+            )
             for report_path in directory.iterdir()
             if report_path.is_file()
         ]
@@ -334,15 +338,15 @@ class TestResultSuiteLoader(AssetLoader):
             path=test_data_suites_result.relative_to(package_folder_path),
             files=report_files,
             test_data_output=TestDataResultFileAsset(
-                path=ttl_file.relative_to(package_folder_path), content=load_file_by_extensions(ttl_file)
+                path=ttl_file.relative_to(package_folder_path), content=cast(str, load_file_by_extensions(ttl_file))
             ),
         )
 
-    def _load_suite_result(self, suite_path: Path, package_folder_path: Path) -> TestResultCollectionAsset | None:
+    def _load_suite_result(self, suite_path: Path, package_folder_path: Path) -> TestResultCollectionAsset:
         """Load a single suite result collection."""
         suite_files = self._load_report_files(suite_path, package_folder_path)
 
-        test_data_results = []
+        test_data_results: list[TestResultCollectionAsset | TestDataResultCollectionAsset] = []
         for test_data_suites_result in suite_path.iterdir():
             if test_data_suites_result.is_dir():
                 test_data_result = self._load_test_data_result(test_data_suites_result, package_folder_path)
@@ -368,7 +372,7 @@ class TestResultSuiteLoader(AssetLoader):
 
         test_result_collection_asset.files = self._load_report_files(asset_path, package_folder_path)
 
-        result_suites = []
+        result_suites: list[TestResultCollectionAsset | TestDataResultCollectionAsset] = []
         for suite_path in asset_path.iterdir():
             if suite_path.is_dir():
                 suite_result = self._load_suite_result(suite_path, package_folder_path)

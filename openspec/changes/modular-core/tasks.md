@@ -33,14 +33,14 @@
 
 ## 6. Type debt, docs, release notes
 
-- [ ] 6.1 Remove every touched module from `mypy.ini` and make `make typecheck` green (P-12); this prints nothing: `git diff --name-only develop...HEAD -- mapping_suite_sdk | sed 's|/__init__\.py$||; s|\.py$||; s|/|.|g' | sort | comm -12 - <(grep -oP '(?<=^\[mypy-)[^\]]+' mypy.ini | tr , '\n' | sort)`
+- [x] 6.1 Remove every touched module from `mypy.ini` and make `make typecheck` green (P-12); this prints nothing: `git diff --name-only develop...HEAD -- mapping_suite_sdk | sed 's|/__init__\.py$||; s|\.py$||; s|/|.|g' | sort | comm -12 - <(grep -oP '(?<=^\[mypy-)[^\]]+' mypy.ini | tr , '\n' | sort)`
 - [x] 6.2 Docs: `quick-start.adoc`, `index.adoc` (install with extras), `mongodb-support.adoc`, `extractors.adoc` (GitHub extra), `opentelemetry-tracing.adoc`, `cli.adoc`, `serialisation.adoc` (any persistence mention); README install section; CHANGELOG 2.0.0 with a migration section (DEC-1, DEC-7a public surface)
-- [ ] 6.3 Rerun the rdf-persistence co-resolution with `mapping-suite-sdk[all]` on 3.13 (package-distribution: Resolves next to rdf-persistence); paste in the PR
+- [x] 6.3 Rerun the rdf-persistence co-resolution with `mapping-suite-sdk[all]` on 3.13 (package-distribution: Resolves next to rdf-persistence); paste in the PR
 - [ ] 6.4 TED-SWS migration issue text in the PR description; post it after developer approval (P-14)
 
 ## Roadmap
 
-- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [x] 4.3 · [x] 4.4 · [x] 4.5 · [x] 5.1 · [x] 5.2 · [ ] 6.1 · [x] 6.2 · [ ] 6.3 · [ ] 6.4
+- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [x] 4.3 · [x] 4.4 · [x] 4.5 · [x] 5.1 · [x] 5.2 · [x] 6.1 · [x] 6.2 · [x] 6.3 · [ ] 6.4
 
 ## Verification
 

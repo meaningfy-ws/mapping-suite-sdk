@@ -13,6 +13,7 @@ import logging
 import shutil
 from enum import Enum
 from pathlib import Path
+from typing import cast
 
 from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
@@ -100,19 +101,19 @@ def load_mapping_package_from_folder(from_version: str, mapping_package_folder_p
         raise InvalidPackagePathError(f"Package path is not a directory: {mapping_package_folder_path}")
 
     if from_version == Version.V1:
-        loader = MappingPackageV1Loader()
+        loader_v1 = MappingPackageV1Loader()
         return load_mapping_package_v1_from_folder(
-            mapping_package_folder_path=mapping_package_folder_path, mapping_package_loader=loader
+            mapping_package_folder_path=mapping_package_folder_path, mapping_package_loader=loader_v1
         )
     elif from_version == Version.V2:
-        loader = MappingPackageV2Loader()
+        loader_v2 = MappingPackageV2Loader()
         return load_mapping_package_v2_from_folder(
-            mapping_package_folder_path=mapping_package_folder_path, mapping_package_loader=loader
+            mapping_package_folder_path=mapping_package_folder_path, mapping_package_loader=loader_v2
         )
     elif from_version == Version.V3:
-        loader = MappingPackageV3Loader()
+        loader_v3 = MappingPackageV3Loader()
         return load_mapping_package_v3_from_folder(
-            mapping_package_folder_path=mapping_package_folder_path, mapping_package_loader=loader
+            mapping_package_folder_path=mapping_package_folder_path, mapping_package_loader=loader_v3
         )
     else:
         raise UnsupportedVersionError(f"Unsupported source version: {from_version}")
@@ -227,7 +228,7 @@ def _get_context_jsonld_path() -> Path:
         FileNotFoundError: If context.jsonld file cannot be found
     """
     package_ref = importlib.resources.files("mapping_suite_sdk")
-    package_path = Path(package_ref)
+    package_path = Path(cast(Path, package_ref))  # files() is a real directory for an installed package
     project_root = package_path.parent
     context_path = project_root / "resources" / "schema" / "mapping_package_v3" / "models" / "context.jsonld"
 
@@ -377,8 +378,8 @@ def serialise_mapping_package(to_version: str, mapping_package_folder_path: Path
         _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
         _remove_old_metadata_json(mapping_package_folder_path)
     elif to_version == Version.V3L:
-        serialiser = MappingPackageV3LightweightSerialiser()
-        serialiser.serialise(package_root, converted_package)
+        lightweight_serialiser = MappingPackageV3LightweightSerialiser()
+        lightweight_serialiser.serialise(package_root, converted_package)
         _copy_context_jsonld_to_package(mapping_package_folder_path, converted_package)
         _remove_old_metadata_json(mapping_package_folder_path)
         _remove_conceptual_mapping_file(mapping_package_folder_path)

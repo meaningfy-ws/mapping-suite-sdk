@@ -58,7 +58,7 @@ def validate_mapping_package_v1_from_archive(
         raise FileNotFoundError(message)
 
     if not mapping_package_archive_path.is_file():
-        message: str = f"Cannot validate package from archive. Path is not a file: {mapping_package_archive_path}"
+        message = f"Cannot validate package from archive. Path is not a file: {mapping_package_archive_path}"
         logger.error(
             mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_archive_path, message=message)
         )
@@ -87,7 +87,7 @@ def validate_mapping_package_v1_from_folder(
         raise FileNotFoundError(message)
 
     if not mapping_package_folder_path.is_dir():
-        message: str = f"Cannot validate package from folder. Path is not a directory: {mapping_package_folder_path}"
+        message = f"Cannot validate package from folder. Path is not a directory: {mapping_package_folder_path}"
         logger.error(
             mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_package_folder_path, message=message)
         )
@@ -116,7 +116,7 @@ def validate_bulk_mapping_packages_v1_from_folder(
         raise FileNotFoundError(message)
 
     if not mapping_packages_folder_path.is_dir():
-        message: str = f"Cannot bulk validate packages from folder. Cannot validate package. Path is not a directory: {mapping_packages_folder_path}"
+        message = f"Cannot bulk validate packages from folder. Cannot validate package. Path is not a directory: {mapping_packages_folder_path}"
         logger.error(
             mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source=mapping_packages_folder_path, message=message)
         )
@@ -133,7 +133,7 @@ def validate_bulk_mapping_packages_v1_from_folder(
         except MPHashValidationException as hash_validation_exception:
             # TODO: Temporary solution. This logic needs to be in the validator.
             #  It will be done there when MSSDK will have Full MP support (currently no support for output folder)
-            message: str = f"Mapping package is not valid: {hash_validation_exception}"
+            message = f"Mapping package is not valid: {hash_validation_exception}"
             if update_hash:
                 message += f"\n🔀  The hash for {mp_folder} is changed."
                 # metadata_file = Path(mp_folder / "metadata.json")
@@ -181,7 +181,7 @@ def validate_bulk_mapping_packages_v1_from_github(
     packages_path_pattern: str,
     branch_or_tag_name: str | None = None,
     github_package_extractor: GitHubExtractor | None = None,
-    mapping_package_loader: MappingPackageV1Loader = None,
+    mapping_package_loader: MappingPackageV1Loader | None = None,
     mp_validator: MappingPackageV1Validator | None = None,
 ) -> bool | NoReturn:
     if not github_repository_url:
@@ -190,7 +190,7 @@ def validate_bulk_mapping_packages_v1_from_github(
         raise ValueError(message)
 
     if not packages_path_pattern:
-        message: str = "Cannot validate packages from github. Packages path pattern is empty"
+        message = "Cannot validate packages from github. Packages path pattern is empty"
         logger.error(mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(package_source="github", message=message))
         raise ValueError(message)
 

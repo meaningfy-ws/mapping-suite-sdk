@@ -47,10 +47,10 @@ def _load_source_package(
             load_mapping_package_v1_from_folder,
         )
 
-        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v1 = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v1_from_folder(
             mapping_package_folder_path=package_folder_path,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v1,
         )
     if version == Version.V2:
         from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
@@ -58,10 +58,10 @@ def _load_source_package(
             load_mapping_package_v2_from_folder,
         )
 
-        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v2 = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v2_from_folder(
             mapping_package_folder_path=package_folder_path,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v2,
         )
     if version == Version.V3:
         from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
@@ -69,10 +69,10 @@ def _load_source_package(
             load_mapping_package_v3_from_folder,
         )
 
-        loader = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v3 = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v3_from_folder(
             mapping_package_folder_path=package_folder_path,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v3,
         )
     if version == Version.V3L:
         from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import (
@@ -82,10 +82,10 @@ def _load_source_package(
             load_mapping_package_v3_lightweight_from_folder,
         )
 
-        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
+        loader_v3l = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
         return load_mapping_package_v3_lightweight_from_folder(
             mapping_package_folder_path=package_folder_path,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v3l,
         )
     raise UnsupportedVersionError(f"Unsupported source version: {version}")
 

@@ -73,24 +73,24 @@ def mssdk_cli_validate_mapping_package_from_archive(
     )
 
     if version == MappingPackageVersion.V1:
-        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v1 = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_mapping_package_v1_from_archive(
-            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader
+            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader_v1
         )
     elif version == MappingPackageVersion.V2:
-        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v2 = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_mapping_package_v2_from_archive(
-            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader
+            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader_v2
         )
     elif version == MappingPackageVersion.V3:
-        loader = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v3 = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_mapping_package_v3_from_archive(
-            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader
+            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader_v3
         )
     elif version == MappingPackageVersion.V3L:
-        loader = MappingPackageV3LightweightLoader(include_test_data=False, include_output=include_output)
+        loader_v3l = MappingPackageV3LightweightLoader(include_test_data=False, include_output=include_output)
         all_valid = validate_mapping_package_v3_lightweight_from_archive(
-            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader
+            mapping_package_archive_path=mapping_package_archive_path, mapping_package_loader=loader_v3l
         )
 
     else:  # pragma: no cover - Defensive code, version validated by Typer callback
@@ -123,36 +123,36 @@ def mssdk_cli_validate_mapping_packages_from_github(
     version = ctx.obj["version"]
 
     if version == MappingPackageVersion.V1:
-        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v1 = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v1_from_github(
             github_repository_url=github_repository_url,
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v1,
         )
     elif version == MappingPackageVersion.V2:
-        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v2 = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v2_from_github(
             github_repository_url=github_repository_url,
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v2,
         )
     elif version == MappingPackageVersion.V3:
-        loader = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v3 = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v3_from_github(
             github_repository_url=github_repository_url,
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v3,
         )
     elif version == MappingPackageVersion.V3L:
-        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
+        loader_v3l = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v3_lightweight_from_github(
             github_repository_url=github_repository_url,
             packages_path_pattern=packages_path_pattern,
             branch_or_tag_name=branch_or_tag_name,
-            mapping_package_loader=loader,
+            mapping_package_loader=loader_v3l,
         )
 
     else:  # pragma: no cover - Defensive code, version validated by Typer callback
@@ -183,24 +183,24 @@ def mssdk_cli_validate_mapping_packages_from_folder(
     )
 
     if version == MappingPackageVersion.V1:
-        loader = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v1 = MappingPackageV1Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v1_from_folder(
-            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader
+            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader_v1
         )
     elif version == MappingPackageVersion.V2:
-        loader = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v2 = MappingPackageV2Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v2_from_folder(
-            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader
+            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader_v2
         )
     elif version == MappingPackageVersion.V3:
-        loader = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
+        loader_v3 = MappingPackageV3Loader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v3_from_folder(
-            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader
+            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader_v3
         )
     elif version == MappingPackageVersion.V3L:
-        loader = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
+        loader_v3l = MappingPackageV3LightweightLoader(include_test_data=include_test_data, include_output=include_output)
         all_valid = validate_bulk_mapping_packages_v3_lightweight_from_folder(
-            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader
+            mapping_packages_folder_path=folder_path, update_hash=update_hash, mapping_package_loader=loader_v3l
         )
 
     else:  # pragma: no cover - Defensive code, version validated by Typer callback

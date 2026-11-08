@@ -37,7 +37,7 @@ def _convert_v1_constraints_to_v3_applicability_constraints(
     end_date_str = v1_constraints.end_date[0] if v1_constraints.end_date else None
     document_time_interval = None
     if start_date_str or end_date_str:
-        document_time_interval = DateTimeInterval(start=start_date_str, end=end_date_str)
+        document_time_interval = DateTimeInterval(start=start_date_str, end=end_date_str)  # type: ignore[arg-type]  # generated model types dates as datetime; pydantic coerces ISO strings
 
     min_version = v1_constraints.min_xsd_version[0] if v1_constraints.min_xsd_version else None
     max_version = v1_constraints.max_xsd_version[0] if v1_constraints.max_xsd_version else None
@@ -95,14 +95,14 @@ def convert_mapping_package_v1_to_v3(mpv1: MappingPackageV1) -> MappingPackageV3
     mpv3 = MappingPackageV3(
         metadata=MappingPackageV3MetadataJSONLD(
             path=v3_metadata_path,
-            context="context.jsonld",
+            context="context.jsonld",  # type: ignore[call-arg]  # generated field is aliased "@context"; populate-by-name accepts it
             id=mpv1_metadata.identifier,
             title=mpv1_metadata.title,
             # V3 requires a project_identifier, but V1 does not provide a dedicated source field for it.
             # We use "standard_forms" as the V1→V3 default; conditional behavior should rely on version detection,
             # not on this value (it can be arbitrary across projects).
             project_identifier="standard_forms",
-            created_at=mpv1_metadata.issue_date,
+            created_at=mpv1_metadata.issue_date,  # type: ignore[arg-type]  # pydantic coerces the ISO string to datetime
             mapping_version=mpv1_metadata.mapping_version,
             model_version=mpv1_metadata.ontology_version,
             description=mpv1_metadata.description,
@@ -110,13 +110,13 @@ def convert_mapping_package_v1_to_v3(mpv1: MappingPackageV1) -> MappingPackageV3
             # This will be recomputed below for the converted V3 package.
             mapping_suite_hash_digest=mpv1_metadata.signature,
         ),
-        conceptual_mapping_asset=mpv1.conceptual_mapping_asset.model_copy(),
+        conceptual_mapping_asset=mpv1.conceptual_mapping_asset.model_copy(),  # type: ignore[union-attr]
         technical_mapping_suite=mpv1.technical_mapping_suite.model_copy(),
         vocabulary_mapping_suite=mpv1.vocabulary_mapping_suite.model_copy(),
         test_data_suites=mpv1.test_data_suites.copy(),
         test_suites_sparql=mpv1.test_suites_sparql.copy(),
-        test_suites_shacl=mpv1.test_suites_shacl.model_copy(),
-        test_results=mpv1.test_results.model_copy(),
+        test_suites_shacl=mpv1.test_suites_shacl.model_copy(),  # type: ignore[union-attr]
+        test_results=mpv1.test_results.model_copy(),  # type: ignore[union-attr]
     )
 
     # Recompute hash for the converted V3 package so it validates immediately.

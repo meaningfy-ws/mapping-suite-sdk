@@ -37,7 +37,7 @@ def load_mapping_package_v3_lightweight_from_archive(
 
     MPValidationStepABC.validate_archive_path(path=mapping_package_archive_path, context="load package from archive")
 
-    archive_unpacker: ArchiveExtractor = archive_unpacker or ArchiveExtractor()
+    archive_unpacker = archive_unpacker or ArchiveExtractor()
 
     with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
         return load_mapping_package_v3_lightweight_from_folder(

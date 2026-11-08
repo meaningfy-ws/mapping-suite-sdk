@@ -91,3 +91,21 @@ None.
 
 Self-score 9/10 (lead): every DEC is cited, the API surface is enumerated, the error matrix covers the spec
 scenarios; −1 because the `InMemoryPath` subset is proven by tests rather than by type.
+
+## Review decisions (stage 1, five lenses) — to apply before merge
+
+Accepted:
+- **R-1 (L1 P1)** `from_zip` rejects entry names that are absolute, contain `\` or have `..` in their parts → `ValueError`; test with `pkg/output/../../x.ttl`.
+- **R-2 (L1 P2)** `save_mapping_package_v3_to_folder` serialises into `InMemoryPath.empty()` first, and `write_bytes` rejects `..`, so assets cannot escape the folder.
+- **R-3 (L1 P2)** Decompression cap: sum `info.file_size` before reading; above a module constant (1 GiB) → `ValueError`.
+- **R-4 (L1 P2)** `from_zip` turns `BadZipFile`, `NotImplementedError`, `RuntimeError`, `EOFError`, `zlib.error` and `OSError` into the bad-archive `ValueError`.
+- **R-5 (L1 P3, L4 W2)** The base `InMemoryPath` has no `_files` store; only `from_zip`/`empty` make usable archives.
+- **R-6 (L4 W1, L5 P2-3)** `_load_and_convert` loses the flag: `load_mapping_package` validates the folder itself before calling it.
+- **R-7 (L5 P2-2, L4 S1)** One `_normalize_target_version` in `convert_mapping_package.py`, used by both callers.
+- **R-8 (L2 P2-1/2-2, P3-3)** The spec's "equals" means up to file order within a collection; tests compare the whole model order-insensitively, add the multi-file v2 eForms round trip, and fix the path-vs-bytes test to load the inner folder; the spec shows `*,`.
+- **R-9 (L5 P1)** P-6 note: the bytes loader's wrapping-folder rule is new; archive-file loaders only unwrap a folder named like the ZIP. Converging them is a follow-up.
+- **R-10 (L3 P3-1)** `InMemoryPath` docstring lists what loaders must not use (`isinstance(Path)`, builtin `open`, `os`/`shutil`, `stat`/`resolve`).
+
+Rejected:
+- Rename `mapping_package_to_zip_bytes` (L3, L5): DEC-1 fixes the name from #95.
+- `PackagePath` Protocol (L4 S5), constants for `__MACOSX/` (L4 S2), comprehension rewrites (L4 S3), shared ZIP owner (L5 P2-4): follow-ups or not worth the churn.

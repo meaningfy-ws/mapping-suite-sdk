@@ -165,6 +165,38 @@ New, made while planning:
   suite.
 - **P-14 TED-SWS issue.** The migration issue text lives in the PR description; it is posted to
   `meaningfy-ws/ted-rdf-conversion-pipeline` only after developer approval (outward-facing).
+  *Outcome:* not posted. TED-SWS pins `mapping-suite-sdk~=1.0.0` from PyPI (`>=1.0.0,<1.1`) in all four
+  requirements files, so neither 1.1 nor 2.0 can reach it; the text stays in PR #102 for when it migrates.
+
+## As built (apply notes, 2026-11-08, PR #102)
+
+Deviations and additions found while implementing; the spec deltas did not change.
+
+- **P-7:** upsert instead of the 1.x saver path (see P-7 above); golden test proves the same document.
+- **Config import (error-matrix fallback used):** with the P-8 root re-exports, every module doing
+  `from mapping_suite_sdk import mssdk_config` routed all layers through the root and broke the
+  import-linter layer contracts. Library modules now import `mssdk_config` from
+  `mapping_suite_sdk.config`; only the CLI imports from the root. This touched six more modules, which
+  P-12 then made type-clean.
+- **P-6:** `load_mapping_package` re-exports `UnsupportedConversionError` explicitly
+  (`import X as X`) so Ruff keeps the 1.x import path.
+- **P-9:** as planned; a stale local `.import_linter_cache` once reported wrong results, so delete
+  `.import_linter_cache` / `.grimp_cache` when contracts change. The hand check: a module-level
+  `import pymongo` in `mp_v3_package_loader.py` → 8 kept, 1 broken.
+- **P-10 and coverage:** the no-extra branches run only in the core-only venv, where coverage is not
+  measured. `.coveragerc` excludes `if TYPE_CHECKING:` blocks; the two import-time "extra missing"
+  branches carry `# pragma: no cover - runs in tests/core_only`; the tracer no-op path and the CLI root
+  callback got unit tests (codecov/patch passed).
+- **P-12:** 18 modules left `mypy.ini` (41 → 23). Scoped `# type: ignore[code]` with reasons only in the
+  v1/v2 → v3 converters, where errors come from generated or still-ignored models. Repository models
+  reach `id` through an `_id_of()` accessor, not a bound `TypeVar` (`id` is a field on some models and a
+  computed property on others). `ResourceReferencesLoader` no longer claims the `AssetLoader` protocol;
+  `file_paths=None` now yields `[]` instead of `TypeError`.
+- **DEC-6 in tests:** CLI tests capture INFO through a `caplog` fixture in
+  `tests/unit/tools/entrypoints/cli/conftest.py`; under pytest the CLI's `basicConfig` is a no-op
+  because caplog already installed a root handler.
+- **Gate:** `make check-all` green on 3.10–3.13 (978 tests + 12 core-only); the co-resolution with
+  `rdf-persistence@develop` on 3.13 resolves.
 
 ## Algorithm / approach
 

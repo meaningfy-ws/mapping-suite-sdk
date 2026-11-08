@@ -2,12 +2,13 @@
 
 ## Purpose
 How the repository's quality is checked: one gate, `make check-all`, run the same way by a developer and by CI on every supported Python, with each tool configured in its own root file. `DEC-n` references are the decisions in `openspec/changes/archive/2026-11-08-modernise-tooling-and-python/`.
-
 ## Requirements
 ### Requirement: One quality gate
 The repository SHALL provide `make check-all`, which runs, and fails if any fails: Ruff lint and
-format check, mypy, import-linter, the LinkML codegen-sync check, and the test suite with a
-coverage floor of 80% (DEC-4, DEC-6).
+format check, mypy, import-linter, the LinkML codegen-sync check, the test suite with a
+coverage floor of 80%, and the core-only check, which installs the built wheel with no extras into a
+fresh virtual environment and runs the core-only tests there (modernise-tooling-and-python DEC-4,
+DEC-6; modular-core DEC-2).
 
 #### Scenario: Gate passes on a clean checkout
 - **WHEN** a developer runs `make install` then `make check-all` on a clean checkout of `develop`
@@ -24,6 +25,10 @@ coverage floor of 80% (DEC-4, DEC-6).
 
 #### Scenario: Coverage below the floor fails the gate
 - **WHEN** test coverage of `mapping_suite_sdk` is below 80%
+- **THEN** `make check-all` exits non-zero
+
+#### Scenario: A core module importing an optional library fails the gate
+- **WHEN** a core module (for example a loader) imports `pymongo` at module level
 - **THEN** `make check-all` exits non-zero
 
 ### Requirement: Tool configuration in dedicated root files

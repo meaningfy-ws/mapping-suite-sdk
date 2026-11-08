@@ -12,6 +12,8 @@ from mapping_suite_sdk import (
     MappingPackageV3,
     convert_mapping_package,
     load_mapping_package,
+    load_mapping_package_from_bytes,
+    mapping_package_to_zip_bytes,
     save_mapping_package_to_mongodb,
     validate_mapping_package,
 )
@@ -82,3 +84,11 @@ def test_model_modules_stay_importable_by_path():
     from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_metadata import VersionRange
 
     assert VersionRange.__name__ == "VersionRange"
+
+
+def test_in_memory_round_trip_without_extras():
+    package = convert_mapping_package(load_mapping_package(V2_PACKAGE, include_test_data=True))
+
+    loaded = load_mapping_package_from_bytes(mapping_package_to_zip_bytes(package))
+
+    assert validate_mapping_package(loaded) is True

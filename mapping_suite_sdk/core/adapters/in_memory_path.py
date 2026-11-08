@@ -1,7 +1,7 @@
-"""A read-only, in-memory stand-in for ``pathlib.Path`` over the files of a ZIP archive.
+"""An in-memory stand-in for ``pathlib.Path`` over the files of a ZIP archive.
 
-The loaders and the version detector use a small part of the ``Path`` API; this class implements exactly that part
-on a ``dict[str, bytes]`` so a package can be loaded without touching the disk.
+The loaders, the version detector and the serialisers use a small part of the ``Path`` API; this class implements
+exactly that part on a ``dict[str, bytes]`` so a package can be loaded or written without touching the disk.
 """
 
 import io
@@ -45,6 +45,30 @@ class InMemoryPath(PurePosixPath):
         top_levels = {name.split("/")[1] for name in files}
         wrapped = len(top_levels) == 1 and all(name.count("/") > 1 for name in files)
         return archive_class("/" + top_levels.pop() if wrapped else "/")
+
+    @classmethod
+    def empty(cls) -> "InMemoryPath":
+        """Return the root (``/``) of a new, empty archive to write into."""
+        return type(cls.__name__, (cls,), {"_files": {}})("/")
+
+    def to_zip(self) -> bytes:
+        """Return the archive's files as the bytes of a ZIP."""
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+            for name, content in self._files.items():
+                archive.writestr(name.lstrip("/"), content)
+        return buffer.getvalue()
+
+    def mkdir(self, parents: bool = False, exist_ok: bool = False) -> None:
+        """Do nothing: folders exist only as the prefix of a file."""
+
+    def write_bytes(self, data: bytes) -> int:  # type: ignore[override]
+        self._files[str(self)] = data
+        return len(data)
+
+    def write_text(self, data: str, encoding: str = "utf-8") -> int:  # type: ignore[override]
+        self.write_bytes(data.encode(encoding))
+        return len(data)
 
     def is_file(self) -> bool:
         return str(self) in self._files

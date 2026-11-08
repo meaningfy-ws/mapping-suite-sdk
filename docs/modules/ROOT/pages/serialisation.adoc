@@ -25,6 +25,29 @@ package = load_mapping_package(Path("/path/to/package"), include_test_data=True)
 
 For v1, v3, and v3L, use the corresponding modules: `mapping_suite_sdk.mapping_package_v1.services.serialise_mapping_package_v1`, `mapping_package_v3`, etc. Conversion (e.g. v2 → v3) is done via the CLI or `convert_mapping_package` services and writes the result in-place.
 
+== In-Memory and v3 Export
+
+A v3 package can be written without a temp folder: to ZIP bytes, to a ZIP file, or to a folder. By default each call sets `package.metadata.mapping_suite_hash_digest` to the hash computed by MSSDK on the package you pass (`update_hash=False` keeps the hash as it is).
+
+[source,python]
+----
+from pathlib import Path
+from mapping_suite_sdk import (
+    load_mapping_package_from_bytes,
+    mapping_package_to_zip_bytes,
+    save_mapping_package_v3_to_archive,
+    save_mapping_package_v3_to_folder,
+)
+
+data = mapping_package_to_zip_bytes(package)  # bytes of a package ZIP
+same_package = load_mapping_package_from_bytes(data, target_version="v3")
+
+save_mapping_package_v3_to_archive(package, Path("package.zip"))
+save_mapping_package_v3_to_folder(package, Path("/output/path/package"))
+----
+
+Only v3 packages can be exported this way; v1 and v2 packages keep their version-specific serialisers.
+
 == Version-Specific Serialisers
 
 Serialisers live in each version’s adapters (e.g. `MappingPackageV2Serialiser`, `MappingPackageV3Serialiser`). The protocol for asset serialisation is `MappingPackageAssetSerialiser` in `mapping_suite_sdk.core.adapters.serialiser`. Prefer the version-specific service functions (e.g. `serialise_mapping_package_v2_to_folder`) over calling adapters directly.

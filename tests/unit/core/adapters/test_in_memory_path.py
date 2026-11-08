@@ -145,3 +145,33 @@ def test_suffix_and_name_come_from_pure_posix_path(root: InMemoryPath) -> None:
     assert (root / "a.TTL").suffix == ".TTL"
     assert (root / "a.ttl").name == "a.ttl"
     assert isinstance(root, PurePosixPath)
+
+
+def test_write_side_round_trips_through_to_zip() -> None:
+    root = InMemoryPath.empty()
+    folder = root / "sub" / "deeper"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "a.txt").write_text("é")
+    (root / "b.bin").write_bytes(b"\x00\xff")
+
+    loaded = InMemoryPath.from_zip(root.to_zip())
+
+    assert (loaded / "sub" / "deeper" / "a.txt").read_text() == "é"
+    assert (loaded / "b.bin").read_bytes() == b"\x00\xff"
+    assert (root / "sub" / "deeper" / "a.txt").parent.name == "deeper"
+
+
+def test_empty_archives_do_not_share_files() -> None:
+    first, second = InMemoryPath.empty(), InMemoryPath.empty()
+    (first / "a.txt").write_text("a")
+
+    assert not (second / "a.txt").exists()
+    assert str(first) == "/"
+
+
+def test_to_zip_keys_have_no_leading_slash() -> None:
+    root = InMemoryPath.empty()
+    (root / "d" / "a.txt").write_text("a")
+
+    with zipfile.ZipFile(io.BytesIO(root.to_zip())) as archive:
+        assert archive.namelist() == ["d/a.txt"]

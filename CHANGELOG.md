@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - Unreleased
+
+### Added
+- `load_mapping_package_from_bytes(data, target_version="v3", include_output=False, validate_package=True)`:
+  loads a package of any supported version from the bytes (or a binary stream) of its ZIP, without touching the
+  disk. A ZIP with the package inside one wrapping folder loads like one with the package at its root; `__MACOSX/`
+  entries are ignored.
+- `mapping_package_to_zip_bytes(package)`, `save_mapping_package_v3_to_archive(package, path)` and
+  `save_mapping_package_v3_to_folder(package, path)`: export a v3 package without a temp folder. They set
+  `package.metadata.mapping_suite_hash_digest` on the passed package unless `update_hash=False`.
+- All four are exported from `mapping_suite_sdk`.
+
 ## [2.0.0] - 2026-11-08
 
 A major release: the core needs `pydantic` only, every integration is an extra, and saving is a separate

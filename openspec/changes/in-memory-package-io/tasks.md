@@ -8,17 +8,17 @@
 
 ## 2. Write to memory and to disk
 
-- [ ] 2.1 `InMemoryPath` write side: `mkdir`, `write_text`, `write_bytes`, `to_zip`, `empty` (P-1)
-- [ ] 2.2 `serialise_mapping_package_v3.py`: `mapping_package_to_zip_bytes`, `save_mapping_package_v3_to_folder`, `save_mapping_package_v3_to_archive` (P-5, P-7); round-trip tests for both requirements
+- [x] 2.1 `InMemoryPath` write side: `mkdir`, `write_text`, `write_bytes`, `to_zip`, `empty` (P-1)
+- [x] 2.2 `serialise_mapping_package_v3.py`: `mapping_package_to_zip_bytes`, `save_mapping_package_v3_to_folder`, `save_mapping_package_v3_to_archive` (P-5, P-7); round-trip tests for both requirements
 
 ## 3. Publish
 
-- [ ] 3.1 Export the four functions from `mapping_suite_sdk` (`__all__`, `test_public_api.py`); core-only test calls the bytes round trip
-- [ ] 3.2 Docs: `serialisation.adoc`, `quick-start.adoc`; CHANGELOG `[2.1.0] - Unreleased`; version 2.1.0
+- [x] 3.1 Export the four functions from `mapping_suite_sdk` (`__all__`, `test_public_api.py`); core-only test calls the bytes round trip
+- [x] 3.2 Docs: `serialisation.adoc`, `quick-start.adoc`; CHANGELOG `[2.1.0] - Unreleased`; version 2.1.0
 
 ## Roadmap
 
-- [x] 1.1 · [x] 1.2 · [x] 1.3 · [ ] 2.1 · [ ] 2.2 · [ ] 3.1 · [ ] 3.2
+- [x] 1.1 · [x] 1.2 · [x] 1.3 · [x] 2.1 · [x] 2.2 · [x] 3.1 · [x] 3.2
 
 ## Verification
 

@@ -25,3 +25,13 @@ def test_application_logging_unchanged():
     )
     result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, check=True)
     assert json.loads(result.stdout) == [30, 1, True]
+
+
+def test_in_memory_package_io_is_exported():
+    for name in (
+        "load_mapping_package_from_bytes",
+        "mapping_package_to_zip_bytes",
+        "save_mapping_package_v3_to_folder",
+        "save_mapping_package_v3_to_archive",
+    ):
+        assert name in mapping_suite_sdk.__all__, name

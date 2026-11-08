@@ -1,4 +1,4 @@
-"""Runtime dependencies are only what the code imports, as ranges (package-distribution spec)."""
+"""Runtime dependencies and extras are only what the code imports, as ranges (package-distribution spec)."""
 
 import ast
 import re
@@ -17,15 +17,22 @@ DISTRIBUTION_TO_IMPORT = {
 }
 
 
-def _runtime_requirements() -> dict[str, str]:
-    """Distribution name -> version specifier, from the installed package metadata."""
-    result = {}
+def _requirements() -> list[tuple[str, str, str | None]]:
+    """(distribution, version specifier, extra or None) from the installed package metadata."""
+    result = []
     for requirement in requires("mapping-suite-sdk") or []:
-        if "extra ==" in requirement:
-            continue
         name, specifier = re.match(r"([A-Za-z0-9_.\-]+)\s*\(?([^;)]*)", requirement).groups()
-        result[name.lower()] = specifier.strip()
+        extra = re.search(r'extra == "([^"]+)"', requirement)
+        result.append((name.lower(), specifier.strip(), extra.group(1) if extra else None))
     return result
+
+
+def _extras() -> dict[str, set[str]]:
+    extras: dict[str, set[str]] = {}
+    for name, _, extra in _requirements():
+        if extra:
+            extras.setdefault(extra, set()).add(name)
+    return extras
 
 
 def _imported_top_level_modules() -> set[str]:
@@ -46,15 +53,30 @@ def _imported_top_level_modules() -> set[str]:
     return modules
 
 
-def test_every_runtime_dependency_is_imported():
-    requirements = _runtime_requirements()
-    assert set(requirements) == set(DISTRIBUTION_TO_IMPORT), "update DISTRIBUTION_TO_IMPORT with the new dependency"
+def test_core_depends_on_pydantic_only():
+    assert [name for name, _, extra in _requirements() if extra is None] == ["pydantic"]
+
+
+def test_extras_map_to_integrations():
+    extras = _extras()
+    integrations = {
+        "mongodb": {"pymongo"},
+        "github": {"gitpython"},
+        "tracing": {"opentelemetry-api", "opentelemetry-sdk"},
+        "cli": {"typer"},
+    }
+    assert {name: extras.get(name) for name in integrations} == integrations
+    assert extras["all"] == set().union(*integrations.values())
+
+
+def test_every_declared_dependency_is_imported():
+    declared = {name for name, _, _ in _requirements()}
+    assert declared == set(DISTRIBUTION_TO_IMPORT), "update DISTRIBUTION_TO_IMPORT with the new dependency"
     imported = _imported_top_level_modules()
-    unused = {name for name in requirements if DISTRIBUTION_TO_IMPORT[name] not in imported}
-    assert not unused
+    assert {name for name in declared if DISTRIBUTION_TO_IMPORT[name] not in imported} == set()
 
 
-def test_no_runtime_dependency_is_pinned_and_each_has_an_upper_bound():
-    for name, specifier in _runtime_requirements().items():
+def test_no_dependency_is_pinned_and_each_has_an_upper_bound():
+    for name, specifier, _ in _requirements():
         assert "==" not in specifier, name
         assert "<" in specifier, name

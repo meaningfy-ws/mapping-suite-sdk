@@ -22,7 +22,7 @@
 
 - [x] 4.1 `convert_mapping_package` with the moves listed in P-6; `validate_mapping_package` wraps `VersionDetectionError`; `load_mapping_package` calls `convert_mapping_package`; tests for the five public-api convert scenarios
 - [x] 4.2 Root exports + `__all__` (P-8); remove `logging.basicConfig` from the root (DEC-6); test "Application logging unchanged" in the normal suite **in a subprocess** (`python -c` that configures the root logger, imports `mapping_suite_sdk`, prints level + handler count)
-- [ ] 4.3 Extras and version 2.0.0 in `pyproject.toml` (P-11), `make install` with `--all-extras`, `poetry lock`; update `tests/unit/test_package_metadata.py` for "Core depends on pydantic only", "Extras map to integrations", "No unused runtime dependency", "No exact pin"
+- [x] 4.3 Extras and version 2.0.0 in `pyproject.toml` (P-11), `make install` with `--all-extras`, `poetry lock`; update `tests/unit/test_package_metadata.py` for "Core depends on pydantic only", "Extras map to integrations", "No unused runtime dependency", "No exact pin"
 - [ ] 4.4 `make test-core-only` per P-10 (no `__init__.py` in `tests/core_only/`), first test `tests/core_only/test_import.py`: "Import the loader from the root" with `find_spec` absence checks; add to `check-all`; `--ignore=tests/core_only` in `pytest.ini`; delete the wheel-install step from `ci.yaml` (developer-tooling: One quality gate)
 - [ ] 4.5 import-linter contract with the ignore lines exactly as in P-9; check by hand once that a module-level `import pymongo` in a loader fails `make check-all` ("A core module importing an optional library fails the gate"), note it in the PR
 
@@ -40,7 +40,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
+- [x] 1.1 · [x] 2.1 · [x] 2.2 · [x] 2.3 · [x] 2.4 · [x] 3.1 · [x] 3.2 · [x] 3.3 · [x] 4.1 · [x] 4.2 · [x] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
 
 ## Verification
 

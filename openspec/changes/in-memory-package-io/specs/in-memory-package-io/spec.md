@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Load a package from bytes or a stream
-`load_mapping_package_from_bytes(data, target_version="v3", validate_package=True)` SHALL accept
+`load_mapping_package_from_bytes(data, target_version="v3", include_output=False, validate_package=True)` SHALL accept
 the bytes or a binary stream of a package ZIP of any supported version, detect its version,
 convert it to v3, validate it, and SHALL write nothing to disk (in-memory-package-io DEC-1, DEC-2).
 
@@ -37,8 +37,8 @@ and, when `update_hash` is true, SHALL set the package hash computed by MSSDK (D
 - **AND** its hash validates
 
 ### Requirement: Save a v3 package to a folder or an archive
-`save_mapping_package_v3_to_folder(package, path)` and `save_mapping_package_v3_to_archive(package, path)`
-SHALL write a package that `load_mapping_package` loads back unchanged (DEC-1, DEC-5).
+`save_mapping_package_v3_to_folder(package, path, update_hash=True)` and
+`save_mapping_package_v3_to_archive(package, path, update_hash=True)` SHALL write a package that `load_mapping_package` loads back unchanged (DEC-1, DEC-5).
 
 #### Scenario: Round trip through an archive
 - **WHEN** a v3 package is saved with `save_mapping_package_v3_to_archive` and loaded with `load_mapping_package`

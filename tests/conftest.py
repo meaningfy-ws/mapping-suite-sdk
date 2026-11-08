@@ -309,7 +309,8 @@ def dummy_mapping_package_v2_validator() -> MappingPackageV2Validator:
 @pytest.fixture
 def typer_cli_runner() -> CliRunner:
     """CLI runner for testing command-line interfaces."""
-    return CliRunner()
+    # Plain help text: under GITHUB_ACTIONS typer forces rich styling, whose escape codes split option names.
+    return CliRunner(env={"TERM": "dumb"})
 
 
 # ============================================================================

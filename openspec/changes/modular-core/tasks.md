@@ -7,7 +7,7 @@
 
 ## 2. Integration boundaries (existing suite green after each)
 
-- [ ] 2.1 Tracing: guarded OpenTelemetry import and no-op decorators in `tracer.py`; `add_span_processor_to_mssdk_tracer_provider` calls `require` (P-4)
+- [x] 2.1 Tracing: guarded OpenTelemetry import and no-op decorators in `tracer.py`; `add_span_processor_to_mssdk_tracer_provider` calls `require` (P-4)
 - [ ] 2.2 GitHub: move `GitHubExtractor` to `core/adapters/github_extractor.py` with `require` inside its methods; update the 9 importers (P-3)
 - [ ] 2.3 MongoDB: `pymongo` imports under `TYPE_CHECKING` in the repositories, savers, save and load services; `require` in `MongoDBRepository.__init__` and as the first statement of every `save_*_to_mongo_db`, incl. `save_mapping_suite_to_mongo_db` (P-2)
 - [ ] 2.4 CLI: guarded `typer` import in `cli/__init__.py` raising `SystemExit` with the `[cli]` message; root callback configures logging (P-5)
@@ -40,7 +40,7 @@
 
 ## Roadmap
 
-- [x] 1.1 · [ ] 2.1 · [ ] 2.2 · [ ] 2.3 · [ ] 2.4 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
+- [x] 1.1 · [x] 2.1 · [ ] 2.2 · [ ] 2.3 · [ ] 2.4 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 4.5 · [ ] 5.1 · [ ] 5.2 · [ ] 6.1 · [ ] 6.2 · [ ] 6.3 · [ ] 6.4
 
 ## Verification
 

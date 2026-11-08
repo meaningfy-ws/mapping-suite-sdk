@@ -3,8 +3,8 @@
 
 ## 1. Root tool configs
 
-- [ ] 1.1 Add `pytest.ini` and `.coveragerc` (from the `tox.ini` sections; floor 80%; `[xml] output = coverage.xml`); `poetry run pytest` still passes (developer-tooling: One quality gate)
-- [ ] 1.2 Add `ruff.toml` and `mypy.ini` with the P-1 rule set and exclusion globs, mypy as DEC-6 baseline (developer-tooling: Tool configuration in dedicated root files)
+- [x] 1.1 Add `pytest.ini` and `.coveragerc` (from the `tox.ini` sections; floor 80%; `[xml] output = coverage.xml`); `poetry run pytest` still passes (developer-tooling: One quality gate)
+- [x] 1.2 Add `ruff.toml` and `mypy.ini` with the P-1 rule set and exclusion globs, mypy as DEC-6 baseline (developer-tooling: Tool configuration in dedicated root files)
 
 ## 2. Makefile gate
 
@@ -35,7 +35,7 @@
 
 ## Roadmap
 
-- [ ] 1.1 · [ ] 1.2 · [ ] 2.1 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
+- [x] 1.1 · [x] 1.2 · [ ] 2.1 · [ ] 3.1 · [ ] 3.2 · [ ] 3.3 · [ ] 4.1 · [ ] 4.2 · [ ] 4.3 · [ ] 4.4 · [ ] 5.1 · [ ] 5.2 · [ ] 5.3 · [ ] 6.1
 
 ## Verification
 

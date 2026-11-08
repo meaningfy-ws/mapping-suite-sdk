@@ -5,7 +5,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.mapping_suite.adapters.loader import MappingSuiteLoader
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import MappingSuite

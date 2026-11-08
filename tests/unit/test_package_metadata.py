@@ -36,6 +36,13 @@ def _imported_top_level_modules() -> set[str]:
                 modules.update(alias.name.split(".")[0] for alias in node.names)
             elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
                 modules.add(node.module.split(".")[0])
+            elif (  # optional libraries are imported at the point of use through require("<module>", ...)
+                isinstance(node, ast.Call)
+                and getattr(node.func, "id", None) == "require"
+                and node.args
+                and isinstance(node.args[0], ast.Constant)
+            ):
+                modules.add(node.args[0].value.split(".")[0])
     return modules
 
 

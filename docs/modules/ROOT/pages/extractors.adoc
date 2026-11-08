@@ -43,7 +43,7 @@ zip_path = extractor.pack_directory(source_dir, output_path)
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk.core.adapters.extractor import GitHubExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 
 extractor = GitHubExtractor()
 package_path = extractor.extract(
@@ -106,7 +106,8 @@ class CustomPackageExtractor(ExtractorABC):
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 
 def safe_extract(extractor, source):
     try:

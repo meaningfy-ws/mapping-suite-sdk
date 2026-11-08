@@ -23,7 +23,7 @@ def test_convert_cli_command_invalid_new_version(typer_cli_runner: CliRunner, tm
     )
 
     assert result.exit_code == 2
-    assert "Invalid value" in result.stdout
+    assert "Invalid value" in result.output
 
 
 def test_convert_cli_command_valid_version_shows_from_command(typer_cli_runner: CliRunner) -> None:
@@ -41,7 +41,7 @@ def test_convert_cli_command_invalid_base_version(typer_cli_runner: CliRunner, t
     )
 
     assert result.exit_code == 2
-    assert "Invalid value" in result.stdout
+    assert "Invalid value" in result.output
 
 
 def test_convert_cli_command_v1_to_v3_is_accepted(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
@@ -93,7 +93,7 @@ def test_convert_cli_command_invalid_target_version(typer_cli_runner: CliRunner,
     )
 
     assert result.exit_code == 2
-    assert "Invalid value" in result.stdout
+    assert "Invalid value" in result.output
 
 
 def test_convert_cli_command_v3_invalid_source_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
@@ -103,7 +103,7 @@ def test_convert_cli_command_v3_invalid_source_version(typer_cli_runner: CliRunn
     )
 
     assert result.exit_code == 2
-    assert "Invalid value" in result.stdout
+    assert "Invalid value" in result.output
 
 
 def test_convert_cli_command_v3l_invalid_source_version(typer_cli_runner: CliRunner, tmp_path: Path) -> None:
@@ -113,7 +113,7 @@ def test_convert_cli_command_v3l_invalid_source_version(typer_cli_runner: CliRun
     )
 
     assert result.exit_code == 2
-    assert "Invalid value" in result.stdout
+    assert "Invalid value" in result.output
 
 
 def test_convert_cli_command_invalid_input_path(typer_cli_runner: CliRunner, tmp_path: Path) -> None:

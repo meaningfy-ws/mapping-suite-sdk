@@ -71,7 +71,10 @@ New, made while planning:
   own commit.
 - **P-6 Ranges** (lower bound = currently locked minor):
   `pydantic>=2.10,<3`, `opentelemetry-api>=1.29,<2`, `opentelemetry-sdk>=1.29,<2`,
-  `gitpython>=3.1,<4`, `pymongo>=4.11,<5`, `typer>=0.15,<1`.
+  `gitpython>=3.1,<4`, `pymongo>=4.11,<5`, `typer>=0.16,<1`. (Found while applying: `typer`
+  0.16 is the first release that accepts Click 8.2; with Click ≥8.2 `mssdk` with no arguments
+  exits 2 instead of 0 and errors go to stderr. Developer chose to move to the new Click and
+  note the exit code in the CHANGELOG, 2026-11-08.)
 
 ## Algorithm / approach
 

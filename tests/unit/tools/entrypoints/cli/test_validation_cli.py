@@ -712,7 +712,7 @@ def test_validate_common_callback_invalid_version_raises_bad_parameter(typer_cli
     result = typer_cli_runner.invoke(mssdk_cli_validate_subcommand, ["--version", "v99", "from-folder", "/tmp"])
 
     assert result.exit_code != 0
-    assert "Version must be" in result.stdout or "Invalid value" in result.stdout
+    assert "Version must be" in result.output or "Invalid value" in result.output
 
 
 def test_validate_from_folder_exits_with_code_1_on_validation_failure(typer_cli_runner: CliRunner, tmp_path: Path) -> None:

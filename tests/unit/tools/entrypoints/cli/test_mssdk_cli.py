@@ -7,8 +7,9 @@ from mapping_suite_sdk.tools.entrypoints.cli.mssdk import mssdk_cli_command
 def test_mssdk_cli_validate_command(typer_cli_runner: CliRunner) -> None:
     result = typer_cli_runner.invoke(mssdk_cli_command, [])
 
-    assert result.exit_code == 0
-    assert "validate" in result.stdout
+    # no_args_is_help: help is shown, and since Click 8.2 the exit code is 2 (usage error)
+    assert result.exit_code == 2
+    assert "validate" in result.output
 
 
 def test_mssdk_cli_shows_correct_version(typer_cli_runner: CliRunner) -> None:

@@ -275,8 +275,7 @@ class SHACLTestSuitesLoader(AssetLoader):
         asset_path: Path = package_folder_path / relative_asset_path
         if root_folder.exists():
             asset_path = root_folder / relative_asset_path
-        else:
-            root_folder = package_folder_path
+            package_folder_path = root_folder
 
         shacl_validation_suites: list[SHACLShapesCollectionAsset] = []
         for shacl_suite in asset_path.iterdir():
@@ -296,7 +295,7 @@ class SHACLTestSuitesLoader(AssetLoader):
             path=relative_asset_path,
             shacl_result_query=SHACLShapesResultQueryFileAsset(
                 path=mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH,
-                content=(root_folder / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH).read_text(),
+                content=(package_folder_path / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH).read_text(),
             ),
             shacl_collections=shacl_validation_suites,
         )

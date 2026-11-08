@@ -224,6 +224,7 @@ def test_shacl_test_suites_loader(dummy_mapping_package_path: Path, dummy_mappin
         temp_mp_path = temp_dir_path / dummy_mapping_package_path.stem
         temp_mp_path.mkdir()
         shutil.unpack_archive(temp_mp_archive_path, temp_mp_path)
+        temp_mp_path = temp_mp_path / dummy_mapping_package_path.stem
 
         loader = SHACLTestSuitesLoader()
         shacl_suite = loader.load(
@@ -506,3 +507,21 @@ def test_load_file_by_extensions_reads_bytes_through_the_path_not_the_builtin_op
     root = InMemoryPath.from_zip(buffer.getvalue())
 
     assert load_file_by_extensions(root / "logo.bin", (".txt",), (".bin",)) == b"\x00\xff"
+
+
+def test_shacl_test_suites_loader_paths_are_relative_to_the_wrapped_root(tmp_path: Path) -> None:
+    from mapping_suite_sdk.config import mssdk_config
+
+    outer = tmp_path / "pkg"
+    root = outer / "pkg"
+    (root / "validation/shacl/epo").mkdir(parents=True)
+    (root / "validation/shacl/epo/shapes.ttl").write_text("# shapes")
+    query = root / mssdk_config.MPV1_SHACL_SHAPES_QUERY_FILE_ASSET_PATH
+    query.parent.mkdir(parents=True, exist_ok=True)
+    query.write_text("SELECT * WHERE {}")
+
+    shacl_suite = SHACLTestSuitesLoader().load(outer, Path("validation/shacl"))
+
+    [collection] = shacl_suite.shacl_collections
+    assert collection.path == Path("validation/shacl/epo")
+    assert [file.path for file in collection.files] == [Path("validation/shacl/epo/shapes.ttl")]

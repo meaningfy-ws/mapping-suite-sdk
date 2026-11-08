@@ -11,10 +11,11 @@ Tests focus on service-layer orchestration:
 """
 
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import Mock, call, patch
 
 import pytest
 
+from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3 import MappingPackageV3
 from mapping_suite_sdk.mapping_package_v3.models.mapping_package_v3_lightweight import (
     MappingPackageV3Lightweight,
@@ -73,7 +74,7 @@ class TestLoadMappingPackageVersionHandling:
     def test_no_version_triggers_detection(self, mock_detect, mock_load, tmp_path: Path):
         mock_detect.return_value = "v2"
         mock_load.return_value = Mock(spec=MappingPackageV3)
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
             load_mapping_package(tmp_path, include_test_data=True, validate_package=False)
         mock_detect.assert_called_once_with(tmp_path)
@@ -111,9 +112,9 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
     """Target version (v3 vs v3L) and conversion routing."""
 
     @patch(_V2_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_include_test_data_true_targets_v3(self, mock_convert, mock_load, tmp_path: Path):
-        source = Mock(spec=MappingPackageV3)
+        source = Mock(spec=MappingPackageV2)
         converted = Mock(spec=MappingPackageV3)
         mock_load.return_value = source
         mock_convert.return_value = converted
@@ -122,7 +123,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
         assert result is converted
 
     @patch(_V3_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_include_test_data_false_targets_v3l(self, mock_convert, mock_load, tmp_path: Path):
         source = Mock(spec=MappingPackageV3)
         converted = Mock(spec=MappingPackageV3Lightweight)
@@ -145,7 +146,7 @@ class TestLoadMappingPackageIncludeTestDataAndConversion:
     def test_v3l_source_with_include_test_data_false_returns_without_conversion(self, mock_v3l_load, tmp_path: Path):
         pkg = Mock(spec=MappingPackageV3Lightweight)
         mock_v3l_load.return_value = pkg
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             result = load_mapping_package(tmp_path, version="v3L", include_test_data=False, validate_package=False)
             mock_convert.assert_not_called()
         assert result is pkg
@@ -160,7 +161,7 @@ class TestLoadMappingPackageLoaderFlags:
         mock_instance = Mock()
         mock_loader_cls.return_value = mock_instance
         mock_load.return_value = Mock(spec=MappingPackageV3)
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
             load_mapping_package(tmp_path, version="v1", include_test_data=True, include_output=False, validate_package=False)
         mock_loader_cls.assert_called_once_with(include_test_data=True, include_output=False)
@@ -171,7 +172,7 @@ class TestLoadMappingPackageLoaderFlags:
         mock_instance = Mock()
         mock_loader_cls.return_value = mock_instance
         mock_load.return_value = Mock(spec=MappingPackageV3)
-        with patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model") as mock_convert:
+        with patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model") as mock_convert:
             mock_convert.return_value = Mock(spec=MappingPackageV3)
             load_mapping_package(tmp_path, version="v2", include_test_data=True, include_output=False, validate_package=False)
         mock_loader_cls.assert_called_once_with(include_test_data=True, include_output=False)
@@ -218,9 +219,9 @@ class TestLoadMappingPackageValidation:
 
     @patch("mapping_suite_sdk.tools.services.validate_mapping_package.validate_mapping_package")
     @patch(_V2_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_validate_package_true_validates_before_and_after(self, mock_convert, mock_load, mock_validate, tmp_path: Path):
-        source = Mock(spec=MappingPackageV3)
+        source = Mock(spec=MappingPackageV2)
         converted = Mock(spec=MappingPackageV3)
         mock_load.return_value = source
         mock_convert.return_value = converted
@@ -242,127 +243,19 @@ class TestLoadMappingPackageValidation:
         mock_validate.assert_not_called()
 
 
-class TestLoadMappingPackageMongoDBPersistence:
-    """Optional persist to MongoDB."""
+class TestLoadMappingPackageNeverPersists:
+    """mongodb-persistence: loading never persists (DEC-1)."""
 
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package._persist_to_mongodb")
-    @patch(_V3_LOAD)
-    def test_persist_to_mongodb_calls_saver(self, mock_load, mock_persist, tmp_path: Path):
-        pkg = Mock(spec=MappingPackageV3)
-        mock_load.return_value = pkg
-        mock_persist.return_value = pkg
-        client = MagicMock()
-        load_mapping_package(
-            tmp_path,
-            version="v3",
-            include_test_data=True,
-            persist_to_mongodb=True,
-            mongo_client=client,
-            database_name="db",
-            collection_name="coll",
-            validate_package=False,
-        )
-        mock_persist.assert_called_once_with(pkg, client, "db", "coll")
-
-    @patch(_V3_LOAD)
-    def test_persist_to_mongodb_without_client_raises(self, mock_load, tmp_path: Path):
-        mock_load.return_value = Mock(spec=MappingPackageV3)
-        with pytest.raises(ValueError, match="mongo_client and database_name"):
-            load_mapping_package(
-                tmp_path,
-                version="v3",
-                include_test_data=True,
-                persist_to_mongodb=True,
-                database_name="db",
-                validate_package=False,
-            )
-
-    @patch(_V3_LOAD)
-    def test_persist_to_mongodb_without_database_name_raises(self, mock_load, tmp_path: Path):
-        mock_load.return_value = Mock(spec=MappingPackageV3)
-        with pytest.raises(ValueError, match="mongo_client and database_name"):
-            load_mapping_package(
-                tmp_path,
-                version="v3",
-                include_test_data=True,
-                persist_to_mongodb=True,
-                mongo_client=MagicMock(),
-                validate_package=False,
-            )
-
-    @patch(
-        "mapping_suite_sdk.mapping_package_v3.services.save_mapping_package_v3_lightweight.save_mapping_package_v3_lightweight_to_mongo_db"
-    )
-    @patch("mapping_suite_sdk.mapping_package_v3.services.save_mapping_package_v3.save_mapping_package_v3_to_mongo_db")
-    def test_persist_to_mongodb_calls_v3_saver(self, mock_save_v3, mock_save_v3l):
-        from tests import TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH
-
-        mock_save_v3.return_value = Mock(spec=MappingPackageV3)
-        client = MagicMock()
-        load_mapping_package(
-            TEST_DATA_EXAMPLE_V3_MAPPING_PACKAGE_FOLDER_PATH,
-            version="v3",
-            include_test_data=True,
-            persist_to_mongodb=True,
-            mongo_client=client,
-            database_name="db",
-            collection_name="coll",
-            validate_package=False,
-        )
-        mock_save_v3.assert_called_once()
-        assert mock_save_v3.call_args[1]["mapping_package"] is not None
-        assert mock_save_v3.call_args[1]["mongo_client"] is client
-        assert mock_save_v3.call_args[1]["database_name"] == "db"
-        assert mock_save_v3.call_args[1]["collection_name"] == "coll"
-        mock_save_v3l.assert_not_called()
-
-    @patch(
-        "mapping_suite_sdk.mapping_package_v3.services.save_mapping_package_v3_lightweight.save_mapping_package_v3_lightweight_to_mongo_db"
-    )
-    @patch("mapping_suite_sdk.mapping_package_v3.services.save_mapping_package_v3.save_mapping_package_v3_to_mongo_db")
-    def test_persist_to_mongodb_calls_v3l_saver(self, mock_save_v3, mock_save_v3l):
-        from tests import TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH
-
-        mock_save_v3l.return_value = Mock(spec=MappingPackageV3Lightweight)
-        client = MagicMock()
-        load_mapping_package(
-            TEST_DATA_EXAMPLE_V3L_MAPPING_PACKAGE_FOLDER_PATH,
-            version="v3L",
-            include_test_data=False,
-            persist_to_mongodb=True,
-            mongo_client=client,
-            database_name="db",
-            validate_package=False,
-        )
-        mock_save_v3l.assert_called_once()
-        assert mock_save_v3l.call_args[1]["mapping_package"] is not None
-        assert mock_save_v3l.call_args[1]["database_name"] == "db"
-        mock_save_v3.assert_not_called()
-
-    def test_persist_to_mongodb_unsupported_type_raises(self):
-        from mapping_suite_sdk.tools.services.load_mapping_package import (
-            _persist_to_mongodb,
-        )
-
-        client = MagicMock()
-        invalid_package = Mock()
-        with pytest.raises(
-            UnsupportedConversionError,
-            match="Cannot persist to MongoDB: unsupported package type",
-        ):
-            _persist_to_mongodb(
-                invalid_package,
-                client,
-                "db",
-                "coll",
-            )
+    def test_old_parameter_rejected(self, tmp_path: Path):
+        with pytest.raises(TypeError, match="persist_to_mongodb"):
+            load_mapping_package(tmp_path, persist_to_mongodb=True)
 
 
 class TestLoadMappingPackageV3NoConversion:
     """When source is already target version, no conversion."""
 
     @patch(_V3_LOAD)
-    @patch("mapping_suite_sdk.tools.services.load_mapping_package.convert_mapping_package_model")
+    @patch("mapping_suite_sdk.tools.services.convert_mapping_package.convert_mapping_package_model")
     def test_v3_source_target_v3_returns_same_instance(self, mock_convert, mock_load, tmp_path: Path):
         pkg = Mock(spec=MappingPackageV3)
         mock_load.return_value = pkg

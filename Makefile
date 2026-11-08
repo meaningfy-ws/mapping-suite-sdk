@@ -27,7 +27,7 @@ build:
 
 install: install-poetry
 	@ echo -e "$(BUILD_PRINT)$(ICON_PROGRESS) Installing MSSDK requirements$(END_BUILD_PRINT)"
-	@ poetry install --all-groups
+	@ poetry install --all-groups --all-extras
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) MSSDK requirements are installed$(END_BUILD_PRINT)"
 
 install-poetry:
@@ -38,9 +38,9 @@ install-poetry:
 #-----------------------------------------------------------------------------
 # Quality gate — `make check-all` is what CI runs on every supported Python
 #-----------------------------------------------------------------------------
-.PHONY: check-all lint format typecheck check-architecture check-codegen test test-unit
+.PHONY: check-all lint format typecheck check-architecture check-codegen test test-unit test-core-only
 
-check-all: lint typecheck check-architecture check-codegen test
+check-all: lint typecheck check-architecture check-codegen test test-core-only
 	@ echo -e "$(BUILD_PRINT)$(ICON_DONE) All quality checks passed!$(END_BUILD_PRINT)"
 
 lint:
@@ -72,6 +72,16 @@ test:
 	@ poetry run pytest --cov=mapping_suite_sdk --cov-report=term-missing:skip-covered --cov-report=xml --cov-fail-under=80
 
 test-unit: test
+
+# The built wheel with no extras, in a fresh venv: proves the core needs pydantic only. -c /dev/null,
+# --noconftest, importlib mode and running from temp/ keep the source tree off sys.path.
+test-core-only:
+	@ rm -rf dist temp/core-only-venv
+	@ poetry build --format wheel
+	@ $$(poetry env info -e) -m venv temp/core-only-venv
+	@ temp/core-only-venv/bin/pip install --quiet dist/*.whl pytest
+	@ cd temp && core-only-venv/bin/python -I -m pytest -c /dev/null --noconftest --import-mode=importlib \
+		-p no:cacheprovider --rootdir=.. ../tests/core_only
 
 #-----------------------------------------------------------------------------
 # Documentation commands

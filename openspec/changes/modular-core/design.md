@@ -98,9 +98,13 @@ New, made while planning:
   `load_mapping_package` then calls `convert_mapping_package`, so the two cannot drift.
 - **P-7 Version-agnostic save.** New `tools/services/save_mapping_package.py` with
   `save_mapping_package_to_mongodb(mapping_package, mongo_client, database_name,
-  collection_name="mapping_package")`: `require(...)`, then the body of today's `_persist_to_mongodb`
-  (dispatch on `MappingPackageV3` / `MappingPackageV3Lightweight`; any other type →
-  `UnsupportedConversionError`, as 1.x raises today). `_persist_to_mongodb` and `_persist_if_requested` are deleted.
+  collection_name="mapping_package")`: `require(...)`; any type other than `MappingPackageV3` /
+  `MappingPackageV3Lightweight` → `UnsupportedConversionError`, as 1.x raises today; then
+  `PackageRepository(...).upsert(package)`. *Corrected during apply:* 1.x's `_persist_to_mongodb`
+  went through the savers' `create` (`insert_one`), so a second save raised `DuplicateKeyError`; the
+  spec's "Saving twice updates in place" needs the upsert. The stored document is the same
+  (`replace_one` of the same `model_dump`), which the golden test proves. The version-specific savers
+  keep their 1.x insert behaviour. `_persist_to_mongodb` and `_persist_if_requested` are deleted.
 - **P-8 Root exports** (`mapping_suite_sdk/__init__.py`, plus `__all__`): `__version__`, `mssdk_config`,
   `MSSDKConfigResolver` (kept), `load_mapping_package`, `validate_mapping_package`,
   `convert_mapping_package`, `detect_mapping_package_version`, `load_mapping_suite_from_folder`,
@@ -204,8 +208,8 @@ def traced_routine(func):
     ...  # unchanged
 ```
 
-Idempotency: no step writes persistent state except `save_mapping_package_to_mongodb`, which keeps the
-1.x upsert-by-id behaviour (mongodb-persistence "Saving twice updates in place"). `make test-core-only`
+Idempotency: no step writes persistent state except `save_mapping_package_to_mongodb`, which upserts
+by id (mongodb-persistence "Saving twice updates in place"; 1.x inserted and failed on a repeat). `make test-core-only`
 recreates its venv each run (`rm -rf temp/core-only-venv` first), so re-running it is safe.
 
 ### Anti-patterns

@@ -9,7 +9,7 @@ from mapping_suite_sdk.mapping_package_v1.adapters.mp_v1_loader import MappingPa
 from mapping_suite_sdk.mapping_package_v2.adapters.mp_v2_loader import MappingPackageV2Loader
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_package_loader import MappingPackageV3Loader
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
-from mapping_suite_sdk.tools.services.convert_mapping_package import Version
+from mapping_suite_sdk.tools.services.convert_mapping_package import Version, VersionDetectionError
 from mapping_suite_sdk.tools.services.convert_mapping_package_v3_to_v3_lightweight import (
     convert_mapping_package_v3_to_v3_lightweight,
 )
@@ -350,8 +350,13 @@ def test_detect_version_from_model_v3L(fixture_mapping_package_v3_model) -> None
 
 def test_detect_version_from_model_raises_for_unknown_type() -> None:
     """Test that _detect_version_from_model raises error for unrecognized model types."""
-    with pytest.raises(CrossVersionValidationError, match="Cannot auto-detect version"):
+    with pytest.raises(VersionDetectionError, match="Cannot auto-detect version"):
         _detect_version_from_model("not a package")
+
+
+def test_validate_mapping_package_wraps_unknown_type_in_cross_version_error() -> None:
+    with pytest.raises(CrossVersionValidationError, match="Cannot auto-detect version"):
+        validate_mapping_package("not a package")
 
 
 # --- validate_mapping_package: archive + unknown version ---

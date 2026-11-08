@@ -17,3 +17,9 @@ def test_mssdk_cli_shows_correct_version(typer_cli_runner: CliRunner) -> None:
 
     assert result.exit_code == 0
     assert __version__ in result.stdout
+
+
+def test_mssdk_root_callback_runs_before_a_subcommand(typer_cli_runner: CliRunner) -> None:
+    result = typer_cli_runner.invoke(mssdk_cli_command, ["convert", "--help"])
+
+    assert result.exit_code == 0

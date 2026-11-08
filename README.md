@@ -97,15 +97,27 @@ This structure supports consistent loading, validation, and conversion across ve
 
 Install the SDK using pip:
 ```bash
-pip install mapping-suite-sdk
+pip install mapping-suite-sdk            # core only: load, convert, validate (needs pydantic only)
+pip install "mapping-suite-sdk[all]"     # plus MongoDB, GitHub, tracing and the mssdk command
 ```
 
 or using poetry:
 ```bash
-poetry add mapping-suite-sdk
+poetry add mapping-suite-sdk --extras all
 ```
 
-Supported package versions: **v1**, **v2**, **v3**, and **v3L** (v3 lightweight). Besides the CLI, you can **load, convert, and validate** packages programmatically using **`load_mapping_package`** (no CLI required): it auto-detects version, optionally converts to v3 or v3L, and can validate and/or persist to MongoDB. Version-specific loaders are also available.
+| Extra | Adds |
+|---|---|
+| `mongodb` | Saving to and loading from MongoDB (`pymongo`) |
+| `github` | Loading packages from GitHub (`gitpython`) |
+| `tracing` | OpenTelemetry spans (`opentelemetry-api`, `opentelemetry-sdk`) |
+| `cli` | The `mssdk` command (`typer`) |
+| `all` | All of the above |
+
+Calling an integration without its extra raises an `ImportError` that names the extra to install.
+Upgrading from 1.x? See the 2.0.0 migration notes in [CHANGELOG.md](CHANGELOG.md).
+
+Supported package versions: **v1**, **v2**, **v3**, and **v3L** (v3 lightweight). Besides the CLI, you can **load, convert, and validate** packages programmatically using **`load_mapping_package`** (no CLI required): it auto-detects version, converts to v3 or v3L and can validate; `convert_mapping_package` converts an already loaded package, and `save_mapping_package_to_mongodb` saves the result. Version-specific loaders are also available.
 
 ### Loading a Mapping Package
 
@@ -113,7 +125,7 @@ Supported package versions: **v1**, **v2**, **v3**, and **v3L** (v3 lightweight)
 
 ```python
 from pathlib import Path
-from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package
+from mapping_suite_sdk import load_mapping_package
 
 # Auto-detect version, convert to v3 (full) or v3L (lightweight), optionally validate
 package = load_mapping_package(
@@ -199,7 +211,8 @@ Extract packages from ZIP archives or GitHub using `ArchiveExtractor` and `GitHu
 
 ```python
 from pathlib import Path
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor  # needs the github extra
 
 # Archive: extract to path or temporary directory
 extractor = ArchiveExtractor()
@@ -219,6 +232,16 @@ with extractor.extract_temporary(
 ```
 
 ## MongoDB Support
+
+Needs the `mongodb` extra. Save a loaded package (upserted by id):
+
+```python
+from pymongo import MongoClient
+from mapping_suite_sdk import load_mapping_package, save_mapping_package_to_mongodb
+
+package = load_mapping_package(Path("/path/to/mapping/package"))
+save_mapping_package_to_mongodb(package, MongoClient("mongodb://localhost:27017/"), "mapping_suites")
+```
 
 Use `MongoDBRepository` with the model class for the version you use (e.g. `MappingPackageV2`, `MappingPackageV3`):
 

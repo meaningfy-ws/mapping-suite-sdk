@@ -8,7 +8,7 @@ including conversion of metadata structures, constraints, and all package assets
 import logging
 from pathlib import Path
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.adapters.version_detector import detect_mapping_package_version
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2 import MappingPackageV2
 from mapping_suite_sdk.mapping_package_v2.models.mapping_package_v2_metadata import (
@@ -49,7 +49,7 @@ def _convert_v2_constraints_to_v3_applicability_constraints(
     # - Only end: "until this date" (open-ended past)
     # - Both: closed interval "[start, end]"
     if start_date_str or end_date_str:
-        document_time_interval = DateTimeInterval(start=start_date_str, end=end_date_str)
+        document_time_interval = DateTimeInterval(start=start_date_str, end=end_date_str)  # type: ignore[arg-type]  # generated model types dates as datetime; pydantic coerces ISO strings
 
     return ApplicabilityConstraints(
         document_type_list=v2_constraints.eforms_subtype,
@@ -85,11 +85,11 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
     mpv3 = MappingPackageV3(
         metadata=MappingPackageV3MetadataJSONLD(
             path=v3_metadata_path,
-            context="context.jsonld",  # Set JSON-LD context for proper JSON-LD serialization
+            context="context.jsonld",  # type: ignore[call-arg]  # generated field is aliased "@context"; populate-by-name accepts it  # Set JSON-LD context for proper JSON-LD serialization
             id=mpv2_metadata.identifier,
             title=mpv2_metadata.title,
             project_identifier=mpv2_metadata.type,
-            created_at=mpv2_metadata.issue_date,  # Pass string directly - Pydantic will auto-convert ISO format string to datetime
+            created_at=mpv2_metadata.issue_date,  # type: ignore[arg-type]  # pydantic coerces the ISO string to datetime
             mapping_version=mpv2_metadata.mapping_version,
             model_version=mpv2_metadata.ontology_version,
             description=mpv2_metadata.description,
@@ -97,13 +97,13 @@ def convert_mapping_package_v2_to_v3(mpv2: MappingPackageV2) -> MappingPackageV3
             # This will be recomputed below for the converted V3 package.
             mapping_suite_hash_digest=mpv2_metadata.signature,
         ),
-        conceptual_mapping_asset=mpv2.conceptual_mapping_asset.model_copy(),
+        conceptual_mapping_asset=mpv2.conceptual_mapping_asset.model_copy(),  # type: ignore[union-attr]
         technical_mapping_suite=mpv2.technical_mapping_suite.model_copy(),
         vocabulary_mapping_suite=mpv2.vocabulary_mapping_suite.model_copy(),
         test_data_suites=mpv2.test_data_suites.copy(),
         test_suites_sparql=mpv2.test_suites_sparql.copy(),
-        test_suites_shacl=mpv2.test_suites_shacl.model_copy(),
-        test_results=mpv2.test_results.model_copy(),
+        test_suites_shacl=mpv2.test_suites_shacl.model_copy(),  # type: ignore[union-attr]
+        test_results=mpv2.test_results.model_copy(),  # type: ignore[union-attr]
     )
 
     # Recompute hash for the converted V3 package so it validates immediately.

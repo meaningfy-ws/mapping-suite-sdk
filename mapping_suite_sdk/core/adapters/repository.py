@@ -1,12 +1,21 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
-from pymongo import MongoClient
-
+from mapping_suite_sdk.core.adapters.optional_dependency import require
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.core.models.pydantic import PydanticModel
 
+if TYPE_CHECKING:
+    from pymongo import MongoClient
+
 T = TypeVar("T", bound=PydanticModel)
+
+
+def _id_of(model: PydanticModel) -> Any:
+    """Persisted models carry an ``id`` (field or computed property) that PydanticModel does not declare."""
+    return cast(Any, model).id
 
 
 class RepositoryError(Exception):
@@ -48,6 +57,7 @@ class MongoDBRepository(RepositoryABC[T]):
     def __init__(
         self, model_class: type[T], mongo_client: MongoClient, database_name: str, collection_name: str | None = None
     ):
+        require("pymongo", "mongodb", "MongoDB")
         self.model_class = model_class
         self.client = mongo_client
         self.database = self.client[database_name]
@@ -55,7 +65,7 @@ class MongoDBRepository(RepositoryABC[T]):
         self.collection = self.database[self.collection_name]
 
     def create(self, model: T) -> T:
-        model_id = model.id
+        model_id = _id_of(model)
         model_dict = model.model_dump(by_alias=True, mode="json")
         model_dict["_id"] = model_id
         self.collection.insert_one(model_dict)
@@ -104,12 +114,12 @@ class MongoDBRepository(RepositoryABC[T]):
         return models
 
     def update(self, model: T) -> T:
-        query = {"_id": model.id}
+        query = {"_id": _id_of(model)}
         existing = self.collection.find_one(query)
         if existing is None:
-            raise ModelNotFoundError(f"Asset with ID {model.id} not found")
+            raise ModelNotFoundError(f"Asset with ID {_id_of(model)} not found")
 
-        model_id = model.id
+        model_id = _id_of(model)
         model_dict = model.model_dump(by_alias=True, mode="json")
         model_dict["_id"] = model_id
         self.collection.replace_one(query, model_dict)
@@ -117,9 +127,9 @@ class MongoDBRepository(RepositoryABC[T]):
         return model
 
     def upsert(self, model: T) -> T:
-        query = {"_id": model.id}
+        query = {"_id": _id_of(model)}
         model_dict = model.model_dump(by_alias=True, mode="json")
-        model_dict["_id"] = model.id
+        model_dict["_id"] = _id_of(model)
         # Use replace_one so the persisted document exactly matches the
         # serialised model payload. update_one would require update
         # operators (for example $set) and could leave stale fields behind.

@@ -116,7 +116,8 @@ create parallel epic/plan files under `.claude/` or `docs/superpowers/`.
 - **Make targets:** `make install` (all dependency groups, never re-locks), `make check-all` (the
   gate CI runs on Python 3.10–3.13) = `make lint` (Ruff lint + format check) + `make typecheck`
   (mypy baseline) + `make check-architecture` (import-linter) + `make check-codegen` (generated
-  models in sync) + `make test` (pytest, coverage ≥80%; `test-unit` is an alias); `make format`,
+  models in sync) + `make test` (pytest, coverage ≥80%; `test-unit` is an alias) + `make test-core-only` (the wheel with no
+  extras in a fresh venv, runs `tests/core_only/`); `make format`,
   `make generate-models`, `make build-docs`.
 - **Commit messages give the why and the what.** Subject: Conventional Commit, imperative, no
   trailing period. Body: **Why** first, then **What** (one bullet per concern), then **Trace**

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.adapters.loader import (
     AssetLoader,
     ConceptualMappingFileLoader,

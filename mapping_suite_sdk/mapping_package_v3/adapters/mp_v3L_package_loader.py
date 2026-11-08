@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.adapters.loader import Loader, TechnicalMappingSuiteLoader, VocabularyMappingSuiteLoader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3_metadata_loader import MappingPackageV3MetadataLoader

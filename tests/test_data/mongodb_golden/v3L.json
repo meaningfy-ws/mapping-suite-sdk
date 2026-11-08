@@ -1,0 +1,94 @@
+{
+  "_id": "https://meaningfy.ws/mapping/package_eforms_sdk1.13_epo4.0",
+  "metadata": {
+    "@context": "context.jsonld",
+    "@type": "MappingPackage",
+    "applicability_constraints": {
+      "document_schema_version_list": [
+        "1.10"
+      ],
+      "document_time_interval": null,
+      "document_type_list": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "CEI",
+        "T01",
+        "T02",
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6"
+      ],
+      "document_version_range": null
+    },
+    "created_at": "2025-07-17T21:41:45.655425Z",
+    "description": "This is the mapping suite for all eForm subtypes except X01 and X02, SDK version 1.13, ePO version 4.0.0",
+    "id": "https://meaningfy.ws/mapping/package_eforms_sdk1.13_epo4.0",
+    "input_mime_types": null,
+    "mapping_suite_hash_digest": "f60adfe781ba80d3202a59b6f2b7320c46fbcf8c72e231ca1b621e3055335d15",
+    "mapping_version": "1.1.0",
+    "model_version": "4.0.0",
+    "mssdk_version": null,
+    "path": "metadata.jsonld",
+    "project_identifier": "eforms",
+    "title": "Package eForms all subtypes, SDK v1.13, ePO 4.0.0"
+  },
+  "technical_mapping_suite": {
+    "files": [
+      {
+        "content": "#--- MG-VehicleInformation generic version-specific SDK v1.13+ ---\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix rr: <http://www.w3.org/ns/r2rml#> .\n@prefix rml: <http://semweb.mmlab.be/ns/rml#> .\n@prefix ql: <http://semweb.mmlab.be/ns/ql#> .\n@prefix locn: <http://www.w3.org/ns/locn#> .\n@prefix dct: <http://purl.org/dc/terms/> .\n@prefix tedm: <http://data.europa.eu/a4g/mapping/sf-rml/> .\n@prefix epd: <http://data.europa.eu/a4g/resource/> .\n@prefix epo: <http://data.europa.eu/a4g/ontology#> .\n@prefix epo-not: <http://data.europa.eu/a4g/ontology#>.\n@prefix cv: <http://data.europa.eu/m8g/> .\n@prefix cccev: <http://data.europa.eu/m8g/> .\n@prefix org: <http://www.w3.org/ns/org#> .\n@prefix cpov: <http://data.europa.eu/m8g/> .\n@prefix\tfoaf: <http://xmlns.com/foaf/0.1/> .\n@prefix time: <http://www.w3.org/2006/time#>.\n@prefix adms: <http://www.w3.org/ns/adms#> .\n@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n@prefix fnml:   <http://semweb.mmlab.be/ns/fnml#> .\n@prefix fno: <https://w3id.org/function/ontology#> .\n@prefix idlab-fn: <http://example.com/idlab/function/> .\n\ntedm:MG-VehicleInformation_ND-StrategicProcurementInformationLot a rr:TriplesMap ;\n    rdfs:label \"MG-VehicleInformation\" ;\n    rml:logicalSource\n        [\n            rml:source \"data/source.xml\" ;\n            rml:iterator \"/*/cac:ProcurementProjectLot[cbc:ID/@schemeName='Lot']/cac:TenderingTerms/ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/efext:EformsExtension/efac:StrategicProcurement[efbc:ApplicableLegalBasis/@listName='cvd-scope']/efac:StrategicProcurementInformation\" ;\n            rml:referenceFormulation ql:XPath\n        ] ;\n    rr:subjectMap\n        [\n            rdfs:label \"ND-StrategicProcurementInformationLot\" ;\n            rr:template \"http://data.europa.eu/a4g/resource/id_{replace(replace(/*/cbc:ID[@schemeName='notice-id'], ' ', '-' ), '/' , '-')}_VehicleInformation_{unparsed-text('https://digest-api.ted-data.eu/api/v1/hashing/fn/uuid/' || encode-for-uri(path(..)) || '?response_type=raw')}\" ;\n            rr:class epo:VehicleInformation\n        ] ;\n    rr:predicateObjectMap\n        [\n            rdfs:label \"BT-735-Lot\" ;\n            rdfs:comment \"CVDContractType of MG-VehicleInformation under ND-StrategicProcurementInformationLot\" ;\n            rr:predicate epo:specifiesCleanVehicleDirectiveContractType ;\n            rr:objectMap\n                [\n                    tedm:minSDKVersion \"1.13\" ;\n                    rdfs:label \"at-voc:cvd-contract-type\" ;\n                    rr:parentTriplesMap tedm:cvd-contract-type ;\n                    rr:joinCondition [\n                        rr:child \"efbc:ProcurementCategoryCode\" ;\n                        rr:parent \"code.value\" ;\n                    ] ;\n                ] ;\n        ] ;\n    rr:predicateObjectMap\n        [\n            rdfs:label \"BT-735-Lot\" ;\n            rdfs:comment \"CVDContractType of MG-GreenProcurement under ND-StrategicProcurementInformationLot\" ;\n            rr:predicate epo:concernsGreenProcurement ;\n            rr:objectMap\n                [\n                    rr:parentTriplesMap tedm:MG-GreenProcurement-fulfillsStrategicProcurement-Lot_ND-StrategicProcurementLot ;\n                     rr:joinCondition [\n                        rr:child \"path(..)\" ;\n                        rr:parent \"path(.)\" ;\n                    ] ;\n                ] ;\n        ] ;\n.\n",
+        "path": "transformation/mappings/VehicleInformation_v1.13+.rml.ttl"
+      }
+    ],
+    "path": "transformation/mappings"
+  },
+  "vocabulary_mapping_suite": {
+    "files": [
+      {
+        "content": "{\n  \"head\": {\n    \"link\": [],\n    \"vars\": [\n      \"code\",\n      \"conceptURI\"\n    ]\n  },\n  \"results\": {\n    \"distinct\": false,\n    \"ordered\": true,\n    \"bindings\": [\n      {\n        \"code\": {\n          \"type\": \"literal\",\n          \"value\": \"OP_DATPRO\"\n        },\n        \"conceptURI\": {\n          \"type\": \"uri\",\n          \"value\": \"http://publications.europa.eu/resource/authority/winner-selection-status/OP_DATPRO\"\n        }\n      },\n      {\n        \"code\": {\n          \"type\": \"literal\",\n          \"value\": \"clos-nw\"\n        },\n        \"conceptURI\": {\n          \"type\": \"uri\",\n          \"value\": \"http://publications.europa.eu/resource/authority/winner-selection-status/clos-nw\"\n        }\n      },\n      {\n        \"code\": {\n          \"type\": \"literal\",\n          \"value\": \"open-nw\"\n        },\n        \"conceptURI\": {\n          \"type\": \"uri\",\n          \"value\": \"http://publications.europa.eu/resource/authority/winner-selection-status/open-nw\"\n        }\n      },\n      {\n        \"code\": {\n          \"type\": \"literal\",\n          \"value\": \"selec-w\"\n        },\n        \"conceptURI\": {\n          \"type\": \"uri\",\n          \"value\": \"http://publications.europa.eu/resource/authority/winner-selection-status/selec-w\"\n        }\n      }\n    ]\n  }\n}",
+        "path": "transformation/resources/winner-selection-status.json"
+      }
+    ],
+    "path": "transformation/resources"
+  }
+}

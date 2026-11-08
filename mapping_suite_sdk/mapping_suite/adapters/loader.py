@@ -3,7 +3,7 @@ import json
 import logging
 from pathlib import Path
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.adapters.loader import AssetLoader, Loader
 from mapping_suite_sdk.core.adapters.tracer import traced_class
 from mapping_suite_sdk.mapping_suite.models.mapping_suite import (
@@ -48,7 +48,7 @@ class MappingSuiteConfigLoader(AssetLoader):
         return MappingSuiteConfig.model_validate(config_dict)
 
 
-class ResourceReferencesLoader(AssetLoader):
+class ResourceReferencesLoader:
     """Loader for resource references.
 
     Loads and parses resource files from the mapping suite config object.
@@ -64,7 +64,7 @@ class ResourceReferencesLoader(AssetLoader):
         Returns:
             list[dict]: List of dicts with file_name and object (parsed content).
         """
-        file_paths = config.resource_references.file_paths if config.resource_references else []
+        file_paths = (config.resource_references.file_paths if config.resource_references else None) or []
 
         resource_file_contents = []
         for rel_path in file_paths:

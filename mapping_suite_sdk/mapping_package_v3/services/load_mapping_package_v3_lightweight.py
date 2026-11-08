@@ -3,8 +3,9 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from mapping_suite_sdk import mssdk_config
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
+from mapping_suite_sdk.config import mssdk_config
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.mapping_package_v3.adapters.mp_v3L_package_loader import MappingPackageV3LightweightLoader
@@ -36,7 +37,7 @@ def load_mapping_package_v3_lightweight_from_archive(
 
     MPValidationStepABC.validate_archive_path(path=mapping_package_archive_path, context="load package from archive")
 
-    archive_unpacker: ArchiveExtractor = archive_unpacker or ArchiveExtractor()
+    archive_unpacker = archive_unpacker or ArchiveExtractor()
 
     with archive_unpacker.extract_temporary(mapping_package_archive_path) as temp_mapping_package_folder_path:
         return load_mapping_package_v3_lightweight_from_folder(

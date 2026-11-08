@@ -2,6 +2,49 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] - Unreleased
+
+A major release: the core needs `pydantic` only, every integration is an extra, and saving is a separate
+call (#94). TED-SWS and other 1.x consumers should pin `mapping-suite-sdk<2` until they migrate.
+
+### Added
+- Extras: `mongodb` (`pymongo`), `github` (`gitpython`), `tracing` (OpenTelemetry), `cli` (`typer`) and `all`.
+  Calling an integration without its extra raises `ImportError` naming the extra; `mssdk` without `[cli]`
+  exits with a one-line message.
+- `save_mapping_package_to_mongodb(package, mongo_client, database_name, collection_name="mapping_package")`:
+  saves a v3 or v3-lightweight package with the same document as 1.x's `persist_to_mongodb=True`, and upserts by
+  id (1.x failed with `DuplicateKeyError` on a second save).
+- `convert_mapping_package(package, to_version="v3")`: converts a loaded package to `"v3"` or `"v3L"` with the
+  same rules as `load_mapping_package`.
+- The public API is importable from the root: `load_mapping_package`, `validate_mapping_package`,
+  `convert_mapping_package`, `detect_mapping_package_version`, `load_mapping_suite_from_folder`,
+  `save_mapping_package_to_mongodb`, the v3 model classes and the typed errors (see `mapping_suite_sdk.__all__`).
+  Names exported from the root and from any `*.models` package are the public API; adapters and services are
+  internal and may change in a minor release.
+
+### Changed
+- **Breaking:** runtime dependencies are `pydantic` only. Install `mapping-suite-sdk[all]` to keep 1.x behaviour.
+- **Breaking:** importing `mapping_suite_sdk` no longer calls `logging.basicConfig`. The library logs under the
+  `mapping_suite_sdk` logger; the `mssdk` command configures logging itself.
+- **Breaking:** `GitHubExtractor` moved from `mapping_suite_sdk.core.adapters.extractor` to
+  `mapping_suite_sdk.core.adapters.github_extractor`.
+- Without the `tracing` extra, traced operations run unchanged and produce no spans, even with `MSSDK_TRACE=true`.
+- `make check-all` also builds the wheel and runs `tests/core_only` against it with no extras installed.
+
+### Removed
+- **Breaking:** `load_mapping_package` no longer accepts `persist_to_mongodb`, `mongo_client`, `database_name` or
+  `collection_name`.
+
+### Migrating from 1.x
+
+| 1.x | 2.0 |
+|---|---|
+| `pip install mapping-suite-sdk` | `pip install "mapping-suite-sdk[all]"` (or only the extras you use) |
+| `load_mapping_package(path, persist_to_mongodb=True, mongo_client=c, database_name=db, collection_name=coll)` | `pkg = load_mapping_package(path)` then `save_mapping_package_to_mongodb(pkg, c, db, coll)` |
+| `from mapping_suite_sdk.core.adapters.extractor import GitHubExtractor` | `from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor` |
+| Relying on the SDK import to configure logging | Call `logging.basicConfig(...)` in your application |
+| `from mapping_suite_sdk.tools.services.load_mapping_package import load_mapping_package` | Still works; `from mapping_suite_sdk import load_mapping_package` is the stable path |
+
 ## [1.1.0] - 2026-11-08
 
 ### Added

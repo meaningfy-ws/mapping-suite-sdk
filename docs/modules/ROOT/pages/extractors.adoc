@@ -9,7 +9,9 @@ The Mapping Suite SDK provides two primary extractors for handling mapping packa
 - `ArchiveExtractor`: For working with ZIP archives
 - `GitHubExtractor`: For extracting packages from GitHub repositories
 
-Import from `mapping_suite_sdk.core.adapters.extractor`.
+`ArchiveExtractor` is in `mapping_suite_sdk.core.adapters.extractor`. `GitHubExtractor` is in
+`mapping_suite_sdk.core.adapters.github_extractor` and needs the `github` extra:
+`pip install "mapping-suite-sdk[github]"`.
 
 == Archive Extractor
 
@@ -43,7 +45,7 @@ zip_path = extractor.pack_directory(source_dir, output_path)
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk.core.adapters.extractor import GitHubExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 
 extractor = GitHubExtractor()
 package_path = extractor.extract(
@@ -106,7 +108,8 @@ class CustomPackageExtractor(ExtractorABC):
 [source,python]
 ----
 from pathlib import Path
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 
 def safe_extract(extractor, source):
     try:

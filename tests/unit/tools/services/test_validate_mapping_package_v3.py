@@ -485,7 +485,7 @@ def test_validate_bulk_mapping_packages_v3_from_github_with_custom_loader(
 def test_validate_bulk_mapping_packages_v3_from_github_with_custom_extractor(
     fixture_mapping_package_v3_github_project_path: Path, dummy_get_all_packages_pattern: str
 ):
-    from mapping_suite_sdk.core.adapters.extractor import GitHubExtractor
+    from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 
     custom_extractor = GitHubExtractor()
 

@@ -26,6 +26,10 @@ def common(
         None, "--version", is_eager=True, callback=typer_version_callback, help="Mapping Suite SDK version"
     ),
 ):
+    # the CLI is an application, so it (not the library) configures logging
+    logging.basicConfig(
+        level=logging.INFO, format=mssdk_config.MSSDK_LOGGING_STRING_FORMAT, datefmt=mssdk_config.MSSDK_DATE_FORMAT
+    )
     logger.debug(
         mssdk_config.MSSDK_LOGGING_MESSAGE_FORMAT.format(
             package_source=None, message=f"Running MSSDK CLI with version: {__version__}"

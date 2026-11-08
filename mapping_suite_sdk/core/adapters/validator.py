@@ -1,10 +1,10 @@
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from pathlib import Path
-from types import FunctionType
-from typing import Literal, NoReturn, Optional
+from typing import Any, Literal, NoReturn, Optional
 
-from mapping_suite_sdk import mssdk_config
+from mapping_suite_sdk.config import mssdk_config
 from mapping_suite_sdk.core.models.mapping_package import MappingPackage
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class MPValidationException(Exception):
     pass
 
 
-def validate_next(func: FunctionType):
+def validate_next(func: Callable[..., Any]):
     """Decorator implementing chain-of-responsibility pattern for validation.
 
     After executing the current validation step, automatically invokes the next

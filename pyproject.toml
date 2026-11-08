@@ -2,7 +2,7 @@
 # configured in its own root file: ruff.toml · mypy.ini · pytest.ini · .coveragerc · .importlinter
 [project]
 name = "mapping-suite-sdk"
-version = "1.1.0"
+version = "2.0.0"
 description = "Software development kit for XML-RML mapping rules packaging"
 authors = [
     { name = "meaningfy.ws", email = "hi@meaningfy.ws" }
@@ -16,13 +16,23 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-# Only what mapping_suite_sdk/ imports, ranged to the next major (DEC-2, DEC-3).
+# Only what mapping_suite_sdk/ imports, ranged to the next major (DEC-2, DEC-3). The core needs
+# pydantic only; each integration is an extra (modular-core DEC-2).
 dependencies = [
     "pydantic>=2.10,<3",
+]
+
+[project.optional-dependencies]
+mongodb = ["pymongo>=4.11,<5"]
+github = ["gitpython>=3.1,<4"]
+tracing = ["opentelemetry-api>=1.29,<2", "opentelemetry-sdk>=1.29,<2"]
+cli = ["typer>=0.16,<1"]
+# listed explicitly, not as mapping-suite-sdk[...]: keep in step with the four above
+all = [
+    "pymongo>=4.11,<5",
+    "gitpython>=3.1,<4",
     "opentelemetry-api>=1.29,<2",
     "opentelemetry-sdk>=1.29,<2",
-    "gitpython>=3.1,<4",
-    "pymongo>=4.11,<5",
     "typer>=0.16,<1",
 ]
 

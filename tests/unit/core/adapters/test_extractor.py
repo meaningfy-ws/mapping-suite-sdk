@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, ExtractorABC, GitHubExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, ExtractorABC
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 from tests.test_helpers import compare_directories, setup_temporary_test_git_repository
 
 

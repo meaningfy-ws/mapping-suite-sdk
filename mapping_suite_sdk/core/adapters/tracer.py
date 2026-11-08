@@ -7,19 +7,31 @@ allowing users to monitor and debug performance and execution flow.
 
 import functools
 import os
+from typing import TYPE_CHECKING, Any, Optional
 
-from opentelemetry import trace
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-from opentelemetry.sdk.trace import SpanProcessor, TracerProvider
+from mapping_suite_sdk.core.adapters.optional_dependency import require
+
+if TYPE_CHECKING:
+    from opentelemetry.sdk.trace import SpanProcessor
+
+trace: Any
+try:
+    from opentelemetry import trace
+    from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+    from opentelemetry.sdk.trace import TracerProvider
+except ImportError:  # pragma: no cover - runs in tests/core_only; without [tracing] the decorators are no-ops
+    trace = None
 
 # Environment variable to control tracing state
 _MSSDK_TRACE_VAR_NAME = "MSSDK_TRACE"
 # Set up the OpenTelemetry tracer provider
-_MSSDK_TRACER_PROVIDER = TracerProvider(resource=Resource(attributes={SERVICE_NAME: "mapping-suite-sdk"}))
-trace.set_tracer_provider(_MSSDK_TRACER_PROVIDER)
+_MSSDK_TRACER_PROVIDER: Optional["TracerProvider"] = None
+if trace is not None:
+    _MSSDK_TRACER_PROVIDER = TracerProvider(resource=Resource(attributes={SERVICE_NAME: "mapping-suite-sdk"}))
+    trace.set_tracer_provider(_MSSDK_TRACER_PROVIDER)
 
 
-def add_span_processor_to_mssdk_tracer_provider(sp: SpanProcessor) -> None:
+def add_span_processor_to_mssdk_tracer_provider(sp: "SpanProcessor") -> None:
     """
     Set span processor to mssdk tracer provider.
 
@@ -29,7 +41,8 @@ def add_span_processor_to_mssdk_tracer_provider(sp: SpanProcessor) -> None:
     Returns:
         None
     """
-    if isinstance(sp, SpanProcessor):
+    span_processor_class = require("opentelemetry.sdk.trace", "tracing", "Tracing").SpanProcessor
+    if _MSSDK_TRACER_PROVIDER is not None and isinstance(sp, span_processor_class):
         _MSSDK_TRACER_PROVIDER.add_span_processor(sp)
 
 
@@ -79,6 +92,8 @@ def traced_routine(func):
     Returns:
         The wrapped function with tracing capabilities
     """
+    if trace is None:
+        return func
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -121,6 +136,8 @@ def traced_class(cls):
     Returns:
         The class with tracing applied to its methods
     """
+    if trace is None:
+        return cls
     class_name = cls.__name__
 
     def class_traced_routine(func):

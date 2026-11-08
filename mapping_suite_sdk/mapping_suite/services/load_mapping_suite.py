@@ -1,7 +1,8 @@
 import logging
 from pathlib import Path
 
-from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor, GitHubExtractor
+from mapping_suite_sdk.core.adapters.extractor import ArchiveExtractor
+from mapping_suite_sdk.core.adapters.github_extractor import GitHubExtractor
 from mapping_suite_sdk.core.adapters.repository import MongoDBRepository
 from mapping_suite_sdk.core.adapters.tracer import traced_routine
 from mapping_suite_sdk.mapping_suite.adapters.loader import MappingSuiteLoader
@@ -78,7 +79,7 @@ def load_mapping_suite_from_archive(
     if not mapping_suite_archive_path.is_file():
         raise ValueError(f"Specified path is not a file: {mapping_suite_archive_path}")
 
-    archive_unpacker: ArchiveExtractor = archive_unpacker or ArchiveExtractor()
+    archive_unpacker = archive_unpacker or ArchiveExtractor()
 
     with archive_unpacker.extract_temporary(mapping_suite_archive_path) as temp_mapping_suite_folder_path:
         return load_mapping_suite_from_folder(

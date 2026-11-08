@@ -38,7 +38,7 @@ mapping-package/
 
 == Installation
 
-**Requires Python 3.10–3.12** (Python 3.13+ is not yet supported due to pandas 2.1.4 compatibility, which is currently needed by some of our users)
+**Requires Python 3.10–3.13.**
 
 Install the Mapping Suite SDK using your preferred package manager.
 
@@ -46,15 +46,31 @@ Install the Mapping Suite SDK using your preferred package manager.
 
 [source,bash]
 ----
-pip install mapping-suite-sdk
+pip install mapping-suite-sdk            # core only
+pip install "mapping-suite-sdk[all]"     # MongoDB, GitHub, tracing and the mssdk command
 ----
 
 === Using Poetry
 
 [source,bash]
 ----
-poetry add mapping-suite-sdk
+poetry add mapping-suite-sdk --extras all
 ----
+
+The core (load, convert, validate, serialise) needs only `pydantic`. Each integration is an extra:
+
+[cols="1,2"]
+|===
+|Extra |Adds
+
+|`mongodb` |Saving to and loading from MongoDB (`pymongo`)
+|`github` |Loading packages from GitHub (`gitpython`)
+|`tracing` |OpenTelemetry spans (`opentelemetry-api`, `opentelemetry-sdk`)
+|`cli` |The `mssdk` command (`typer`)
+|`all` |All of the above
+|===
+
+Calling an integration without its extra raises an `ImportError` that names the extra to install.
 
 == Core Functionalities
 
@@ -92,6 +108,8 @@ package = load_mapping_package_v2_from_folder(mapping_package_folder_path=Path("
 ----
 
 ==== From MongoDB
+
+Needs the `mongodb` extra.
 
 [source,python]
 ----
